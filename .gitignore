@@ -1,7 +1,7 @@
 *.sublime-project
 *.sublime-workspace
 *.o
-build/
+build/*
 symbol.txt
 m68k_crt0.bin
 m68k_crt1.bin
