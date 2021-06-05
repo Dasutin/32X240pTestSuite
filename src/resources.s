@@ -166,21 +166,15 @@ _SCREENSCROLL_BACKGROUND_PALETTE:
 
 			.align 2
 
-			.global _LIN_PATTERN
-_LIN_PATTERN:
-			.incbin "res/lin.bin"
+			.global _COLORCHART_PALETTE_DATA
+_COLORCHART_PALETTE_DATA:
+			.incbin "res/colorchart_pal.bin"
 
 			.align 2
 
-			.global _LIN_GRID_PATTERN
-_LIN_GRID_PATTERN:
-			.incbin "res/lins.bin"
-
-			.align 2
-
-			.global _LIN_GRID_DOT_PATTERN
-_LIN_GRID_DOT_PATTERN:
-			.incbin "res/linsd.bin"
+			.global _EBU_COLORBARS_PALETTE_DATA
+ _EBU_COLORBARS_PALETTE_DATA:
+			.incbin "res/ebu_colorbars_pal.bin"
 
 			.align 2
 
@@ -369,6 +363,24 @@ _IRE_PATTERN:
 			.global _TEST_SMTPE_PATTERN
 _TEST_SMTPE_PATTERN:
 			.incbin "res/test.bin"
+
+			.align 2
+
+			.global _COLORCHART_PATTERN
+_COLORCHART_PATTERN:
+			.incbin "res/colorchart_tile.bin"
+
+			.align 2
+
+			.global _MONOSCOPE_PATTERN
+_MONOSCOPE_PATTERN:
+			.incbin "res/monoscope_tile.bin"
+
+			.align 2
+
+			.global _EBU_COLORBARS_PATTERN
+_EBU_COLORBARS_PATTERN:
+			.incbin "res/ebu_colorbars_tile.bin"
 
 			.align 2
 

@@ -44,7 +44,6 @@ int main()
 	MARS_SYS_COMM6 = 0;
 
 	marsVDP256Start();
-	//Hw32xAudioInit();
 
 	currentFB = MARS_VDP_FBCTL & MARS_VDP_FS; 
 	MARS_SYS_COMM6 = MASTER_STATUS_OK;
@@ -101,7 +100,6 @@ int main()
 			switch (curse) {
 				case 1:
 					menu_tp();
-					//vt_scroll_test();
 				break;
 				
 				case 2:
@@ -163,19 +161,20 @@ void menu_tp()
 
 		mars_drawTextwShadow("Pluge", -24, 48, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);
 		mars_drawTextwShadow("Color Bars", -24, 56, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("SMPTE & EBU Color Bars", -24, 64, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Referenced Color Bars", -24, 72, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Color Bleed Check", -24, 80, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Grid", -24, 88, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Linearity", -24, 96, curse == 7 ? fontColorRed : fontColorWhite, curse == 7 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Gray Ramp", -24, 104, curse == 8 ? fontColorRed : fontColorWhite, curse == 8 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("White & RGB Screens", -24, 112, curse == 9 ? fontColorRed : fontColorWhite, curse == 9 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("100 IRE", -24, 120, curse == 10 ? fontColorRed : fontColorWhite, curse == 10 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Sharpness", -24, 128, curse == 11 ? fontColorRed : fontColorWhite, curse == 11 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Convergence", -24, 136, curse == 12 ? fontColorRed : fontColorWhite, curse == 12 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("EBU Color Bars", -24, 64, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("SMPTE Color Bars", -24, 72, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Referenced Color Bars", -24, 80, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Color Bleed Check", -24, 88, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Grid", -24, 96, curse == 7 ? fontColorRed : fontColorWhite, curse == 7 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Monoscope", -24, 104, curse == 8 ? fontColorRed : fontColorWhite, curse == 8 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Gray Ramp", -24, 112, curse == 9 ? fontColorRed : fontColorWhite, curse == 9 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("White & RGB Screens", -24, 120, curse == 10 ? fontColorRed : fontColorWhite, curse == 10 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("100 IRE", -24, 128, curse == 11 ? fontColorRed : fontColorWhite, curse == 11 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Sharpness", -24, 136, curse == 12 ? fontColorRed : fontColorWhite, curse == 12 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Convergence", -24, 144, curse == 13 ? fontColorRed : fontColorWhite, curse == 13 ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("Help", -24, 162, curse == 13 ? fontColorRed : fontColorWhite, curse == 13 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Back to Main Menu", -24, 178, curse == 14 ? fontColorRed : fontColorWhite, curse == 14 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Help", -24, 162, curse == 14 ? fontColorRed : fontColorWhite, curse == 14 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Back to Main Menu", -24, 178, curse == 15 ? fontColorRed : fontColorWhite, curse == 15 ? fontColorBlack : fontColorGray);
 
 		if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT)
 		mars_drawTextwShadow("NTSC VDP 320x224p", 90, 193, fontColorWhite, fontColorGray);
@@ -197,7 +196,7 @@ void menu_tp()
 		if (pressedButton & SEGA_CTRL_DOWN)
 		{
 			curse++;
-			if(curse > 14)
+			if(curse > 15)
 				curse = 1;
 		}
 
@@ -205,7 +204,7 @@ void menu_tp()
 		{
 		 	curse--;
 			if(curse < 1)
-				curse = 14;
+				curse = 15;
 		}
 
 		if (pressedButton & SEGA_CTRL_B)
@@ -234,82 +233,83 @@ void menu_tp()
 				break;
 					
 				case 2:
-					Hw32xScreenClear();
-					Hw32xScreenClear();
-					Hw32xScreenClear();
-					clearArea(0,0,320,224);
 					tp_colorchart();
-					Hw32xScreenClear();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 3:
-					tp_smpte_color_bars();
+					tp_colorbars();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 4:
-					tp_ref_color_bars();
+					tp_smpte_color_bars();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 5:
-					tp_color_bleed_check();
+					tp_ref_color_bars();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 6:
-					tp_grid();
+					tp_color_bleed_check();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 7:
-					tp_linearity();
+					tp_grid();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 8:
-					tp_gray_ramp();
+					tp_monoscope();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 9:
-					tp_white_rgb();
+					tp_gray_ramp();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 10:
-					tp_100_ire();
+					tp_white_rgb();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 11:
-					tp_sharpness();
+					tp_100_ire();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 12:
-					tp_convergence();
+					tp_sharpness();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 13:
-					DrawHelp(HELP_GENERAL);
+					tp_convergence();
+					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 14:
+					DrawHelp(HELP_GENERAL);
+					DrawMainBGwGillian();
+				break;
+
+				case 15:
 					done = 1;
 				break;
 			}
@@ -735,16 +735,18 @@ void credits()
 		loadTextPalette();
 
 		mars_drawTextwShadow("Credits", 60, 35, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Ver. Beta 4.5", -30, 57, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("1/21/2021", -30, 65, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Ver. 0.5", 156, 57, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("6/4/2021", 156, 65, fontColorWhite, fontColorGray);
 		mars_drawTextwShadow("Code and Port by:", -30, 81, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Dasutin", -30, 90, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("Patterns:", -30, 106, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Artemio Urbina", -30, 114, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("32X Toolchain:", -30, 122, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Marsdev (Chilly Willy)", -30, 130, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("Dasutin", -22, 90, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("Patterns:", -30, 98, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Artemio Urbina", -22, 106, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("Menu Pixel Art:", -30, 114, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Asher", -22, 122, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("32X Toolchain:", -30, 130, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Marsdev (Chilly Willy)", -22, 138, fontColorWhite, fontColorGray);
 		mars_drawTextwShadow("Info on using this test suite:", -30, 146, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("http://junkerhq.net/240p", -30, 154, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("http://junkerhq.net/240p", -22, 154, fontColorWhite, fontColorGray);
 
 		MARS_SYS_COMM6 = 1;
 

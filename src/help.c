@@ -66,6 +66,7 @@ void DrawHelp(int option)
 		break;
 	case HELP_PLUGE:
 	case HELP_MANUALLAG:
+	case HELP_MONOSCOPE:
 		totalpages = 3;
 		break;
 	}
@@ -77,18 +78,16 @@ void DrawHelp(int option)
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
 		{
-			button = MARS_SYS_COMM10; // If controller 1 isn't detected, try using controller 2
+			button = MARS_SYS_COMM10;
 		}
 
-		// Only allow one button press at a time
 		pressedButton = button & ~oldButton;
     	oldButton = button & 0x0FFF;
 		
-		// Wait on the flip to finish 
 		while ((MARS_VDP_FBCTL & MARS_VDP_FS) != currentFB) {}
 
-		while (MARS_SYS_COMM6 == SLAVE_LOCK); // Wait until slave isn't blocking
-		MARS_SYS_COMM6 = 4; // Tell the slave to wait
+		while (MARS_SYS_COMM6 == SLAVE_LOCK);
+		MARS_SYS_COMM6 = 4;
 
 		DrawMainBG();
 		loadTextPalette();
@@ -229,6 +228,65 @@ void DrawHelp(int option)
 				mars_drawTextwShadow("be filled with gray by pressing", -30, 131, fontColorWhite, fontColorGray);
 				mars_drawTextwShadow("the 'A' button.", -30, 139, fontColorWhite, fontColorGray);
 				break;
+			case HELP_MONOSCOPE:
+				switch (page)
+				{
+					case 1:
+						mars_drawTextwShadow("MONOSCOPE (1/3)", 30, 35, fontColorGreen, fontColorGray);
+
+						mars_drawTextwShadow("This pattern contains elements", -30, 57, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("to calibrate multiple aspects", -30, 65, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("of a CRT.", -30, 73, fontColorWhite, fontColorGray);
+
+						mars_drawTextwShadow("Read your monitor's service", -30, 90, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("manual to learn how, and use", -30, 98, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("'A' button to change IRE.", -30, 106, fontColorWhite, fontColorGray);
+
+						mars_drawTextwShadow("Brightness adjustment: Adjust", -30, 123, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("convergence at low brightness", -30, 131, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("(13/25 IRE). An overly bright", -30, 139, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("pattern can mask convergence.", -30, 147, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("issues.", -30, 155, fontColorWhite, fontColorGray);
+
+						mars_drawTextwShadow("(cont...)", 142, 178, fontColorWhite, fontColorGray);
+					break;
+					case 2:
+						mars_drawTextwShadow("MONOSCOPE (2/3)", 30, 35, fontColorGreen, fontColorGray);
+
+						mars_drawTextwShadow("Convergence: Use the center", -30, 57, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("crosshair to check static", -30, 65, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("(center of screen) convergence.", -30, 73, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("Use the patterns at the sides", -30, 81, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("to check dynamic (edge)", -30, 89, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("convergence.", -30, 97, fontColorWhite, fontColorGray);
+
+						mars_drawTextwShadow("Corners: After setting center", -30, 114, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("and edge convergence, use", -30, 122, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("magnets to adjust corner purity", -30, 130, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("and geometry.", -30, 138, fontColorWhite, fontColorGray);
+
+						mars_drawTextwShadow("(cont...)", 142, 178, fontColorWhite, fontColorGray);
+					break;
+					case 3:
+						mars_drawTextwShadow("MONOSCOPE (3/3)", 30, 35, fontColorGreen, fontColorGray);
+
+						mars_drawTextwShadow("Size and aspect ratio: If", -30, 57, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("vertical and horizontal size are", -30, 65, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("correct, the red squares in the", -30, 73, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("pattern will be perfect squares.", -30, 81, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("After setting H size, use a tape", -30, 89, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("measure to adjust V size to", -30, 97, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("match it.", -30, 105, fontColorWhite, fontColorGray);
+
+						mars_drawTextwShadow("Linearity: The squares in each", -30, 122, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("corner should get you started.", -30, 130, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("Confirm your adjustment using", -30, 138, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("the scroll tests.", -30, 146, fontColorWhite, fontColorGray);
+
+						mars_drawTextwShadow("Designed by Keith Raney.", -30, 164, fontColorWhite, fontColorGray);
+					break;
+				}
+				break;				
 			case HELP_BLEED:
 				mars_drawTextwShadow("COLOR BLEED", 58, 35, fontColorGreen, fontColorGray);
 				mars_drawTextwShadow("This pattern helps diagnose", -30, 57, fontColorWhite, fontColorGray);
@@ -301,21 +359,6 @@ void DrawHelp(int option)
 				mars_drawTextwShadow("balance.", -30, 163, fontColorWhite, fontColorGray);
 
 				mars_drawTextwShadow("This HW lowest black is 6%.", -30, 180, fontColorWhite, fontColorGray);
-				break;
-			case HELP_LINEARITY:
-				mars_drawTextwShadow("LINEARITY", 60, 35, fontColorGreen, fontColorGray);
-				mars_drawTextwShadow("This pattern shows 5 circles,", -30, 57, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("that are matched to the 10:11", -30, 65, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("NTSC and the 59:54 PAL pixel", -30, 73, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("aspect ratios.", -30, 81, fontColorWhite, fontColorGray);
-
-				mars_drawTextwShadow("The linearity of the display or", -30, 98, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("upscaler can be verified by", -30, 106, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("measuring the diameter of the", -30, 114, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("circles.", -30, 122, fontColorWhite, fontColorGray);
-
-				mars_drawTextwShadow("Of course the linearity should", -30, 139, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("be kept in all directions.", -30, 147, fontColorWhite, fontColorGray);
 				break;
 			case HELP_GRAY:
 				mars_drawTextwShadow("GRAY RAMP", 60, 35, fontColorGreen, fontColorGray);

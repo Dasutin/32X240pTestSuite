@@ -30,7 +30,7 @@ void tp_smpte_color_bars(void);
 void tp_ref_color_bars(void);
 void tp_color_bleed_check(void);
 void tp_grid(void);
-void tp_linearity(void);
+void tp_monoscope(void);
 void tp_gray_ramp(void);
 void tp_white_rgb(void);
 void tp_100_ire(void);
