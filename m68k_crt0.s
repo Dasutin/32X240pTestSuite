@@ -21,7 +21,7 @@
 * Standard MegaDrive ROM header at 0x100
 
         .ascii	"SEGA 32X        "		/* First 4 bytes must be "SEGA" */
-		.ascii	"rld (C)2020     "		/* Copyright and date */
+		.ascii	"rld (C)2022     "		/* Copyright and date */
 		.ascii	"32X 240p Test Suite                             " /* JP Name */
 		.ascii	"32X 240p Test Suite                             " /* EN Name */
 		.ascii	"GM CHANGEME-XX"		/* Serial No. */

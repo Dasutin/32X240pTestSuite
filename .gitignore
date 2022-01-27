@@ -3,6 +3,8 @@
 *.o
 build/*.32x
 build/*.elf
+.vscode/tasks.json
 symbol.txt
 m68k_crt0.bin
 m68k_crt1.bin
+32X240pTestSuite.code-workspace
