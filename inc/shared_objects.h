@@ -1,7 +1,7 @@
 /* 
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin
- * Copyright (C)2011-2021 Artemio Urbina
+ * Copyright (C)2011-2022 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
  *
@@ -23,13 +23,20 @@
 #ifndef _SHARED_OBJECTS_
 #define _SHARED_OBJECTS_
 
+// Constants
+
 #define MASTER_STATUS_OK 1
 #define MASTER_LOCK 4
 #define SLAVE_STATUS_OK 2
 #define SLAVE_LOCK 8
 
+#define PAUSED  1
+#define UNPAUSED 0
+
 #define TRUE 1
 #define FALSE 0
+
+extern u8 paused;
 
 extern unsigned short int currentFB;
 
@@ -41,5 +48,11 @@ extern void marsVDP256Start(void);
 extern void marsVDP32KStart(void);
 extern void swapBuffers(void);
 extern void handle_input();
+void intToHex(u32 value, char *str, u16 minsize);
+void CRC32_reset();
+void CRC32_update(u8 data);
+u32 CRC32_finalize();
+u32 CalculateCRC(u32 startAddress, u32 size);
+int memcmp1(const void *s1, const void *s2, int n);
 
 #endif

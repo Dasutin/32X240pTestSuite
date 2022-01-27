@@ -1,7 +1,7 @@
 /* 
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin
- * Copyright (C)2011-2021 Artemio Urbina
+ * Copyright (C)2011-2022 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
  *
@@ -613,7 +613,7 @@ void menu_ht()
 		if (pressedButton & SEGA_CTRL_DOWN)
 		{
 			curse++;
-			if(curse > 3)
+			if(curse > 6)
 				curse = 1;
 		}
 
@@ -621,7 +621,7 @@ void menu_ht()
 		{
 			curse--;
 			if(curse < 1)
-			curse = 3;
+			curse = 6;
 		}
 
 		if (pressedButton & SEGA_CTRL_B)
@@ -650,11 +650,33 @@ void menu_ht()
 				break;
 					
 				case 2:
-					DrawHelp(HELP_GENERAL);
+					ht_memory_viewer(0);
+					HwMdClearScreen();
+					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 3:
+					ht_test_32x_sdram();
+					HwMdClearScreen();
+					marsVDP256Start();
+					DrawMainBGwGillian();
+				break;
+
+				case 4:
+					ht_check_32x_bios_crc(0);
+					HwMdClearScreen();
+					HwMdClearScreen();
+					marsVDP256Start();
+					DrawMainBGwGillian();
+				break;
+					
+				case 5:
+					DrawHelp(HELP_GENERAL);
+					DrawMainBGwGillian();
+				break;
+
+				case 6:
 					done = 1;
 				break;
 			}
@@ -669,8 +691,11 @@ void menu_ht()
 		loadTextPalette();
 
 		mars_drawTextwShadow("Controller Test", -15, 80, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Help", -15, 146, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Back to Main Menu", -15, 161, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Memory Viewer", -15, 88, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Test 32X SDRAM", -15, 96, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("32X BIOS Info", -15, 104, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Help", -15, 146, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Back to Main Menu", -15, 161, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorBlack : fontColorGray);
 
 		if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT)
 		mars_drawTextwShadow("NTSC VDP 320x224p", 90, 193, fontColorWhite, fontColorGray);
@@ -735,8 +760,8 @@ void credits()
 		loadTextPalette();
 
 		mars_drawTextwShadow("Credits", 60, 35, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Ver. 0.5", 156, 57, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("6/4/2021", 156, 65, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("Ver. 0.6", 156, 57, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("1/27/2022", 156, 65, fontColorWhite, fontColorGray);
 		mars_drawTextwShadow("Code and Port by:", -30, 81, fontColorGreen, fontColorGray);
 		mars_drawTextwShadow("Dasutin", -22, 90, fontColorWhite, fontColorGray);
 		mars_drawTextwShadow("Patterns:", -30, 98, fontColorGreen, fontColorGray);

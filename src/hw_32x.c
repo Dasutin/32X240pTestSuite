@@ -15,6 +15,11 @@
 #include <string.h>
 #include "shared_objects.h"
 
+extern int fontColorWhite;
+extern int fontColorRed;
+extern int fontColorGreen;
+extern int fontColorGray;
+extern int fontColorBlack;
 
 static int X = 0, Y = 0;
 static int MX = 40, MY = 25;
@@ -24,6 +29,8 @@ static unsigned char fgs = 0, bgs = 0;
 
 int sysarg_args_nosound = 0;
 int sysarg_args_vol = 0;
+
+u32 schecksum = 0;
 
 volatile unsigned short dmaDone = 1;
 

@@ -31,8 +31,17 @@
 #include "graphics.h"
 #include "tests.h"
 
+u8 paused = PAUSED;
 u16 currentFB = 0;
 vu16 overwriteImg16;
+u32 _state = ~0L;
+
+static const u32 crc32_table[] = {
+    0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac,
+    0x76dc4190, 0x6b6b51f4, 0x4db26158, 0x5005713c,
+    0xedb88320, 0xf00f9344, 0xd6d6a3e8, 0xcb61b38c,
+    0x9b64c2b0, 0x86d3d2d4, 0xa00ae278, 0xbdbdf21c
+};
 
 int fontColorWhite = 204;
 int fontColorRed = 205;
@@ -167,4 +176,106 @@ void handle_input()
 	}*/
 	
 	MARS_SYS_COMM6 = MASTER_STATUS_OK; //tell slave to resume
+}
+
+void intToHex(u32 value, char *str, u16 minsize)
+{
+    u32 res;
+    u16 cnt;
+    u16 left;
+    char data[16];
+    char *src;
+    char *dst;
+    const u16 maxsize = 16;
+
+    src = &data[16];
+    res = value;
+    left = minsize;
+
+    cnt = 0;
+    while (res)
+    {
+        u8 c;
+
+        c = res & 0xF;
+
+        if (c >= 10) c += ('A' - 10);
+        else c += '0';
+
+        *--src = c;
+        cnt++;
+        left--;
+        res >>= 4;
+    }
+    while (left > 0)
+    {
+        *--src = '0';
+        cnt++;
+        left--;
+    }
+
+    if (cnt > maxsize) cnt = maxsize;
+
+    dst = str;
+    while(cnt--) *dst++ = *src++;
+    *dst = 0;
+}
+
+/*
+CRC 32 based on work by Christopher Baker <https://christopherbaker.net>
+*/
+
+void CRC32_reset()
+{
+    _state = ~0L;
+}
+
+void CRC32_update(u8 data)
+{
+    u8 tbl_idx = 0;
+
+    tbl_idx = _state ^ (data >> (0 * 4));
+    _state = (*(u32*)(crc32_table + (tbl_idx & 0x0f)) ^ (_state >> 4));
+    tbl_idx = _state ^ (data >> (1 * 4));
+    _state = (*(u32*)(crc32_table + (tbl_idx & 0x0f)) ^ (_state >> 4));
+}
+
+u32 CRC32_finalize()
+{
+    return ~_state;
+}
+
+int memcmp1(const void *s1, const void *s2, int n)
+{
+    unsigned char u1, u2;
+
+    for ( ; n-- ; s1++, s2++) {
+	u1 = * (unsigned char *) s1;
+	u2 = * (unsigned char *) s2;
+	if ( u1 != u2) {
+	    return (u1-u2);
+	}
+    }
+    return 0;
+}
+
+u32 CalculateCRC(u32 startAddress, u32 size)
+{
+	u8 *bios = NULL;
+	u32 address = 0, checksum = 0;
+
+	CRC32_reset();
+
+	bios = (void*)startAddress;
+	for (address = 0; address < size; address ++)
+	{
+		u8 data;
+		
+		data = bios[address];
+
+		CRC32_update(data);
+	}
+
+	checksum = CRC32_finalize();
+	return checksum;
 }

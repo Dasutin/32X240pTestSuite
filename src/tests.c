@@ -1,7 +1,7 @@
 /* 
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin
- * Copyright (C)2011-2021 Artemio Urbina
+ * Copyright (C)2011-2022 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
  *
@@ -20,6 +20,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <limits.h>
 #include "types.h"
 #include "32x.h"
 #include "hw_32x.h"
@@ -34,6 +35,132 @@ extern int fontColorRed;
 extern int fontColorGreen;
 extern int fontColorGray;
 extern int fontColorBlack;
+
+extern u32 schecksum;
+
+typedef struct bios_data {
+    u32 crc;
+    char *name;
+} BIOSID;
+
+const static BIOSID bioslist[] = {
+{ 0xDD9C46B8, "32X Master SH2 1.0" },	// 32X_M_BIOS.bin
+{ 0xBFDA1FE5, "32X Slave SH2 1.0" },	// 32X_S_BIOS.bin
+{ 0, NULL } } ;
+
+int Detect32XMBIOS(u32 address)
+{
+    u8 *bios;
+	
+    bios = (u8 *)0+address;
+    if (memcmp1(bios + 0x47E, "MARS", 4))
+    	return 0;
+    return 1;
+}
+
+int Detect32XSBIOS(u32 address)
+{
+    u8 *bios;
+	
+    bios = (u8 *)0+address;
+    //if (memcmp1(bios + 0x1D4, "M", 1))
+    //	return 0;
+    return 1;
+}
+
+char *GetBIOSNamebyCRC(u32 checksum)
+{
+	int i = 0;
+	
+	while(bioslist[i].crc != 0)
+	{		
+		if(checksum == bioslist[i].crc)
+			return bioslist[i].name;
+		i++;
+	}
+	return;
+}
+
+void doMBIOSID(u32 checksum, u32 address)
+{
+	char 		*name = NULL;
+	
+	name = GetBIOSNamebyCRC(checksum);
+	if(name)
+	{
+		HwMdPuts(name, 0x2000, 11, 20);
+		return;
+	}
+
+	if(Detect32XMBIOS(address))
+	{
+		u32	   mchecksum = 0;
+
+		mchecksum = CalculateCRC(address, 0x0000800);
+
+		ShowMessageAndData("32X M BIOS CRC32:", mchecksum, 0x4000, 8, 6, 18);
+	}
+	
+	// No match! check if we find the SEGA string and report
+	if(Detect32XMBIOS(address))
+	{
+		HwMdPuts("Unknown BIOS, please report CRC", 0x4000, 4, 19);
+	}
+	else
+	{
+		HwMdPuts("BIOS not recognized", 0x4000, 8, 19);
+	}
+	return;
+}
+
+void doSBIOSID(u32 checksum, u32 address)
+{
+	char 		*name = NULL;
+	
+	name = GetBIOSNamebyCRC(checksum);
+	if(name)
+	{
+		HwMdPuts(name, 0x2000, 11, 21);
+		return;
+	}
+
+	if(Detect32XSBIOS(address))
+	{
+		//u32	   schecksum = 0;
+
+		//schecksum = CalculateCRC(address, 0x0000400);
+
+		//ShowMessageAndData("32X S BIOS CRC32:", schecksum, 0x4000, 8, 6, 20);
+	}
+	
+	// No match! check if we find the SEGA string and report
+	if(Detect32XSBIOS(address))
+	{
+		HwMdPuts("Unknown BIOS, please report CRC", 0x4000, 4, 21);
+	}
+	else
+	{
+		HwMdPuts("BIOS not recognized", 0x4000, 8, 21);
+	}
+	return;
+}
+
+void ShowMessageAndData(char *message, u32 address, u8 color, int len, int xpos, int ypos)
+{
+	int			msglen = 0;
+	char		buffer[40];
+	
+	intToHex(address, buffer, len);
+	
+	msglen = strlen(message);
+	//mars_drawTextwShadow(message, xpos, ypos, fontColorGreen, fontColorGray);
+	HwMdPuts(message, color, xpos, ypos);
+	//mars_drawTextwShadow(" 0x", xpos+msglen, ypos, fontColorGreen, fontColorGray);
+	HwMdPuts(" 0x", color, xpos+msglen, ypos);
+	//mars_drawTextwShadow(buffer, xpos+msglen+3, ypos, fontColorGreen, fontColorGray);
+	HwMdPuts(buffer, color, xpos+msglen+3, ypos);
+}
+
 
 void vt_drop_shadow_test()
 {
@@ -1160,6 +1287,413 @@ void ht_controller_test()
 		mars_drawTextwShadow("Use START+LEFT to exit", 0, 193, fontColorGreen, fontColorGray);
 
 		MARS_SYS_COMM6 = 1;
+
+		currentFB ^= 1;
+		MARS_VDP_FBCTL = currentFB;
+
+		Hw32xDelay(frameDelay);
+	}
+    return;
+}
+
+#define	MAX_LOCATIONS	9
+
+void ht_memory_viewer(u32 address)
+{
+	int done = 0;
+	int frameDelay = 5;
+	int redraw = 1, docrc = 0, locpos = 1, i = 0;
+	u32	crc = 0, locations[MAX_LOCATIONS] = { 0, 0x0004000, 0x0004100, 0x0004200, 0x0004400, 0x2000000, 0x4000000, 0x4020000, 0x6000000 };
+	u16 button, pressedButton, oldButton = 0xFFFF;
+	vu16 *cram16 = &MARS_CRAM;
+	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
+	MARS_SYS_COMM6 = 0;
+
+	// Clear the 32X CRAM
+	for(i = 0; i < 255; i++)
+	{
+		Hw32xSetBGColor(i,0,0,0);
+	}
+
+	// Set screen priority for the 32X 
+	MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X | MARS_224_LINES | MARS_VDP_MODE_256;
+
+	currentFB = MARS_VDP_FBCTL & MARS_VDP_FS; 
+	
+	MARS_SYS_COMM6 = MASTER_STATUS_OK;
+
+	for(i = 0; i < MAX_LOCATIONS; i++)
+	{
+		if(locations[i] == address)
+		{
+			locpos = i;
+			break;
+		}
+	}
+
+	while (!done) 
+	{
+	if(redraw)
+	{
+		int 	i = 0, j = 0;
+		u8     *mem = NULL;
+		char 	buffer[10];
+
+		mem = (u8*)address;
+
+		while ((MARS_VDP_FBCTL & MARS_VDP_FS) != currentFB) {}
+
+		if(docrc)
+			crc = CalculateCRC(address, 0x1C0);
+
+		intToHex(address, buffer, 8);
+		HwMdPuts(buffer, 0x4000, 32, 0);
+		intToHex(address+448, buffer, 8);
+		HwMdPuts(buffer, 0x4000, 32, 27);
+
+		if(docrc)
+		{
+			intToHex(crc, buffer, 8);
+			HwMdPuts(buffer, 0x2000, 32, 14);
+		}
+
+		for(i = 0; i < 28; i++)
+		{
+			for(j = 0; j < 16; j++)
+			{
+				intToHex(mem[i*16+j], buffer, 2);
+				HwMdPuts(buffer, 0x0000, j*2, i);
+			}
+		}
+
+		MARS_SYS_COMM6 = 1;
+
+		currentFB ^= 1;
+		MARS_VDP_FBCTL = currentFB;
+
+		Hw32xDelay(frameDelay);
+
+		redraw = 0;
+	}
+
+		button = MARS_SYS_COMM8;
+
+		pressedButton = button & ~oldButton;
+    	oldButton = button;
+
+		while (MARS_SYS_COMM6 == SLAVE_LOCK);
+		MARS_SYS_COMM6 = 4;
+
+		if (pressedButton & SEGA_CTRL_START)
+		{
+		 	done = 1;
+		}
+
+		if(pressedButton & SEGA_CTRL_A)
+		{
+			docrc = !docrc;
+			HwMdClearScreen();
+			redraw = 1;
+		}
+
+		if(pressedButton & SEGA_CTRL_B)
+		{
+			locpos ++;
+			if(locpos == MAX_LOCATIONS)
+				locpos = 0;
+			address = locations[locpos];
+			redraw = 1;
+		}
+
+		if(pressedButton & SEGA_CTRL_LEFT)
+		{
+			if(address >= 0x1C0)
+				address -= 0x1C0;
+			else
+				address = 0;
+
+			redraw = 1;
+		}
+
+		if(pressedButton & SEGA_CTRL_RIGHT)
+		{
+			address += 0x1C0;	
+			redraw = 1;
+		}
+
+		if(pressedButton & SEGA_CTRL_UP)
+		{
+			if(address >= 0x10000)
+				address -= 0x10000;
+			else
+				address = 0;
+
+			redraw = 1;
+		}
+
+		if(pressedButton & SEGA_CTRL_DOWN)
+		{
+			address += 0x10000;
+
+			redraw = 1;
+		}
+
+		MARS_SYS_COMM6 = 1;
+
+		currentFB ^= 1;
+		MARS_VDP_FBCTL = currentFB;
+
+		Hw32xDelay(frameDelay);
+	}
+    return;
+}
+
+void PrintBIOSInfo(u32 address)
+{
+	u8      *bios = NULL;
+	char	buffer[50];
+	int		i = 0, j = 0, data[] = { 16, 16, 17, 15, 16, 48, 14, -2, 16, -4, -4, -4, -4, -2, -2, -4, -4, -12, -40, 16, 0};
+	
+
+	bios = (u8*)(address+0x047E);
+
+	while(data[i] != 0)
+	{
+		if(data[i] > 0)
+		{
+			memcpy(buffer, bios, sizeof(u8)*data[i]);
+			buffer[data[i]] = '\0';
+			HwMdPuts(buffer, 0x0000, 12, 8+j);
+			j++;
+		}
+		bios += data[i] > 0 ? data[i] : -1*data[i];
+		i++;
+	}
+}
+
+void PrintSBIOSInfo(u32 saddress)
+{
+	u8      *sbios = NULL;
+	char	sbuffer[50];
+	int		i = 0, j = 0, sdata[] = { 16, 16, 17, 15, 16, 48, 14, -2, 16, -4, -4, -4, -4, -2, -2, -4, -4, -12, -40, 16, 0};
+	
+
+	sbios = (u8*)(saddress+0x047E);
+
+	while(sdata[i] != 0)
+	{
+		if(sdata[i] > 0)
+		{
+			memcpy(sbuffer, sbios, sizeof(u8)*sdata[i]);
+			sbuffer[sdata[i]] = '\0';
+			HwMdPuts(sbuffer, 0x0000, 12, 8+j);
+			j++;
+		}
+		sbios += sdata[i] > 0 ? sdata[i] : -1*sdata[i];
+		i++;
+	}
+}
+
+void ht_check_32x_bios_crc(u32 address)
+{
+	int done = 0;
+	int frameDelay = 0;
+	u16 button, pressedButton, oldButton = 0xFFFF;
+	vu16 *cram16 = &MARS_CRAM;
+	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
+	extern const vu16 BACKGROUND_PALETTE_DATA[];
+	extern const u8 BACKGROUND_TILE[];
+	//MARS_SYS_COMM6 = 0;
+	u32	checksum = 0;
+	int redraw = 1;
+
+	currentFB = MARS_VDP_FBCTL & MARS_VDP_FS; 
+	
+	//MARS_SYS_COMM6 = MASTER_STATUS_OK;
+
+	paused = UNPAUSED;
+
+	while (!done) 
+	{
+		while ((MARS_VDP_FBCTL & MARS_VDP_FS) != currentFB) {}
+
+		memcpy(frameBuffer16 + 0x100, BACKGROUND_TILE, 320*224);
+
+		ShowMessageAndData("Sega 32X BIOS Data at", address, 0x0000, 8, 4, 4);
+		PrintBIOSInfo(address);
+
+		checksum = CalculateCRC(address, 0x0000800);
+
+		////mars_drawTextwShadow(checksum, 0, 193, fontColorGreen, fontColorGray);
+
+		doMBIOSID(checksum, address);
+
+		////ShowMessageAndData("32X S BIOS CRC32:", schecksum, 0x4000, 8, 6, 22);
+		//ShowMessageAndData("", schecksum, 0x4000, 8, 0, 193);
+
+		////HwMdPuts(schecksum, 0x4000, 11, 21);
+
+		button = MARS_SYS_COMM8;
+
+		pressedButton = button & ~oldButton;
+    	oldButton = button;
+
+		////while (MARS_SYS_COMM6 == SLAVE_LOCK);
+		////MARS_SYS_COMM6 = 4;
+
+		////MARS_SYS_COMM6 = 1;
+
+		if (pressedButton & SEGA_CTRL_START)
+		{
+		 	done = 1;
+		}
+
+		if(pressedButton & SEGA_CTRL_B)
+		{
+			done = 1;
+		}
+
+		currentFB ^= 1;
+		MARS_VDP_FBCTL = currentFB;
+
+		Hw32xDelay(frameDelay);
+	}
+	paused = PAUSED;
+	paused = PAUSED;
+    return;
+}
+
+void Set32XRegion(u8 value, u32 startaddress, u32 size)
+{
+	u8		*ram = NULL;
+	u32		address = 0;
+	
+	ram = (u8*)startaddress;
+	for(address = 0; address < size; address++)
+		ram[address] = value;
+}
+
+int Read32XRegion(u8 value, u32 startaddress, u32 size)
+{
+	u8		*ram = NULL;
+	u32		address = 0;
+	
+	ram = (u8*)startaddress;
+	for(address = 0; address < size; address++)
+	{
+		if(ram[address] != value)
+			return address;
+	}
+	
+	return MEMORY_OK;
+}
+
+int Check32XRegion(u8 value, u32 startaddress, u32 size)
+{
+	Set32XRegion(value, startaddress, size);
+	
+	return(Read32XRegion(value, startaddress, size));
+}
+
+int Check32XRAM(void *start, u32 size)
+{
+   vu32 *sdram = start;
+   while(size--)
+   {
+      u16 result, value;
+      value = *sdram;
+      *sdram ^= UCHAR_MAX;
+      result = value ^ *sdram;
+      *sdram++ = value;
+      if (result != UCHAR_MAX)
+      {
+      	HwMdPuts("FAILED", 0x4000, 12, 10);
+        return 0;
+      }
+   }
+   HwMdPuts("ALL OK", 0x2000, 12, 10);
+   return 1;
+}
+
+int Check32XRAMWithValue(char * message, u32 start, u32 end, u8 value, int pos)
+{
+	int memoryFail = 0;
+	
+	HwMdPuts(message, 0x0000, 12, pos);
+	
+	memoryFail = Check32XRegion(value, start, end - start);
+	
+	if(memoryFail != MEMORY_OK)
+	{
+		ShowMessageAndData("FAILED", memoryFail, 6, 0x4000, 12, pos+1);
+		return 0;
+	}
+	
+	HwMdPuts("ALL OK", 0x2000, 16, pos+1);
+	return 1;
+}
+
+void ht_test_32x_sdram()
+{
+	int done = 0;
+	int frameDelay = 5;
+	int redraw = 1;
+	u16 button, pressedButton, oldButton = 0xFFFF;
+	vu16 *cram16 = &MARS_CRAM;
+	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
+	extern const vu16 BACKGROUND_PALETTE_DATA[];
+	extern const u8 BACKGROUND_TILE[];
+	MARS_SYS_COMM6 = 0;
+
+	currentFB = MARS_VDP_FBCTL & MARS_VDP_FS; 
+	
+	MARS_SYS_COMM6 = MASTER_STATUS_OK;
+
+	while (!done) 
+	{
+		button = MARS_SYS_COMM8;
+
+		pressedButton = button & ~oldButton;
+    	oldButton = button;
+
+		while ((MARS_VDP_FBCTL & MARS_VDP_FS) != currentFB) {}
+		memcpy(frameBuffer16 + 0x100, BACKGROUND_TILE, 320*224);
+
+		//ShowMessageAndData("32X SDRAM", 0x6000000, 15, 0x0000, 7, 7);
+		//if(redraw)
+		//{
+		//Check32XRAM(0x06010000, 0x0001FFFF);
+		//Check32XRAMWithValue("Setting to 0x00", 0x06002000, 0x0603FFDF, 0x00, 10);
+		//Check32XRAMWithValue("Setting to 0xFF", 0x06002000, 0x0603FFDF, 0xFF, 12);
+		//Check32XRAMWithValue("Setting to 0x55", 0x06002000, 0x0603FFDF, 0x55, 14);
+		//Check32XRAMWithValue("Setting to 0xAA", 0x06002000, 0x0603FFDF, 0xAA, 16);
+		//redraw = 0;
+		//}
+		
+		while (MARS_SYS_COMM6 == SLAVE_LOCK);
+		MARS_SYS_COMM6 = 4;
+
+		if(redraw)
+		{
+		Check32XRAM(0x6000000, 0xFF);
+		//Check32XRAMWithValue("Setting to 0x00", 0x06002000, 0x0603FFDF, 0x00, 10);
+		//Check32XRAMWithValue("Setting to 0xFF", 0x06002000, 0x0603FFDF, 0xFF, 12);
+		//Check32XRAMWithValue("Setting to 0x55", 0x06002000, 0x0603FFDF, 0x55, 14);
+		//Check32XRAMWithValue("Setting to 0xAA", 0x06002000, 0x0603FFDF, 0xAA, 16);
+		redraw = 0;
+		}
+
+		MARS_SYS_COMM6 = 1;
+
+		if (pressedButton & SEGA_CTRL_START)
+		{
+		 	done = 1;
+		}
+
+		if(pressedButton & SEGA_CTRL_B)
+		{
+			done = 1;
+		}
 
 		currentFB ^= 1;
 		MARS_VDP_FBCTL = currentFB;

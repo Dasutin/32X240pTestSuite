@@ -1,7 +1,7 @@
 /* 
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin
- * Copyright (C)2011-2021 Artemio Urbina
+ * Copyright (C)2011-2022 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
  *
@@ -22,6 +22,8 @@
 
 #ifndef _TYPES_H_
 #define _TYPES_H_
+
+#define NULL 0
 
 typedef unsigned char u8;
 typedef unsigned short int u16;

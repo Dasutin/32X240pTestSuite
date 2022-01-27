@@ -81,6 +81,13 @@
 #define SH2_FRT_ICRH        (*(volatile unsigned char *)0xFFFFFE18)
 #define SH2_FRT_ICRL        (*(volatile unsigned char *)0xFFFFFE19)
 
+#define SH2_WDT_RTCSR       (*(volatile unsigned char *)0xFFFFFE80)
+#define SH2_WDT_RTCNT       (*(volatile unsigned char *)0xFFFFFE81)
+#define SH2_WDT_RRSTCSR     (*(volatile unsigned char *)0xFFFFFE83)
+#define SH2_WDT_WTCSR_TCNT  (*(volatile unsigned short *)0xFFFFFE80)
+#define SH2_WDT_WRWOVF_RST  (*(volatile unsigned short *)0xFFFFFE82)
+#define SH2_WDT_VCR         (*(volatile unsigned short *)0xFFFFFEE4)
+
 #define SH2_DMA_SAR0        (*(volatile unsigned long *)0xFFFFFF80)
 #define SH2_DMA_DAR0        (*(volatile unsigned long *)0xFFFFFF84)
 #define SH2_DMA_TCR0        (*(volatile unsigned long *)0xFFFFFF88)
@@ -97,7 +104,15 @@
 
 #define SH2_DMA_DMAOR       (*(volatile unsigned long *)0xFFFFFFB0)
 
+#define SH2_INT_ICR         (*(volatile unsigned short *)0xFFFFFEE0)
 #define SH2_INT_IPRA        (*(volatile unsigned short *)0xFFFFFEE2)
+#define SH2_INT_IPRB        (*(volatile unsigned short *)0xFFFFFE60)
+#define SH2_INT_VCRA        (*(volatile unsigned short *)0xFFFFFE62)
+#define SH2_INT_VCRB        (*(volatile unsigned short *)0xFFFFFE64)
+#define SH2_INT_VCRC        (*(volatile unsigned short *)0xFFFFFE66)
+#define SH2_INT_VCRD        (*(volatile unsigned short *)0xFFFFFE68)
+#define SH2_INT_VCRWDT      (*(volatile unsigned short *)0xFFFFFEE4)
+#define SH2_INT_VCRDIV      (*(volatile unsigned long *)0xFFFFFF0C)
 
 #define SEGA_CTRL_UP        0x0001
 #define SEGA_CTRL_DOWN      0x0002

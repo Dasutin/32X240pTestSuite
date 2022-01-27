@@ -1,7 +1,7 @@
 /* 
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin
- * Copyright (C)2011-2021 Artemio Urbina
+ * Copyright (C)2011-2022 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
  *
@@ -23,6 +23,8 @@
 #ifndef _TESTS_H
 #define _TESTS_H
 
+#define MEMORY_OK 0xFFFFFFFF
+
 void vt_drop_shadow_test(void);
 void vt_striped_sprite_test(void);
 void vt_horizontal_stripes(void);
@@ -31,5 +33,8 @@ void vt_checkerboard(void);
 void vt_backlitzone_test(void);
 void at_sound_test(void);
 void ht_controller_test(void);
+void ht_memory_viewer(u32 address);
+void ht_check_32x_bios_crc(u32 address);
+void ht_test_32x_sdram();
 
 #endif
