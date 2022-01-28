@@ -1,0 +1,62 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build 32X ROM",
+            "type": "shell",
+            "command": "make clean && make",
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Run in Emulator",
+            "type": "shell",
+            "command": "${env:BIZHAWK} ${env:MARSPROJECTS}${workspaceFolderBasename}\\build\\240pMars.32x",
+            "presentation": {
+                "reveal": "never"
+            }
+        },
+        {
+            "label": "Build and Run",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Build 32X ROM",
+                "Run in Emulator"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Clean",
+            "type": "shell",
+            "command": "make clean",
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Run in Gens",
+            "type": "shell",
+            "command": "${env:GENS} ${env:MARSPROJECTS}${workspaceFolderBasename}\\build\\240pMars.32x",
+            "presentation": {
+                "reveal": "never"
+            }
+        },
+        {
+            "label": "Send build to Mega Everdrive Pro",
+            "type": "shell",
+            "command": "megalink -cp ${env:MARSPROJECTS}${workspaceFolderBasename}\\build\\240pMars.32x sd:/240pMars.32x",
+            "presentation": {
+                "reveal": "always"
+            }
+        }
+    ]
+}

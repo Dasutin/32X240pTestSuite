@@ -20,7 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "types.h"
+#include "..\inc_md\types.h"
+//#include <genesis.h>
 
 typedef void (*func)();
 
@@ -55,12 +56,12 @@ void main() {
     // We want to call the wait_vblank function from in here, so some math to find where it is in RAM
     func wait_vblank = (func)(0xFF1000 + __wait_vblank - __m68k_start);
 
-    uint16_t ticks = 0, col = 0;
+    //uint16_t ticks = 0, col = 0;
     while(1) {
-        if(++ticks >= 8) {
-            ticks = 0;
-            if(++col >= 10) col = 0;
-        }
+     //   if(++ticks >= 8) {
+     //       ticks = 0;
+      //      if(++col >= 10) col = 0;
+     //   }
         //disable_ints;
         ////vdp_color(17, color_cycle[col]);
         //enable_ints;

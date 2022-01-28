@@ -25,6 +25,8 @@
 
 #define NULL 0
 
+typedef unsigned long int size_t;
+
 typedef unsigned char u8;
 typedef unsigned short int u16;
 typedef unsigned long int u32;
@@ -41,4 +43,6 @@ typedef volatile signed char v8;
 typedef volatile signed short int v16;
 typedef volatile signed long int v32;
 
-#endif
+#define abs(n) ((n)<0?-(n):(n))
+
+#endif /* _TYPES_H_ */

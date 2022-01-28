@@ -94,7 +94,7 @@ _CONVERGENCE_GRID_PALETTE_DATA:
 
 			.global _MOTOKO_PALETTE_DATA
 _MOTOKO_PALETTE_DATA:
-			.incbin "res/motoko_pal.bin"
+			.incbin "res/donna_pal.bin"
 
 			.align 2
 
@@ -272,7 +272,7 @@ _CONVERGENCE_DOTS_TILE:
 
 			.global _MOTOKO_PATTERN
 _MOTOKO_PATTERN:
-			.incbin "res/motoko_tile.bin"
+			.incbin "res/donna_tile.bin"
 
 			.align 2
 

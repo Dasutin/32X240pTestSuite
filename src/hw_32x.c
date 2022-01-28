@@ -10,9 +10,7 @@
 
 #include "32x.h"
 #include "hw_32x.h"
-#include <stdarg.h>
-#include <stdio.h>
-#include <string.h>
+#include "string.h"
 #include "shared_objects.h"
 
 extern int fontColorWhite;
