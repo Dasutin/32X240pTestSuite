@@ -116,13 +116,17 @@ symbol.txt: $(TARGET).32x
 
 # m68k stuff
 
-m68k_crt0.bin: m68k_crt0.s
-	$(MDAS) $(MDASFLAGS) $< -o $@.o
-	$(MDLD) $(MDLDFLAGS) --oformat=binary $@.o -o $@
+# m68k_crt0.bin: m68k_crt0.s
+#	$(MDAS) $(MDASFLAGS) $< -o $@.o
+#	$(MDLD) $(MDLDFLAGS) --oformat=binary $@.o -o $@
 
-m68k_crt1.bin: m68k_crt1.s $(MDOBJS)
-	$(MDAS) $(MDASFLAGS) m68k_crt1.s -o m68k_crt1.o
-	$(MDLD) -nostdlib -T md_crt1.ld --oformat=binary m68k_crt1.o $(MDOBJS) -o m68k_crt1.bin
+# m68k_crt1.bin: m68k_crt1.s $(MDOBJS)
+#	$(MDAS) $(MDASFLAGS) m68k_crt1.s -o m68k_crt1.o
+#	$(MDLD) -nostdlib -T md_crt1.ld --oformat=binary m68k_crt1.o $(MDOBJS) -o m68k_crt1.bin
+
+m68k_crt%.bin: m68k_crt%.s
+	$(MDAS) $(MDASFLAGS) $< -o $@.o
+	$(MDLD) -nostdlib --oformat=binary $@.o -o $@
 
 src_md/%.o: src_md/%.s
 	@echo "MDAS $<"

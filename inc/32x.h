@@ -29,6 +29,7 @@
 #define MARS_SYS_COMM8      (*(volatile unsigned short *)0x20004028) // Controller 1 current value
 #define MARS_SYS_COMM10     (*(volatile unsigned short *)0x2000402A) // Controller 2 current value
 #define MARS_SYS_COMM12     (*(volatile unsigned long *)0x2000402C)  // Vcount current value
+#define MARS_SYS_COMM14     (*(volatile unsigned short *)0x2000402E)
 
 #define MARS_PWM_CTRL       (*(volatile unsigned short *)0x20004030) // Audio
 #define MARS_PWM_CYCLE      (*(volatile unsigned short *)0x20004032)
@@ -113,6 +114,11 @@
 #define SH2_INT_VCRD        (*(volatile unsigned short *)0xFFFFFE68)
 #define SH2_INT_VCRWDT      (*(volatile unsigned short *)0xFFFFFEE4)
 #define SH2_INT_VCRDIV      (*(volatile unsigned long *)0xFFFFFF0C)
+
+#define SH2_DIVU_DVSR       (*(volatile long *)0xFFFFFF00)
+#define SH2_DIVU_DVDNT      (*(volatile long *)0xFFFFFF04)
+#define SH2_DIVU_DVDNTH     (*(volatile long *)0xFFFFFF10)
+#define SH2_DIVU_DVDNTL     (*(volatile long *)0xFFFFFF14)
 
 #define SEGA_CTRL_UP        0x0001
 #define SEGA_CTRL_DOWN      0x0002

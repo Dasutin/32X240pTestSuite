@@ -39,6 +39,8 @@ typedef struct {
     unsigned char pad[2]; // Pad to one cache line
 } channel_t;
 
+#define HW32X_ATTR_DATA_ALIGNED __attribute__((section(".data"), aligned(16)))
+
 extern int Hw32xDetectPAL();
 extern void Hw32xSetFGColor(int s, int r, int g, int b);
 extern void Hw32xSetBGColor(int s, int r, int g, int b);

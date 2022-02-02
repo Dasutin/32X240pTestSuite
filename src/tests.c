@@ -177,6 +177,7 @@ void vt_drop_shadow_test()
 	int changeSprite = 0;
 	int background = 1;
 	extern const vu16 TEST_PALETTE[];
+	extern const vu16 MOTOKO_PALETTE_DATA[];
 	extern const u8 MOTOKO_PATTERN[];
 	extern const u8 H_STRIPES_SHADOW_TILE[];
 	extern const u8 CHECKERBOARD_SHADOW_TILE[];
@@ -187,8 +188,12 @@ void vt_drop_shadow_test()
 
 	marsVDP256Start();
 
-	for (int i = 0; i < 12+13; i++){
-		cram16[i] = TEST_PALETTE[i] & 0x7FFF;
+	//for (int i = 0; i < 12+13; i++){
+	//	cram16[i] = TEST_PALETTE[i] & 0x7FFF;
+	//}
+
+	for (int i = 0; i < 227; i++){
+		cram16[i] = MOTOKO_PALETTE_DATA[i] & 0x7FFF;
 	}
 
 	currentFB = MARS_VDP_FBCTL & MARS_VDP_FS;
@@ -1301,7 +1306,7 @@ void ht_controller_test()
 void ht_memory_viewer(u32 address)
 {
 	int done = 0;
-	int frameDelay = 5;
+	int frameDelay = 0;
 	int redraw = 1, docrc = 0, locpos = 1, i = 0;
 	u32	crc = 0, locations[MAX_LOCATIONS] = { 0, 0x0004000, 0x0004100, 0x0004200, 0x0004400, 0x2000000, 0x4000000, 0x4020000, 0x6000000 };
 	u16 button, pressedButton, oldButton = 0xFFFF;

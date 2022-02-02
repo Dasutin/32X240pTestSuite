@@ -20,36 +20,26 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _TYPES_H_
-#define _TYPES_H_
-
 #include <stdint.h>
-#include <stdlib.h>
-#include <limits.h>
 
-#define NULL 0
+#define SAMPLE_MIN         2
+#define SAMPLE_CENTER    517
+#define SAMPLE_MAX      1032
 
-#define ATTR_CACHE_ALIGNED  __attribute__((aligned(16)))
-#define ATTR_DATA_ALIGNED   __attribute__((section(".data"), aligned(16)))
+#define SND_ATTR_SDRAM  __attribute__((section(".data"), aligned(16)))
 
-//typedef unsigned long int size_t;
+void snddma_submit(void) SND_ATTR_SDRAM;
+uint16_t* snddma_get_buf(int channels, int num_samples) SND_ATTR_SDRAM;
+uint16_t* snddma_get_buf_mono(int num_samples) SND_ATTR_SDRAM;
+uint16_t* snddma_get_buf_stereo(int num_samples) SND_ATTR_SDRAM;
 
-typedef unsigned char u8;
-typedef unsigned short int u16;
-typedef unsigned long int u32;
+static inline uint16_t s16pcm_to_u16pwm(int16_t s) {
+    s = (s >> 5) + SAMPLE_CENTER;
+    return (s < 0) ? SAMPLE_MIN : (s > SAMPLE_MAX) ? SAMPLE_MAX : s;
+}
 
-typedef signed char s8;
-typedef signed short int s16;
-typedef signed long int s32;
-
-typedef volatile unsigned char vu8;
-typedef volatile unsigned short int vu16;
-typedef volatile unsigned long int vu32;
-
-typedef volatile signed char v8;
-typedef volatile signed short int v16;
-typedef volatile signed long int v32;
-
-#define abs(n) ((n)<0?-(n):(n))
-
-#endif /* _TYPES_H_ */
+void snddma_slave_init(int sample_rate);
+void snddma_init(int sample_rate);
+void slave_dma_kickstart(void);
+unsigned snddma_length(void)SND_ATTR_SDRAM;
+void snddma_wait(void) SND_ATTR_SDRAM;

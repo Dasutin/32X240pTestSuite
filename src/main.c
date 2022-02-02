@@ -768,10 +768,12 @@ void credits()
 		mars_drawTextwShadow("Artemio Urbina", -22, 106, fontColorWhite, fontColorGray);
 		mars_drawTextwShadow("Menu Pixel Art:", -30, 114, fontColorGreen, fontColorGray);
 		mars_drawTextwShadow("Asher", -22, 122, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("32X Toolchain:", -30, 130, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Marsdev (Chilly Willy)", -22, 138, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("Info on using this test suite:", -30, 146, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("http://junkerhq.net/240p", -22, 154, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("Donna:", -30, 130, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Jose Salot", -22, 138, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("32X Toolchain:", -30, 146, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Marsdev (Chilly Willy)", -22, 154, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("Info on using this test suite:", -30, 162, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("http://junkerhq.net/240p", -22, 170, fontColorWhite, fontColorGray);
 
 		MARS_SYS_COMM6 = 1;
 

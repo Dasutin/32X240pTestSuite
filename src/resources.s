@@ -173,7 +173,7 @@ _COLORCHART_PALETTE_DATA:
 			.align 2
 
 			.global _EBU_COLORBARS_PALETTE_DATA
- _EBU_COLORBARS_PALETTE_DATA:
+_EBU_COLORBARS_PALETTE_DATA:
 			.incbin "res/ebu_colorbars_pal.bin"
 
 			.align 2
