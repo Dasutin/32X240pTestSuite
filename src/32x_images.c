@@ -830,5 +830,6 @@ void screenFadeOut(int fadeSpeed)
 
 		len--;
 	}
+	Hw32xScreenClear();
 	return;
 }

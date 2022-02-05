@@ -168,7 +168,7 @@ void vt_drop_shadow_test()
 	int frameDelay = 1;
 	int x = 10;
 	int y = 10;
-	int bee_mirror = 1; //Starts right
+	int bee_mirror = 1; // Start right
 	int frameCount = 0;
 	int evenFrames = 0;
 	extern const u8 BEE_PATTERN[] __attribute__((aligned(16)));
@@ -183,11 +183,6 @@ void vt_drop_shadow_test()
 	extern const u8 CHECKERBOARD_SHADOW_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	u16 button = 0, pressedButton = 0, oldButton = 0xFFFF;
-	//vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
-
-	//for (int i = 0; i < 12+13; i++){
-	//	cram16[i] = TEST_PALETTE[i] & 0x7FFF;
-	//}
 
 	for (int i = 0; i < 227; i++){
 		cram16[i] = MOTOKO_PALETTE_DATA[i] & 0x7FFF;

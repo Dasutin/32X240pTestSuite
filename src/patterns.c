@@ -226,9 +226,7 @@ void tp_smpte_color_bars()
 	extern const u16 SMPTE75IRE_PALETTE_DATA[];
 	extern const u16 SMPTE100IRE_PALETTE_DATA[];
 	extern const u8 SMPTE100IRE_PATTERN[] __attribute__((aligned(16)));
-	//extern const u8 TEST_SMTPE_PATTERN[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
-	//vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
 
 	Hw32xScreenFlip(0);
 
@@ -439,10 +437,6 @@ void tp_grid()
 	extern const u16 GRID_GRAY_PALETTE_DATA[];
 	extern const u8 GRID_PATTERN[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
-
-	for (int i = 0; i < 3; i++){
-		cram16[i] = GRID_PALETTE_DATA[i] & 0x7FFF;
-	}
 
 	Hw32xScreenFlip(0);
 
@@ -693,7 +687,6 @@ void tp_white_rgb()
 
 		if (pressedButton & SEGA_CTRL_B)
 		{
-			screenFadeOut(1);
 			done = 1;
 		}
 
