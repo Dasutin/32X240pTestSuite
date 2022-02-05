@@ -1335,6 +1335,13 @@ void ht_memory_viewer(u32 address)
 			redraw = 1;
 		}
 
+		if (pressedButton & SEGA_CTRL_Z)
+		{
+			HwMdClearScreen();
+			DrawHelp(HELP_MEMVIEW);
+			redraw = 1;
+		}
+
 		if(pressedButton & SEGA_CTRL_LEFT)
 		{
 			if(address >= 0x1C0)

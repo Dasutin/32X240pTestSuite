@@ -54,7 +54,7 @@ void DrawHelp(int option)
 	case HELP_LED:
 	case HELP_LAG:
 	case HELP_HSCROLL:
-	//case HELP_MEMVIEW:
+	case HELP_MEMVIEW:
 		totalpages = 2;
 		break;
 	case HELP_PLUGE:
@@ -723,6 +723,34 @@ void DrawHelp(int option)
 				mars_drawTextwShadow("contrast and brightness.", -30, 114, fontColorWhite, fontColorGray);
 
 				mars_drawTextwShadow("The C button returns to PLUGE.", -30, 131, fontColorWhite, fontColorGray);
+				break;
+			case HELP_MEMVIEW:
+				switch (page)
+				{
+				case 1:
+					mars_drawTextwShadow("MEMORY VIEWER", 60, 35, fontColorGreen, fontColorGray);
+					mars_drawTextwShadow("This shows selected regions of", -30, 57, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("the main CPU memory map.", -30, 65, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("The current address range is", -30, 73, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("shown in red at the right from", -30, 81, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("top to bottom.", -30, 89, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("The left part of the screen", -30, 97, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("shows 0x1C0 bytes in hex.", -30, 105, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("- Button A enabled CRC of of", -30, 113, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("current screen.", -30, 121, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("- Button B jumps to relevant", -30, 129, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("memory locations", -30, 137, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("(cont...)", 142, 178, fontColorWhite, fontColorGray);
+					break;
+				case 2:
+					mars_drawTextwShadow("- Button C switches banks in", -30, 57, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("SCD Program RAM.", -30, 65, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("With a working SCD system", -30, 73, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("Program RAM banks should show", -30, 81, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("0xAA for bank 1 (0xBB for bank", -30, 89, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("2 etc.) in all four corners.", -30, 97, fontColorWhite, fontColorGray);
+					break;
+				}
 				break;
 		default:
 			screenFadeOut(1);

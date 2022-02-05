@@ -55,8 +55,6 @@
 #define HELP_SEGACD			30
 #define	HELP_MEMVIEW		31
 
-//extern u8	showhelp;
-
 void DrawHelp(int option);
 
 #endif
