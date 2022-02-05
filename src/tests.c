@@ -171,16 +171,16 @@ void vt_drop_shadow_test()
 	int bee_mirror = 1; //Starts right
 	int frameCount = 0;
 	int evenFrames = 0;
-	extern const vu8 BEE_PATTERN[];
-	extern const vu8 BEE_SHADOW_TILE[];
-	extern const vu8 MARKER_SHADOW_TILE[];
+	extern const u8 BEE_PATTERN[] __attribute__((aligned(16)));
+	extern const u8 BEE_SHADOW_TILE[] __attribute__((aligned(16)));
+	extern const u8 MARKER_SHADOW_TILE[] __attribute__((aligned(16)));
 	int changeSprite = 0;
 	int background = 1;
 	extern const vu16 TEST_PALETTE[];
 	extern const vu16 MOTOKO_PALETTE_DATA[];
-	extern const u8 MOTOKO_PATTERN[];
-	extern const u8 H_STRIPES_SHADOW_TILE[];
-	extern const u8 CHECKERBOARD_SHADOW_TILE[];
+	extern const u8 MOTOKO_PATTERN[] __attribute__((aligned(16)));
+	extern const u8 H_STRIPES_SHADOW_TILE[] __attribute__((aligned(16)));
+	extern const u8 CHECKERBOARD_SHADOW_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	u16 button = 0, pressedButton = 0, oldButton = 0xFFFF;
 	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
@@ -277,6 +277,7 @@ void vt_drop_shadow_test()
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
@@ -331,11 +332,11 @@ void vt_striped_sprite_test()
 	int x = 10;
 	int y = 10;
 	int background = 1;
-	extern const vu8 MARKER_STRIPED_TILE[];
-	extern const u8 H_STRIPES_SHADOW_TILE[];
-	extern const u8 CHECKERBOARD_SHADOW_TILE[];
+	extern const u8 MARKER_STRIPED_TILE[] __attribute__((aligned(16)));
+	extern const u8 H_STRIPES_SHADOW_TILE[] __attribute__((aligned(16)));
+	extern const u8 CHECKERBOARD_SHADOW_TILE[] __attribute__((aligned(16)));
 	extern const vu16 TEST_PALETTE[];
-	extern const u8 MOTOKO_PATTERN[];
+	extern const u8 MOTOKO_PATTERN[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	u16 button = 0, pressedButton = 0, oldButton = 0xFFFF;
 	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
@@ -424,6 +425,7 @@ void vt_striped_sprite_test()
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
@@ -466,7 +468,7 @@ void vt_horizontal_stripes()
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	MARS_SYS_COMM6 = 0;
 
-	vu8 horizontalbars_tile_data_8[] = {
+	u8 horizontalbars_tile_data_8[] __attribute__((aligned(16))) = {
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -532,6 +534,7 @@ void vt_horizontal_stripes()
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
@@ -623,7 +626,7 @@ void vt_vertical_stripes()
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	MARS_SYS_COMM6 = 0;
 
-	vu8 verticalbars_tile_data_8[] = {
+	u8 verticalbars_tile_data_8[] __attribute__((aligned(16))) = {
 		0x00,0x01,0x00,0x01,0x00,0x01,0x00,0x01,
 		0x00,0x01,0x00,0x01,0x00,0x01,0x00,0x01,
 		0x00,0x01,0x00,0x01,0x00,0x01,0x00,0x01,
@@ -689,6 +692,7 @@ void vt_vertical_stripes()
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
@@ -774,7 +778,7 @@ void vt_checkerboard()
 	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
 	MARS_SYS_COMM6 = 0;
 
-	vu8 checkerboard_tile_data_8[] = {
+	u8 checkerboard_tile_data_8[] __attribute__((aligned(16))) = {
 		0x00,0x01,0x00,0x01,0x00,0x01,0x00,0x01,
 		0x01,0x00,0x01,0x00,0x01,0x00,0x01,0x00,
 		0x00,0x01,0x00,0x01,0x00,0x01,0x00,0x01,
@@ -849,6 +853,7 @@ void vt_checkerboard()
 
 		if (pressedButton & SEGA_CTRL_B)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
@@ -900,7 +905,7 @@ void vt_backlitzone_test()
 	vu16 *cram16 = &MARS_CRAM;
 	MARS_SYS_COMM6 = 0;
 
-	const vu8 block_0x0_tile[] = {
+	u8 block_0x0_tile[] __attribute__((aligned(16))) = {
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -911,7 +916,7 @@ void vt_backlitzone_test()
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
 	};
 
-	const vu8 block_1x1_tile[] = {
+	u8 block_1x1_tile[] __attribute__((aligned(16))) = {
 		0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -922,7 +927,7 @@ void vt_backlitzone_test()
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
 	};
 
-	const vu8 block_2x2_tile[] = {
+	u8 block_2x2_tile[] __attribute__((aligned(16))) = {
 		0x01,0x01,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x01,0x01,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -933,7 +938,7 @@ void vt_backlitzone_test()
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
 	};
 
-	const vu8 block_4x4_tile[] = {
+	u8 block_4x4_tile[] __attribute__((aligned(16))) = {
 		0x01,0x01,0x01,0x01,0x00,0x00,0x00,0x00,
 		0x01,0x01,0x01,0x01,0x00,0x00,0x00,0x00,
 		0x01,0x01,0x01,0x01,0x00,0x00,0x00,0x00,
@@ -944,7 +949,7 @@ void vt_backlitzone_test()
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
 	};
 
-	const vu8 block_6x6_tile[] = {
+	u8 block_6x6_tile[] __attribute__((aligned(16))) = {
 		0x01,0x01,0x01,0x01,0x01,0x01,0x00,0x00,
 		0x01,0x01,0x01,0x01,0x01,0x01,0x00,0x00,
 		0x01,0x01,0x01,0x01,0x01,0x01,0x00,0x00,
@@ -955,7 +960,7 @@ void vt_backlitzone_test()
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
 	};
 
-	const vu8 block_8x8_tile[] = {
+	u8 block_8x8_tile[] __attribute__((aligned(16))) = {
 		0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,
 		0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,
 		0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,
@@ -1037,6 +1042,7 @@ void vt_backlitzone_test()
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
@@ -1085,7 +1091,7 @@ void at_sound_test()
 	int curse = 2;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const vu16 BACKGROUND_PALETTE_DATA[];
-	extern const u8 BACKGROUND_TILE[];
+	extern const u8 BACKGROUND_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	u16 *frameBuffer16 = &MARS_FRAMEBUFFER;
 	sound_t JUMP;
@@ -1142,6 +1148,7 @@ void at_sound_test()
 
 		if (pressedButton & SEGA_CTRL_B)
 		{
+			screenFadeOut(1);
 		 	done = 1;
 		}
 
@@ -1198,7 +1205,7 @@ void ht_controller_test()
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	u16 button2, pressedButton2, oldButton2 = 0xFFFF;
 	extern const vu16 BACKGROUND_PALETTE_DATA[];
-	extern const u8 BACKGROUND_TILE[];
+	extern const u8 BACKGROUND_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
 	MARS_SYS_COMM6 = 0;
@@ -1229,6 +1236,7 @@ void ht_controller_test()
 
     	if (pressedButton & SEGA_CTRL_START && pressedButton & SEGA_CTRL_LEFT)
 		{
+			screenFadeOut(1);
 		 	done = 1;
 		}
 		
@@ -1507,7 +1515,7 @@ void ht_check_32x_bios_crc(u32 address)
 	vu16 *cram16 = &MARS_CRAM;
 	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
 	extern const vu16 BACKGROUND_PALETTE_DATA[];
-	extern const u8 BACKGROUND_TILE[];
+	extern const u8 BACKGROUND_TILE[]; __attribute__((aligned(16)));
 	//MARS_SYS_COMM6 = 0;
 	u32	checksum = 0;
 	int redraw = 1;
@@ -1647,7 +1655,7 @@ void ht_test_32x_sdram()
 	vu16 *cram16 = &MARS_CRAM;
 	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
 	extern const vu16 BACKGROUND_PALETTE_DATA[];
-	extern const u8 BACKGROUND_TILE[];
+	extern const u8 BACKGROUND_TILE[]; __attribute__((aligned(16)));
 	MARS_SYS_COMM6 = 0;
 
 	currentFB = MARS_VDP_FBCTL & MARS_VDP_FS; 

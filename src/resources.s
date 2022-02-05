@@ -178,6 +178,12 @@ _EBU_COLORBARS_PALETTE_DATA:
 
 			.align 2
 
+			.global _BLACK_ALL_PALETTE_DATA
+_BLACK_ALL_PALETTE_DATA:
+			.incbin "res/black_all_pal.bin"
+
+			.align 2
+
 			.global _GRID_PATTERN
 _GRID_PATTERN:
 			.incbin "res/grid_tile.bin"

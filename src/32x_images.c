@@ -789,3 +789,46 @@ void mars_drawTextwShadow(const char *str, int x, int y, int textpalOffs, int sh
 	mars_drawText(str, x+2, y+1, shadowpalOffs);
 	mars_drawText(str, x, y, textpalOffs);
 }
+
+void screenFadeOut(int fadeSpeed)
+{
+	int frameDelay = fadeSpeed;
+	int len = 31;
+	int r,g,b;
+	u16 tempcolor;
+	vu16 temppal[256];
+	vu16 *cram16 = &MARS_CRAM;
+	while(len != 0)
+	{
+		for (int i = 0; i <= 255; i++) {
+			temppal[i] = cram16[i];
+		}
+	
+		for (int i = 0; i <= 255; i++) {
+			tempcolor = temppal[i] & 0x7FFF;
+			if(tempcolor != 0x0000) {
+				r = tempcolor & 0x1F;
+				g = tempcolor>>5 & 0x1F;
+				b = tempcolor>>10 & 0x1F;
+				if(r != 0x0000)
+					r--;
+				if(g != 0x0000)
+					g--;
+				if(b != 0x0000)
+					b--;
+				tempcolor = COLOR(r,g,b);
+				temppal[i] = tempcolor & 0x7FFF;
+			}
+		}
+		for (int i = 0; i <= 255; i++){
+			cram16[i] = temppal[i] & 0x7FFF;
+		}
+		Hw32xDelay(frameDelay);
+			
+		currentFB ^= 1;
+		MARS_VDP_FBCTL = currentFB;
+
+		len--;
+	}
+	return;
+}

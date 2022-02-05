@@ -52,7 +52,7 @@ int fontColorBlack = 208;
 void DrawMainBG()
 {
 	extern const u16 BACKGROUND_PALETTE_DATA[];
-	extern const u8 BACKGROUND_TILE[];
+	extern const u8 BACKGROUND_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	u16 *frameBuffer16 = &MARS_FRAMEBUFFER;
 
@@ -66,7 +66,7 @@ void DrawMainBG()
 void DrawMainBGwGillian()
 {
 	extern const u16 BACKGROUND_W_GILLIAN_PALETTE[];
-	extern const u8 BACKGROUND_W_GILLIAN_TILE[];
+	extern const u8 BACKGROUND_W_GILLIAN_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	u16 *frameBuffer16 = &MARS_FRAMEBUFFER;
 

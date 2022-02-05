@@ -99,27 +99,33 @@ int main()
 		{
 			switch (curse) {
 				case 1:
+					screenFadeOut(1);
 					menu_tp();
 				break;
 				
 				case 2:
+					screenFadeOut(1);
 					menu_vt();
 				break;
 
 				case 3:
+					screenFadeOut(1);
 					menu_at();
 				break;
 
 				case 4:
+					screenFadeOut(1);
 					menu_ht();
 				break;
 
 				case 5:
+					screenFadeOut(1);
 					DrawHelp(HELP_GENERAL);
 					DrawMainBGwGillian();
 				break;
 
 				case 6:
+					screenFadeOut(1);
 					credits();
 					DrawMainBGwGillian();
 				break;
@@ -209,16 +215,19 @@ void menu_tp()
 
 		if (pressedButton & SEGA_CTRL_B)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
 		if (pressedButton & SEGA_CTRL_Z)
 		{
+			screenFadeOut(1);
 			DrawHelp(HELP_GENERAL);
 		}
 
@@ -227,89 +236,104 @@ void menu_tp()
 			switch (curse) 
 			{
 				case 1:
+					screenFadeOut(1);
 					tp_pluge();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 					
 				case 2:
+					screenFadeOut(1);
 					tp_colorchart();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 3:
+					screenFadeOut(1);
 					tp_colorbars();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 4:
+					screenFadeOut(1);
 					tp_smpte_color_bars();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 5:
+					screenFadeOut(1);
 					tp_ref_color_bars();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 6:
+					screenFadeOut(1);
 					tp_color_bleed_check();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 7:
+					screenFadeOut(1);
 					tp_grid();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 8:
+					screenFadeOut(1);
 					tp_monoscope();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 9:
+					screenFadeOut(1);
 					tp_gray_ramp();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 10:
+					screenFadeOut(1);
 					tp_white_rgb();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 11:
+					screenFadeOut(1);
 					tp_100_ire();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 12:
+					screenFadeOut(1);
 					tp_sharpness();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 13:
+					screenFadeOut(1);
 					tp_convergence();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 14:
+					screenFadeOut(1);
 					DrawHelp(HELP_GENERAL);
 					DrawMainBGwGillian();
 				break;
 
 				case 15:
+					screenFadeOut(1);
 					done = 1;
 				break;
 			}
@@ -400,16 +424,19 @@ void menu_vt()
 
 		if (pressedButton & SEGA_CTRL_B)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
 		if (pressedButton & SEGA_CTRL_Z)
 		{
+			screenFadeOut(1);
 			DrawHelp(HELP_GENERAL);
 		}
 
@@ -418,47 +445,55 @@ void menu_vt()
 			switch (curse) 
 			{
 				case 1:
+					screenFadeOut(1);
 					vt_drop_shadow_test();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 					
 				case 2:
+					screenFadeOut(1);
 					vt_striped_sprite_test();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 3:
+					screenFadeOut(1);
 					vt_horizontal_stripes();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 4:
+					screenFadeOut(1);
 					vt_vertical_stripes();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 5:
+					screenFadeOut(1);
 					vt_checkerboard();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 6:
+					screenFadeOut(1);
 					vt_backlitzone_test();
 					marsVDP256Start();
 					DrawMainBGwGillian();	
 				break;
 
 				case 7:
+					screenFadeOut(1);
 					DrawHelp(HELP_GENERAL);
 					DrawMainBGwGillian();
 				break;
 
 				case 8:
+					screenFadeOut(1);
 					done = 1;
 				break;
 			}
@@ -516,6 +551,7 @@ void menu_at()
 
 		if (pressedButton & SEGA_CTRL_B)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
@@ -528,6 +564,7 @@ void menu_at()
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
@@ -541,17 +578,20 @@ void menu_at()
 			switch (curse) 
 			{
 				case 1:
+					screenFadeOut(1);
 					at_sound_test();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 2:
+					screenFadeOut(1);
 					DrawHelp(HELP_GENERAL);
 					DrawMainBGwGillian();
 				break;
 
 				case 3:
+					screenFadeOut(1);
 					done = 1;
 				break;
 			}
@@ -626,16 +666,19 @@ void menu_ht()
 
 		if (pressedButton & SEGA_CTRL_B)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
 		if (pressedButton & SEGA_CTRL_Z)
 		{
+			screenFadeOut(1);
 			DrawHelp(HELP_GENERAL);
 		}
 
@@ -644,6 +687,7 @@ void menu_ht()
 			switch (curse) 
 			{
 				case 1:
+					screenFadeOut(1);
 					ht_controller_test();
 					marsVDP256Start();
 					DrawMainBGwGillian();
@@ -672,11 +716,13 @@ void menu_ht()
 				break;
 					
 				case 5:
+					screenFadeOut(1);
 					DrawHelp(HELP_GENERAL);
 					DrawMainBGwGillian();
 				break;
 
 				case 6:
+					screenFadeOut(1);
 					done = 1;
 				break;
 			}
@@ -743,11 +789,13 @@ void credits()
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
 		if (pressedButton & SEGA_CTRL_B)
 		{
+			screenFadeOut(1);
 		 	done = 1;
 		}
 

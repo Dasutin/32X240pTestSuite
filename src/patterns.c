@@ -33,10 +33,17 @@ void tp_pluge()
 	u16 done = 0;
 	int frameDelay = 5;
 	int pattern = 1;
+	int redraw = 1;
+	int colortest;
+	int tempcolor;
+	int r,g,b;
+	int newcolor;
+	int fadeSpeed = 1;
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 PLUGE_NTSC_PALETTE_DATA[];
 	extern const u16 PLUGE_RGB_PALETTE_DATA[];
-	extern const u8 PLUGE_PATTERN[];
+	extern const u8 PLUGE_PATTERN[] __attribute__((aligned(16)));
+	u16 temppal[255];
 	vu16 *cram16 = &MARS_CRAM;
 	MARS_SYS_COMM6 = 0;
 
@@ -58,16 +65,22 @@ void tp_pluge()
 		pressedButton = button & ~oldButton;
     	oldButton = button;
 
-    	switch (pattern) {
+    	 switch (pattern) {
 			case 1:
+				if (redraw = 1)
+				{
 				for (int i = 0; i < 255; i++){
 					cram16[i] = PLUGE_NTSC_PALETTE_DATA[i] & 0x7FFF;
+				}
 				}
 			break;
 				
 			case 2:
-				for (int i = 0; i < 255; i++){
+				if (redraw = 1)
+				{
+					for (int i = 0; i < 255; i++){
 					cram16[i] = PLUGE_RGB_PALETTE_DATA[i] & 0x7FFF;
+				}
 				}
 			break;
 		}
@@ -83,6 +96,7 @@ void tp_pluge()
 
     	if (pressedButton & SEGA_CTRL_B)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
@@ -110,6 +124,8 @@ void tp_pluge()
 		drawLineTable(4);
 
 		Hw32xDelay(frameDelay);
+
+		redraw = 0;
 	}
 	return;
 }
@@ -120,7 +136,7 @@ void tp_colorchart()
 	int frameDelay = 5;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 COLORCHART_PALETTE_DATA[];
-	extern const u8 COLORCHART_PATTERN[];
+	extern const u8 COLORCHART_PATTERN[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	MARS_SYS_COMM6 = 0;
 
@@ -146,6 +162,7 @@ void tp_colorchart()
 
     	if (pressedButton & SEGA_CTRL_B)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
@@ -183,7 +200,7 @@ void tp_colorbars()
 	int frameDelay = 5;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 EBU_COLORBARS_PALETTE_DATA[];
-	extern const u8 EBU_COLORBARS_PATTERN[];
+	extern const u8 EBU_COLORBARS_PATTERN[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	MARS_SYS_COMM6 = 0;
 
@@ -209,6 +226,7 @@ void tp_colorbars()
 
     	if (pressedButton & SEGA_CTRL_B)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
@@ -248,8 +266,8 @@ void tp_smpte_color_bars()
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 SMPTE75IRE_PALETTE_DATA[];
 	extern const u16 SMPTE100IRE_PALETTE_DATA[];
-	extern const u8 SMPTE100IRE_PATTERN[];
-	extern const u8 TEST_SMTPE_PATTERN[];
+	extern const u8 SMPTE100IRE_PATTERN[] __attribute__((aligned(16)));
+	extern const u8 TEST_SMTPE_PATTERN[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
 	MARS_SYS_COMM6 = 0;
@@ -286,6 +304,7 @@ void tp_smpte_color_bars()
 
     	if (pressedButton & SEGA_CTRL_B)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
@@ -332,7 +351,7 @@ void tp_ref_color_bars()
 	int frameDelay = 5;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 COLORREF_PALETTE_DATA[];
-	extern const u8 COLORREF_PATTERN[];
+	extern const u8 COLORREF_PATTERN[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	MARS_SYS_COMM6 = 0;
 
@@ -358,6 +377,7 @@ void tp_ref_color_bars()
 
     	if (pressedButton & SEGA_CTRL_B)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
@@ -396,8 +416,8 @@ void tp_color_bleed_check()
 	int background = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 COLORBLEED_PALETTE_DATA[];
-	extern const u8 COLORBLEED_PATTERN;
-	extern const u8 COLORBLEED_CHECKERBOARD_TILE;
+	extern const u8 COLORBLEED_PATTERN[] __attribute__((aligned(16)));
+	extern const u8 COLORBLEED_CHECKERBOARD_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	MARS_SYS_COMM6 = 0;
 
@@ -432,6 +452,7 @@ void tp_color_bleed_check()
 
 		if (pressedButton & SEGA_CTRL_B)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
@@ -484,7 +505,7 @@ void tp_grid()
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 GRID_PALETTE_DATA[];
 	extern const u16 GRID_GRAY_PALETTE_DATA[];
-	extern const u8 GRID_PATTERN[];
+	extern const u8 GRID_PATTERN[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	MARS_SYS_COMM6 = 0;
 
@@ -524,6 +545,7 @@ void tp_grid()
 
     	if (pressedButton & SEGA_CTRL_B)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
@@ -570,7 +592,7 @@ void tp_monoscope()
 	int frameDelay = 5;
 	int pattern = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	extern const u8 MONOSCOPE_PATTERN[];
+	extern const u8 MONOSCOPE_PATTERN[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	MARS_SYS_COMM6 = 0;
 
@@ -618,6 +640,7 @@ void tp_monoscope()
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
@@ -676,7 +699,7 @@ void tp_gray_ramp()
 	int frameDelay = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 GRAYRAMP_PALETTE_DATA[];
-	extern const u8 GRAYRAMP_PATTERN[];
+	extern const u8 GRAYRAMP_PATTERN[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	MARS_SYS_COMM6 = 0;
 
@@ -702,6 +725,7 @@ void tp_gray_ramp()
 
     	if (pressedButton & SEGA_CTRL_B)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
@@ -765,6 +789,7 @@ void tp_white_rgb()
 
 		if (pressedButton & SEGA_CTRL_B)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
@@ -834,7 +859,7 @@ void tp_100_ire()
 	int frameDelay = 5;
 	int pattern = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	extern const u8 IRE_PATTERN[];
+	extern const u8 IRE_PATTERN[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	MARS_SYS_COMM6 = 0;
 
@@ -878,6 +903,7 @@ void tp_100_ire()
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
@@ -938,8 +964,8 @@ void tp_sharpness()
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 SHARPNESS_PALETTE_DATA[];
 	extern const u16 SHARPNESS_BRICK_PALETTE_DATA[];
-	extern const u8 SHARPNESS_PATTERN[];
-	extern const u8 SHARPNESS_BRICK_PATTERN[];
+	extern const u8 SHARPNESS_PATTERN[] __attribute__((aligned(16)));
+	extern const u8 SHARPNESS_BRICK_PATTERN[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	MARS_SYS_COMM6 = 0;
 
@@ -965,6 +991,7 @@ void tp_sharpness()
 
 		if (pressedButton & SEGA_CTRL_B)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 
@@ -1040,11 +1067,11 @@ void tp_convergence()
 	extern const u16 CONVERGENCE_GRID_PALETTE_DATA[];
 	extern const u16 CONVERGENCE_COLOR_PALETTE[];
 	extern const u16 CONVERGENCE_COLOR_BORDER_PALETTE[];
-	extern const u8 CONVERGENCE_GRID_TILE[];
-	extern const u8 CONVERGENCE_STARS_TILE[];
-	extern const u8 CONVERGENCE_DOTS_TILE[];
-	extern const u8 CONVERGENCE_COLOR_TILE[];
-	extern const u8 CONVERGENCE_COLOR_BORDER_TILE[];
+	extern const u8 CONVERGENCE_GRID_TILE[] __attribute__((aligned(16)));
+	extern const u8 CONVERGENCE_STARS_TILE[] __attribute__((aligned(16)));
+	extern const u8 CONVERGENCE_DOTS_TILE[] __attribute__((aligned(16)));
+	extern const u8 CONVERGENCE_COLOR_TILE[] __attribute__((aligned(16)));
+	extern const u8 CONVERGENCE_COLOR_BORDER_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	MARS_SYS_COMM6 = 0;
 
@@ -1100,6 +1127,7 @@ void tp_convergence()
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
+			screenFadeOut(1);
 			done = 1;
 		}
 

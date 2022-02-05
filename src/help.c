@@ -734,6 +734,7 @@ void DrawHelp(int option)
 				mars_drawTextwShadow("The C button returns to PLUGE.", -30, 131, fontColorWhite, fontColorGray);
 				break;
 		default:
+			screenFadeOut(1);
 			exit = 1;
 			break;
 	}
@@ -755,16 +756,19 @@ void DrawHelp(int option)
 
 		if (pressedButton & SEGA_CTRL_Z)
 		{
+			screenFadeOut(1);
 			exit = 1;
 		}
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
+			screenFadeOut(1);
 			exit = 1;
 		}
 
 		if (pressedButton & SEGA_CTRL_B)
 		{
+			screenFadeOut(1);
 			exit = 1;
 		}
 

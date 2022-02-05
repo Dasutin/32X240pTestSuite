@@ -131,6 +131,7 @@ void my_debug_put_char_8(int x, int y, unsigned char ch, vu8* fgColor, vu8* bgCo
 int myScreenPrintData(const char *buff, const int x, const int y, const vu8* fgColor, const vu8* bgColor );
 void mars_drawText(const char *str, int x, int y, int palOffs);
 void mars_drawTextwShadow(const char *str, int x, int y, int textpalOffs, int shadowpalOffs);
+void screenFadeOut(int fadeSpeed);
 
 
 #endif
