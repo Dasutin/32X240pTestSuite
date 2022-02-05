@@ -41,19 +41,24 @@ int main()
 	int frameDelay = 0;
 	int curse = 1;
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
-	MARS_SYS_COMM6 = 0;
+	char NTSC;
 
 	marsVDP256Start();
 
-	currentFB = MARS_VDP_FBCTL & MARS_VDP_FS; 
-	MARS_SYS_COMM6 = MASTER_STATUS_OK;
+	SetSH2SR(1);
+
+	while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
+
+    NTSC = (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT) != 0;
+
+	Hw32xScreenFlip(0);
+
+	MARS_SYS_COMM4 = 0;
+	MARS_SYS_COMM6 = 0;
 
 	while (1)
 	{
-		while ((MARS_VDP_FBCTL & MARS_VDP_FS) != currentFB) {}
-
-		while (MARS_SYS_COMM6 == SLAVE_LOCK);
-		MARS_SYS_COMM6 = 4;
+		Hw32xFlipWait();
 		
 		DrawMainBGwGillian();
 		loadTextPalette();
@@ -132,10 +137,7 @@ int main()
 			}
 		}
 
-		MARS_SYS_COMM6 = 1;
-
-		currentFB ^= 1;
-		MARS_VDP_FBCTL = currentFB; 
+		Hw32xScreenFlip(0);
 
 		Hw32xDelay(frameDelay);
 	}
@@ -149,18 +151,11 @@ void menu_tp()
 	int curse = 1;
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
 	
-	MARS_SYS_COMM6 = 0;
+	Hw32xScreenFlip(0);
 
-	currentFB = MARS_VDP_FBCTL & MARS_VDP_FS; 
-	
-	MARS_SYS_COMM6 = MASTER_STATUS_OK;
-	
 	while (!done) 
 	{
-		while ((MARS_VDP_FBCTL & MARS_VDP_FS) != currentFB) {}
-
-		while (MARS_SYS_COMM6 == SLAVE_LOCK);
-		MARS_SYS_COMM6 = 4;
+		Hw32xFlipWait();
 
 		DrawMainBGwGillian();
 		loadTextPalette();
@@ -349,10 +344,7 @@ void menu_tp()
 		pressedButton = button & ~oldButton;
 		oldButton = button;
 
-		MARS_SYS_COMM6 = 1;
-
-		currentFB ^= 1;
-		MARS_VDP_FBCTL = currentFB; 
+		Hw32xScreenFlip(0);
 
 		Hw32xDelay(frameDelay);
 	}
@@ -365,19 +357,12 @@ void menu_vt()
 	int frameDelay = 0;
 	int curse = 1;
 	u16 button, pressedButton, oldButton  = 0xFFFF;
-	MARS_SYS_COMM6 = 0;
 
-	currentFB = MARS_VDP_FBCTL & MARS_VDP_FS; 
-	
-	MARS_SYS_COMM6 = MASTER_STATUS_OK;
+	Hw32xScreenFlip(0);
 	
 	while(!done) 
 	{
-		while ((MARS_VDP_FBCTL & MARS_VDP_FS) != currentFB) {}
-
-		while (MARS_SYS_COMM6 == SLAVE_LOCK);
-
-		MARS_SYS_COMM6 = 4;
+		Hw32xFlipWait();
 
 		DrawMainBGwGillian();
 		loadTextPalette();
@@ -509,10 +494,7 @@ void menu_vt()
     		oldButton = button;
 		}
 
-		MARS_SYS_COMM6 = 1;
-
-		currentFB ^= 1;
-		MARS_VDP_FBCTL = currentFB; 
+		Hw32xScreenFlip(0);
 
 		Hw32xDelay(frameDelay);
 	}
@@ -525,13 +507,27 @@ void menu_at()
 	int frameDelay = 0;
 	int curse = 1;
 	u16 button, pressedButton, oldButton  = 0xFFFF;
-	MARS_SYS_COMM6 = 0;
 
-	currentFB = MARS_VDP_FBCTL & MARS_VDP_FS;
-	MARS_SYS_COMM6 = MASTER_STATUS_OK;
+	Hw32xScreenFlip(0);
 	
 	while (!done) 
 	{
+		Hw32xFlipWait();
+
+		DrawMainBGwGillian();
+		loadTextPalette();
+
+		mars_drawTextwShadow("Sound Test", -15, 80, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);
+
+		mars_drawTextwShadow("Help", -15, 146, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Back to Main Menu", -15, 161, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
+
+		if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT)
+		mars_drawTextwShadow("NTSC VDP 320x224p", 90, 193, fontColorWhite, fontColorGray);
+		else
+		mars_drawTextwShadow("PAL VDP 320x224p", 98, 193, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("Sega 32X", 170, 208, fontColorWhite, fontColorGray);
+
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
@@ -597,29 +593,7 @@ void menu_at()
 			}
 		}
 
-		while ((MARS_VDP_FBCTL & MARS_VDP_FS) != currentFB) {}
-
-		while (MARS_SYS_COMM6 == SLAVE_LOCK);
-		MARS_SYS_COMM6 = 4;
-
-		DrawMainBGwGillian();
-		loadTextPalette();
-
-		mars_drawTextwShadow("Sound Test", -15, 80, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);
-
-		mars_drawTextwShadow("Help", -15, 146, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Back to Main Menu", -15, 161, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
-
-		if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT)
-		mars_drawTextwShadow("NTSC VDP 320x224p", 90, 193, fontColorWhite, fontColorGray);
-		else
-		mars_drawTextwShadow("PAL VDP 320x224p", 98, 193, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("Sega 32X", 170, 208, fontColorWhite, fontColorGray);
-
-		MARS_SYS_COMM6 = 1;
-
-		currentFB ^= 1;
-		MARS_VDP_FBCTL = currentFB; 
+		Hw32xScreenFlip(0);
 
 		Hw32xDelay(frameDelay);
 	}
@@ -632,14 +606,30 @@ void menu_ht()
 	int frameDelay = 0;
 	int curse = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	MARS_SYS_COMM6 = 0;
 
-	currentFB = MARS_VDP_FBCTL & MARS_VDP_FS;
-
-	MARS_SYS_COMM6 = MASTER_STATUS_OK;
+	Hw32xScreenFlip(0);
 
 	while (!done)
 	{
+
+		Hw32xFlipWait();
+
+		DrawMainBGwGillian();
+		loadTextPalette();
+
+		mars_drawTextwShadow("Controller Test", -15, 80, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Memory Viewer", -15, 88, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Test 32X SDRAM", -15, 96, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("32X BIOS Info", -15, 104, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Help", -15, 146, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Back to Main Menu", -15, 161, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorBlack : fontColorGray);
+
+		if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT)
+		mars_drawTextwShadow("NTSC VDP 320x224p", 90, 193, fontColorWhite, fontColorGray);
+		else
+		mars_drawTextwShadow("PAL VDP 320x224p", 98, 193, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("Sega 32X", 170, 208, fontColorWhite, fontColorGray);
+
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
@@ -728,31 +718,17 @@ void menu_ht()
 			}
 		}
 
-		while ((MARS_VDP_FBCTL & MARS_VDP_FS) != currentFB) {}
+		button = MARS_SYS_COMM8;
 
-		while (MARS_SYS_COMM6 == SLAVE_LOCK);
-		MARS_SYS_COMM6 = 4;
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
+		{
+			button = MARS_SYS_COMM10;
+		}
 
-		DrawMainBGwGillian();
-		loadTextPalette();
+		pressedButton = button & ~oldButton;
+    	oldButton = button;
 
-		mars_drawTextwShadow("Controller Test", -15, 80, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Memory Viewer", -15, 88, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Test 32X SDRAM", -15, 96, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("32X BIOS Info", -15, 104, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Help", -15, 146, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Back to Main Menu", -15, 161, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorBlack : fontColorGray);
-
-		if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT)
-		mars_drawTextwShadow("NTSC VDP 320x224p", 90, 193, fontColorWhite, fontColorGray);
-		else
-		mars_drawTextwShadow("PAL VDP 320x224p", 98, 193, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("Sega 32X", 170, 208, fontColorWhite, fontColorGray);
-
-		MARS_SYS_COMM6 = 1;
- 
-		currentFB ^= 1;
-		MARS_VDP_FBCTL = currentFB;
+		Hw32xScreenFlip(0);
 
 		Hw32xDelay(frameDelay);
 	}
@@ -769,14 +745,31 @@ void credits()
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	u16 done = 0;
 
-	MARS_SYS_COMM6 = 0;
-	
-	currentFB = MARS_VDP_FBCTL & MARS_VDP_FS; 
-	
-	MARS_SYS_COMM6 = MASTER_STATUS_OK;
+	Hw32xScreenFlip(0);
 
 	while (!done) 
 	{
+		Hw32xFlipWait();
+
+		DrawMainBG();
+		loadTextPalette();
+
+		mars_drawTextwShadow("Credits", 60, 35, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Ver. 0.6", 156, 57, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("1/27/2022", 156, 65, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("Code and Port by:", -30, 81, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Dasutin", -22, 90, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("Patterns:", -30, 98, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Artemio Urbina", -22, 106, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("Menu Pixel Art:", -30, 114, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Asher", -22, 122, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("Donna:", -30, 130, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Jose Salot", -22, 138, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("32X Toolchain:", -30, 146, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Marsdev (Chilly Willy)", -22, 154, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("Info on using this test suite:", -30, 162, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("http://junkerhq.net/240p", -22, 170, fontColorWhite, fontColorGray);
+
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
@@ -799,34 +792,7 @@ void credits()
 		 	done = 1;
 		}
 
-		while ((MARS_VDP_FBCTL & MARS_VDP_FS) != currentFB) {}
-
-		while (MARS_SYS_COMM6 == SLAVE_LOCK);
-		MARS_SYS_COMM6 = 4;
-
-		DrawMainBG();
-		loadTextPalette();
-
-		mars_drawTextwShadow("Credits", 60, 35, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Ver. 0.6", 156, 57, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("1/27/2022", 156, 65, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("Code and Port by:", -30, 81, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Dasutin", -22, 90, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("Patterns:", -30, 98, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Artemio Urbina", -22, 106, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("Menu Pixel Art:", -30, 114, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Asher", -22, 122, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("Donna:", -30, 130, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Jose Salot", -22, 138, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("32X Toolchain:", -30, 146, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Marsdev (Chilly Willy)", -22, 154, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("Info on using this test suite:", -30, 162, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("http://junkerhq.net/240p", -22, 170, fontColorWhite, fontColorGray);
-
-		MARS_SYS_COMM6 = 1;
-
-		currentFB ^= 1;
-		MARS_VDP_FBCTL = currentFB; 
+		Hw32xScreenFlip(0);
 
 		Hw32xDelay(frameDelay);
 	}

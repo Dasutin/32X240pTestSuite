@@ -711,6 +711,29 @@ _CacheControl:
 _sh2_cctl:
         .long   0xFFFFFE92
 
+! int SetSH2SR(int level);
+! On entry: r4 = new irq level
+! On exit:  r0 = old irq level
+        .align  4
+        .global _SetSH2SR
+_SetSH2SR:
+        stc     sr,r1
+        mov     #0x0F,r0
+        shll2   r0
+        shll2   r0
+        and     r0,r1                   /* just the irq mask */
+        shlr2   r1
+        shlr2   r1
+        not     r0,r0
+        stc     sr,r2
+        and     r0,r2
+        shll2   r4
+        shll2   r4
+        or      r4,r2
+        ldc     r2,sr
+        rts
+        mov     r1,r0
+
 ! void ScreenStretch(int src, int width, int height, int interp);
 ! On entry: r4 = src pointer, r5 = width, r6 = height, r7 = interpolate
 

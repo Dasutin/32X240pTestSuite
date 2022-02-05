@@ -152,6 +152,7 @@ extern void word_8byte_copy_bytereverse(short *dst, short *src, int count);
 
 extern int get_stack_pointer();
 
+extern int SetSH2SR(int level);
 extern void CacheControl(int mode);
 extern void CacheClearLine(void* ptr);
 extern void ScreenStretch(int src, int width, int height, int interp);

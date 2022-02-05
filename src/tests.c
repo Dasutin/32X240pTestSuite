@@ -43,7 +43,7 @@ typedef struct bios_data {
     char *name;
 } BIOSID;
 
-const static BIOSID bioslist[] = {
+static const BIOSID bioslist[] = {
 { 0xDD9C46B8, "32X Master SH2 1.0" },	// 32X_M_BIOS.bin
 { 0xBFDA1FE5, "32X Slave SH2 1.0" },	// 32X_S_BIOS.bin
 { 0, NULL } } ;
@@ -183,10 +183,7 @@ void vt_drop_shadow_test()
 	extern const u8 CHECKERBOARD_SHADOW_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	u16 button = 0, pressedButton = 0, oldButton = 0xFFFF;
-	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
-	MARS_SYS_COMM6 = 0;
-
-	marsVDP256Start();
+	//vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
 
 	//for (int i = 0; i < 12+13; i++){
 	//	cram16[i] = TEST_PALETTE[i] & 0x7FFF;
@@ -196,11 +193,11 @@ void vt_drop_shadow_test()
 		cram16[i] = MOTOKO_PALETTE_DATA[i] & 0x7FFF;
 	}
 
-	currentFB = MARS_VDP_FBCTL & MARS_VDP_FS;
+	Hw32xScreenFlip(0);
 
-	MARS_SYS_COMM6 = MASTER_STATUS_OK;
-
-	while (!done) {
+	while (!done)
+	{
+		Hw32xFlipWait();
 
 		button = MARS_SYS_COMM8;
 
@@ -264,7 +261,6 @@ void vt_drop_shadow_test()
 			x--;
 			if(x < 1)
 				x = 1;
-			
 		}
 
 		if (button & SEGA_CTRL_RIGHT)
@@ -280,11 +276,6 @@ void vt_drop_shadow_test()
 			screenFadeOut(1);
 			done = 1;
 		}
-
-		while ((MARS_VDP_FBCTL & MARS_VDP_FS) != currentFB) {}
-
-		while (MARS_SYS_COMM6 == SLAVE_LOCK);
-		MARS_SYS_COMM6 = 4;
 
 		switch (background) {
 				case 1:
@@ -314,12 +305,9 @@ void vt_drop_shadow_test()
 		
 		frameCount++;
 
-		MARS_SYS_COMM6 = 1;
-
 		drawLineTable(4);
 
-    	currentFB ^= 1;
-    	MARS_VDP_FBCTL = currentFB;
+		Hw32xScreenFlip(0);
 		
 		Hw32xDelay(frameDelay);
 	}
@@ -336,26 +324,21 @@ void vt_striped_sprite_test()
 	extern const u8 H_STRIPES_SHADOW_TILE[] __attribute__((aligned(16)));
 	extern const u8 CHECKERBOARD_SHADOW_TILE[] __attribute__((aligned(16)));
 	extern const vu16 TEST_PALETTE[];
+	extern const vu16 MOTOKO_PALETTE_DATA[];
 	extern const u8 MOTOKO_PATTERN[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	u16 button = 0, pressedButton = 0, oldButton = 0xFFFF;
-	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
-	MARS_SYS_COMM6 = 0;
 
-	marsVDP256Start();
-
-	Hw32xScreenClear();
-	Hw32xSetBGColor(0,0,0,0);
-
-	for (int i = 0; i < 12+13; i++){
-		cram16[i] = TEST_PALETTE[i] & 0x7FFF;
+	for (int i = 0; i < 227; i++){
+		cram16[i] = MOTOKO_PALETTE_DATA[i] & 0x7FFF;
 	}
 
-	currentFB = MARS_VDP_FBCTL & MARS_VDP_FS;
+	Hw32xScreenFlip(0);
 
-	MARS_SYS_COMM6 = MASTER_STATUS_OK;
+	while (!done) 
+	{
+		Hw32xFlipWait();
 
-	while (!done) {
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
@@ -395,7 +378,6 @@ void vt_striped_sprite_test()
 
 		if (button & SEGA_CTRL_UP)
 		{
-			
 			y--;
 			if(y < 1)
 				y = 1;
@@ -403,7 +385,6 @@ void vt_striped_sprite_test()
 
 		if (button & SEGA_CTRL_DOWN)
 		{
-			
 			y++;
 			if(y > 192)
 				y = 192;
@@ -429,31 +410,26 @@ void vt_striped_sprite_test()
 			done = 1;
 		}
 
-		while ((MARS_VDP_FBCTL & MARS_VDP_FS) != currentFB) {}
-
-		while (MARS_SYS_COMM6 == SLAVE_LOCK);
-		MARS_SYS_COMM6 = 4;
-
-		switch (background) {
-				case 1:
-					memcpy(frameBuffer16 + 0x100, MOTOKO_PATTERN, 320*224);
-				break;
+		switch (background) 
+		{
+			case 1:
+				drawBG(MOTOKO_PATTERN);
+			break;
 				
-				case 2:
-					memcpy(frameBuffer16 + 0x100, CHECKERBOARD_SHADOW_TILE, 320*224);
-				break;
+			case 2:
+				drawBG(CHECKERBOARD_SHADOW_TILE);
+			break;
 
-				case 3:
-					memcpy(frameBuffer16 + 0x100, H_STRIPES_SHADOW_TILE, 320*224);
-				break;
+			case 3:
+				drawBG(H_STRIPES_SHADOW_TILE);
+			break;
 		}
 
-		drawS(MARKER_STRIPED_TILE,x,y,32,32);
+		drawSprite(MARKER_STRIPED_TILE,x,y,32,32,0,0);
 
-		MARS_SYS_COMM6 = 1;
+		drawLineTable(4);
 
-		currentFB ^= 1;
-		MARS_VDP_FBCTL = currentFB;
+		Hw32xScreenFlip(0);
 	}
 	return;
 }
@@ -461,12 +437,10 @@ void vt_striped_sprite_test()
 void vt_horizontal_stripes()
 {
 	u16 done = 0;
-	int frameDelay = 1;
 	int test = 1;
 	int manualtest = 1;
 	int palette = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	MARS_SYS_COMM6 = 0;
 
 	u8 horizontalbars_tile_data_8[] __attribute__((aligned(16))) = {
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -491,12 +465,12 @@ void vt_horizontal_stripes()
 
 	loadPalette(&horizontalbars_pal[0], &horizontalbars_pal[2], 0);
 
-	currentFB = MARS_VDP_FBCTL & MARS_VDP_FS;
-
-	MARS_SYS_COMM6 = MASTER_STATUS_OK;
+	Hw32xScreenFlip(0);
 
 	while (!done)
 	{
+		Hw32xFlipWait();
+
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
@@ -506,9 +480,6 @@ void vt_horizontal_stripes()
 
 		pressedButton = button & ~oldButton;
     	oldButton = button;
-
-		while (MARS_SYS_COMM6 == SLAVE_LOCK);
-		MARS_SYS_COMM6 = 4;
 
 		switch (test) {
 			case 1:
@@ -594,7 +565,6 @@ void vt_horizontal_stripes()
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			DrawHelp(HELP_STRIPES);
-			marsVDP256Start();
 			loadPalette(&horizontalbars_pal[0], &horizontalbars_pal[2], 0);
 		}
 
@@ -604,14 +574,9 @@ void vt_horizontal_stripes()
 			palette = 1;
 		}
 
-		MARS_SYS_COMM6 = 1;
-
 		drawLineTable(4);
 
-		currentFB ^= 1;
-		MARS_VDP_FBCTL = currentFB;
-
-		Hw32xDelay(frameDelay);
+		Hw32xScreenFlip(0);
 	}
 	return;
 }
@@ -619,12 +584,10 @@ void vt_horizontal_stripes()
 void vt_vertical_stripes()
 {
 	u16 done = 0;
-	int frameDelay = 1;
 	int test = 1;
 	int manualtest = 1;
 	int palette = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	MARS_SYS_COMM6 = 0;
 
 	u8 verticalbars_tile_data_8[] __attribute__((aligned(16))) = {
 		0x00,0x01,0x00,0x01,0x00,0x01,0x00,0x01,
@@ -649,12 +612,12 @@ void vt_vertical_stripes()
 
 	loadPalette(&verticalbars_pal[0], &verticalbars_pal[2], 0);
 
-	currentFB = MARS_VDP_FBCTL & MARS_VDP_FS;
-
-	MARS_SYS_COMM6 = MASTER_STATUS_OK;
+	Hw32xScreenFlip(0);
 
 	while (!done)
 	{
+		Hw32xFlipWait();
+
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
@@ -664,9 +627,6 @@ void vt_vertical_stripes()
 
 		pressedButton = button & ~oldButton;
     	oldButton = button;
-
-		while (MARS_SYS_COMM6 == SLAVE_LOCK);
-		MARS_SYS_COMM6 = 4;
 
 		switch (test) {
 			case 1:
@@ -756,14 +716,10 @@ void vt_vertical_stripes()
 			palette = 1;
 		}
 
-		MARS_SYS_COMM6 = 1;
-
 		drawLineTable(4);
 
-		currentFB ^= 1;
-		MARS_VDP_FBCTL = currentFB;
+		Hw32xScreenFlip(0);
 
-		Hw32xDelay(frameDelay);
 	}
 	return;
 }
@@ -775,8 +731,6 @@ void vt_checkerboard()
 	int palette = 1;
 	int i;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
-	MARS_SYS_COMM6 = 0;
 
 	u8 checkerboard_tile_data_8[] __attribute__((aligned(16))) = {
 		0x00,0x01,0x00,0x01,0x00,0x01,0x00,0x01,
@@ -791,22 +745,22 @@ void vt_checkerboard()
 
 	marsVDP256Start();
 
-	vu16 checkerboard_pal[2] = {
+	const u16 checkerboard_pal[2] = {
 		0x7FFF,0x0000
 	};
 
-	vu16 checkerboard_alt_pal[2] = {
+	const u16 checkerboard_alt_pal[2] = {
 		0x0000,0x7FFF
 	};
 
 	loadPalette(&checkerboard_pal[0], &checkerboard_pal[2], 0);
 
-	currentFB = MARS_VDP_FBCTL & MARS_VDP_FS; 
-	
-	MARS_SYS_COMM6 = MASTER_STATUS_OK;
+	Hw32xScreenFlip(0);
 
 	while (!done)
 	{
+		Hw32xFlipWait();
+
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
@@ -816,11 +770,6 @@ void vt_checkerboard()
 
 		pressedButton = button & ~oldButton;
     	oldButton = button;
-
-		while ((MARS_VDP_FBCTL & MARS_VDP_FS) != currentFB) {}
-
-		while (MARS_SYS_COMM6 == SLAVE_LOCK);
-		MARS_SYS_COMM6 = 4;
 
 		for (int i=0; i<=224; i=i+8){
 			for (int a=0; a<=320; a=a+8){
@@ -838,7 +787,6 @@ void vt_checkerboard()
 			break;
 				
 			case 2:
-
 				switch (palette) {
 					case 1:
 						loadPalette(&checkerboard_alt_pal[0], &checkerboard_alt_pal[2], 0);
@@ -881,12 +829,9 @@ void vt_checkerboard()
 			palette = 1;
 		}
 
-		MARS_SYS_COMM6 = 1;
-
 		drawLineTable(4);
 
-		currentFB ^= 1;
-		MARS_VDP_FBCTL = currentFB;
+		Hw32xScreenFlip(0);
 	}
 	return;
 }
@@ -903,7 +848,6 @@ void vt_backlitzone_test()
 	int backgroundColor_2 = 2;
 	int block = 2;
 	vu16 *cram16 = &MARS_CRAM;
-	MARS_SYS_COMM6 = 0;
 
 	u8 block_0x0_tile[] __attribute__((aligned(16))) = {
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -977,12 +921,12 @@ void vt_backlitzone_test()
 	vu8 blockColor[8] = {blockColor_1,blockColor_1,blockColor_1,blockColor_1,blockColor_1,blockColor_1,blockColor_1,blockColor_1};
 	vu8 backgroundColor[8] = {backgroundColor_2,backgroundColor_2,backgroundColor_2,backgroundColor_2,backgroundColor_2,backgroundColor_2,backgroundColor_2,backgroundColor_2};
 
-	currentFB = MARS_VDP_FBCTL & MARS_VDP_FS;
-
-	MARS_SYS_COMM6 = MASTER_STATUS_OK;
+	Hw32xScreenFlip(0);
 
 	while (!done) 
 	{
+		Hw32xFlipWait();
+
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
@@ -1046,11 +990,6 @@ void vt_backlitzone_test()
 			done = 1;
 		}
 
-		while ((MARS_VDP_FBCTL & MARS_VDP_FS) != currentFB) {}
-
-		while (MARS_SYS_COMM6 == SLAVE_LOCK);
-		MARS_SYS_COMM6 = 4;
-
 		drawFillRect(0,0,320,224,(vu8*)&backgroundColor);
 
 		switch (block)
@@ -1072,12 +1011,9 @@ void vt_backlitzone_test()
 			break;
 		}
 
-		MARS_SYS_COMM6 = 1;
-
 		drawLineTable(4);
 
-		currentFB ^= 1;
-		MARS_VDP_FBCTL = currentFB;
+		Hw32xScreenFlip(0);
 
 		Hw32xDelay(frameDelay);
 	}
@@ -1093,10 +1029,9 @@ void at_sound_test()
 	extern const vu16 BACKGROUND_PALETTE_DATA[];
 	extern const u8 BACKGROUND_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
-	u16 *frameBuffer16 = &MARS_FRAMEBUFFER;
+	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
 	sound_t JUMP;
 	sound_t BEEP;
-	MARS_SYS_COMM6 = 0;
 
 	Hw32xAudioInit();
 
@@ -1115,13 +1050,20 @@ void at_sound_test()
 	int fontColorGreen = 206;
 	int fontColorGray = 207;
 	int fontColorBlack = 208;
-	
-	currentFB = MARS_VDP_FBCTL & MARS_VDP_FS;
 
-	MARS_SYS_COMM6 = MASTER_STATUS_OK;
+	Hw32xScreenFlip(0);
 	
 	while (!done)
 	{
+		Hw32xFlipWait();
+
+		memcpy(frameBuffer16 + 0x100, BACKGROUND_TILE, 320*224);
+
+		mars_drawTextwShadow("Sound Test", 54, 58, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Left Channel", -15, 80, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Center Channel", 40, 100, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Right Channel", 110, 80, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
+
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
@@ -1175,23 +1117,18 @@ void at_sound_test()
 				break;
 			}
 		}
-		
-		while ((MARS_VDP_FBCTL & MARS_VDP_FS) != currentFB) {}
 
-		while (MARS_SYS_COMM6 == SLAVE_LOCK);
-		MARS_SYS_COMM6 = 4;
+		button = MARS_SYS_COMM8;
 
-		memcpy(frameBuffer16 + 0x100, BACKGROUND_TILE, 320*224);
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
+		{
+			button = MARS_SYS_COMM10;
+		}
 
-		mars_drawTextwShadow("Sound Test", 54, 58, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Left Channel", -15, 80, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Center Channel", 40, 100, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Right Channel", 110, 80, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
+		pressedButton = button & ~oldButton;
+		oldButton = button;
 
-		MARS_SYS_COMM6 = 1;
-
-		currentFB ^= 1;
-		MARS_VDP_FBCTL = currentFB; 
+		Hw32xScreenFlip(0);
 
 		Hw32xDelay(frameDelay);
 	}
@@ -1208,18 +1145,17 @@ void ht_controller_test()
 	extern const u8 BACKGROUND_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
-	MARS_SYS_COMM6 = 0;
 
 	for (int i = 0; i < 27; i++){
 		cram16[i] = BACKGROUND_PALETTE_DATA[i] & 0x7FFF;
 	}
 
-	currentFB = MARS_VDP_FBCTL & MARS_VDP_FS; 
-	
-	MARS_SYS_COMM6 = MASTER_STATUS_OK;
-	
+	Hw32xScreenFlip(0);
+
 	while (!done) 
 	{
+		Hw32xFlipWait();
+
 		button = MARS_SYS_COMM8;
 
 		button2 = MARS_SYS_COMM10;
@@ -1239,11 +1175,6 @@ void ht_controller_test()
 			screenFadeOut(1);
 		 	done = 1;
 		}
-		
-		while ((MARS_VDP_FBCTL & MARS_VDP_FS) != currentFB) {}
-
-		while (MARS_SYS_COMM6 == SLAVE_LOCK);
-		MARS_SYS_COMM6 = 4;
 
 		memcpy(frameBuffer16 + 0x100, BACKGROUND_TILE, 320*224);
 
@@ -1299,10 +1230,7 @@ void ht_controller_test()
 
 		mars_drawTextwShadow("Use START+LEFT to exit", 0, 193, fontColorGreen, fontColorGray);
 
-		MARS_SYS_COMM6 = 1;
-
-		currentFB ^= 1;
-		MARS_VDP_FBCTL = currentFB;
+		Hw32xScreenFlip(0);
 
 		Hw32xDelay(frameDelay);
 	}
@@ -1318,9 +1246,6 @@ void ht_memory_viewer(u32 address)
 	int redraw = 1, docrc = 0, locpos = 1, i = 0;
 	u32	crc = 0, locations[MAX_LOCATIONS] = { 0, 0x0004000, 0x0004100, 0x0004200, 0x0004400, 0x2000000, 0x4000000, 0x4020000, 0x6000000 };
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	vu16 *cram16 = &MARS_CRAM;
-	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
-	MARS_SYS_COMM6 = 0;
 
 	// Clear the 32X CRAM
 	for(i = 0; i < 255; i++)
@@ -1331,10 +1256,6 @@ void ht_memory_viewer(u32 address)
 	// Set screen priority for the 32X 
 	MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X | MARS_224_LINES | MARS_VDP_MODE_256;
 
-	currentFB = MARS_VDP_FBCTL & MARS_VDP_FS; 
-	
-	MARS_SYS_COMM6 = MASTER_STATUS_OK;
-
 	for(i = 0; i < MAX_LOCATIONS; i++)
 	{
 		if(locations[i] == address)
@@ -1344,58 +1265,54 @@ void ht_memory_viewer(u32 address)
 		}
 	}
 
+	Hw32xScreenFlip(0);
+
 	while (!done) 
 	{
-	if(redraw)
-	{
-		int 	i = 0, j = 0;
-		u8     *mem = NULL;
-		char 	buffer[10];
+		Hw32xFlipWait();
 
-		mem = (u8*)address;
-
-		while ((MARS_VDP_FBCTL & MARS_VDP_FS) != currentFB) {}
-
-		if(docrc)
-			crc = CalculateCRC(address, 0x1C0);
-
-		intToHex(address, buffer, 8);
-		HwMdPuts(buffer, 0x4000, 32, 0);
-		intToHex(address+448, buffer, 8);
-		HwMdPuts(buffer, 0x4000, 32, 27);
-
-		if(docrc)
+		if(redraw)
 		{
-			intToHex(crc, buffer, 8);
-			HwMdPuts(buffer, 0x2000, 32, 14);
-		}
+			int 	i = 0, j = 0;
+			u8     *mem = NULL;
+			char 	buffer[10];
 
-		for(i = 0; i < 28; i++)
-		{
-			for(j = 0; j < 16; j++)
+			mem = (u8*)address;
+
+			if(docrc)
+				crc = CalculateCRC(address, 0x1C0);
+
+			intToHex(address, buffer, 8);
+			HwMdPuts(buffer, 0x4000, 32, 0);
+			intToHex(address+448, buffer, 8);
+			HwMdPuts(buffer, 0x4000, 32, 27);
+
+			if(docrc)
 			{
-				intToHex(mem[i*16+j], buffer, 2);
-				HwMdPuts(buffer, 0x0000, j*2, i);
+				intToHex(crc, buffer, 8);
+				HwMdPuts(buffer, 0x2000, 32, 14);
 			}
+
+			for(i = 0; i < 28; i++)
+			{
+				for(j = 0; j < 16; j++)
+				{
+					intToHex(mem[i*16+j], buffer, 2);
+					HwMdPuts(buffer, 0x0000, j*2, i);
+				}
+			}
+
+			Hw32xScreenFlip(0);
+
+			Hw32xDelay(frameDelay);
+
+			redraw = 0;
 		}
-
-		MARS_SYS_COMM6 = 1;
-
-		currentFB ^= 1;
-		MARS_VDP_FBCTL = currentFB;
-
-		Hw32xDelay(frameDelay);
-
-		redraw = 0;
-	}
 
 		button = MARS_SYS_COMM8;
 
 		pressedButton = button & ~oldButton;
     	oldButton = button;
-
-		while (MARS_SYS_COMM6 == SLAVE_LOCK);
-		MARS_SYS_COMM6 = 4;
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
@@ -1451,10 +1368,7 @@ void ht_memory_viewer(u32 address)
 			redraw = 1;
 		}
 
-		MARS_SYS_COMM6 = 1;
-
-		currentFB ^= 1;
-		MARS_VDP_FBCTL = currentFB;
+		Hw32xScreenFlip(0);
 
 		Hw32xDelay(frameDelay);
 	}
@@ -1512,23 +1426,19 @@ void ht_check_32x_bios_crc(u32 address)
 	int done = 0;
 	int frameDelay = 0;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	vu16 *cram16 = &MARS_CRAM;
 	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
 	extern const vu16 BACKGROUND_PALETTE_DATA[];
-	extern const u8 BACKGROUND_TILE[]; __attribute__((aligned(16)));
-	//MARS_SYS_COMM6 = 0;
+	extern const u8 BACKGROUND_TILE[] __attribute__((aligned(16)));
 	u32	checksum = 0;
 	int redraw = 1;
 
-	currentFB = MARS_VDP_FBCTL & MARS_VDP_FS; 
-	
-	//MARS_SYS_COMM6 = MASTER_STATUS_OK;
-
 	paused = UNPAUSED;
+
+	Hw32xScreenFlip(0);
 
 	while (!done) 
 	{
-		while ((MARS_VDP_FBCTL & MARS_VDP_FS) != currentFB) {}
+		Hw32xFlipWait();
 
 		memcpy(frameBuffer16 + 0x100, BACKGROUND_TILE, 320*224);
 
@@ -1566,8 +1476,7 @@ void ht_check_32x_bios_crc(u32 address)
 			done = 1;
 		}
 
-		currentFB ^= 1;
-		MARS_VDP_FBCTL = currentFB;
+		Hw32xScreenFlip(0);
 
 		Hw32xDelay(frameDelay);
 	}
@@ -1652,24 +1561,21 @@ void ht_test_32x_sdram()
 	int frameDelay = 5;
 	int redraw = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	vu16 *cram16 = &MARS_CRAM;
 	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
 	extern const vu16 BACKGROUND_PALETTE_DATA[];
-	extern const u8 BACKGROUND_TILE[]; __attribute__((aligned(16)));
-	MARS_SYS_COMM6 = 0;
+	extern const u8 BACKGROUND_TILE[] __attribute__((aligned(16)));
 
-	currentFB = MARS_VDP_FBCTL & MARS_VDP_FS; 
-	
-	MARS_SYS_COMM6 = MASTER_STATUS_OK;
+	Hw32xScreenFlip(0);
 
 	while (!done) 
 	{
+		Hw32xFlipWait();
+
 		button = MARS_SYS_COMM8;
 
 		pressedButton = button & ~oldButton;
     	oldButton = button;
 
-		while ((MARS_VDP_FBCTL & MARS_VDP_FS) != currentFB) {}
 		memcpy(frameBuffer16 + 0x100, BACKGROUND_TILE, 320*224);
 
 		//ShowMessageAndData("32X SDRAM", 0x6000000, 15, 0x0000, 7, 7);
@@ -1683,8 +1589,8 @@ void ht_test_32x_sdram()
 		//redraw = 0;
 		//}
 		
-		while (MARS_SYS_COMM6 == SLAVE_LOCK);
-		MARS_SYS_COMM6 = 4;
+		//while (MARS_SYS_COMM6 == SLAVE_LOCK);
+		//MARS_SYS_COMM6 = 4;
 
 		if(redraw)
 		{
@@ -1696,8 +1602,6 @@ void ht_test_32x_sdram()
 		redraw = 0;
 		}
 
-		MARS_SYS_COMM6 = 1;
-
 		if (pressedButton & SEGA_CTRL_START)
 		{
 		 	done = 1;
@@ -1708,8 +1612,7 @@ void ht_test_32x_sdram()
 			done = 1;
 		}
 
-		currentFB ^= 1;
-		MARS_VDP_FBCTL = currentFB;
+		Hw32xScreenFlip(0);
 
 		Hw32xDelay(frameDelay);
 	}

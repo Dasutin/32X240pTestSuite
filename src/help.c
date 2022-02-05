@@ -39,19 +39,12 @@ extern int fontColorBlack;
 void DrawHelp(int option)
 {
 	int frameDelay = 5;
-	//vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	u16 exit = 0;
 	u16 page = 1;
 	u16 totalpages = 1;
-	
-	MARS_SYS_COMM6 = 0; // Initialize COMM6 for the slave
 
 	marsVDP256Start();
-
-	currentFB = MARS_VDP_FBCTL & MARS_VDP_FS; 
-	
-	MARS_SYS_COMM6 = MASTER_STATUS_OK; // Tell the slave to start
 
 	switch (option)
 	{
@@ -71,8 +64,11 @@ void DrawHelp(int option)
 		break;
 	}
 
+	Hw32xScreenFlip(0);
+
 	while (!exit) 
 	{
+		Hw32xFlipWait();
 
 		button = MARS_SYS_COMM8;
 
@@ -83,11 +79,6 @@ void DrawHelp(int option)
 
 		pressedButton = button & ~oldButton;
     	oldButton = button & 0x0FFF;
-		
-		while ((MARS_VDP_FBCTL & MARS_VDP_FS) != currentFB) {}
-
-		while (MARS_SYS_COMM6 == SLAVE_LOCK);
-		MARS_SYS_COMM6 = 4;
 
 		DrawMainBG();
 		loadTextPalette();
@@ -772,13 +763,8 @@ void DrawHelp(int option)
 			exit = 1;
 		}
 
-
-		MARS_SYS_COMM6 = 1; // Tell the slave to resume
-
-		currentFB ^= 1;
-		MARS_VDP_FBCTL = currentFB; 
+		Hw32xScreenFlip(0);
 
 		Hw32xDelay(frameDelay);
-
 	}
 }
