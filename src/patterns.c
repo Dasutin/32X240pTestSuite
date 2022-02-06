@@ -37,11 +37,8 @@ void tp_pluge()
 	extern const u16 PLUGE_NTSC_PAL[];
 	extern const u16 PLUGE_RGB_PAL[];
 	extern const u8 PLUGE_TILE[] __attribute__((aligned(16)));
-	vu16 *cram16 = &MARS_CRAM;
 
-	for (int i = 0; i < 255; i++){
-		cram16[i] = PLUGE_NTSC_PAL[i] & 0x7FFF;
-	}
+	loadPalette(&PLUGE_NTSC_PAL[0], &PLUGE_NTSC_PAL[255],0);
 
 	Hw32xScreenFlip(0);
 
@@ -61,14 +58,10 @@ void tp_pluge()
 
     	 switch (pattern) {
 			case 1:
-				for (int i = 0; i < 255; i++){
-					cram16[i] = PLUGE_NTSC_PAL[i] & 0x7FFF;
-				}
+				loadPalette(&PLUGE_NTSC_PAL[0], &PLUGE_NTSC_PAL[255],0);
 			break;
 			case 2:
-					for (int i = 0; i < 255; i++){
-					cram16[i] = PLUGE_RGB_PAL[i] & 0x7FFF;
-				}
+				loadPalette(&PLUGE_RGB_PAL[0], &PLUGE_RGB_PAL[255],0);
 			break;
 		}
 
@@ -90,10 +83,7 @@ void tp_pluge()
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			DrawHelp(HELP_PLUGE);
-
-			for (int i = 0; i < 255; i++){
-				cram16[i] = PLUGE_NTSC_PAL[i] & 0x7FFF;
-			}
+			loadPalette(&PLUGE_NTSC_PAL[0], &PLUGE_NTSC_PAL[255],0);
 		}
 
 		drawBG(PLUGE_TILE);
@@ -114,11 +104,8 @@ void tp_colorchart()
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 COLORCHART_PAL[];
 	extern const u8 COLORCHART_TILE[] __attribute__((aligned(16)));
-	vu16 *cram16 = &MARS_CRAM;
 
-	for (int i = 0; i < 255; i++){
-		cram16[i] = COLORCHART_PAL[i] & 0x7FFF;
-	}
+	loadPalette(&COLORCHART_PAL[0], &COLORCHART_PAL[255],0);
 
 	Hw32xScreenFlip(0);
 
@@ -145,10 +132,7 @@ void tp_colorchart()
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			DrawHelp(HELP_COLORS);
-
-			for (int i = 0; i < 255; i++){
-				cram16[i] = COLORCHART_PAL[i] & 0x7FFF;
-			}
+			loadPalette(&COLORCHART_PAL[0], &COLORCHART_PAL[255],0);
 		}
 
 		drawBG(COLORCHART_TILE);
@@ -169,11 +153,8 @@ void tp_colorbars()
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 EBU_COLORBARS_PAL[];
 	extern const u8 EBU_COLORBARS_TILE[] __attribute__((aligned(16)));
-	vu16 *cram16 = &MARS_CRAM;
 
-	for (int i = 0; i < 255; i++){
-		cram16[i] = EBU_COLORBARS_PAL[i] & 0x7FFF;
-	}
+	loadPalette(&EBU_COLORBARS_PAL[0], &EBU_COLORBARS_PAL[255],0);
 
 	Hw32xScreenFlip(0);
 
@@ -200,10 +181,7 @@ void tp_colorbars()
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			DrawHelp(HELP_COLORS);
-
-			for (int i = 0; i < 255; i++){
-				cram16[i] = EBU_COLORBARS_PAL[i] & 0x7FFF;
-			}
+			loadPalette(&EBU_COLORBARS_PAL[0], &EBU_COLORBARS_PAL[255],0);
 		}
 
 		drawBG(EBU_COLORBARS_TILE);
@@ -225,8 +203,7 @@ void tp_smpte_color_bars()
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 SMPTE75IRE_PAL[];
 	extern const u16 SMPTE100IRE_PAL[];
-	extern const u8 SMPTE100IRE_TILE[] __attribute__((aligned(16)));
-	vu16 *cram16 = &MARS_CRAM;
+	extern const u8 SMPTE100IRE_TILE[] __attribute__((aligned(16)));;
 
 	Hw32xScreenFlip(0);
 
@@ -246,15 +223,11 @@ void tp_smpte_color_bars()
 
     	switch (pattern) {
 			case 1:
-				for (int i = 0; i < 255; i++){
-					cram16[i] = SMPTE75IRE_PAL[i] & 0x7FFF;
-				}
+				loadPalette(&SMPTE75IRE_PAL[0], &SMPTE75IRE_PAL[255],0);
 			break;
 				
 			case 2:
-				for (int i = 0; i < 255; i++){
-					cram16[i] = SMPTE100IRE_PAL[i] & 0x7FFF;
-				}
+				loadPalette(&SMPTE100IRE_PAL[0], &SMPTE100IRE_PAL[255],0);
 			break;
 		}
 
@@ -276,10 +249,7 @@ void tp_smpte_color_bars()
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			DrawHelp(HELP_SMPTE);
-
-			for (int i = 0; i < 255; i++){
-				cram16[i] = SMPTE75IRE_PAL[i] & 0x7FFF;
-			}
+			loadPalette(&SMPTE75IRE_PAL[0], &SMPTE75IRE_PAL[255],0);
 		}
 
 		drawBG(SMPTE100IRE_TILE);
@@ -300,11 +270,8 @@ void tp_ref_color_bars()
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 COLORREF_PAL[];
 	extern const u8 COLORREF_TILE[] __attribute__((aligned(16)));
-	vu16 *cram16 = &MARS_CRAM;
 
-	for (int i = 0; i < 255; i++){
-		cram16[i] = COLORREF_PAL[i] & 0x7FFF;
-	}
+	loadPalette(&COLORREF_PAL[0], &COLORREF_PAL[255],0);
 
 	Hw32xScreenFlip(0);
 
@@ -331,10 +298,7 @@ void tp_ref_color_bars()
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			DrawHelp(HELP_601CB);
-
-			for (int i = 0; i < 255; i++){
-				cram16[i] = COLORREF_PAL[i] & 0x7FFF;
-			}
+			loadPalette(&COLORREF_PAL[0], &COLORREF_PAL[255],0);
 		}
 
 		drawBG(COLORREF_TILE);
@@ -357,11 +321,8 @@ void tp_color_bleed_check()
 	extern const u16 COLORBLEED_PAL[];
 	extern const u8 COLORBLEED_TILE[] __attribute__((aligned(16)));
 	extern const u8 COLORBLEED_CHECKERBOARD_TILE[] __attribute__((aligned(16)));
-	vu16 *cram16 = &MARS_CRAM;
 
-	for (int i = 0; i < 255; i++){
-		cram16[i] = COLORBLEED_PAL[i] & 0x7FFF;
-	}
+	loadPalette(&COLORBLEED_PAL[0], &COLORBLEED_PAL[255],0);
 
 	Hw32xScreenFlip(0);
 
@@ -402,10 +363,7 @@ void tp_color_bleed_check()
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			DrawHelp(HELP_BLEED);
-
-			for (int i = 0; i < 255; i++){
-				cram16[i] = COLORBLEED_PAL[i] & 0x7FFF;
-			}
+			loadPalette(&COLORBLEED_PAL[0], &COLORBLEED_PAL[255],0);
 		}
 
 		switch (pattern) {
@@ -436,7 +394,8 @@ void tp_grid()
 	extern const u16 GRID_PAL[];
 	extern const u16 GRID_GRAY_PAL[];
 	extern const u8 GRID_TILE[] __attribute__((aligned(16)));
-	vu16 *cram16 = &MARS_CRAM;
+
+	loadPalette(&GRID_PAL[0], &GRID_PAL[255],0);
 
 	Hw32xScreenFlip(0);
 
@@ -456,15 +415,11 @@ void tp_grid()
 
     	switch (pattern) {
 			case 1:
-				for (int i = 0; i < 255; i++){
-					cram16[i] = GRID_PAL[i] & 0x7FFF;
-				}
+				loadPalette(&GRID_PAL[0], &GRID_PAL[255],0);
 			break;
 				
 			case 2:
-				for (int i = 0; i < 255; i++){
-					cram16[i] = GRID_GRAY_PAL[i] & 0x7FFF;
-				}
+				loadPalette(&GRID_GRAY_PAL[0], &GRID_GRAY_PAL[255],0);
 			break;
 		}
 
@@ -486,10 +441,7 @@ void tp_grid()
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			DrawHelp(HELP_GRID);
-
-			for (int i = 0; i < 3; i++){
-				cram16[i] = GRID_PAL[i] & 0x7FFF;
-			}
+			loadPalette(&GRID_PAL[0], &GRID_PAL[255],0);
 		}
 
 		drawBG(GRID_TILE);
@@ -554,12 +506,6 @@ void tp_monoscope()
 				cram16[2] = COLOR(31, 0, 0);
 		}
 
-		if (pressedButton & SEGA_CTRL_START)
-		{
-			screenFadeOut(1);
-			done = 1;
-		}
-
 		drawBG(MONOSCOPE_TILE);
 
     	switch (pattern) {
@@ -592,6 +538,12 @@ void tp_monoscope()
 			break;
 		}
 
+		if (pressedButton & SEGA_CTRL_START)
+		{
+			screenFadeOut(1);
+			done = 1;
+		}
+
 		drawLineTable(4);
 
 		Hw32xScreenFlip(0);
@@ -608,11 +560,8 @@ void tp_gray_ramp()
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 GRAYRAMP_PAL[];
 	extern const u8 GRAYRAMP_TILE[] __attribute__((aligned(16)));
-	vu16 *cram16 = &MARS_CRAM;
 
-	for (int i = 0; i < 255; i++){
-		cram16[i] = GRAYRAMP_PAL[i] & 0x7FFF;
-	}
+	loadPalette(&GRAYRAMP_PAL[0], &GRAYRAMP_PAL[255],0);
 
 	Hw32xScreenFlip(0);
 
@@ -639,10 +588,7 @@ void tp_gray_ramp()
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			DrawHelp(HELP_GRAY);
-
-			for (int i = 0; i < 255; i++){
-				cram16[i] = GRAYRAMP_PAL[i] & 0x7FFF;
-			}
+			loadPalette(&GRAYRAMP_PAL[0], &GRAYRAMP_PAL[255],0);
 		}
 
 		drawBG(GRAYRAMP_TILE);
@@ -789,12 +735,6 @@ void tp_100_ire()
 			cram16[0] = COLOR(0, 0, 0);
 		}
 
-		if (pressedButton & SEGA_CTRL_START)
-		{
-			screenFadeOut(1);
-			done = 1;
-		}
-
 		drawBG(IRE_TILE);
 
     	switch (pattern) {
@@ -827,6 +767,12 @@ void tp_100_ire()
 			break;
 		}
 
+		if (pressedButton & SEGA_CTRL_START)
+		{
+			screenFadeOut(1);
+			done = 1;
+		}
+
 		drawLineTable(4);
 
 		Hw32xScreenFlip(0);
@@ -846,15 +792,12 @@ void tp_sharpness()
 	extern const u16 SHARPNESS_BRICK_PAL[];
 	extern const u8 SHARPNESS_TILE[] __attribute__((aligned(16)));
 	extern const u8 SHARPNESS_BRICK_TILE[] __attribute__((aligned(16)));
-	vu16 *cram16 = &MARS_CRAM;
 
-	for (int i = 0; i < 4; i++)	{
-		cram16[i] = SHARPNESS_PAL[i] & 0x7FFF;
-	}
+	loadPalette(&SHARPNESS_PAL[0], &SHARPNESS_PAL[255],0);
 
 	Hw32xScreenFlip(0);
 
-	while (!done) 
+	while (!done)
 	{
 		Hw32xFlipWait();
 
@@ -867,12 +810,6 @@ void tp_sharpness()
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
-
-		if (pressedButton & SEGA_CTRL_B)
-		{
-			screenFadeOut(1);
-			done = 1;
-		}
 
 		if (pressedButton & SEGA_CTRL_A)
 		{
@@ -889,16 +826,12 @@ void tp_sharpness()
 
 			switch (pattern) {
 			case 1:
-				for (int i = 0; i < 4; i++)	{
-					cram16[i] = SHARPNESS_PAL[i] & 0x7FFF;
-				}
+				loadPalette(&SHARPNESS_PAL[0], &SHARPNESS_PAL[255],0);
 				drawBG(SHARPNESS_TILE);
 			break;
 				
 			case 2:
-				for (int i = 0; i < 255; i++){
-					cram16[i] = SHARPNESS_BRICK_PAL[i] & 0x7FFF;
-				}
+				loadPalette(&SHARPNESS_BRICK_PAL[0], &SHARPNESS_BRICK_PAL[255],0);
 				drawBG(SHARPNESS_BRICK_TILE);
 			break;
 			}
@@ -906,18 +839,20 @@ void tp_sharpness()
 
 		switch (pattern) {
 			case 1:
-				for (int i = 0; i < 4; i++)	{
-					cram16[i] = SHARPNESS_PAL[i] & 0x7FFF;
-				}
+				loadPalette(&SHARPNESS_PAL[0], &SHARPNESS_PAL[255],0);
 				drawBG(SHARPNESS_TILE);
 			break;
 				
 			case 2:
-				for (int i = 0; i < 255; i++){
-					cram16[i] = SHARPNESS_BRICK_PAL[i] & 0x7FFF;
-				}
+				loadPalette(&SHARPNESS_BRICK_PAL[0], &SHARPNESS_BRICK_PAL[255],0);
 				drawBG(SHARPNESS_BRICK_TILE);
 			break;
+		}
+
+		if (pressedButton & SEGA_CTRL_B)
+		{
+			screenFadeOut(1);
+			done = 1;
 		}
 
 		drawLineTable(4);
@@ -994,12 +929,6 @@ void tp_convergence()
 			}
 		}
 
-		if (pressedButton & SEGA_CTRL_START)
-		{
-			screenFadeOut(1);
-			done = 1;
-		}
-
     	switch (pattern) {
 			case 1:
 				for (int i = 0; i < 255; i++){
@@ -1038,6 +967,12 @@ void tp_convergence()
 				}
 				drawBG(CONVERGENCE_COLOR_BORDER_TILE);
 			break;
+		}
+
+		if (pressedButton & SEGA_CTRL_START)
+		{
+			screenFadeOut(1);
+			done = 1;
 		}
 
 		drawLineTable(4);

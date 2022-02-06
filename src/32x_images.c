@@ -30,11 +30,11 @@
 #define FRAMEBUFFER_ROW_EXTENSION 16
 #define IS_MIRRORED 1
 
-#define fontColorWhite = 204;
-#define fontColorRed = 205;
-#define fontColorGreen = 206;
-#define fontColorGray = 207;
-#define fontColorBlack = 208;
+#define fontColorWhite 204
+#define fontColorRed 205
+#define fontColorGreen 206
+#define fontColorGray 207
+#define fontColorBlack 208
 
 #define IS_TRANSPARENT 1
 static const int TRANSPARENT_PIXEL_COLOR = 0;
