@@ -34,13 +34,13 @@ void tp_pluge()
 	int frameDelay = 1;
 	int pattern = 1;
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
-	extern const u16 PLUGE_NTSC_PALETTE_DATA[];
-	extern const u16 PLUGE_RGB_PALETTE_DATA[];
-	extern const u8 PLUGE_PATTERN[] __attribute__((aligned(16)));
+	extern const u16 PLUGE_NTSC_PAL[];
+	extern const u16 PLUGE_RGB_PAL[];
+	extern const u8 PLUGE_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 
 	for (int i = 0; i < 255; i++){
-		cram16[i] = PLUGE_NTSC_PALETTE_DATA[i] & 0x7FFF;
+		cram16[i] = PLUGE_NTSC_PAL[i] & 0x7FFF;
 	}
 
 	Hw32xScreenFlip(0);
@@ -62,12 +62,12 @@ void tp_pluge()
     	 switch (pattern) {
 			case 1:
 				for (int i = 0; i < 255; i++){
-					cram16[i] = PLUGE_NTSC_PALETTE_DATA[i] & 0x7FFF;
+					cram16[i] = PLUGE_NTSC_PAL[i] & 0x7FFF;
 				}
 			break;
 			case 2:
 					for (int i = 0; i < 255; i++){
-					cram16[i] = PLUGE_RGB_PALETTE_DATA[i] & 0x7FFF;
+					cram16[i] = PLUGE_RGB_PAL[i] & 0x7FFF;
 				}
 			break;
 		}
@@ -92,11 +92,11 @@ void tp_pluge()
 			DrawHelp(HELP_PLUGE);
 
 			for (int i = 0; i < 255; i++){
-				cram16[i] = PLUGE_NTSC_PALETTE_DATA[i] & 0x7FFF;
+				cram16[i] = PLUGE_NTSC_PAL[i] & 0x7FFF;
 			}
 		}
 
-		drawBG(PLUGE_PATTERN);
+		drawBG(PLUGE_TILE);
 
 		drawLineTable(4);
 
@@ -112,12 +112,12 @@ void tp_colorchart()
 	u16 done = 0;
 	int frameDelay = 5;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	extern const u16 COLORCHART_PALETTE_DATA[];
-	extern const u8 COLORCHART_PATTERN[] __attribute__((aligned(16)));
+	extern const u16 COLORCHART_PAL[];
+	extern const u8 COLORCHART_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 
 	for (int i = 0; i < 255; i++){
-		cram16[i] = COLORCHART_PALETTE_DATA[i] & 0x7FFF;
+		cram16[i] = COLORCHART_PAL[i] & 0x7FFF;
 	}
 
 	Hw32xScreenFlip(0);
@@ -147,11 +147,11 @@ void tp_colorchart()
 			DrawHelp(HELP_COLORS);
 
 			for (int i = 0; i < 255; i++){
-				cram16[i] = COLORCHART_PALETTE_DATA[i] & 0x7FFF;
+				cram16[i] = COLORCHART_PAL[i] & 0x7FFF;
 			}
 		}
 
-		drawBG(COLORCHART_PATTERN);
+		drawBG(COLORCHART_TILE);
 
 		drawLineTable(4);
 
@@ -167,12 +167,12 @@ void tp_colorbars()
 	u16 done = 0;
 	int frameDelay = 5;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	extern const u16 EBU_COLORBARS_PALETTE_DATA[];
-	extern const u8 EBU_COLORBARS_PATTERN[] __attribute__((aligned(16)));
+	extern const u16 EBU_COLORBARS_PAL[];
+	extern const u8 EBU_COLORBARS_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 
 	for (int i = 0; i < 255; i++){
-		cram16[i] = EBU_COLORBARS_PALETTE_DATA[i] & 0x7FFF;
+		cram16[i] = EBU_COLORBARS_PAL[i] & 0x7FFF;
 	}
 
 	Hw32xScreenFlip(0);
@@ -202,11 +202,11 @@ void tp_colorbars()
 			DrawHelp(HELP_COLORS);
 
 			for (int i = 0; i < 255; i++){
-				cram16[i] = EBU_COLORBARS_PALETTE_DATA[i] & 0x7FFF;
+				cram16[i] = EBU_COLORBARS_PAL[i] & 0x7FFF;
 			}
 		}
 
-		drawBG(EBU_COLORBARS_PATTERN);
+		drawBG(EBU_COLORBARS_TILE);
 
 		drawLineTable(4);
 
@@ -223,9 +223,9 @@ void tp_smpte_color_bars()
 	int frameDelay = 1;
 	int pattern = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	extern const u16 SMPTE75IRE_PALETTE_DATA[];
-	extern const u16 SMPTE100IRE_PALETTE_DATA[];
-	extern const u8 SMPTE100IRE_PATTERN[] __attribute__((aligned(16)));
+	extern const u16 SMPTE75IRE_PAL[];
+	extern const u16 SMPTE100IRE_PAL[];
+	extern const u8 SMPTE100IRE_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 
 	Hw32xScreenFlip(0);
@@ -247,13 +247,13 @@ void tp_smpte_color_bars()
     	switch (pattern) {
 			case 1:
 				for (int i = 0; i < 255; i++){
-					cram16[i] = SMPTE75IRE_PALETTE_DATA[i] & 0x7FFF;
+					cram16[i] = SMPTE75IRE_PAL[i] & 0x7FFF;
 				}
 			break;
 				
 			case 2:
 				for (int i = 0; i < 255; i++){
-					cram16[i] = SMPTE100IRE_PALETTE_DATA[i] & 0x7FFF;
+					cram16[i] = SMPTE100IRE_PAL[i] & 0x7FFF;
 				}
 			break;
 		}
@@ -278,11 +278,11 @@ void tp_smpte_color_bars()
 			DrawHelp(HELP_SMPTE);
 
 			for (int i = 0; i < 255; i++){
-				cram16[i] = SMPTE75IRE_PALETTE_DATA[i] & 0x7FFF;
+				cram16[i] = SMPTE75IRE_PAL[i] & 0x7FFF;
 			}
 		}
 
-		drawBG(SMPTE100IRE_PATTERN);
+		drawBG(SMPTE100IRE_TILE);
 
 		drawLineTable(4);
 
@@ -298,12 +298,12 @@ void tp_ref_color_bars()
 	u16 done = 0;
 	int frameDelay = 5;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	extern const u16 COLORREF_PALETTE_DATA[];
-	extern const u8 COLORREF_PATTERN[] __attribute__((aligned(16)));
+	extern const u16 COLORREF_PAL[];
+	extern const u8 COLORREF_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 
 	for (int i = 0; i < 255; i++){
-		cram16[i] = COLORREF_PALETTE_DATA[i] & 0x7FFF;
+		cram16[i] = COLORREF_PAL[i] & 0x7FFF;
 	}
 
 	Hw32xScreenFlip(0);
@@ -333,11 +333,11 @@ void tp_ref_color_bars()
 			DrawHelp(HELP_601CB);
 
 			for (int i = 0; i < 255; i++){
-				cram16[i] = COLORREF_PALETTE_DATA[i] & 0x7FFF;
+				cram16[i] = COLORREF_PAL[i] & 0x7FFF;
 			}
 		}
 
-		drawBG(COLORREF_PATTERN);
+		drawBG(COLORREF_TILE);
 
 		drawLineTable(4);
 
@@ -354,13 +354,13 @@ void tp_color_bleed_check()
 	int frameDelay = 0;
 	int pattern = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	extern const u16 COLORBLEED_PALETTE_DATA[];
-	extern const u8 COLORBLEED_PATTERN[] __attribute__((aligned(16)));
+	extern const u16 COLORBLEED_PAL[];
+	extern const u8 COLORBLEED_TILE[] __attribute__((aligned(16)));
 	extern const u8 COLORBLEED_CHECKERBOARD_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 
 	for (int i = 0; i < 255; i++){
-		cram16[i] = COLORBLEED_PALETTE_DATA[i] & 0x7FFF;
+		cram16[i] = COLORBLEED_PAL[i] & 0x7FFF;
 	}
 
 	Hw32xScreenFlip(0);
@@ -404,13 +404,13 @@ void tp_color_bleed_check()
 			DrawHelp(HELP_BLEED);
 
 			for (int i = 0; i < 255; i++){
-				cram16[i] = COLORBLEED_PALETTE_DATA[i] & 0x7FFF;
+				cram16[i] = COLORBLEED_PAL[i] & 0x7FFF;
 			}
 		}
 
 		switch (pattern) {
 				case 1:
-					drawBG(&COLORBLEED_PATTERN);
+					drawBG(&COLORBLEED_TILE);
 				break;
 				
 				case 2:
@@ -433,9 +433,9 @@ void tp_grid()
 	int frameDelay = 4;
 	int pattern = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	extern const u16 GRID_PALETTE_DATA[];
-	extern const u16 GRID_GRAY_PALETTE_DATA[];
-	extern const u8 GRID_PATTERN[] __attribute__((aligned(16)));
+	extern const u16 GRID_PAL[];
+	extern const u16 GRID_GRAY_PAL[];
+	extern const u8 GRID_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 
 	Hw32xScreenFlip(0);
@@ -457,13 +457,13 @@ void tp_grid()
     	switch (pattern) {
 			case 1:
 				for (int i = 0; i < 255; i++){
-					cram16[i] = GRID_PALETTE_DATA[i] & 0x7FFF;
+					cram16[i] = GRID_PAL[i] & 0x7FFF;
 				}
 			break;
 				
 			case 2:
 				for (int i = 0; i < 255; i++){
-					cram16[i] = GRID_GRAY_PALETTE_DATA[i] & 0x7FFF;
+					cram16[i] = GRID_GRAY_PAL[i] & 0x7FFF;
 				}
 			break;
 		}
@@ -488,11 +488,11 @@ void tp_grid()
 			DrawHelp(HELP_GRID);
 
 			for (int i = 0; i < 3; i++){
-				cram16[i] = GRID_PALETTE_DATA[i] & 0x7FFF;
+				cram16[i] = GRID_PAL[i] & 0x7FFF;
 			}
 		}
 
-		drawBG(GRID_PATTERN);
+		drawBG(GRID_TILE);
 
 		drawLineTable(4);
 
@@ -509,7 +509,7 @@ void tp_monoscope()
 	int frameDelay = 5;
 	int pattern = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	extern const u8 MONOSCOPE_PATTERN[] __attribute__((aligned(16)));
+	extern const u8 MONOSCOPE_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 
 	cram16[0] = COLOR(30, 30, 30);
@@ -560,7 +560,7 @@ void tp_monoscope()
 			done = 1;
 		}
 
-		drawBG(MONOSCOPE_PATTERN);
+		drawBG(MONOSCOPE_TILE);
 
     	switch (pattern) {
 			case 1:
@@ -606,12 +606,12 @@ void tp_gray_ramp()
 	u16 done = 0;
 	int frameDelay = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	extern const u16 GRAYRAMP_PALETTE_DATA[];
-	extern const u8 GRAYRAMP_PATTERN[] __attribute__((aligned(16)));
+	extern const u16 GRAYRAMP_PAL[];
+	extern const u8 GRAYRAMP_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 
 	for (int i = 0; i < 255; i++){
-		cram16[i] = GRAYRAMP_PALETTE_DATA[i] & 0x7FFF;
+		cram16[i] = GRAYRAMP_PAL[i] & 0x7FFF;
 	}
 
 	Hw32xScreenFlip(0);
@@ -641,11 +641,11 @@ void tp_gray_ramp()
 			DrawHelp(HELP_GRAY);
 
 			for (int i = 0; i < 255; i++){
-				cram16[i] = GRAYRAMP_PALETTE_DATA[i] & 0x7FFF;
+				cram16[i] = GRAYRAMP_PAL[i] & 0x7FFF;
 			}
 		}
 
-		drawBG(GRAYRAMP_PATTERN);
+		drawBG(GRAYRAMP_TILE);
 
 		drawLineTable(4);
 
@@ -748,7 +748,7 @@ void tp_100_ire()
 	int frameDelay = 5;
 	int pattern = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	extern const u8 IRE_PATTERN[] __attribute__((aligned(16)));
+	extern const u8 IRE_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 
 	cram16[0] = COLOR(0, 0, 0);
@@ -795,7 +795,7 @@ void tp_100_ire()
 			done = 1;
 		}
 
-		drawBG(IRE_PATTERN);
+		drawBG(IRE_TILE);
 
     	switch (pattern) {
 			case 1:
@@ -842,14 +842,14 @@ void tp_sharpness()
 	int frameDelay = 5;
 	int pattern = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	extern const u16 SHARPNESS_PALETTE_DATA[];
-	extern const u16 SHARPNESS_BRICK_PALETTE_DATA[];
-	extern const u8 SHARPNESS_PATTERN[] __attribute__((aligned(16)));
-	extern const u8 SHARPNESS_BRICK_PATTERN[] __attribute__((aligned(16)));
+	extern const u16 SHARPNESS_PAL[];
+	extern const u16 SHARPNESS_BRICK_PAL[];
+	extern const u8 SHARPNESS_TILE[] __attribute__((aligned(16)));
+	extern const u8 SHARPNESS_BRICK_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 
 	for (int i = 0; i < 4; i++)	{
-		cram16[i] = SHARPNESS_PALETTE_DATA[i] & 0x7FFF;
+		cram16[i] = SHARPNESS_PAL[i] & 0x7FFF;
 	}
 
 	Hw32xScreenFlip(0);
@@ -890,16 +890,16 @@ void tp_sharpness()
 			switch (pattern) {
 			case 1:
 				for (int i = 0; i < 4; i++)	{
-					cram16[i] = SHARPNESS_PALETTE_DATA[i] & 0x7FFF;
+					cram16[i] = SHARPNESS_PAL[i] & 0x7FFF;
 				}
-				drawBG(SHARPNESS_PATTERN);
+				drawBG(SHARPNESS_TILE);
 			break;
 				
 			case 2:
 				for (int i = 0; i < 255; i++){
-					cram16[i] = SHARPNESS_BRICK_PALETTE_DATA[i] & 0x7FFF;
+					cram16[i] = SHARPNESS_BRICK_PAL[i] & 0x7FFF;
 				}
-				drawBG(SHARPNESS_BRICK_PATTERN);
+				drawBG(SHARPNESS_BRICK_TILE);
 			break;
 			}
 		}
@@ -907,16 +907,16 @@ void tp_sharpness()
 		switch (pattern) {
 			case 1:
 				for (int i = 0; i < 4; i++)	{
-					cram16[i] = SHARPNESS_PALETTE_DATA[i] & 0x7FFF;
+					cram16[i] = SHARPNESS_PAL[i] & 0x7FFF;
 				}
-				drawBG(SHARPNESS_PATTERN);
+				drawBG(SHARPNESS_TILE);
 			break;
 				
 			case 2:
 				for (int i = 0; i < 255; i++){
-					cram16[i] = SHARPNESS_BRICK_PALETTE_DATA[i] & 0x7FFF;
+					cram16[i] = SHARPNESS_BRICK_PAL[i] & 0x7FFF;
 				}
-				drawBG(SHARPNESS_BRICK_PATTERN);
+				drawBG(SHARPNESS_BRICK_TILE);
 			break;
 		}
 
@@ -935,9 +935,9 @@ void tp_convergence()
 	int frameDelay = 5;
 	int pattern = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	extern const u16 CONVERGENCE_GRID_PALETTE_DATA[];
-	extern const u16 CONVERGENCE_COLOR_PALETTE[];
-	extern const u16 CONVERGENCE_COLOR_BORDER_PALETTE[];
+	extern const u16 CONVERGENCE_GRID_PAL[];
+	extern const u16 CONVERGENCE_COLOR_PAL[];
+	extern const u16 CONVERGENCE_COLOR_BORDER_PAL[];
 	extern const u8 CONVERGENCE_GRID_TILE[] __attribute__((aligned(16)));
 	extern const u8 CONVERGENCE_STARS_TILE[] __attribute__((aligned(16)));
 	extern const u8 CONVERGENCE_DOTS_TILE[] __attribute__((aligned(16)));
@@ -946,7 +946,7 @@ void tp_convergence()
 	vu16 *cram16 = &MARS_CRAM;
 
 	for (int i = 0; i < 255; i++){
-		cram16[i] = CONVERGENCE_GRID_PALETTE_DATA[i] & 0x7FFF;
+		cram16[i] = CONVERGENCE_GRID_PAL[i] & 0x7FFF;
 	}
 
 	Hw32xScreenFlip(0);
@@ -990,7 +990,7 @@ void tp_convergence()
 			DrawHelp(HELP_CONVERGENCE);
 
 			for (int i = 0; i < 255; i++){
-				cram16[i] = CONVERGENCE_GRID_PALETTE_DATA[i] & 0x7FFF;
+				cram16[i] = CONVERGENCE_GRID_PAL[i] & 0x7FFF;
 			}
 		}
 
@@ -1003,7 +1003,7 @@ void tp_convergence()
     	switch (pattern) {
 			case 1:
 				for (int i = 0; i < 255; i++){
-					cram16[i] = CONVERGENCE_GRID_PALETTE_DATA[i] & 0x7FFF;
+					cram16[i] = CONVERGENCE_GRID_PAL[i] & 0x7FFF;
 				}
 				cram16[1] = COLOR(31, 31, 31);
 				drawBG(CONVERGENCE_GRID_TILE);
@@ -1011,7 +1011,7 @@ void tp_convergence()
 				
 			case 2:
 				for (int i = 0; i < 255; i++){
-					cram16[i] = CONVERGENCE_GRID_PALETTE_DATA[i] & 0x7FFF;
+					cram16[i] = CONVERGENCE_GRID_PAL[i] & 0x7FFF;
 				}
 				cram16[1] = COLOR(31, 31, 31);
 				drawBG(CONVERGENCE_DOTS_TILE);
@@ -1019,7 +1019,7 @@ void tp_convergence()
 
 			case 3:
 				for (int i = 0; i < 255; i++){
-					cram16[i] = CONVERGENCE_GRID_PALETTE_DATA[i] & 0x7FFF;
+					cram16[i] = CONVERGENCE_GRID_PAL[i] & 0x7FFF;
 				}
 				cram16[1] = COLOR(31, 31, 31);
 				drawBG(CONVERGENCE_STARS_TILE);
@@ -1027,14 +1027,14 @@ void tp_convergence()
 		
 			case 4:
 				for (int i = 0; i < 255; i++){
-					cram16[i] = CONVERGENCE_COLOR_PALETTE[i] & 0x7FFF;
+					cram16[i] = CONVERGENCE_COLOR_PAL[i] & 0x7FFF;
 				}
 				drawBG(CONVERGENCE_COLOR_TILE);
 			break;
 				
 			case 5:
 				for (int i = 0; i < 255; i++){
-					cram16[i] = CONVERGENCE_COLOR_BORDER_PALETTE[i] & 0x7FFF;
+					cram16[i] = CONVERGENCE_COLOR_BORDER_PAL[i] & 0x7FFF;
 				}
 				drawBG(CONVERGENCE_COLOR_BORDER_TILE);
 			break;

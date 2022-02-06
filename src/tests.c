@@ -171,21 +171,21 @@ void vt_drop_shadow_test()
 	int bee_mirror = 1; // Start right
 	int frameCount = 0;
 	int evenFrames = 0;
-	extern const u8 BEE_PATTERN[] __attribute__((aligned(16)));
-	extern const u8 BEE_SHADOW_TILE[] __attribute__((aligned(16)));
+	extern const u8 BUZZ_TILE[] __attribute__((aligned(16)));
+	extern const u8 BUZZ_SHADOW_TILE[] __attribute__((aligned(16)));
 	extern const u8 MARKER_SHADOW_TILE[] __attribute__((aligned(16)));
 	int changeSprite = 0;
 	int background = 1;
-	extern const vu16 TEST_PALETTE[];
-	extern const vu16 MOTOKO_PALETTE_DATA[];
-	extern const u8 MOTOKO_PATTERN[] __attribute__((aligned(16)));
+	extern const vu16 TEST_PAL[];
+	extern const vu16 DONNA_PAL[];
+	extern const u8 DONNA_TILE[] __attribute__((aligned(16)));
 	extern const u8 H_STRIPES_SHADOW_TILE[] __attribute__((aligned(16)));
 	extern const u8 CHECKERBOARD_SHADOW_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	u16 button = 0, pressedButton = 0, oldButton = 0xFFFF;
 
 	for (int i = 0; i < 227; i++){
-		cram16[i] = MOTOKO_PALETTE_DATA[i] & 0x7FFF;
+		cram16[i] = DONNA_PAL[i] & 0x7FFF;
 	}
 
 	Hw32xScreenFlip(0);
@@ -232,7 +232,7 @@ void vt_drop_shadow_test()
 			DrawHelp(HELP_SHADOW);
 
 			for (int i = 0; i < 12+13; i++){
-				cram16[i] = TEST_PALETTE[i] & 0x7FFF;
+				cram16[i] = DONNA_PAL[i] & 0x7FFF;
 			}
 		}
 
@@ -274,7 +274,7 @@ void vt_drop_shadow_test()
 
 		switch (background) {
 				case 1:
-					drawBG(MOTOKO_PATTERN);
+					drawBG(DONNA_TILE);
 				break;
 				
 				case 2:
@@ -288,9 +288,9 @@ void vt_drop_shadow_test()
 
 		if (changeSprite == 0){
 		if (frameCount % 2 == evenFrames ) {
-		drawSprite(BEE_SHADOW_TILE,x,y,32,32,bee_mirror,0);
+		drawSprite(BUZZ_SHADOW_TILE,x,y,32,32,bee_mirror,0);
 		}
-		drawSprite(BEE_PATTERN,x-20,y-20,32,32,bee_mirror,0);
+		drawSprite(BUZZ_TILE,x-20,y-20,32,32,bee_mirror,0);
 		}
 		else {
 		if (frameCount % 2 == evenFrames ) {
@@ -318,14 +318,14 @@ void vt_striped_sprite_test()
 	extern const u8 MARKER_STRIPED_TILE[] __attribute__((aligned(16)));
 	extern const u8 H_STRIPES_SHADOW_TILE[] __attribute__((aligned(16)));
 	extern const u8 CHECKERBOARD_SHADOW_TILE[] __attribute__((aligned(16)));
-	extern const vu16 TEST_PALETTE[];
-	extern const vu16 MOTOKO_PALETTE_DATA[];
-	extern const u8 MOTOKO_PATTERN[] __attribute__((aligned(16)));
+	extern const vu16 TEST_PAL[];
+	extern const vu16 DONNA_PAL[];
+	extern const u8 DONNA_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	u16 button = 0, pressedButton = 0, oldButton = 0xFFFF;
 
 	for (int i = 0; i < 227; i++){
-		cram16[i] = MOTOKO_PALETTE_DATA[i] & 0x7FFF;
+		cram16[i] = DONNA_PAL[i] & 0x7FFF;
 	}
 
 	Hw32xScreenFlip(0);
@@ -367,7 +367,7 @@ void vt_striped_sprite_test()
 			DrawHelp(HELP_STRIPED);
 
 			for (int i = 0; i < 12+13; i++){
-				cram16[i] = TEST_PALETTE[i] & 0x7FFF;
+				cram16[i] = DONNA_PAL[i] & 0x7FFF;
 			}
 		}
 
@@ -408,7 +408,7 @@ void vt_striped_sprite_test()
 		switch (background) 
 		{
 			case 1:
-				drawBG(MOTOKO_PATTERN);
+				drawBG(DONNA_TILE);
 			break;
 				
 			case 2:
@@ -437,7 +437,7 @@ void vt_horizontal_stripes()
 	int palette = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 
-	u8 horizontalbars_tile_data_8[] __attribute__((aligned(16))) = {
+	u8 h_bars_tile_8[] __attribute__((aligned(16))) = {
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -448,17 +448,17 @@ void vt_horizontal_stripes()
 		0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01
 	};
 
-	vu16 horizontalbars_pal[2] = {
+	vu16 h_bars_pal[2] = {
 		0x7FFF,0x0000
 	};
 
-	vu16 horizontalbars_alt_pal[2] = {
+	vu16 h_bars_alt_pal[2] = {
 		0x0000,0x7FFF
 	};
 
 	marsVDP256Start();
 
-	loadPalette(&horizontalbars_pal[0], &horizontalbars_pal[2], 0);
+	loadPalette(&h_bars_pal[0], &h_bars_pal[2], 0);
 
 	Hw32xScreenFlip(0);
 
@@ -480,7 +480,7 @@ void vt_horizontal_stripes()
 			case 1:
 				for (int i=0; i<=224; i=i+8){
 					for (int a=0; a<=320; a=a+8){
-						drawSprite(horizontalbars_tile_data_8,a,i,8,8,0,0);
+						drawSprite(h_bars_tile_8,a,i,8,8,0,0);
 					}
 				}	
 			break;
@@ -488,11 +488,11 @@ void vt_horizontal_stripes()
 			case 2:
 				switch (palette) {
 					case 1:
-						loadPalette(&horizontalbars_alt_pal[0], &horizontalbars_alt_pal[2], 0);
+						loadPalette(&h_bars_alt_pal[0], &h_bars_alt_pal[2], 0);
 					break;
 				
 					case 2:
-						loadPalette(&horizontalbars_pal[0], &horizontalbars_pal[2], 0);
+						loadPalette(&h_bars_pal[0], &h_bars_pal[2], 0);
 					break;
 				}
 			break;
@@ -526,12 +526,12 @@ void vt_horizontal_stripes()
 			switch (manualtest) {
 			case 1:
 				test = 1;
-				loadPalette(&horizontalbars_pal[0], &horizontalbars_pal[2], 0);
+				loadPalette(&h_bars_pal[0], &h_bars_pal[2], 0);
 			break;
 				
 			case 2:
 				test = 1;
-				loadPalette(&horizontalbars_alt_pal[0], &horizontalbars_alt_pal[2], 0);
+				loadPalette(&h_bars_alt_pal[0], &h_bars_alt_pal[2], 0);
 			break;
 			}
 		}
@@ -547,12 +547,12 @@ void vt_horizontal_stripes()
 			switch (manualtest) {
 			case 1:
 				test = 1;
-				loadPalette(&horizontalbars_pal[0], &horizontalbars_pal[2], 0);
+				loadPalette(&h_bars_pal[0], &h_bars_pal[2], 0);
 			break;
 				
 			case 2:
 				test = 1;
-				loadPalette(&horizontalbars_alt_pal[0], &horizontalbars_alt_pal[2], 0);
+				loadPalette(&h_bars_alt_pal[0], &h_bars_alt_pal[2], 0);
 			break;
 		}
 		}
@@ -560,7 +560,7 @@ void vt_horizontal_stripes()
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			DrawHelp(HELP_STRIPES);
-			loadPalette(&horizontalbars_pal[0], &horizontalbars_pal[2], 0);
+			loadPalette(&h_bars_pal[0], &h_bars_pal[2], 0);
 		}
 
 		palette++;
@@ -584,7 +584,7 @@ void vt_vertical_stripes()
 	int palette = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 
-	u8 verticalbars_tile_data_8[] __attribute__((aligned(16))) = {
+	u8 v_bars_tile_8[] __attribute__((aligned(16))) = {
 		0x00,0x01,0x00,0x01,0x00,0x01,0x00,0x01,
 		0x00,0x01,0x00,0x01,0x00,0x01,0x00,0x01,
 		0x00,0x01,0x00,0x01,0x00,0x01,0x00,0x01,
@@ -595,17 +595,17 @@ void vt_vertical_stripes()
 		0x00,0x01,0x00,0x01,0x00,0x01,0x00,0x01
 	};
 
-	vu16 verticalbars_pal[2] = {
+	vu16 v_bars_pal[2] = {
 		0x7FFF,0x0000
 	};
 
-	vu16 verticalbars_alt_pal[2] = {
+	vu16 v_bars_alt_pal[2] = {
 		0x0000,0x7FFF
 	};
 
 	marsVDP256Start();
 
-	loadPalette(&verticalbars_pal[0], &verticalbars_pal[2], 0);
+	loadPalette(&v_bars_pal[0], &v_bars_pal[2], 0);
 
 	Hw32xScreenFlip(0);
 
@@ -627,7 +627,7 @@ void vt_vertical_stripes()
 			case 1:
 				for (int i=0; i<=224; i=i+8){
 					for (int a=0; a<=320; a=a+8){
-						drawSprite(verticalbars_tile_data_8,a,i,8,8,0,0);
+						drawSprite(v_bars_tile_8,a,i,8,8,0,0);
 					}
 				}	
 			break;
@@ -635,11 +635,11 @@ void vt_vertical_stripes()
 			case 2:
 				switch (palette) {
 					case 1:
-						loadPalette(&verticalbars_alt_pal[0], &verticalbars_alt_pal[2], 0);
+						loadPalette(&v_bars_alt_pal[0], &v_bars_alt_pal[2], 0);
 					break;
 				
 					case 2:
-						loadPalette(&verticalbars_pal[0], &verticalbars_pal[2], 0);
+						loadPalette(&v_bars_pal[0], &v_bars_pal[2], 0);
 					break;
 				}
 			break;
@@ -674,12 +674,12 @@ void vt_vertical_stripes()
 			switch (manualtest) {
 			case 1:
 				test = 1;
-				loadPalette(&verticalbars_pal[0], &verticalbars_pal[2], 0);
+				loadPalette(&v_bars_pal[0], &v_bars_pal[2], 0);
 			break;
 				
 			case 2:
 				test = 1;
-				loadPalette(&verticalbars_alt_pal[0], &verticalbars_alt_pal[2], 0);
+				loadPalette(&v_bars_alt_pal[0], &v_bars_alt_pal[2], 0);
 			break;
 			}
 		}
@@ -695,12 +695,12 @@ void vt_vertical_stripes()
 			switch (manualtest) {
 			case 1:
 				test = 1;
-				loadPalette(&verticalbars_pal[0], &verticalbars_pal[2], 0);
+				loadPalette(&v_bars_pal[0], &v_bars_pal[2], 0);
 			break;
 				
 			case 2:
 				test = 1;
-				loadPalette(&verticalbars_alt_pal[0], &verticalbars_alt_pal[2], 0);
+				loadPalette(&v_bars_alt_pal[0], &v_bars_alt_pal[2], 0);
 			break;
 		}
 		}
@@ -727,7 +727,7 @@ void vt_checkerboard()
 	int i;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 
-	u8 checkerboard_tile_data_8[] __attribute__((aligned(16))) = {
+	u8 checkerboard_tile_8[] __attribute__((aligned(16))) = {
 		0x00,0x01,0x00,0x01,0x00,0x01,0x00,0x01,
 		0x01,0x00,0x01,0x00,0x01,0x00,0x01,0x00,
 		0x00,0x01,0x00,0x01,0x00,0x01,0x00,0x01,
@@ -768,7 +768,7 @@ void vt_checkerboard()
 
 		for (int i=0; i<=224; i=i+8){
 			for (int a=0; a<=320; a=a+8){
-				drawSprite(checkerboard_tile_data_8,a,i,8,8,0,0);
+				drawSprite(checkerboard_tile_8,a,i,8,8,0,0);
 			}
 		}
 
@@ -776,7 +776,7 @@ void vt_checkerboard()
 			case 1:
 				for (int i=0; i<=224; i=i+8){
 					for (int a=0; a<=320; a=a+8){
-						drawSprite(checkerboard_tile_data_8,a,i,8,8,0,0);
+						drawSprite(checkerboard_tile_8,a,i,8,8,0,0);
 					}
 				}	
 			break;
@@ -1021,7 +1021,7 @@ void at_sound_test()
 	int frameDelay = 5;
 	int curse = 2;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	extern const vu16 BACKGROUND_PALETTE_DATA[];
+	extern const vu16 BACKGROUND_PAL[];
 	extern const u8 BACKGROUND_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
@@ -1031,7 +1031,7 @@ void at_sound_test()
 	Hw32xAudioInit();
 
 	for (int i = 0; i < 27; i++){
-		cram16[i] = BACKGROUND_PALETTE_DATA[i] & 0x7FFF;
+		cram16[i] = BACKGROUND_PAL[i] & 0x7FFF;
 	}
 
 	cram16[205] = COLOR(31, 31, 31); // 204 is White
@@ -1136,13 +1136,13 @@ void ht_controller_test()
 	int frameDelay = 5;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	u16 button2, pressedButton2, oldButton2 = 0xFFFF;
-	extern const vu16 BACKGROUND_PALETTE_DATA[];
+	extern const vu16 BACKGROUND_PAL[];
 	extern const u8 BACKGROUND_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
 
 	for (int i = 0; i < 27; i++){
-		cram16[i] = BACKGROUND_PALETTE_DATA[i] & 0x7FFF;
+		cram16[i] = BACKGROUND_PAL[i] & 0x7FFF;
 	}
 
 	Hw32xScreenFlip(0);
@@ -1429,7 +1429,7 @@ void ht_check_32x_bios_crc(u32 address)
 	int frameDelay = 0;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
-	extern const vu16 BACKGROUND_PALETTE_DATA[];
+	extern const vu16 BACKGROUND_PAL[];
 	extern const u8 BACKGROUND_TILE[] __attribute__((aligned(16)));
 	u32	checksum = 0;
 	int redraw = 1;
@@ -1564,7 +1564,7 @@ void ht_test_32x_sdram()
 	int redraw = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
-	extern const vu16 BACKGROUND_PALETTE_DATA[];
+	extern const vu16 BACKGROUND_PAL[];
 	extern const u8 BACKGROUND_TILE[] __attribute__((aligned(16)));
 
 	Hw32xScreenFlip(0);

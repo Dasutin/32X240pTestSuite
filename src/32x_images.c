@@ -761,7 +761,7 @@ void mars_drawText(const char *str, int x, int y, int palOffs)
 	int screenOffs;
 	int fontOffs;
 	static unsigned short fc = 0;
-	extern u8 FONT_HIGHLIGHT_FONT[];
+	extern u8 FONT_HIGHLIGHT_TILE[];
 
 	for (int i = 0; i < 40; i++) {
 		c = str[i];
@@ -773,10 +773,10 @@ void mars_drawText(const char *str, int x, int y, int palOffs)
 		fontOffs += (c & 15) << 3;
 		for (int t = 0; t < 8; t++) {
 			for (int s = 0; s < 8; s++) {
-				font = FONT_HIGHLIGHT_FONT[fontOffs + s];
+				font = FONT_HIGHLIGHT_TILE[fontOffs + s];
 				if (font) font += palOffs;
-				if (FONT_HIGHLIGHT_FONT[fontOffs + s])
-					fb[screenOffs + s] = FONT_HIGHLIGHT_FONT[fontOffs + s] + palOffs;
+				if (FONT_HIGHLIGHT_TILE[fontOffs + s])
+					fb[screenOffs + s] = FONT_HIGHLIGHT_TILE[fontOffs + s] + palOffs;
 			}
 			screenOffs += 320;
 			fontOffs += 128;

@@ -2,214 +2,214 @@
 
 .align 2
 
-			.global _GRID_PALETTE_DATA
-_GRID_PALETTE_DATA:	
+			.global _GRID_PAL
+_GRID_PAL:	
 			.incbin "res/grid_pal.bin"
 
 			.align 2
 
-			.global _GRID_GRAY_PALETTE_DATA
-_GRID_GRAY_PALETTE_DATA:
+			.global _GRID_GRAY_PAL
+_GRID_GRAY_PAL:
 			.incbin "res/gridgray_pal.bin"
 
 			.align 2
 
-			.global _COLORREF_PALETTE_DATA
-_COLORREF_PALETTE_DATA:
+			.global _COLORREF_PAL
+_COLORREF_PAL:
 			.incbin "res/colorref_pal.bin"
 
 			.align 2
 
-			.global _SHARPNESS_PALETTE_DATA
-_SHARPNESS_PALETTE_DATA:
+			.global _SHARPNESS_PAL
+_SHARPNESS_PAL:
 			.incbin "res/sharpness_pal.bin"
 
 			.align 2
 
-			.global _SHARPNESS_BRICK_PALETTE_DATA
-_SHARPNESS_BRICK_PALETTE_DATA:
+			.global _SHARPNESS_BRICK_PAL
+_SHARPNESS_BRICK_PAL:
 			.incbin "res/sharpbrick_pal.bin"
 
 			.align 2
 
-			.global _COLORBLEED_PALETTE_DATA
-_COLORBLEED_PALETTE_DATA:
+			.global _COLORBLEED_PAL
+_COLORBLEED_PAL:
 			.incbin "res/colorbleed_pal_a.bin"
 
 			.align 2
 
-			.global _GRAYRAMP_PALETTE_DATA
-_GRAYRAMP_PALETTE_DATA:
+			.global _GRAYRAMP_PAL
+_GRAYRAMP_PAL:
 			.incbin "res/grayramp_pal.bin"
 
 			.align 2
 
-			.global _PLUGE_NTSC_PALETTE_DATA
-_PLUGE_NTSC_PALETTE_DATA:
+			.global _PLUGE_NTSC_PAL
+_PLUGE_NTSC_PAL:
 			.incbin "res/plugentsc_pal.bin"
 
 			.align 2
 
-			.global _PLUGE_RGB_PALETTE_DATA
-_PLUGE_RGB_PALETTE_DATA:
+			.global _PLUGE_RGB_PAL
+_PLUGE_RGB_PAL:
 			.incbin "res/plugergb_pal.bin"
 
 			.align 2
 
-			.global _HSTRIPES_PALETTE_DATA
-_HSTRIPES_PALETTE_DATA:
+			.global _HSTRIPES_PAL
+_HSTRIPES_PAL:
 			.incbin "res/horizontalstripes_pal.bin"
 
 			.align 2
 
-			.global _SMPTE100IRE_PALETTE_DATA
-_SMPTE100IRE_PALETTE_DATA:
+			.global _SMPTE100IRE_PAL
+_SMPTE100IRE_PAL:
 			.incbin "res/smpte_100_ire_pal.bin"
 
 			.align 2
 
-			.global _SMPTE75IRE_PALETTE_DATA
-_SMPTE75IRE_PALETTE_DATA:
+			.global _SMPTE75IRE_PAL
+_SMPTE75IRE_PAL:
 			.incbin "res/smpte_75_ire_pal.bin"
 
 			.align 2
 
-			.global _BACKGROUND_PALETTE_DATA
-_BACKGROUND_PALETTE_DATA:
+			.global _BACKGROUND_PAL
+_BACKGROUND_PAL:
 			.incbin "res/background_pals.bin"
 
 			.align 2
 
-			.global _FONT_HIGHLIGHT_FONT_PALETTE_DATA
-_FONT_HIGHLIGHT_FONT_PALETTE_DATA:
+			.global _FONT_HIGHLIGHT_PAL
+_FONT_HIGHLIGHT_PAL:
 			.incbin "res/240pfont_highlight_pal.bin"
 
 			.align 2
 
-			.global _CONVERGENCE_GRID_PALETTE_DATA
-_CONVERGENCE_GRID_PALETTE_DATA:
+			.global _CONVERGENCE_GRID_PAL
+_CONVERGENCE_GRID_PAL:
 			.incbin "res/convergence_grid_pal.bin"
 
 			.align 2
 
-			.global _MOTOKO_PALETTE_DATA
-_MOTOKO_PALETTE_DATA:
+			.global _DONNA_PAL
+_DONNA_PAL:
 			.incbin "res/donna_pal.bin"
 
 			.align 2
 
-			.global _BEE_PALETTE_DATA
-_BEE_PALETTE_DATA:
-			.incbin "res/bee_pal.bin"
+			.global _BUZZ_PAL
+_BUZZ_PAL:
+			.incbin "res/buzz_pal.bin"
 
 			.align 2
 
-			.global _TEST_PALETTE
-_TEST_PALETTE:
-			.incbin "res/motoko_pal.bin"
-			.incbin "res/bee_pal.bin"
+			.global _TEST_PAL
+_TEST_PAL:
+			.incbin "res/donna_pal.bin"
+			.incbin "res/buzz_pal.bin"
 
 			.align 2
 
-			.global _SCREENSCROLL_COMBO_PALETTE
-_SCREENSCROLL_COMBO_PALETTE:
+			.global _SCREENSCROLL_COMBO_PAL
+_SCREENSCROLL_COMBO_PAL:
 			.incbin "res/screenscroll_pal.bin"
 			.incbin "res/screenscroll_background_1_pal.bin"
 
 			.align 2
 
-			.global _BACKGROUND_W_GILLIAN_PALETTE
-_BACKGROUND_W_GILLIAN_PALETTE:
+			.global _BACKGROUND_W_GILLIAN_PAL
+_BACKGROUND_W_GILLIAN_PAL:
 			.incbin "res/background_w_gillian_pal.bin"
 
 			.align 2
 
-			.global _MARKER_PALETTE
-_MARKER_PALETTE:
+			.global _MARKER_PAL
+_MARKER_PAL:
 			.incbin "res/marker_pal.bin"
 
 			.align 2
 
-			.global _MARKER_STRIPED_PALETTE
-_MARKER_STRIPED_PALETTE:
+			.global _MARKER_STRIPED_PAL
+_MARKER_STRIPED_PAL:
 			.incbin "res/marker_striped_pal.bin"
 
 			.align 2
 
-			.global _CONVERGENCE_COLOR_PALETTE
-_CONVERGENCE_COLOR_PALETTE:
+			.global _CONVERGENCE_COLOR_PAL
+_CONVERGENCE_COLOR_PAL:
 			.incbin "res/convergence_color_pal.bin"
 
 			.align 2
 
-			.global _CONVERGENCE_COLOR_BORDER_PALETTE
-_CONVERGENCE_COLOR_BORDER_PALETTE:
+			.global _CONVERGENCE_COLOR_BORDER_PAL
+_CONVERGENCE_COLOR_BORDER_PAL:
 			.incbin "res/convergence_color_border_pal.bin"
 
 			.align 2
 
-			.global _SCREENSCROLL_PALETTE
-_SCREENSCROLL_PALETTE:
+			.global _SCREENSCROLL_PAL
+_SCREENSCROLL_PAL:
 			.incbin "res/screenscroll_pal.bin"
 
 			.align 2
 
-			.global _SCREENSCROLL_TREES_TEST_PALETTE
-_SCREENSCROLL_TREES_TEST_PALETTE:
+			.global _SCREENSCROLL_TREES_TEST_PAL
+_SCREENSCROLL_TREES_TEST_PAL:
 			.incbin "res/screenscroll_trees_test_pal.bin"
 
 			.align 2
 
-			.global _SCREENSCROLL_BACKGROUND_PALETTE
-_SCREENSCROLL_BACKGROUND_PALETTE:
+			.global _SCREENSCROLL_BACKGROUND_PAL
+_SCREENSCROLL_BACKGROUND_PAL:
 			.incbin "res/screenscroll_background_1_pal.bin"
 
 			.align 2
 
-			.global _COLORCHART_PALETTE_DATA
-_COLORCHART_PALETTE_DATA:
+			.global _COLORCHART_PAL
+_COLORCHART_PAL:
 			.incbin "res/colorchart_pal.bin"
 
 			.align 2
 
-			.global _EBU_COLORBARS_PALETTE_DATA
-_EBU_COLORBARS_PALETTE_DATA:
+			.global _EBU_COLORBARS_PAL
+_EBU_COLORBARS_PAL:
 			.incbin "res/ebu_colorbars_pal.bin"
 
 			.align 2
 
-			.global _BLACK_ALL_PALETTE_DATA
-_BLACK_ALL_PALETTE_DATA:
+			.global _BLACK_ALL_PAL
+_BLACK_ALL_PAL:
 			.incbin "res/black_all_pal.bin"
 
 			.align 2
 
-			.global _GRID_PATTERN
-_GRID_PATTERN:
+			.global _GRID_TILE
+_GRID_TILE:
 			.incbin "res/grid_tile.bin"
 
 			.align 2
 
-			.global _COLORREF_PATTERN
-_COLORREF_PATTERN:
+			.global _COLORREF_TILE
+_COLORREF_TILE:
 			.incbin "res/colorref_tile.bin"
 
 			.align 2
 
-			.global _SHARPNESS_PATTERN
-_SHARPNESS_PATTERN:
+			.global _SHARPNESS_TILE
+_SHARPNESS_TILE:
 			.incbin "res/sharpness_tile.bin"
 
 			.align 2
 
-			.global _SHARPNESS_BRICK_PATTERN
-_SHARPNESS_BRICK_PATTERN:
+			.global _SHARPNESS_BRICK_TILE
+_SHARPNESS_BRICK_TILE:
 			.incbin "res/sharpbrick_tile.bin"
 
 			.align 2
 
-			.global _COLORBLEED_PATTERN
-_COLORBLEED_PATTERN:
+			.global _COLORBLEED_TILE
+_COLORBLEED_TILE:
 			.incbin "res/colorbleed_tile.bin"
 
 			.align 2
@@ -220,26 +220,26 @@ _COLORBLEED_CHECKERBOARD_TILE:
 
 			.align 2
 
-			.global _GRAYRAMP_PATTERN
-_GRAYRAMP_PATTERN:
+			.global _GRAYRAMP_TILE
+_GRAYRAMP_TILE:
 			.incbin "res/grayramp_tile.bin"
 
 			.align 2
 
-			.global _PLUGE_PATTERN
-_PLUGE_PATTERN:
+			.global _PLUGE_TILE
+_PLUGE_TILE:
 			.incbin "res/pluge_tile.bin"
 
 			.align 2
 
-			.global _HSTRIPES_PATTERN
-_HSTRIPES_PATTERN:
+			.global _HSTRIPES_TILE
+_HSTRIPES_TILE:
 			.incbin "res/horizontalstripes_tile.bin"
 
 			.align 2
 
-			.global _SMPTE100IRE_PATTERN
-_SMPTE100IRE_PATTERN:
+			.global _SMPTE100IRE_TILE
+_SMPTE100IRE_TILE:
 			.incbin "res/smpte_100_ire_tile.bin"
 
 			.align 2
@@ -252,8 +252,8 @@ _BACKGROUND_TILE:
 
 			.align 2
 
-			.global _FONT_HIGHLIGHT_FONT
-_FONT_HIGHLIGHT_FONT:
+			.global _FONT_HIGHLIGHT_TILE
+_FONT_HIGHLIGHT_TILE:
 			.incbin "res/240pfont_highlight_tile.bin"
 
 			.align 2
@@ -276,15 +276,15 @@ _CONVERGENCE_DOTS_TILE:
 
 			.align 2
 
-			.global _MOTOKO_PATTERN
-_MOTOKO_PATTERN:
+			.global _DONNA_TILE
+_DONNA_TILE:
 			.incbin "res/donna_tile.bin"
 
 			.align 2
 
-			.global _BEE_PATTERN
-_BEE_PATTERN:
-			.incbin "res/bee_tile.bin"
+			.global _BUZZ_TILE
+_BUZZ_TILE:
+			.incbin "res/buzz_tile.bin"
 
 			.align 2
 
@@ -306,9 +306,9 @@ _MARKER_STRIPED_TILE:
 
 			.align 2
 
-			.global _BEE_SHADOW_TILE
-_BEE_SHADOW_TILE:
-			.incbin "res/bee_shadow_tile.bin"
+			.global _BUZZ_SHADOW_TILE
+_BUZZ_SHADOW_TILE:
+			.incbin "res/buzz_shadow_tile.bin"
 
 			.align 2
 
@@ -348,7 +348,7 @@ _SCREENSCROLL_TILE:
 
 			.align 2
 
-			.global _SCREENSCROLL_TREES_TEST
+			.global _SCREENSCROLL_TREES_TEST_TILE
 _SCREENSCROLL_TREES_TEST_TILE:
 			.incbin "res/screenscroll_trees_test_tile.bin"
 
@@ -360,32 +360,32 @@ _SCREENSCROLL_BACKGROUND_TILE:
 
 			.align 2
 
-			.global _IRE_PATTERN
-_IRE_PATTERN:
+			.global _IRE_TILE
+_IRE_TILE:
 			.incbin "res/ire.bin"
 
 			.align 2
 
-			.global _TEST_SMTPE_PATTERN
-_TEST_SMTPE_PATTERN:
+			.global _TEST_SMTPE_TILE
+_TEST_SMTPE_TILE:
 			.incbin "res/test.bin"
 
 			.align 2
 
-			.global _COLORCHART_PATTERN
-_COLORCHART_PATTERN:
+			.global _COLORCHART_TILE
+_COLORCHART_TILE:
 			.incbin "res/colorchart_tile.bin"
 
 			.align 2
 
-			.global _MONOSCOPE_PATTERN
-_MONOSCOPE_PATTERN:
+			.global _MONOSCOPE_TILE
+_MONOSCOPE_TILE:
 			.incbin "res/monoscope_tile.bin"
 
 			.align 2
 
-			.global _EBU_COLORBARS_PATTERN
-_EBU_COLORBARS_PATTERN:
+			.global _EBU_COLORBARS_TILE
+_EBU_COLORBARS_TILE:
 			.incbin "res/ebu_colorbars_tile.bin"
 
 			.align 2
