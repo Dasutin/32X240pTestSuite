@@ -1,70 +1,130 @@
-/* 
- * 240p Test Suite for the Sega 32X
- * Port by Dasutin
- * Copyright (C)2011-2022 Artemio Urbina
- *
- * This file is part of the 240p Test Suite
- *
- * The 240p Test Suite is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * The 240p Test Suite is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with 240p Test Suite; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+/*
+ * SEGA CD Mode 1 Support
+ * by Chilly Willy
  */
 
-//#include "..\inc_md\types.h"
-//#include <genesis.h>
+#include <stdint.h>
+#include <string.h>
 
-//typedef void (*func)();
+extern uint32_t vblank_vector;
+extern uint16_t gen_lvl2;
+extern uint16_t cd_ok;
 
-//#define enable_ints __asm__("move #0x2000,%sr")
-//#define disable_ints __asm__("move #0x2700,%sr")
+extern uint32_t Sub_Start;
+extern uint32_t Sub_End;
 
-// External routines
+extern void Kos_Decomp(uint8_t *src, uint8_t *dst);
 
-//extern void __m68k_start();
-//extern void __wait_vblank();
+extern void write_byte(unsigned int dst, unsigned char val);
+extern void write_word(unsigned int dst, unsigned short val);
+extern void write_long(unsigned int dst, unsigned int val);
+extern unsigned char read_byte(unsigned int src);
+extern unsigned short read_word(unsigned int src);
+extern unsigned int read_long(unsigned int src);
 
-// 32X COMM
+extern void do_main(void);
 
-//static volatile uint16_t* const mars_comm0 = (uint16_t*) 0xA15120;
+uint16_t InitCD(void)
+{
+    char *bios;
 
-// VDP
+    /*
+     * Check for CD BIOS
+     * When a cart is inserted in the MD, the CD hardware is mapped to
+     * 0x400000 instead of 0x000000. So the BIOS ROM is at 0x400000, the
+     * Program RAM bank is at 0x420000, and the Word RAM is at 0x600000.
+     */
+    bios = (char *)0x415800;
+    if (memcmp(bios + 0x6D, "SEGA", 4))
+    {
+        bios = (char *)0x416000;
+        if (memcmp(bios + 0x6D, "SEGA", 4))
+        {
+            // Check for WonderMega/X'Eye
+            if (memcmp(bios + 0x6D, "WONDER", 6))
+            {
+                bios = (char *)0x41AD00; // Might also be 0x40D500
+                // Check for LaserActive
+                if (memcmp(bios + 0x6D, "SEGA", 4))
+                    return 0; // No CD
+            }
+        }
+    }
 
-//static volatile uint16_t* const vdp_data_port = (uint16_t*) 0xC00000;
-//static volatile uint16_t* const vdp_ctrl_port = (uint16_t*) 0xC00004;
-//static volatile uint32_t* const vdp_ctrl_wide = (uint32_t*) 0xC00004;
+    /*
+     * Reset the Gate Array - this specific sequence of writes is recognized by
+     * the gate array as a reset sequence, clearing the entire internal state -
+     * this is needed for the LaserActive
+     */
+    write_word(0xA12002, 0xFF00);
+    write_byte(0xA12001, 0x03);
+    write_byte(0xA12001, 0x02);
+    write_byte(0xA12001, 0x00);
 
-////void vdp_color(uint16_t index, uint16_t color) {
-////    index <<= 1;
-////    *vdp_ctrl_wide = ((0xC000 + (((uint32_t)index) & 0x3FFF)) << 16) + (((uint32_t)index) >> 14);
-////    *vdp_data_port = color;
-////}
+    /*
+     * Reset the Sub-CPU, request the bus
+     */
+    write_byte(0xA12001, 0x02);
+    while (!(read_byte(0xA12001) & 2)) write_byte(0xA12001, 0x02); // Wait on bus acknowledge
 
-////const uint16_t color_cycle[10] = { 0xEEE, 0xCCC, 0xAAA, 0x888, 0x666, 0x444, 0x666, 0x888, 0xAAA, 0xCCC };
+    /*
+     * Decompress Sub-CPU BIOS to Program RAM at 0x00000
+     */
+    write_word(0xA12002, 0x0002); // No write-protection, bank 0, 2M mode, Word RAM assigned to Sub-CPU
+    memset((char *)0x420000, 0, 0x20000); // Clear program ram first bank - needed for the LaserActive
+    Kos_Decomp((uint8_t *)bios, (uint8_t *)0x420000);
 
-//void main_m68k() {
-    // Boot code copies routines (starting at __m68k_start) into memory at address 0xFF1000
-    // We want to call the wait_vblank function from in here, so some math to find where it is in RAM
-//    func wait_vblank = (func)(0xFF1000 + __wait_vblank - __m68k_start);
+    /*
+     * Copy Sub-CPU program to Program RAM at 0x06000
+     */
+    memcpy((char *)0x426000, (char *)&Sub_Start, (int)&Sub_End - (int)&Sub_Start);
 
- //   uint16_t ticks = 0, col = 0;
- //   while(1) {
- //       if(++ticks >= 8) {
- //           ticks = 0;
- //           if(++col >= 10) col = 0;
-//        }
-        //disable_ints;
-        ////vdp_color(17, color_cycle[col]);
-        //enable_ints;
-  //      wait_vblank();
-//    }
-//}
+    write_byte(0xA1200E, 0x00); // Clear main comm port
+    write_byte(0xA12002, 0x2A); // Write-protect up to 0x05400
+    write_byte(0xA12001, 0x01); // Clear bus request, deassert reset - allow CD Sub-CPU to run
+    while (!(read_byte(0xA12001) & 1)) write_byte(0xA12001, 0x01); // Wait on Sub-CPU running
+
+    /*
+     * Set the vertical blank handler to generate Sub-CPU level 2 ints.
+     * The Sub-CPU BIOS needs these in order to run.
+     */
+    gen_lvl2 = 1; // Generate Level 2 IRQ to Sub-CPU
+
+    /*
+     * Wait for Sub-CPU program to set sub comm port indicating it is running -
+     * note that unless there's something wrong with the hardware, a timeout isn't
+     * needed... just loop until the Sub-CPU program responds, but 2000000 is about
+     * ten times what the LaserActive needs, and the LA is the slowest unit to
+     * initialize
+     */
+    while (read_byte(0xA1200F) != 'I')
+    {
+        static int timeout = 0;
+        timeout++;
+        if (timeout > 2000000)
+        {
+            gen_lvl2 = 0;
+            return 0; // No CD
+        }
+    }
+
+    /*
+     * Wait for Sub-CPU to indicate it is ready to receive commands
+     */
+    while (read_byte(0xA1200F) != 0x00) ;
+
+    return 1; // CD ready to go!
+}
+
+int main(void)
+{
+    cd_ok = 0; // InitCD();
+
+    /*
+     * Main loop in ram - you need to have it in ram to avoid bus contention
+     * for the rom with the SH2s.
+     */
+    do_main(); // Never returns
+
+    return 0;
+}

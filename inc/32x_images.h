@@ -33,8 +33,7 @@
 * @param paletteEnd - pointer to end position of palette data
 * @param paletteOffset - offset in the CRAM to start writing the palette data to. Normally is 0.
 */
-void loadPalette(const char *paletteStart, const char *paletteEnd, const int paletteOffset);
-
+void loadPalette(const u16 *paletteStart, const u16 *paletteEnd, const int paletteOffset);
 
 /*
 * Writes the lzss encoded image to the target buffer in memory
@@ -44,7 +43,6 @@ void loadPalette(const char *paletteStart, const char *paletteEnd, const int pal
 */
 void loadLzssToRam(const char *imageStart, const char *imageEnd, vu8 *targetMem);
 
-
 void drawLzssBG2(const char *imageStart, const char *imageEnd, int fbOffset);
 
 /*
@@ -53,7 +51,6 @@ void drawLzssBG2(const char *imageStart, const char *imageEnd, int fbOffset);
 * @param imageEnd - pointer to end position of image data
 */
 void drawLzssBG(const char *imageStart, const char *imageEnd);
-
 
 /*
 * Draws a compressed image to position on MARS framebuffer
@@ -78,7 +75,6 @@ void drawLzssSprite(char *spriteStart, char *spriteEnd, vu16 x, vu16 y, int xWid
 */
 void drawLzssSprite2(char *spriteStart, char *spriteEnd, vu16 x, vu16 y, int xWidth, int yWidth, int mirror);
 
-
 /*
 * Draws an image to position on MARS framebuffer allowing you to flip the image using mirror param.
 * 
@@ -92,7 +88,7 @@ void drawLzssSprite2(char *spriteStart, char *spriteEnd, vu16 x, vu16 y, int xWi
 */
 int drawSprite(const vu8 *spriteBuffer, const s16 x, const s16 y, const int xWidth, const int yWidth, const int mirror,const int screenWrap);
 
-inline void drawS(vu8* spriteBuffer, u16 x, u16 y, u16 xWidth, u16 yWidth);
+void drawS(vu8* spriteBuffer, u16 x, u16 y, u16 xWidth, u16 yWidth);
 
 /*
 * Draws a background image on MARS framebuffer allowing you to flip the image using mirror param, no transparency
@@ -107,12 +103,10 @@ int drawBG(const vu8 *spriteBuffer);
 */
 void clearArea(vu16 x, vu16 y, int xWidth, int yWidth);
 
-
 /*
 * Draw line table to framebuffer
 */
 void drawLineTable(int xOff);
-
 
 /* 
 * Draws pixels to rectangle specified by x, y, xWidth and yWidth (height). Must be on screen.
@@ -132,6 +126,5 @@ int myScreenPrintData(const char *buff, const int x, const int y, const vu8* fgC
 void mars_drawText(const char *str, int x, int y, int palOffs);
 void mars_drawTextwShadow(const char *str, int x, int y, int textpalOffs, int shadowpalOffs);
 void screenFadeOut(int fadeSpeed);
-
 
 #endif

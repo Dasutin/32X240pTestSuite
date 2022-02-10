@@ -48,7 +48,8 @@
             "command": "${env:GENS} ${env:MARSPROJECTS}${workspaceFolderBasename}\\build\\240pMars.32x",
             "presentation": {
                 "reveal": "never"
-            }
+            },
+            "problemMatcher": []
         },
         {
             "label": "Send build to Mega Everdrive Pro",
@@ -56,7 +57,8 @@
             "command": "megalink -cp ${env:MARSPROJECTS}${workspaceFolderBasename}\\build\\240pMars.32x sd:/240pMars.32x",
             "presentation": {
                 "reveal": "always"
-            }
+            },
+            "problemMatcher": []
         }
     ]
 }

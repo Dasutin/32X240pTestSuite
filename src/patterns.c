@@ -368,11 +368,11 @@ void tp_color_bleed_check()
 
 		switch (pattern) {
 				case 1:
-					drawBG(&COLORBLEED_TILE);
+					drawBG(COLORBLEED_TILE);
 				break;
 				
 				case 2:
-					drawBG(&COLORBLEED_CHECKERBOARD_TILE);
+					drawBG(COLORBLEED_CHECKERBOARD_TILE);
 				break;
 			}
 

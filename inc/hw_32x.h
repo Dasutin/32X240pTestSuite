@@ -23,7 +23,17 @@
 #ifndef HW_32X_H
 #define HW_32X_H
 
-// Audio section
+#define MD_PAL_0 0x0100
+#define MD_PAL_1 0x0200
+#define MD_PAL_2 0x0300
+#define MD_PAL_3 0x0400
+
+#define MD_COLOR_PAL_GRAY  0x0100
+#define MD_COLOR_PAL_RED   0x0200
+#define MD_COLOR_PAL_GREEN 0x0300
+#define MD_COLOR_PAL_BLUE  0x0400
+
+/* // Audio section
 typedef struct {
   unsigned char *buf;
   unsigned long len;
@@ -37,7 +47,7 @@ typedef struct {
 	char loop;
     char pan;       // When get around to making stereo sfx
     unsigned char pad[2]; // Pad to one cache line
-} channel_t;
+} channel_t; */
 
 #define HW32X_ATTR_DATA_ALIGNED __attribute__((section(".data"), aligned(16)))
 
@@ -70,8 +80,11 @@ extern void HwMdSetNTable(unsigned short word);
 extern void HwMdSetVram(unsigned short word);
 extern void HwMdPuts(char *str, int color, int x, int y);
 extern void HwMdPutc(char chr, int color, int x, int y);
+extern void HwMdSetPal(unsigned short pal);
+extern void HwMdSetColor(unsigned short color);
+void HwMdSetColorPal(unsigned short pal, unsigned short color);
 
-extern void Hw32xAudioCallback(unsigned long buffer);
+/* extern void Hw32xAudioCallback(unsigned long buffer);
 extern void Hw32xAudioInit(void);
 extern void Hw32xAudioShutdown(void);
 extern void Hw32xAudioToggleMute(void);
@@ -83,9 +96,12 @@ extern void Hw32xAudioStopAudio(sound_t *sound);
 extern int Hw32xAudioIsPlaying(sound_t *sound);
 extern void Hw32xAudioStopAllChannels(void);
 extern void Hw32xAudioLoad(sound_t *snd, char *name);
-extern void Hw32xAudioFree(sound_t *s);
+extern void Hw32xAudioFree(sound_t *s); */
 
-extern unsigned short sndbuf[];
+void pri_vbi_handler(void) HW32X_ATTR_DATA_ALIGNED;
+void pri_dma1_handler(void) HW32X_ATTR_DATA_ALIGNED;
+
+/* extern unsigned short sndbuf[];
 
 extern int sysarg_args_nosound;
 extern int sysarg_args_vol;
@@ -114,6 +130,6 @@ extern void sysarg_init(int, char **);
 #define SAMPLE_CENTER 516
 #define MAX_NUM_SAMPLES 1024
 #define NUM_SAMPLES 1024
-#define SAMPLE_MIN 2
+#define SAMPLE_MIN 2 */
 
 #endif

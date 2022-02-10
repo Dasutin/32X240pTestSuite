@@ -88,7 +88,7 @@ void doMBIOSID(u32 checksum, u32 address)
 	name = GetBIOSNamebyCRC(checksum);
 	if(name)
 	{
-		HwMdPuts(name, 0x2000, 11, 20);
+		HwMdPuts(name, 0x4000, 11, 20);
 		return;
 	}
 
@@ -98,17 +98,17 @@ void doMBIOSID(u32 checksum, u32 address)
 
 		mchecksum = CalculateCRC(address, 0x0000800);
 
-		ShowMessageAndData("32X M BIOS CRC32:", mchecksum, 0x4000, 8, 6, 18);
+		ShowMessageAndData("32X M BIOS CRC32:", mchecksum, 0x2000, 8, 6, 18);
 	}
 	
 	// No match! check if we find the SEGA string and report
 	if(Detect32XMBIOS(address))
 	{
-		HwMdPuts("Unknown BIOS, please report CRC", 0x4000, 4, 19);
+		HwMdPuts("Unknown BIOS, please report CRC", 0x2000, 4, 19);
 	}
 	else
 	{
-		HwMdPuts("BIOS not recognized", 0x4000, 8, 19);
+		HwMdPuts("BIOS not recognized", 0x2000, 8, 19);
 	}
 	return;
 }
@@ -153,14 +153,10 @@ void ShowMessageAndData(char *message, u32 address, u8 color, int len, int xpos,
 	intToHex(address, buffer, len);
 	
 	msglen = strlen(message);
-	//mars_drawTextwShadow(message, xpos, ypos, fontColorGreen, fontColorGray);
 	HwMdPuts(message, color, xpos, ypos);
-	//mars_drawTextwShadow(" 0x", xpos+msglen, ypos, fontColorGreen, fontColorGray);
 	HwMdPuts(" 0x", color, xpos+msglen, ypos);
-	//mars_drawTextwShadow(buffer, xpos+msglen+3, ypos, fontColorGreen, fontColorGray);
 	HwMdPuts(buffer, color, xpos+msglen+3, ypos);
 }
-
 
 void vt_drop_shadow_test()
 {
@@ -176,8 +172,8 @@ void vt_drop_shadow_test()
 	extern const u8 MARKER_SHADOW_TILE[] __attribute__((aligned(16)));
 	int changeSprite = 0;
 	int background = 1;
-	extern const vu16 TEST_PAL[];
-	extern const vu16 DONNA_PAL[];
+	//extern const u16 TEST_PAL[];
+	extern const u16 DONNA_PAL[];
 	extern const u8 DONNA_TILE[] __attribute__((aligned(16)));
 	extern const u8 H_STRIPES_SHADOW_TILE[] __attribute__((aligned(16)));
 	extern const u8 CHECKERBOARD_SHADOW_TILE[] __attribute__((aligned(16)));
@@ -312,8 +308,8 @@ void vt_striped_sprite_test()
 	extern const u8 MARKER_STRIPED_TILE[] __attribute__((aligned(16)));
 	extern const u8 H_STRIPES_SHADOW_TILE[] __attribute__((aligned(16)));
 	extern const u8 CHECKERBOARD_SHADOW_TILE[] __attribute__((aligned(16)));
-	extern const vu16 TEST_PAL[];
-	extern const vu16 DONNA_PAL[];
+	//extern const u16 TEST_PAL[];
+	extern const u16 DONNA_PAL[];
 	extern const u8 DONNA_TILE[] __attribute__((aligned(16)));
 	u16 button = 0, pressedButton = 0, oldButton = 0xFFFF;
 
@@ -436,11 +432,11 @@ void vt_horizontal_stripes()
 		0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01
 	};
 
-	vu16 h_bars_pal[2] = {
+	const u16 h_bars_pal[2] = {
 		0x7FFF,0x0000
 	};
 
-	vu16 h_bars_alt_pal[2] = {
+	const u16 h_bars_alt_pal[2] = {
 		0x0000,0x7FFF
 	};
 
@@ -583,11 +579,11 @@ void vt_vertical_stripes()
 		0x00,0x01,0x00,0x01,0x00,0x01,0x00,0x01
 	};
 
-	vu16 v_bars_pal[2] = {
+	const u16 v_bars_pal[2] = {
 		0x7FFF,0x0000
 	};
 
-	vu16 v_bars_alt_pal[2] = {
+	const u16 v_bars_alt_pal[2] = {
 		0x0000,0x7FFF
 	};
 
@@ -712,7 +708,6 @@ void vt_checkerboard()
 	u16 done = 0;
 	int test = 1;
 	int pal = 1;
-	int i;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 
 	u8 checkerboard_tile_8[] __attribute__((aligned(16))) = {
@@ -823,7 +818,7 @@ void vt_backlitzone_test()
 {
 	int done = 0;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	vu8 background_color;
+	//vu8 background_color;
 	int x = 160;
 	int y = 112;
 	int blockColor_1 = 1;
@@ -1005,14 +1000,14 @@ void at_sound_test()
 	int frameDelay = 5;
 	int curse = 2;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	extern const vu16 BACKGROUND_PAL[];
+	extern const u16 BACKGROUND_PAL[];
 	extern const u8 BACKGROUND_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
-	sound_t JUMP;
-	sound_t BEEP;
+	//sound_t JUMP;
+	//sound_t BEEP;
 
-	Hw32xAudioInit();
+	//Hw32xAudioInit();
 
 	for (int i = 0; i < 27; i++){
 		cram16[i] = BACKGROUND_PAL[i] & 0x7FFF;
@@ -1078,21 +1073,21 @@ void at_sound_test()
 			switch (curse) 
 			{
 				case 1:
-					Hw32xAudioLoad(&JUMP, "jump");
-					Hw32xAudioPlay(&JUMP, 1, 1);  // Left Channel Only
-					Hw32xAudioFree(&JUMP);
+					//Hw32xAudioLoad(&JUMP, "jump");
+					//Hw32xAudioPlay(&JUMP, 1, 1);  // Left Channel Only
+					//Hw32xAudioFree(&JUMP);
 				break;
 					
 				case 2:
-					Hw32xAudioLoad(&JUMP, "jump");
-					Hw32xAudioPlay(&JUMP, 1, 3);  // Center
-					Hw32xAudioFree(&JUMP);
+					//Hw32xAudioLoad(&JUMP, "jump");
+					//Hw32xAudioPlay(&JUMP, 1, 3);  // Center
+					//Hw32xAudioFree(&JUMP);
 				break;
 
 				case 3:
-					Hw32xAudioLoad(&JUMP, "jump");
-					Hw32xAudioPlay(&JUMP, 1, 2);  // Right Channel Only
-					Hw32xAudioFree(&JUMP);
+					//Hw32xAudioLoad(&JUMP, "jump");
+					//Hw32xAudioPlay(&JUMP, 1, 2);  // Right Channel Only
+					//Hw32xAudioFree(&JUMP);
 				break;
 			}
 		}
@@ -1120,7 +1115,7 @@ void ht_controller_test()
 	int frameDelay = 5;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	u16 button2, pressedButton2, oldButton2 = 0xFFFF;
-	extern const vu16 BACKGROUND_PAL[];
+	extern const u16 BACKGROUND_PAL[];
 	extern const u8 BACKGROUND_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
@@ -1262,14 +1257,14 @@ void ht_memory_viewer(u32 address)
 				crc = CalculateCRC(address, 0x1C0);
 
 			intToHex(address, buffer, 8);
-			HwMdPuts(buffer, 0x4000, 32, 0);
+			HwMdPuts(buffer, 0x2000, 32, 0);
 			intToHex(address+448, buffer, 8);
-			HwMdPuts(buffer, 0x4000, 32, 27);
+			HwMdPuts(buffer, 0x2000, 32, 27);
 
 			if(docrc)
 			{
 				intToHex(crc, buffer, 8);
-				HwMdPuts(buffer, 0x2000, 32, 14);
+				HwMdPuts(buffer, 0x4000, 32, 14);
 			}
 
 			for(i = 0; i < 28; i++)
@@ -1410,15 +1405,12 @@ void PrintSBIOSInfo(u32 saddress)
 void ht_check_32x_bios_crc(u32 address)
 {
 	int done = 0;
-	int frameDelay = 0;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
-	extern const vu16 BACKGROUND_PAL[];
+	extern const u16 BACKGROUND_PAL[];
 	extern const u8 BACKGROUND_TILE[] __attribute__((aligned(16)));
 	u32	checksum = 0;
-	int redraw = 1;
 
-	paused = UNPAUSED;
+	loadPalette(&BACKGROUND_PAL[0], &BACKGROUND_PAL[255],0);
 
 	Hw32xScreenFlip(0);
 
@@ -1426,14 +1418,12 @@ void ht_check_32x_bios_crc(u32 address)
 	{
 		Hw32xFlipWait();
 
-		memcpy(frameBuffer16 + 0x100, BACKGROUND_TILE, 320*224);
+		drawBG(BACKGROUND_TILE);
 
 		ShowMessageAndData("Sega 32X BIOS Data at", address, 0x0000, 8, 4, 4);
 		PrintBIOSInfo(address);
 
 		checksum = CalculateCRC(address, 0x0000800);
-
-		////mars_drawTextwShadow(checksum, 0, 193, fontColorGreen, fontColorGray);
 
 		doMBIOSID(checksum, address);
 
@@ -1447,11 +1437,6 @@ void ht_check_32x_bios_crc(u32 address)
 		pressedButton = button & ~oldButton;
     	oldButton = button;
 
-		////while (MARS_SYS_COMM6 == SLAVE_LOCK);
-		////MARS_SYS_COMM6 = 4;
-
-		////MARS_SYS_COMM6 = 1;
-
 		if (pressedButton & SEGA_CTRL_START)
 		{
 		 	done = 1;
@@ -1462,12 +1447,10 @@ void ht_check_32x_bios_crc(u32 address)
 			done = 1;
 		}
 
-		Hw32xScreenFlip(0);
+		drawLineTable(4);
 
-		Hw32xDelay(frameDelay);
+		Hw32xScreenFlip(0);
 	}
-	paused = PAUSED;
-	paused = PAUSED;
     return;
 }
 
@@ -1515,11 +1498,11 @@ int Check32XRAM(void *start, u32 size)
       *sdram++ = value;
       if (result != UCHAR_MAX)
       {
-      	HwMdPuts("FAILED", 0x4000, 12, 10);
+      	HwMdPuts("FAILED", 0x2000, 12, 10);
         return 0;
       }
    }
-   HwMdPuts("ALL OK", 0x2000, 12, 10);
+   HwMdPuts("ALL OK", 0x4000, 12, 10);
    return 1;
 }
 
@@ -1533,23 +1516,24 @@ int Check32XRAMWithValue(char * message, u32 start, u32 end, u8 value, int pos)
 	
 	if(memoryFail != MEMORY_OK)
 	{
-		ShowMessageAndData("FAILED", memoryFail, 6, 0x4000, 12, pos+1);
+		ShowMessageAndData("FAILED", memoryFail, 6, 0x2000, 12, pos+1);
 		return 0;
 	}
 	
-	HwMdPuts("ALL OK", 0x2000, 16, pos+1);
+	HwMdPuts("ALL OK", 0x4000, 16, pos+1);
 	return 1;
 }
 
 void ht_test_32x_sdram()
 {
 	int done = 0;
-	int frameDelay = 5;
-	int redraw = 1;
+	int draw = 0;
+	int test = 0;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
-	extern const vu16 BACKGROUND_PAL[];
+	extern const u16 BACKGROUND_PAL[];
 	extern const u8 BACKGROUND_TILE[] __attribute__((aligned(16)));
+
+	loadPalette(&BACKGROUND_PAL[0], &BACKGROUND_PAL[255],0);
 
 	Hw32xScreenFlip(0);
 
@@ -1562,30 +1546,28 @@ void ht_test_32x_sdram()
 		pressedButton = button & ~oldButton;
     	oldButton = button;
 
-		memcpy(frameBuffer16 + 0x100, BACKGROUND_TILE, 320*224);
+		drawBG(BACKGROUND_TILE);
 
-		//ShowMessageAndData("32X SDRAM", 0x6000000, 15, 0x0000, 7, 7);
-		//if(redraw)
-		//{
-		//Check32XRAM(0x06010000, 0x0001FFFF);
-		//Check32XRAMWithValue("Setting to 0x00", 0x06002000, 0x0603FFDF, 0x00, 10);
-		//Check32XRAMWithValue("Setting to 0xFF", 0x06002000, 0x0603FFDF, 0xFF, 12);
-		//Check32XRAMWithValue("Setting to 0x55", 0x06002000, 0x0603FFDF, 0x55, 14);
-		//Check32XRAMWithValue("Setting to 0xAA", 0x06002000, 0x0603FFDF, 0xAA, 16);
-		//redraw = 0;
-		//}
-		
-		//while (MARS_SYS_COMM6 == SLAVE_LOCK);
-		//MARS_SYS_COMM6 = 4;
+		ShowMessageAndData("32X SDRAM", 0x6000000, 0x0000, 7, 10, 4);
 
-		if(redraw)
+		if ((draw = 1))
 		{
-		Check32XRAM(0x6000000, 0xFF);
-		//Check32XRAMWithValue("Setting to 0x00", 0x06002000, 0x0603FFDF, 0x00, 10);
-		//Check32XRAMWithValue("Setting to 0xFF", 0x06002000, 0x0603FFDF, 0xFF, 12);
-		//Check32XRAMWithValue("Setting to 0x55", 0x06002000, 0x0603FFDF, 0x55, 14);
-		//Check32XRAMWithValue("Setting to 0xAA", 0x06002000, 0x0603FFDF, 0xAA, 16);
-		redraw = 0;
+			switch (test)
+			{
+				case 1:
+					Check32XRAMWithValue("Setting to 0x00", 0x06002000, 0x06030000, 0x00, 10);
+					Hw32xSleep(1000);
+				case 2:
+					Check32XRAMWithValue("Setting to 0xFF", 0x06002000, 0x06030000, 0xFF, 12);
+					Hw32xSleep(1000);
+				case 3:
+					Check32XRAMWithValue("Setting to 0x55", 0x06002000, 0x06030000, 0x55, 14);
+					Hw32xSleep(500);
+				case 4:
+					Check32XRAMWithValue("Setting to 0xAA", 0x06002000, 0x06030000, 0xAA, 16);
+				case 5:
+					draw = 0;		
+			}
 		}
 
 		if (pressedButton & SEGA_CTRL_START)
@@ -1598,9 +1580,11 @@ void ht_test_32x_sdram()
 			done = 1;
 		}
 
+		drawLineTable(4);
+
 		Hw32xScreenFlip(0);
 
-		Hw32xDelay(frameDelay);
+		test++;
 	}
     return;
 }

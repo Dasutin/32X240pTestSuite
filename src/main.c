@@ -36,6 +36,70 @@ extern int fontColorGreen;
 extern int fontColorGray;
 extern int fontColorBlack;
 
+volatile unsigned mars_pwdt_ovf_count = 0;
+volatile unsigned mars_swdt_ovf_count = 0;
+
+unsigned mars_frtc2msec_frac = 0;
+
+const int NTSC_CLOCK_SPEED = 23011360; // HZ
+const int PAL_CLOCK_SPEED = 22801467; // HZ
+
+int slave_task(int cmd) HW32X_ATTR_DATA_ALIGNED;
+void secondary(void) HW32X_ATTR_DATA_ALIGNED;
+
+int slave_task(int cmd)
+{
+    switch (cmd) {
+    case 1:
+        snddma_slave_init(22050);
+        return 1;
+    case 2:
+        return 1;
+    case 3:
+        /* ClearCacheLines(&slave_drawsprcmd, (sizeof(drawsprcmd_t) + 15) / 16);
+        draw_handle_drawspritecmd(&slave_drawsprcmd);
+        return 1; */
+    case 4:
+        return 1;
+    case 5:
+        /* ClearCacheLines((uintptr_t)&canvas_width & ~15, 1);
+        ClearCacheLines((uintptr_t)&canvas_height & ~15, 1);
+        ClearCacheLines((uintptr_t)&window_canvas_x & ~15, 1);
+        ClearCacheLines((uintptr_t)&window_canvas_y & ~15, 1);
+        ClearCacheLines((uintptr_t)&old_camera_x & ~15, 1);
+        ClearCacheLines((uintptr_t)&old_camera_x & ~15, 1);
+        ClearCacheLines((uintptr_t)&canvas_pitch & ~15, 1);
+        ClearCacheLines((uintptr_t)&canvas_yaw & ~15, 1);
+        ClearCacheLines((uintptr_t)&camera_x & ~15, 1);
+        ClearCacheLines((uintptr_t)&camera_y & ~15, 1);
+        ClearCacheLines((uintptr_t)&nodraw & ~15, 1);
+        ClearCacheLines(&slave_drawtilelayerscmd, (sizeof(drawtilelayerscmd_t) + 15) / 16);
+        ClearCacheLines(&tm, (sizeof(tilemap_t) + 15) / 16);
+        draw_tile_layer(&slave_drawtilelayerscmd); */
+        return 1;
+    default:
+        break;
+    }
+
+    return 0;
+}
+
+void secondary(void)
+{
+    ClearCache();
+
+    while (1) {
+        int cmd;
+
+        while ((cmd = MARS_SYS_COMM4) == 0) {}
+
+        int res = slave_task(cmd);
+        if (res > 0) {
+            MARS_SYS_COMM4 = 0;
+        }
+    }
+}
+
 int main()
 {
 	int frameDelay = 0;
@@ -51,10 +115,19 @@ int main()
 
     NTSC = (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT) != 0;
 
-	Hw32xScreenFlip(0);
+	SH2_WDT_WTCSR_TCNT = 0x5A00; /* WDT TCNT = 0 */
+    SH2_WDT_WTCSR_TCNT = 0xA53E; /* WDT TCSR = clr OVF, IT mode, timer on, clksel = Fs/4096 */
+
+	/* init hires timer system */
+    SH2_WDT_VCR = (65 << 8) | (SH2_WDT_VCR & 0x00FF); // set exception vector for WDT
+    SH2_INT_IPRA = (SH2_INT_IPRA & 0xFF0F) | 0x0020; // set WDT INT to priority 2
 
 	MARS_SYS_COMM4 = 0;
 	MARS_SYS_COMM6 = 0;
+
+	mars_frtc2msec_frac = 4096.0f * 1000.0f / (NTSC ? NTSC_CLOCK_SPEED : PAL_CLOCK_SPEED) * 65536.0f;
+
+	Hw32xScreenFlip(0);
 
 	while (1)
 	{
@@ -138,8 +211,6 @@ int main()
 		}
 
 		Hw32xScreenFlip(0);
-
-		Hw32xDelay(frameDelay);
 	}
     return 0;
 }
@@ -150,10 +221,10 @@ void menu_tp()
 	int frameDelay = 1;
 	int curse = 1;
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
-	
+
 	Hw32xScreenFlip(0);
 
-	while (!done) 
+	while (!done)
 	{
 		Hw32xFlipWait();
 
@@ -190,7 +261,6 @@ void menu_tp()
 			button = MARS_SYS_COMM10;
 		}
 
-		// Only allow one button press at a time
 		pressedButton = button & ~oldButton;
     	oldButton = button;
 
@@ -691,6 +761,7 @@ void menu_ht()
 				break;
 
 				case 3:
+					screenFadeOut(1);
 					ht_test_32x_sdram();
 					HwMdClearScreen();
 					marsVDP256Start();
@@ -698,8 +769,8 @@ void menu_ht()
 				break;
 
 				case 4:
+					screenFadeOut(1);
 					ht_check_32x_bios_crc(0);
-					HwMdClearScreen();
 					HwMdClearScreen();
 					marsVDP256Start();
 					DrawMainBGwGillian();

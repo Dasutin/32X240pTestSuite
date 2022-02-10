@@ -25,6 +25,8 @@
 
 #define MEMORY_OK 0xFFFFFFFF
 
+void ShowMessageAndData(char *message, u32 address, u8 color, int len, int xpos, int ypos);
+
 void vt_drop_shadow_test(void);
 void vt_striped_sprite_test(void);
 void vt_horizontal_stripes(void);

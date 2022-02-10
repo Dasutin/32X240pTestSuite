@@ -28,7 +28,7 @@
 #define MARS_SYS_COMM6      (*(volatile unsigned short *)0x20004026)
 #define MARS_SYS_COMM8      (*(volatile unsigned short *)0x20004028) // Controller 1 current value
 #define MARS_SYS_COMM10     (*(volatile unsigned short *)0x2000402A) // Controller 2 current value
-#define MARS_SYS_COMM12     (*(volatile unsigned long *)0x2000402C)  // Vcount current value
+#define MARS_SYS_COMM12     (*(volatile unsigned short *)0x2000402C) // Vcount current value
 #define MARS_SYS_COMM14     (*(volatile unsigned short *)0x2000402E)
 
 #define MARS_PWM_CTRL       (*(volatile unsigned short *)0x20004030) // Audio
@@ -142,10 +142,28 @@
 #define SCREEN_HEIGHT 224
 #define SCREEN_WIDTH 320
 
-extern void fast_memcpy(void *dst, void *src, int len);
+#define ClearCacheLine(addr) *(volatile int *)((addr) | 0x40000000) = 0
+
+#define ClearCache() \
+	do { \
+		CacheControl(0); /* disable cache */ \
+		CacheControl(SH2_CCTL_CP | SH2_CCTL_CE); /* purge and re-enable */ \
+	} while (0)
+
+#define ClearCacheLines(paddr,nl) \
+	do { \
+		volatile intptr_t addr = (volatile intptr_t)paddr; \
+		int l; \
+		for (l = 0; l < nl; l++) { \
+			ClearCacheLine(addr); \
+			addr += 16; \
+		} \
+	} while (0)
+
+extern void fast_memcpy(void* dst, void* src, int len);
 
 // Copies words, runs from sdram for speed. len is in words
-extern void fast_wmemcpy(void *dst, void *src, int len);
+//(void *dst, void *src, int len);
 
 extern void word_8byte_copy(void *dst, void *src, int count);
 extern void word_8byte_copy_bytereverse(short *dst, short *src, int count);

@@ -26,13 +26,13 @@
 #define isdigit(c)      ((c) >= '0' && (c) <= '9')
 
 #ifndef SEEK_SET
-#define	SEEK_SET	0	/* set file offset to offset */
+#define	SEEK_SET	0	      // Set file offset to offset
 #endif
 #ifndef SEEK_CUR
-#define	SEEK_CUR	1	/* set file offset to current plus offset */
+#define	SEEK_CUR	1	      // Set file offset to current plus offset
 #endif
 #ifndef SEEK_END
-#define	SEEK_END	2	/* set file offset to EOF plus offset */
+#define	SEEK_END	2	      // Set file offset to EOF plus offset
 #endif
 
 typedef void *__gnuc_va_list;

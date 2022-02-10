@@ -32,7 +32,7 @@
 #include "32x.h"
 #include "hw_32x.h"
 
-#define MARS_RINGBUF_MAXLINES    2048 // use 1024 for mono ring buffer, 2048 - for stereo
+#define MARS_RINGBUF_MAXLINES    2048 // Use 1024 for mono ring buffer, 2048 - for stereo
 #define MARS_RINGBUF_MAXWORDS    (MARS_RINGBUF_MAXLINES*8)
 
 #define MARS_UNCACHED_RROVER    *(volatile unsigned *)(((intptr_t)&wb->readrover) | 0x20000000)
@@ -131,7 +131,7 @@ static inline short* Mars_RB_GetReadBuf(marsrb_t* wb, unsigned wcnt)
 
     short* buf;
 
-    // advance position if there's no space near the end
+    // Advance position if there's no space near the end
     unsigned rpn = (rrover + wcnt + 7) & ~7;
     unsigned rpe = rpn % MARS_RINGBUF_MAXWORDS;
     if (rpe < rp)
@@ -168,7 +168,7 @@ static inline short* Mars_RB_GetWriteBuf(marsrb_t* wb, unsigned wcnt)
 
     short* buf;
 
-    // advance position if there's no space near the end
+    // Advance position if there's no space near the end
     unsigned wpn = (wrover + wcnt + 7) & ~7;
     unsigned wpe = wpn % MARS_RINGBUF_MAXWORDS;
     if (wpe < wp)
@@ -187,7 +187,7 @@ static inline short* Mars_RB_GetWriteBuf(marsrb_t* wb, unsigned wcnt)
 
     Mars_RB_WaitReader(wb, MARS_RINGBUF_MAXWORDS-window);
 
-    // return pointer in cache-through area
+    // Return pointer in cache-through area
     return (short*)((intptr_t)buf | 0x20000000);
 }
 
