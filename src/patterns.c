@@ -74,7 +74,7 @@ void tp_pluge()
 			}
 		}
 
-    	if (pressedButton & SEGA_CTRL_B)
+    	if (pressedButton & SEGA_CTRL_START)
 		{
 			screenFadeOut(1);
 			done = 1;
@@ -123,7 +123,7 @@ void tp_colorchart()
 		pressedButton = button & ~oldButton;
     	oldButton = button;
 
-    	if (pressedButton & SEGA_CTRL_B)
+    	if (pressedButton & SEGA_CTRL_START)
 		{
 			screenFadeOut(1);
 			done = 1;
@@ -172,7 +172,7 @@ void tp_colorbars()
 		pressedButton = button & ~oldButton;
     	oldButton = button;
 
-    	if (pressedButton & SEGA_CTRL_B)
+    	if (pressedButton & SEGA_CTRL_START)
 		{
 			screenFadeOut(1);
 			done = 1;
@@ -198,12 +198,12 @@ void tp_colorbars()
 void tp_smpte_color_bars()
 {
 	u16 done = 0;
-	int frameDelay = 1;
-	int pattern = 1;
+	u16 frameDelay = 1, draw = 1;
+	u16 Is75 = 0, text = 0;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 SMPTE75IRE_PAL[];
 	extern const u16 SMPTE100IRE_PAL[];
-	extern const u8 SMPTE100IRE_TILE[] __attribute__((aligned(16)));;
+	extern const u8 SMPTE100IRE_TILE[] __attribute__((aligned(16)));
 
 	Hw32xScreenFlip(0);
 
@@ -221,35 +221,55 @@ void tp_smpte_color_bars()
 		pressedButton = button & ~oldButton;
     	oldButton = button;
 
-    	switch (pattern) {
-			case 1:
-				loadPalette(&SMPTE75IRE_PAL[0], &SMPTE75IRE_PAL[255],0);
-			break;
-				
-			case 2:
+		if(draw)
+		{
+			if(!Is75)
 				loadPalette(&SMPTE100IRE_PAL[0], &SMPTE100IRE_PAL[255],0);
-			break;
+			else
+				loadPalette(&SMPTE75IRE_PAL[0], &SMPTE75IRE_PAL[255],0);
+
+			draw = 0;
 		}
 
-    	if (pressedButton & SEGA_CTRL_B)
+		if(text)
 		{
+			text--;
+			if(!text)
+			{
+				HwMdClearScreen();
+			}
+		}
+
+    	if (pressedButton & SEGA_CTRL_START)
+		{
+			HwMdClearScreen();
 			screenFadeOut(1);
 			done = 1;
 		}
 
 		if (pressedButton & SEGA_CTRL_A)
 		{
-			pattern++;
-	
-			if(pattern > 2){
-		 		pattern = 1;
+			Is75 = !Is75;
+
+			if(!Is75)
+			{
+				loadPalette(&SMPTE100IRE_PAL[0], &SMPTE100IRE_PAL[255],0);
+				HwMdPuts("100%", 0x0000, 32, 1);
 			}
+			else
+			{
+				loadPalette(&SMPTE75IRE_PAL[0], &SMPTE75IRE_PAL[255],0);
+				HwMdPuts(" 75%", 0x0000, 32, 1);
+			}
+			text = 30;
 		}
 
 		if (pressedButton & SEGA_CTRL_Z)
 		{
+			HwMdClearScreen();
+			screenFadeOut(1);
 			DrawHelp(HELP_SMPTE);
-			loadPalette(&SMPTE75IRE_PAL[0], &SMPTE75IRE_PAL[255],0);
+			draw = 1;
 		}
 
 		drawBG(SMPTE100IRE_TILE);
@@ -266,7 +286,7 @@ void tp_smpte_color_bars()
 void tp_ref_color_bars()
 {
 	u16 done = 0;
-	int frameDelay = 5;
+	int frameDelay = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 COLORREF_PAL[];
 	extern const u8 COLORREF_TILE[] __attribute__((aligned(16)));
@@ -289,7 +309,7 @@ void tp_ref_color_bars()
 		pressedButton = button & ~oldButton;
     	oldButton = button;
 
-    	if (pressedButton & SEGA_CTRL_B)
+    	if (pressedButton & SEGA_CTRL_START)
 		{
 			screenFadeOut(1);
 			done = 1;
@@ -347,12 +367,6 @@ void tp_color_bleed_check()
 			if(pattern > 2){
 		 		pattern = 1;
 			}
-		}
-
-		if (pressedButton & SEGA_CTRL_B)
-		{
-			screenFadeOut(1);
-			done = 1;
 		}
 
 		if (pressedButton & SEGA_CTRL_START)
@@ -423,7 +437,7 @@ void tp_grid()
 			break;
 		}
 
-    	if (pressedButton & SEGA_CTRL_B)
+    	if (pressedButton & SEGA_CTRL_START)
 		{
 			screenFadeOut(1);
 			done = 1;
@@ -579,7 +593,7 @@ void tp_gray_ramp()
 		pressedButton = button & ~oldButton;
     	oldButton = button;
 
-    	if (pressedButton & SEGA_CTRL_B)
+    	if (pressedButton & SEGA_CTRL_START)
 		{
 			screenFadeOut(1);
 			done = 1;
@@ -631,7 +645,7 @@ void tp_white_rgb()
 		pressedButton = button & ~oldButton;
     	oldButton = button;
 
-		if (pressedButton & SEGA_CTRL_B)
+		if (pressedButton & SEGA_CTRL_START)
 		{
 			done = 1;
 		}
@@ -849,7 +863,7 @@ void tp_sharpness()
 			break;
 		}
 
-		if (pressedButton & SEGA_CTRL_B)
+		if (pressedButton & SEGA_CTRL_START)
 		{
 			screenFadeOut(1);
 			done = 1;

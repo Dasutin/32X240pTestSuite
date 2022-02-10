@@ -777,7 +777,7 @@ void vt_checkerboard()
 			break;
 		}
 
-		if (pressedButton & SEGA_CTRL_B)
+		if (pressedButton & SEGA_CTRL_START)
 		{
 			screenFadeOut(1);
 			done = 1;
@@ -1062,7 +1062,7 @@ void at_sound_test()
 		 		curse = 3;
 		}
 
-		if (pressedButton & SEGA_CTRL_B)
+		if (pressedButton & SEGA_CTRL_START)
 		{
 			screenFadeOut(1);
 		 	done = 1;

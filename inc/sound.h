@@ -38,8 +38,8 @@ static inline uint16_t s16pcm_to_u16pwm(int16_t s) {
     return (s < 0) ? SAMPLE_MIN : (s > SAMPLE_MAX) ? SAMPLE_MAX : s;
 }
 
-void snddma_slave_init(int sample_rate);
+void snddma_secondary_init(int sample_rate);
 void snddma_init(int sample_rate);
-void slave_dma_kickstart(void);
+void secondary_dma_kickstart(void);
 unsigned snddma_length(void)SND_ATTR_SDRAM;
 void snddma_wait(void) SND_ATTR_SDRAM;

@@ -98,8 +98,23 @@ extern void Hw32xAudioStopAllChannels(void);
 extern void Hw32xAudioLoad(sound_t *snd, char *name);
 extern void Hw32xAudioFree(sound_t *s); */
 
+static inline void Hw32xSecWait(void)
+{
+	while (MARS_SYS_COMM4 != 0);
+}
+
+static inline void Hw32xInitSoundDMA(void)
+{
+	Hw32xSecWait();
+	MARS_SYS_COMM4 = 1;
+	Hw32xSecWait();
+}
+
 void pri_vbi_handler(void) HW32X_ATTR_DATA_ALIGNED;
 void pri_dma1_handler(void) HW32X_ATTR_DATA_ALIGNED;
+
+int secondary_task(int cmd) HW32X_ATTR_DATA_ALIGNED;
+void secondary(void) HW32X_ATTR_DATA_ALIGNED;
 
 /* extern unsigned short sndbuf[];
 

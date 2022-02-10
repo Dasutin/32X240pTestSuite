@@ -752,6 +752,59 @@ void HwMdSetColorPal(unsigned short pal, unsigned short color)
     HwMdSetColor(color);
 }
 
+int secondary_task(int cmd)
+{
+    switch (cmd) {
+    case 1:
+        snddma_secondary_init(22050);
+        return 1;
+    case 2:
+        return 1;
+    case 3:
+        /* ClearCacheLines(&slave_drawsprcmd, (sizeof(drawsprcmd_t) + 15) / 16);
+        draw_handle_drawspritecmd(&slave_drawsprcmd);
+        return 1; */
+    case 4:
+        return 1;
+    case 5:
+        /* ClearCacheLines((uintptr_t)&canvas_width & ~15, 1);
+        ClearCacheLines((uintptr_t)&canvas_height & ~15, 1);
+        ClearCacheLines((uintptr_t)&window_canvas_x & ~15, 1);
+        ClearCacheLines((uintptr_t)&window_canvas_y & ~15, 1);
+        ClearCacheLines((uintptr_t)&old_camera_x & ~15, 1);
+        ClearCacheLines((uintptr_t)&old_camera_x & ~15, 1);
+        ClearCacheLines((uintptr_t)&canvas_pitch & ~15, 1);
+        ClearCacheLines((uintptr_t)&canvas_yaw & ~15, 1);
+        ClearCacheLines((uintptr_t)&camera_x & ~15, 1);
+        ClearCacheLines((uintptr_t)&camera_y & ~15, 1);
+        ClearCacheLines((uintptr_t)&nodraw & ~15, 1);
+        ClearCacheLines(&slave_drawtilelayerscmd, (sizeof(drawtilelayerscmd_t) + 15) / 16);
+        ClearCacheLines(&tm, (sizeof(tilemap_t) + 15) / 16);
+        draw_tile_layer(&slave_drawtilelayerscmd); */
+        return 1;
+    default:
+        break;
+    }
+
+    return 0;
+}
+
+void secondary(void)
+{
+    ClearCache();
+
+    while (1) {
+        int cmd;
+
+        while ((cmd = MARS_SYS_COMM4) == 0) {}
+
+        int res = secondary_task(cmd);
+        if (res > 0) {
+            MARS_SYS_COMM4 = 0;
+        }
+    }
+}
+
 // Audio Data Loading Code -----------------------------------------------------------------------------------------
 
 /* static int foffs[NUM_AUDIO_FILES];
