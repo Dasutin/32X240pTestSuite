@@ -8,3 +8,5 @@ m68k_crt0.bin
 m68k_crt1.bin
 output.map
 src_md/output.map
+src_md/m68k.bin
+src_md/m68k.elf

@@ -704,14 +704,23 @@ void tp_white_rgb()
 
 void tp_100_ire()
 {
+	char str[10];
 	u16 done = 0;
-	int frameDelay = 5;
+	int frameDelay = 1;
 	int pattern = 1;
+	u16 text = 0;
+	//u16 irevals[] = { 13, 25, 41, 53, 66, 82, 94 };
+	u16 irevals[] = { 94, 82, 66, 53, 41, 25, 13 };
+	u16 draw = 1;
+	u16 ire = 6;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u8 IRE_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
 
 	cram16[0] = COLOR(0, 0, 0);
+
+	// Set screen priority for the 32X 
+	MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X | MARS_224_LINES | MARS_VDP_MODE_256;
 
 	Hw32xScreenFlip(0);
 
@@ -720,6 +729,13 @@ void tp_100_ire()
 		Hw32xFlipWait();
 
 		button = MARS_SYS_COMM8;
+
+		if(draw)
+		{
+			cram16[1] = COLOR(30, 30, 30);
+			drawBG(IRE_TILE);
+			draw = 0;
+		}
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
 		{
@@ -731,27 +747,44 @@ void tp_100_ire()
 
     	if (pressedButton & SEGA_CTRL_A)
 		{
-			pattern--;
-			if(pattern < 1)
-				pattern = 1;
+			if(ire != 0)
+				ire--;
+
+			intToStr(irevals[ire], str, 2);
+			HwMdPuts(str, 0x0000, 32, 26);
+			HwMdPuts("IRE", 0x0000, 35, 26);
+
+			text = 60;
+			//pattern--;
+			//if(pattern < 1)
+			//	pattern = 1;
 		}
 
 		if (pressedButton & SEGA_CTRL_B)
 		{
-			pattern++;
-			if(pattern > 7)
-				pattern = 7;
+			if(ire != 6)
+				ire++;
+
+			intToStr(irevals[ire], str, 2);
+			HwMdPuts(str, 0x0000, 32, 26);
+			HwMdPuts("IRE", 0x0000, 35, 26);
+
+			text = 60;
+			//pattern++;
+			//if(pattern > 7)
+			//	pattern = 7;
 		}
 
 		if (pressedButton & SEGA_CTRL_Z)
 		{
+			HwMdClearScreen();
 			DrawHelp(HELP_IRE);
 			cram16[0] = COLOR(0, 0, 0);
 		}
 
 		drawBG(IRE_TILE);
 
-    	switch (pattern) {
+    	switch (ire) {
 			case 1:
 				cram16[1] = COLOR(30, 30, 30);
 			break;
@@ -777,14 +810,24 @@ void tp_100_ire()
 			break;
 
 			case 7:
-				cram16[1] = COLOR(4, 4, 4);
+				cram16[1] = COLOR(4, 4, 4);    // 13
 			break;
 		}
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
+			HwMdClearScreen();
 			screenFadeOut(1);
 			done = 1;
+		}
+
+		if(text)
+		{
+			text--;
+			if(!text)
+			{
+				HwMdClearScreen();
+			}
 		}
 
 		drawLineTable(4);

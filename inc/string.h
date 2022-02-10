@@ -56,5 +56,7 @@ size_t strlen(const char *str);
 size_t strnlen(const char *str, size_t maxlen);
 size_t vsprintf(char *buf, const char *fmt, va_list args);
 size_t sprintf(char *buffer,const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
+u16 intToStr(s32 value, char *str, u16 minsize);
+u16 uintToStr(u32 value, char *str, u16 minsize);
 
 #endif

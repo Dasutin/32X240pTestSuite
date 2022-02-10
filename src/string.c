@@ -23,7 +23,28 @@
 #include "types.h"
 #include "string.h"
 
+#define P01 10
+#define P02 100
+#define P03 1000
+#define P04 10000
+#define P05 100000
+#define P06 1000000
+#define P07 10000000
+#define P08 100000000
+#define P09 1000000000
+#define P10 10000000000
+
 static const char hexchars[] = "0123456789ABCDEF";
+
+static const char digits[] =
+    "0001020304050607080910111213141516171819"
+    "2021222324252627282930313233343536373839"
+    "4041424344454647484950515253545556575859"
+    "6061626364656667686970717273747576777879"
+    "8081828384858687888990919293949596979899";
+
+static u16 digits10(const u16 v);
+static u16 uint16ToStr(u16 value, char *str, u16 minsize);
 
 size_t strlen(const char *str) {
 	const char *src = str;
@@ -247,4 +268,97 @@ size_t sprintf(char *buffer, const char *fmt, ...) {
 	size_t i = vsprintf(buffer, fmt, args);
 	va_end(args);
 	return i;
+}
+
+u16 intToStr(s32 value, char *str, u16 minsize)
+{
+    if (value < -500000000)
+    {
+        *str = '-';
+        return intToHex(-value, str + 1, minsize) + 1;
+    }
+
+    if (value < 0)
+    {
+        *str = '-';
+        return uintToStr(-value, str + 1, minsize) + 1;
+    }
+    else return uintToStr(value, str, minsize);
+}
+
+u16 uintToStr(u32 value, char *str, u16 minsize)
+{
+    // the implentation cannot encode > 500000000 value --> use hexa
+    if (value > 500000000)
+        return intToHex(value, str, minsize);
+
+    u16 len;
+
+    // need to split in 2 conversions ?
+    if (value > 10000)
+    {
+        const u16 v1 = value / (u16) 10000;
+        const u16 v2 = value % (u16) 10000;
+
+        len = uint16ToStr(v1, str, (minsize > 4)?(minsize - 4):1);
+        len += uint16ToStr(v2, str + len, 4);
+    }
+    else len = uint16ToStr(value, str, minsize);
+
+    return len;
+}
+
+static u16 uint16ToStr(u16 value, char *str, u16 minsize)
+{
+    u16 length;
+    char *dst;
+    u16 v;
+
+    length = digits10(value);
+    if (length < minsize) length = minsize;
+    dst = &str[length];
+    *dst = 0;
+    v = value;
+
+    while (v >= 100)
+    {
+        const u16 quot = v / 100;
+        const u16 remain = v % 100;
+
+        const u16 i = remain * 2;
+        v = quot;
+
+        *--dst = digits[i + 1];
+        *--dst = digits[i + 0];
+    }
+
+    // handle last 1-2 digits
+    if (v < 10) *--dst = '0' + v;
+    else
+    {
+        const u16 i = v * 2;
+
+        *--dst = digits[i + 1];
+        *--dst = digits[i + 0];
+    }
+
+    // pad with '0'
+    while(dst != str) *--dst = '0';
+
+    return length;
+}
+
+static u16 digits10(const u16 v)
+{
+    if (v < P02)
+    {
+        if (v < P01) return 1;
+        return 2;
+    }
+    else
+    {
+        if (v < P03) return 3;
+        if (v < P04) return 4;
+        return 5;
+    }
 }
