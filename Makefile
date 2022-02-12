@@ -5,18 +5,19 @@ LDSCRIPTSDIR = $(ROOTDIR)/ldscripts
 LIBPATH = -L$(ROOTDIR)/sh-elf/lib -L$(ROOTDIR)/sh-elf/lib/gcc/sh-elf/4.6.2 -L$(ROOTDIR)/sh-elf/sh-elf/lib
 INCPATH = -Isrc -Iinc -I$(ROOTDIR)/sh-elf/include -I$(ROOTDIR)/sh-elf/sh-elf/include
 
-CCFLAGS = -m2 -mb -Wall -c -fomit-frame-pointer -fno-builtin  -ffunction-sections -fdata-sections #-g
+CCFLAGS = -m2 -mb -Wall -c -fomit-frame-pointer -fno-builtin  -ffunction-sections -fdata-sections
 CCFLAGS += -fno-align-loops -fno-align-functions -fno-align-jumps -fno-align-labels
-#CCFLAGS += -D__32X__ -DMARS
 
 HWFLAGS := $(CCFLAGS)
 HWFLAGS += -Os -fno-lto
 
-CCFLAGS += -O2 -funroll-loops -fno-align-loops -fno-align-functions -fno-align-jumps -fno-align-labels -lto
+CCFLAGS += -funroll-loops -fno-align-loops -fno-align-functions -fno-align-jumps -fno-align-labels -lto
 
 #LDFLAGS = -T $(LDSCRIPTSDIR)/mars.ld -Wl,-Map=output.map -nostdlib -Wl,--gc-sections --specs=nosys.specs -flto
 LDFLAGS = -T $(LDSCRIPTSDIR)/mars_chill.ld -Wl,-Map=output.map -nostdlib -Wl,--gc-sections -flto
 ASFLAGS = --big
+
+EXTRA = 
 
 PREFIX = $(ROOTDIR)/sh-elf/bin/sh-elf-
 CC = $(PREFIX)gcc
@@ -36,7 +37,13 @@ SHOBJS  = crt0.o
 SHOBJS += $(OBJS:.c=.o)
 SHOBJS += $(SHSS:.s=.o)
 
-all: m68k.bin $(TARGET).32x
+.PHONY: all release debug
+
+release: EXTRA = -O2
+release: m68k.bin $(TARGET).32x
+
+debug: EXTRA = -O0 -g -gdwarf-2
+debug: m68k.bin $(TARGET).32x
 
 m68k.bin:
 	make -C src_md
@@ -55,7 +62,7 @@ src/hw_32x.o: src/hw_32x.c
 	$(CC) $(HWFLAGS) $(INCPATH) $< -o $@
 
 src/%.o: src/%.c
-	$(CC) $(CCFLAGS) $(INCPATH) $< -o $@
+	$(CC) $(CCFLAGS) $(EXTRA) $(INCPATH) $< -o $@
 
 src/%.o: src/%.s
 	$(AS) $(ASFLAGS) $(INCPATH) $< -o $@

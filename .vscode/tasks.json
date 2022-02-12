@@ -6,7 +6,7 @@
         {
             "label": "Build 32X ROM",
             "type": "shell",
-            "command": "make clean && make",
+            "command": "make clean && make release",
             "presentation": {
                 "reveal": "always"
             },
@@ -25,7 +25,7 @@
             "dependsOrder": "sequence",
             "dependsOn": [
                 "Build 32X ROM",
-                "Run in Emulator"
+                "Run in Gens"
             ],
             "problemMatcher": [],
             "group": {
@@ -48,6 +48,17 @@
             "command": "${env:GENS} ${env:MARSPROJECTS}${workspaceFolderBasename}\\build\\240pMars.32x",
             "presentation": {
                 "reveal": "never"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run in Gens - Debug",
+            "type": "shell",
+            "command": "${env:GENS} ${env:MARSPROJECTS}${workspaceFolderBasename}\\build\\240pMars.32x",
+            "isBackground": true,
+            "presentation": {
+                "reveal": "never",
+                "echo": false
             },
             "problemMatcher": []
         },
