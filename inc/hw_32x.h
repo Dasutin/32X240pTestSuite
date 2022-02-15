@@ -33,6 +33,15 @@
 #define MD_COLOR_PAL_GREEN 0x0300
 #define MD_COLOR_PAL_BLUE  0x0400
 
+#define PSG_ENVELOPE_MIN    15
+#define PSG_ENVELOPE_MAX    0
+#define PSG_NOISE_TYPE_PERIODIC 0
+#define PSG_NOISE_TYPE_WHITE    1
+#define PSG_NOISE_FREQ_CLOCK2   0
+#define PSG_NOISE_FREQ_CLOCK4   1
+#define PSG_NOISE_FREQ_CLOCK8   2
+#define PSG_NOISE_FREQ_TONE3    3
+
 /* // Audio section
 typedef struct {
   unsigned char *buf;
@@ -82,7 +91,17 @@ extern void HwMdPuts(char *str, int color, int x, int y);
 extern void HwMdPutc(char chr, int color, int x, int y);
 extern void HwMdSetPal(unsigned short pal);
 extern void HwMdSetColor(unsigned short color);
-void HwMdSetColorPal(unsigned short pal, unsigned short color);
+extern void HwMdSetColorPal(unsigned short pal, unsigned short color);
+extern void HwMdPSGSetChannel(unsigned short word);
+extern void HwMdPSGSetVolume(unsigned short word);
+extern void HwMdPSGSetChandVol(unsigned short channel, unsigned short vol);
+extern void HwMdPSGSendTone(unsigned short value, unsigned short value2);
+extern void HwMdPSGSendNoise(unsigned short word);
+extern void HwMdPSGSendEnvelope(unsigned short word);
+extern void HwMdPSGSetFrequency(u8 channel, u16 value);
+extern void HwMdPSGSetTone(u8 channel, u16 value);
+extern void HwMdPSGSetNoise(u8 type, u8 frequency);
+extern void HwMdPSGSetEnvelope(u8 channel, u8 value);
 
 /* extern void Hw32xAudioCallback(unsigned long buffer);
 extern void Hw32xAudioInit(void);

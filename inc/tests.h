@@ -27,8 +27,12 @@
 
 void ShowMessageAndData(char *message, u32 address, u8 color, int len, int xpos, int ypos);
 
+void MDPSG_init();
+void MDPSG_stop();
+
 void vt_drop_shadow_test(void);
 void vt_striped_sprite_test(void);
+void vt_reflex_test(void);
 void vt_horizontal_stripes(void);
 void vt_vertical_stripes(void);
 void vt_checkerboard(void);

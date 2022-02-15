@@ -732,17 +732,17 @@ void HwMdPutc(char chr, int color, int x, int y)
 
 void HwMdSetPal(unsigned short pal)
 {
-    while (MARS_SYS_COMM0) ;
-    MARS_SYS_COMM2 = pal;                    // Wait until 68000 has responded to any earlier requests
-    MARS_SYS_COMM0 = 0x0A00;                    // Set word at offset in VRAM
+    while (MARS_SYS_COMM0) ;                    // Wait until 68000 has responded to any earlier requests
+    MARS_SYS_COMM2 = pal;                    
+    MARS_SYS_COMM0 = 0x0A00;                    // Send handle request flag
     while (MARS_SYS_COMM0) ;
 }
 
 void HwMdSetColor(unsigned short color)
 {
-    while (MARS_SYS_COMM0) ;
-    MARS_SYS_COMM2 = color;                    // Wait until 68000 has responded to any earlier requests
-    MARS_SYS_COMM0 = 0x0B00;                    // Set word at offset in VRAM
+    while (MARS_SYS_COMM0) ;                    // Wait until 68000 has responded to any earlier requests
+    MARS_SYS_COMM2 = color;                    
+    MARS_SYS_COMM0 = 0x0B00;                    // Send handle request flag
     while (MARS_SYS_COMM0) ;
 }
 
@@ -750,6 +750,98 @@ void HwMdSetColorPal(unsigned short pal, unsigned short color)
 {
     HwMdSetPal(pal);
     HwMdSetColor(color);
+}
+
+void HwMdPSGSetChannel(unsigned short word)
+{
+    while (MARS_SYS_COMM0) ;                    // Wait until 68000 has responded to any earlier requests
+    MARS_SYS_COMM2 = word;
+    MARS_SYS_COMM0 = 0x0C00;                    // Send handle request flag
+    while (MARS_SYS_COMM0) ;
+}
+
+void HwMdPSGSetVolume(unsigned short word)
+{
+    while (MARS_SYS_COMM0) ;                    // Wait until 68000 has responded to any earlier requests
+    MARS_SYS_COMM2 = word;
+    MARS_SYS_COMM0 = 0x0D00;                    // Send handle request flag
+    while (MARS_SYS_COMM0) ;
+}
+
+void HwMdPSGSetChandVol(unsigned short channel, unsigned short vol)
+{
+    HwMdPSGSetChannel(channel);
+    HwMdPSGSetVolume(vol);
+}
+
+void HwMdPSGSendTone(unsigned short value1, unsigned short value2)
+{
+
+    while (MARS_SYS_COMM0) ;
+    MARS_SYS_COMM2 = value1;                    // Send first half of data
+    MARS_SYS_COMM0 = 0x0E00;                    // Send handle request flag
+    while (MARS_SYS_COMM0) ;
+    MARS_SYS_COMM2 = value2;                    // Send second half of data
+    MARS_SYS_COMM0 = 0x0F00;                    // Send handle request flag
+    while (MARS_SYS_COMM0) ;
+}
+
+void HwMdPSGSendNoise(unsigned short word)
+{
+    while (MARS_SYS_COMM0) ;                    // Wait until 68000 has responded to any earlier requests
+    MARS_SYS_COMM2 = word;
+    MARS_SYS_COMM0 = 0x1000;                    // Send handle request flag
+    while (MARS_SYS_COMM0) ;
+}
+
+void HwMdPSGSendEnvelope(unsigned short word)
+{
+    while (MARS_SYS_COMM0) ;                    // Wait until 68000 has responded to any earlier requests
+    MARS_SYS_COMM2 = word;
+    MARS_SYS_COMM0 = 0x1100;                    // Send handle request flag
+    while (MARS_SYS_COMM0) ;
+}
+
+void HwMdPSGSetFrequency(u8 channel, u16 value)
+{
+    u16 data;
+
+    if (value)
+    {
+        if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT) data = 3579545 / (value * 32);
+        else data = 3546893 / (value * 32);
+        data = 3579545 / (value * 32);
+    }
+    else data = 0;
+
+    HwMdPSGSetTone(channel, data);
+}
+
+void HwMdPSGSetTone(u8 channel, u16 value)
+{
+    vu8 value1;
+	vu8 value2;
+
+    value1 = 0x80 | ((channel & 3) << 5) | (value & 0xF);
+    value2 = (value >> 4) & 0x3F;
+
+    HwMdPSGSendTone(value1, value2);
+}
+
+void HwMdPSGSetNoise(u8 type, u8 frequency)
+{
+    vu8 value;
+
+    value = 0xE0 | ((type & 1) << 2) | (frequency & 0x3);
+    HwMdPSGSendNoise(value);
+}
+
+void HwMdPSGSetEnvelope(u8 channel, u8 value)
+{
+    vu8 data;
+
+    data = 0x90 | ((channel & 3) << 5) | (value & 0xF);
+    HwMdPSGSendEnvelope(data);
 }
 
 int secondary_task(int cmd)

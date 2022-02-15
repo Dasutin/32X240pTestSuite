@@ -243,10 +243,23 @@ handle_req:
         bls     set_pal
         cmpi.w  #0x0BFF,d0
         bls     set_color
+        cmpi.w  #0x0CFF,d0
+        bls     set_psg_channel
+        cmpi.w  #0x0DFF,d0
+        bls     set_psg_volume
+        cmpi.w  #0x0EFF,d0
+        bls     set_psg_tone1
+        cmpi.w  #0x0FFF,d0
+        bls     set_psg_tone2
+        cmpi.w  #0x10FF,d0
+        bls     set_psg_noise
+        cmpi.w  #0x10FF,d0
+        bls     set_psg_envelope
+
 
 # Unknown command
         move.w  #0,0xA15120         /* Done */
-        bra.b   main_loop
+        bra   main_loop
 
 read_sram:
         move.w  #0x2700,sr          /* Disable ints */
@@ -496,8 +509,55 @@ setting_color:
 loop_color:
         move.w  (a2)+,(a1)
         dbra    d5,loop_color
-        move.w  #0,0xA15120         /* Done */
-        bra     main_loop  
+        move.w  #0,0xA15120             /* Tell 32X we are done here */
+        bra     main_loop
+
+set_psg_channel:
+        move.w  0xA15122,d4             /* Grab the channel from COMM Port 2 */
+        move.b  d4,d4                   /* Convert word to byte */
+        move.w  #0,0xA15120             /* Tell 32X we are done here */
+        bra     main_loop
+
+set_psg_volume:
+        move.w  0xA15122,d5             /* Grab the volume from COMM Port 2 */
+        move.b  d5,d5                   /* Convert word to byte */
+        ror.b   #3, d4
+        or.b    d5, d4
+        or.b    #0x90, d4
+        move.b  d4, (0xC00011)          /* Set value to PSG port */
+        move.w  #0,0xA15120             /* Tell 32X we are done here */
+        bra     main_loop
+
+set_psg_tone1:
+        moveq   #0,d5                   /* Clear register */
+        move.w  0xA15122,d5             /* Grab the first value from COMM Port 2 */
+        move.b  d5,d5                   /* Convert word to byte */
+        move.w  #0,0xA15120             /* Tell 32X we are done here */
+        bra     main_loop
+set_psg_tone2:
+        moveq   #0,d6                   /* Clear register */
+        move.w  0xA15122,d6             /* Grab the second value from COMM Port 2 */
+        move.b  d6,d6                   /* Convert word to byte */
+        move.b  d5, (0xC00011)          /* Set first value to PSG port */
+        move.b  d6, (0xC00011)          /* Set second value to PSG port */
+        move.w  #0,0xA15120             /* Tell 32X we are done here */
+        bra     main_loop
+
+set_psg_noise:
+        moveq   #0,d5                   /* Clear register */
+        move.w  0xA15122,d5             /* Grab the noise value from COMM Port 2 */
+        move.b  d5,d5                   /* Convert word to byte */
+        move.b  d5, (0xC00011)          /* Set noise value to PSG port */
+        move.w  #0,0xA15120             /* Tell 32X we are done here */
+        bra     main_loop
+
+set_psg_envelope:
+        moveq   #0,d5                   /* Clear register */
+        move.w  0xA15122,d5             /* Grab the envelope value from COMM Port 2 */
+        move.b  d5,d5                   /* Convert word to byte */
+        move.b  d5, (0xC00011)          /* Set envelope value to PSG port */
+        move.w  #0,0xA15120             /* Tell 32X we are done here */
+        bra     main_loop
 
 vert_blank:
         move.l  d1,-(sp)
@@ -820,6 +880,8 @@ load_font:
 # Global variables for 68000
 
         .align  4
+
+.equ PsgPort, 0xC00011        
 
 vblank:
         dc.l    0
