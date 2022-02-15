@@ -742,3 +742,29 @@ void screenFadeOut(int fadeSpeed)
 	Hw32xScreenClear();
 	return;
 }
+
+void clearScreen_Fill8bit()
+{
+	MARS_VDP_FILLEN = 255;
+
+	for (int loop = 0; loop < 140; loop++)
+	{
+		MARS_VDP_FILADR = MARS_FRAMEBUFFER + (loop << 8);
+		MARS_VDP_FILDAT = 0;
+		while (MARS_VDP_FBCTL & MARS_VDP_FEN);
+	}
+}
+
+void clearScreen_Fill16bit()
+{
+	// use the fill function
+
+	MARS_VDP_FILLEN = 255;
+
+	for (int loop = 0; loop < 255; loop++)
+	{
+		MARS_VDP_FILADR = MARS_FRAMEBUFFER + (loop << 8);
+		MARS_VDP_FILDAT = 0;
+		while (MARS_VDP_FBCTL & MARS_VDP_FEN);
+	}
+}

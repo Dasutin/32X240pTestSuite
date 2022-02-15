@@ -35,6 +35,7 @@ u8 paused = PAUSED;
 u16 currentFB = 0;
 vu16 overwriteImg16;
 u32 _state = ~0L;
+u16 randbase;
 
 static const u32 crc32_table[] = {
     0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac,
@@ -178,7 +179,7 @@ void handle_input()
 	MARS_SYS_COMM6 = MASTER_STATUS_OK; //tell slave to resume
 }
 
-void intToHex(u32 value, char *str, u16 minsize)
+u32 intToHex(u32 value, char *str, u16 minsize)
 {
     u32 res;
     u16 cnt;
@@ -278,4 +279,18 @@ u32 CalculateCRC(u32 startAddress, u32 size)
 
 	checksum = CRC32_finalize();
 	return checksum;
+}
+
+void setRandomSeed(u16 seed)
+{
+    // xor it with a random value to avoid 0 value
+    randbase = seed ^ 0xD94B;
+}
+
+u16 random()
+{
+    randbase ^= (randbase >> 1) ^ MARS_SYS_COMM12;
+    randbase ^= (randbase << 1);
+
+    return randbase;
 }

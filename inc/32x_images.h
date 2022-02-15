@@ -126,5 +126,6 @@ int myScreenPrintData(const char *buff, const int x, const int y, const vu8* fgC
 void mars_drawText(const char *str, int x, int y, int palOffs);
 void mars_drawTextwShadow(const char *str, int x, int y, int textpalOffs, int shadowpalOffs);
 void screenFadeOut(int fadeSpeed);
+void clearScreen_Fill8bit();
 
 #endif

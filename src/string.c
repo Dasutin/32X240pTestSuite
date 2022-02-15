@@ -22,6 +22,7 @@
 
 #include "types.h"
 #include "string.h"
+#include "shared_objects.h"
 
 #define P01 10
 #define P02 100
@@ -346,6 +347,35 @@ static u16 uint16ToStr(u16 value, char *str, u16 minsize)
     while(dst != str) *--dst = '0';
 
     return length;
+}
+
+void fix32ToStr(fix32 value, char *str, u16 numdec)
+{
+    char *dst = str;
+    fix32 v = value;
+
+    if (v < 0)
+    {
+        v = -v;
+        *dst++ = '-';
+    }
+
+    dst += uintToStr(fix32ToInt(v), dst, 1);
+    *dst++ = '.';
+
+    // get fractional part
+    const u16 frac = (((u16) fix32Frac(v)) * (u16) 1000) / ((u16) 1 << FIX32_FRAC_BITS);
+    u16 len = uint16ToStr(frac, dst, 3);
+
+    if (len < numdec)
+    {
+        // need to add ending '0'
+        dst += len;
+        while(len++ < numdec) *dst++ = '0';
+        // mark end here
+        *dst = 0;
+    }
+    else dst[numdec] = 0;
 }
 
 static u16 digits10(const u16 v)

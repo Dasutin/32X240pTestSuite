@@ -616,7 +616,7 @@ void tp_gray_ramp()
 	return;
 }
 
-void tp_white_rgb()
+/* void tp_white_rgb()
 {
 	u16 done = 0;
 	int frameDelay = 5;
@@ -698,6 +698,216 @@ void tp_white_rgb()
 		Hw32xScreenFlip(0);
 
 		Hw32xDelay(frameDelay);
+	}
+	return;
+} */
+
+void tp_white_rgb()
+{
+	u16 done = 0;
+	u16 color = 1;
+	u16 draw = 0;
+	u16 sel = 1;
+	u16 l = 320*224;
+	u16 r = 31, g = 31, b = 31, custom = 0;
+	u16 str[20], num[4];
+	u16 button, pressedButton, oldButton = 0xFFFF;
+	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
+	vu16 *cram16 = &MARS_CRAM;
+
+	cram16[0] = COLOR(r, g, b);
+	cram16[1] = COLOR(0, 0, 0);
+	cram16[2] = COLOR(31, 0, 0);
+	cram16[3] = COLOR(0, 31, 0);
+	cram16[4] = COLOR(0, 0, 31);
+
+	Hw32xScreenFlip(0);
+
+	// Set screen priority for the 32X 
+	MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X | MARS_224_LINES | MARS_VDP_MODE_256;
+
+	while (!done)
+	{
+		Hw32xFlipWait();
+
+		button = MARS_SYS_COMM8;
+
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
+		{
+			button = MARS_SYS_COMM10;
+		}
+
+		pressedButton = button & ~oldButton;
+    	oldButton = button;
+
+		if (pressedButton & SEGA_CTRL_START)
+		{
+			HwMdClearScreen();
+			done = 1;
+		}
+
+		if (pressedButton & SEGA_CTRL_Z)
+		{
+			HwMdClearScreen();
+			DrawHelp(HELP_GENERAL);
+			draw = 1;
+		}
+
+		if(color > 5)
+			color = 1;
+
+		if(color < 1)
+			color = 5;
+
+		if(draw)
+		{
+			cram16[0] = COLOR(r, g, b);
+
+			switch (color){
+				case 1:
+					for (int i=0; i<=l; i++){
+						frameBuffer16[i] = 0x0000;
+					} 
+				break;
+
+				case 2:
+					for (int i=0; i<=l; i++){
+						frameBuffer16[i] = 0x0101;
+					}
+				break;
+
+				case 3:
+					for (int i=0; i<=l; i++){
+						frameBuffer16[i] = 0x0202;
+					}
+				break;
+					
+				case 4:
+					for (int i=0; i<=l; i++){
+						frameBuffer16[i] = 0x0303;
+					}
+				break;
+
+				case 5:
+					for (int i=0; i<=l; i++){
+						frameBuffer16[i] = 0x0404;
+					}
+				break;
+			}
+
+			if(custom && color == 0)
+			{
+				strcpy(str, "R:");
+				intToStr(r, num, 2);
+				strcat(str, num);
+
+				HwMdPuts(str, sel == 1 ? 0x4000 : 0x2000, 22, 1);
+
+				strcpy(str, "G:");
+				intToStr(g, num, 2);
+				strcat(str, num);
+
+				HwMdPuts(str, sel == 2 ? 0x4000 : 0x2000, 27, 1);
+
+				strcpy(str, "B:");
+				intToStr(b, num, 2);
+				strcat(str, num);
+
+				HwMdPuts(str, sel == 3 ? 0x4000 : 0x2000, 32, 1);
+			}
+			else
+				HwMdClearScreen();
+
+			//Hw32xScreenFlip(0);
+			draw = 0;
+		}
+
+		if(custom)
+		{
+			if(pressedButton & SEGA_CTRL_LEFT)
+			{
+				sel--;
+				draw = 1;
+			}
+
+			if(pressedButton & SEGA_CTRL_RIGHT)
+			{
+				sel++;
+				draw = 1;
+			}
+
+			if (pressedButton & SEGA_CTRL_UP)
+			{
+				switch (sel)
+				{
+				case 0:
+					r++;
+					if (r > 31)
+						r = 0;
+					break;
+				case 1:
+					g++;
+					if (g > 31)
+						g = 0;
+					break;
+				case 2:
+					b++;
+					if (b > 31)
+						b = 0;
+					break;
+				}
+				draw = 1;
+			}
+
+			if (pressedButton & SEGA_CTRL_DOWN)
+			{
+				switch (sel)
+				{
+				case 1:
+					r--;
+					if (r == 65535)
+						r = 31;
+					break;
+				case 2:
+					g--;
+					if (g == 65535)
+						g = 31;
+					break;
+				case 3:
+					b--;
+					if (b== 65535)
+						b = 31;
+					break;
+				}
+				draw = 1;
+			}
+			if(sel < 1)
+				sel = 3;
+			if(sel > 3)
+				sel = 1;
+		}
+
+		if (pressedButton & SEGA_CTRL_C)
+		{
+			custom = !custom;
+			draw = 1;
+		}
+
+		if (pressedButton & SEGA_CTRL_A)
+		{
+			color++;
+			draw = 1;
+		}
+
+		if (pressedButton & SEGA_CTRL_B)
+		{
+			color--;
+			draw = 1;
+		}
+
+		drawLineTable(4);
+
+		Hw32xScreenFlip(0);
 	}
 	return;
 }

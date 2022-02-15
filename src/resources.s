@@ -300,6 +300,18 @@ _MARKER_TILE:
 
 			.align 2
 
+			.global _MARKER_TILE1
+_MARKER_TILE1:
+			.incbin "res/marker_tile1.bin"
+
+			.align 2
+
+			.global _MARKER_TILE2
+_MARKER_TILE2:
+			.incbin "res/marker_tile2.bin"
+
+			.align 2
+
 			.global _MARKER_STRIPED_TILE
 _MARKER_STRIPED_TILE:
 			.incbin "res/marker_striped_tile.bin"

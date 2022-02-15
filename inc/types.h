@@ -50,6 +50,8 @@ typedef volatile signed char v8;
 typedef volatile signed short int v16;
 typedef volatile signed long int v32;
 
+typedef s32 fix32;
+
 #define abs(n) ((n)<0?-(n):(n))
 
 #endif /* _TYPES_H_ */

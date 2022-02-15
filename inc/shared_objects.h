@@ -48,11 +48,28 @@ extern void marsVDP256Start(void);
 extern void marsVDP32KStart(void);
 extern void swapBuffers(void);
 extern void handle_input();
-void intToHex(u32 value, char *str, u16 minsize);
+u32 intToHex(u32 value, char *str, u16 minsize);
 void CRC32_reset();
 void CRC32_update(u8 data);
 u32 CRC32_finalize();
 u32 CalculateCRC(u32 startAddress, u32 size);
 int memcmp1(const void *s1, const void *s2, int n);
+
+void setRandomSeed(u16 seed);
+u16 random();
+
+#define FIX32_INT_BITS              22
+#define FIX32_FRAC_BITS             (32 - FIX32_INT_BITS)
+
+#define FIX32_INT_MASK              (((1 << FIX32_INT_BITS) - 1) << FIX32_FRAC_BITS)
+#define FIX32_FRAC_MASK             ((1 << FIX32_FRAC_BITS) - 1)
+
+#define fix32Div(val1, val2)        (((val1) << (FIX32_FRAC_BITS / 2)) / ((val2) >> (FIX32_FRAC_BITS / 2)))
+
+#define intToFix32(value)           ((fix32) ((value) << FIX32_FRAC_BITS))
+#define fix32ToInt(value)           ((s32) ((value) >> FIX32_FRAC_BITS))
+#define fix32Frac(value)            ((value) & FIX32_FRAC_MASK)
+#define fix32Mul(val1, val2)        (((val1) >> (FIX32_FRAC_BITS / 2)) * ((val2) >> (FIX32_FRAC_BITS / 2)))
+#define fix32Div(val1, val2)        (((val1) << (FIX32_FRAC_BITS / 2)) / ((val2) >> (FIX32_FRAC_BITS / 2)))
 
 #endif

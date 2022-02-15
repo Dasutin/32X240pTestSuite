@@ -18,7 +18,8 @@
             "command": "${env:BIZHAWK} ${env:MARSPROJECTS}${workspaceFolderBasename}\\build\\240pMars.32x",
             "presentation": {
                 "reveal": "never"
-            }
+            },
+            "problemMatcher": []
         },
         {
             "label": "Build and Run",
@@ -37,6 +38,15 @@
             "label": "Clean",
             "type": "shell",
             "command": "make clean",
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Debug 32X ROM",
+            "type": "shell",
+            "command": "make clean && make debug",
             "presentation": {
                 "reveal": "always"
             },
@@ -70,6 +80,19 @@
                 "reveal": "always"
             },
             "problemMatcher": []
+        },
+        {
+            "label": "Build and Debug",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Debug 32X ROM",
+                "Run in Gens - Debug"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
         }
     ]
 }

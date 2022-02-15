@@ -387,13 +387,14 @@ void menu_vt()
 
 		mars_drawTextwShadow("Drop Shadow Test", -24, 88, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);		
 		mars_drawTextwShadow("Striped Sprite Test", -24, 96, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Horizontal Stripes", -24, 104, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Vertical Stripes", -24, 112, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Checkerboard", -24, 120, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Backlit Zone Test", -24, 128, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Timing & Reflex Test", -24, 104, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Horizontal Stripes", -24, 112, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Vertical Stripes", -24, 120, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Checkerboard", -24, 128, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Backlit Zone Test", -24, 136, curse == 7 ? fontColorRed : fontColorWhite, curse == 7 ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("Help", -24, 150, curse == 7 ? fontColorRed : fontColorWhite, curse == 7 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Back to Main Menu", -24, 166, curse == 8 ? fontColorRed : fontColorWhite, curse == 8 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Help", -24, 150, curse == 8 ? fontColorRed : fontColorWhite, curse == 8 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Back to Main Menu", -24, 166, curse == 9 ? fontColorRed : fontColorWhite, curse == 9 ? fontColorBlack : fontColorGray);
 
 		if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT)
 		mars_drawTextwShadow("NTSC VDP 320x224p", 90, 193, fontColorWhite, fontColorGray);
@@ -414,7 +415,7 @@ void menu_vt()
 		if (pressedButton & SEGA_CTRL_DOWN)
 		{
 			curse++;
-			if(curse > 8)
+			if(curse > 9)
 				curse = 1;
 		}
 
@@ -422,7 +423,7 @@ void menu_vt()
 		{
 		 	curse--;
 		 	if(curse < 1)
-		 		curse = 8;
+		 		curse = 9;
 		}
 
 		if (pressedButton & SEGA_CTRL_B)
@@ -463,39 +464,47 @@ void menu_vt()
 
 				case 3:
 					screenFadeOut(1);
-					vt_horizontal_stripes();
+					vt_reflex_test();
+					HwMdClearScreen();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 4:
 					screenFadeOut(1);
-					vt_vertical_stripes();
+					vt_horizontal_stripes();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 5:
 					screenFadeOut(1);
-					vt_checkerboard();
+					vt_vertical_stripes();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 6:
 					screenFadeOut(1);
+					vt_checkerboard();
+					marsVDP256Start();
+					DrawMainBGwGillian();
+				break;
+
+				case 7:
+					screenFadeOut(1);
 					vt_backlitzone_test();
 					marsVDP256Start();
 					DrawMainBGwGillian();	
 				break;
 
-				case 7:
+				case 8:
 					screenFadeOut(1);
 					DrawHelp(HELP_GENERAL);
 					DrawMainBGwGillian();
 				break;
 
-				case 8:
+				case 9:
 					screenFadeOut(1);
 					done = 1;
 				break;

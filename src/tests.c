@@ -20,7 +20,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <limits.h>
 #include "types.h"
 #include "32x.h"
 #include "hw_32x.h"
@@ -38,6 +37,7 @@ extern int fontColorBlack;
 
 extern u32 schecksum;
 
+//TODO Move CRC and BIOS support functions
 typedef struct bios_data {
     u32 crc;
     char *name;
@@ -158,6 +158,31 @@ void ShowMessageAndData(char *message, u32 address, u8 color, int len, int xpos,
 	HwMdPuts(buffer, color, xpos+msglen+3, ypos);
 }
 
+void MDPSG_init()
+{
+	HwMdPSGSetTone(0,0);
+	HwMdPSGSetTone(1,0);
+	HwMdPSGSetTone(2,0);
+	HwMdPSGSetTone(3,0);
+
+	HwMdPSGSetEnvelope(0, PSG_ENVELOPE_MIN);
+	HwMdPSGSetEnvelope(1, PSG_ENVELOPE_MIN);
+	HwMdPSGSetEnvelope(2, PSG_ENVELOPE_MIN);
+	HwMdPSGSetEnvelope(3, PSG_ENVELOPE_MIN);
+}
+
+void MDPSG_stop()
+{
+	//HwMdPSGSetEnvelope(0, PSG_ENVELOPE_MIN);
+	HwMdPSGSetChandVol(0,15);
+	HwMdPSGSetChandVol(1,15);
+	HwMdPSGSetChandVol(2,15);
+	HwMdPSGSetChandVol(3,15);
+	//HwMdPSGSetEnvelope(1, PSG_ENVELOPE_MIN);
+	//HwMdPSGSetEnvelope(2, PSG_ENVELOPE_MIN);
+	//HwMdPSGSetEnvelope(3, PSG_ENVELOPE_MIN);
+}
+
 void vt_drop_shadow_test()
 {
 	int done = 0;
@@ -186,6 +211,7 @@ void vt_drop_shadow_test()
 	while (!done)
 	{
 		Hw32xFlipWait();
+		//clearScreen_Fill8bit();
 
 		button = MARS_SYS_COMM8;
 
@@ -411,6 +437,450 @@ void vt_striped_sprite_test()
 		Hw32xScreenFlip(0);
 	}
 	return;
+}
+
+void vt_reflex_test()
+{
+	char str[10];
+	u16 pal = 0x0000, change = 1, loadvram = 1;
+	s16 speed = 1, vary = 0;
+	u16 size, ind = 0, usersound = 0;
+	u16 x = 0, y = 0, x2 = 0, y2 = 0, done = 0, variation = 1, draw = 1, done1 = 1;
+	u16 button, pressedButton, oldButton = 0xFFFF;
+	u16 pos = 0, view = 0, audio = 1, drawoffset = 0;
+	u16 first_pal[16], oldColor = 0;
+	s16 clicks[10];
+	vu16 *cram16 = &MARS_CRAM;
+	int blockColor_1 = 1;
+	int backgroundColor_2 = 2;
+	//extern const u8 MARKER_TILE[] __attribute__((aligned(16)));
+	extern const u8 MARKER_TILE1[] __attribute__((aligned(16)));
+	extern const u8 MARKER_TILE2[] __attribute__((aligned(16)));
+	extern const u16 BACKGROUND_PAL[];
+	extern const u8 BACKGROUND_TILE[] __attribute__((aligned(16)));
+
+	u8 MARKER_TILE3[] __attribute__((aligned(16))) = {
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 
+	0x00, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x00, 
+	0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 
+	0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02,
+	0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 
+	0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 
+	0x00, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x00, 
+	0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	};
+
+	x = 144;
+	y = 60;
+
+	x2 = 108;
+	y2 = 96;
+	
+	MDPSG_init();
+	HwMdPSGSetFrequency(0, 1000);
+
+	// Set screen priority for the 32X 
+	MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X | MARS_224_LINES | MARS_VDP_MODE_256;
+
+	Hw32xScreenFlip(0);
+
+	cram16[1] = COLOR(31, 31, 31);
+	cram16[2] = COLOR(31, 31, 31);
+
+	while (!done)
+	{
+		Hw32xFlipWait();
+		clearScreen_Fill8bit();
+
+		if (loadvram)
+		{	
+			HwMdPuts("Press the \"A\" button when the sprite", 0x4000, 2, 21);
+			HwMdPuts("is aligned. A negative value means", 0x4000, 2, 22);
+			HwMdPuts("you pressed \"A\" before they intersect.", 0x4000, 2, 23);
+			HwMdPuts("\"B\" button toggles horz/vert", 0x4000, 2, 24);
+			HwMdPuts("\"C\" button toggles audio", 0x4000, 2, 25);
+			HwMdPuts("DOWN toggles random/rhythmic", 0x4000, 2, 26);
+
+			loadvram = 0;
+			draw = 1;
+
+			if (pos)
+			{
+				int i = 0;
+				u16 ppos = 0;
+
+				for(i = 0; i < pos; i++)
+				{
+					pal = 0x0000;
+
+					intToStr(clicks[i], str, 1);
+
+					if (clicks[i] == 0)
+						pal = 0x4000;
+					if (clicks[i] < 0)
+						pal = 0x2000;
+
+					ppos = i + 1;
+					intToStr(ppos, str, 1);
+					HwMdPuts("Offset", 0x0000, 2, i);
+					HwMdPuts(str, 0x0000, 9, i);
+					HwMdPuts(":", 0x0000, i == 9 ? 11 : 10, i);
+					intToStr(clicks[i], str, 1);
+					HwMdPuts(str, pal, i == 9 ? 13 : 12, i);
+					ppos = strlen(str);
+					if (clicks[i] == 1)
+						HwMdPuts(" frame    ", pal, pos == 9 ? 13 : 12 + ppos, i);
+					else
+						HwMdPuts(" frames   ", pal, pos == 9 ? 13 : 12 + ppos, i);
+				}
+			}
+		}
+		
+		if (y == 96)	//  Screen Flash    
+		{
+			cram16[0] = COLOR(5, 5, 5);
+			cram16[0] = COLOR(0, 0, 0);
+			if (audio && !usersound)
+				HwMdPSGSetEnvelope(0, PSG_ENVELOPE_MIN);
+				
+			//TODO Screen Flash Here
+
+		}
+		
+		if (usersound)
+		{
+			HwMdPSGSetEnvelope(0, PSG_ENVELOPE_MIN);
+			usersound = 0;
+		}
+
+		button = MARS_SYS_COMM8;
+
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
+		{
+			button = MARS_SYS_COMM10;
+		}
+		pressedButton = button & ~oldButton;
+    	oldButton = button;
+
+		if (pressedButton & SEGA_CTRL_Z)
+		{
+			DrawHelp(HELP_MANUALLAG);
+		}
+
+		if (pressedButton & SEGA_CTRL_A)
+		{
+			if (change)
+			{
+				clicks[pos] = (y - 96) * speed;
+				drawoffset = 1;
+				if (clicks[pos] >= 0)
+					change = 0;
+					
+				if (audio)
+				{
+					if (clicks[pos] == 0)
+					{
+						//HwMdPSGSetChandVol(0, 0);
+						HwMdPSGSetFrequency(0, 1000);
+					}
+					else {
+						//HwMdPSGSetChandVol(0, 0);
+						HwMdPSGSetFrequency(0, 500);
+					}
+						
+					HwMdPSGSetEnvelope(0, PSG_ENVELOPE_MAX);
+					usersound = 1;
+				}
+			}
+		}
+
+		if (pressedButton & SEGA_CTRL_B)
+		{
+			view++;
+			if(view > 2)
+				view = 0;
+		}
+
+		if (pressedButton & SEGA_CTRL_C)
+		{
+			audio = !audio;
+			draw = 1;
+		}
+
+		if (pressedButton & SEGA_CTRL_DOWN)
+		{
+			variation = !variation;
+			if(!variation)
+				vary = 0;
+			draw = 1;
+		}
+
+		if (pressedButton & SEGA_CTRL_START)
+		{
+			done = 1;
+		}
+
+		if (drawoffset)
+		{
+			u16 ppos = 0;
+
+			pal = 0x0000;
+			intToStr(clicks[pos], str, 1);
+
+			if (clicks[pos] == 0)
+				pal = 0x4000;
+			if (clicks[pos] < 0)
+				pal = 0x2000;
+
+			ppos = pos + 1;
+			intToStr(ppos, str, 1);
+			HwMdPuts("Offset", 0x0000, 2, pos);
+			HwMdPuts(str, 0x0000, 9, pos);
+			HwMdPuts(":", 0x0000, pos == 9 ? 11 : 10, pos);
+			intToStr(clicks[pos], str, 1);
+			HwMdPuts(str, pal, pos == 9 ? 13 : 12, pos);
+			ppos = strlen(str);
+
+			if (clicks[pos] == 1)
+				HwMdPuts(" frame    ", pal, pos == 9 ? 13 : 12 + ppos, pos);
+			else
+				HwMdPuts(" frames   ", pal, pos == 9 ? 13 : 12 + ppos, pos);
+
+			if (clicks[pos] >= 0)
+				pos++;
+
+			if (pos > 9)
+				done = 1;
+
+			drawoffset = 0;
+		}
+
+		if (draw)
+		{
+			HwMdPuts("Audio:", 0x0000, 24, 0);
+
+			if (audio)
+				HwMdPuts("on ", 0x0000, 31, 0);
+			else
+				HwMdPuts("off", 0x0000, 31, 0);
+
+			HwMdPuts("Timing:", 0x0000, 24, 1);
+
+			if (variation)
+				HwMdPuts("random  ", 0x0000, 32, 1);
+			else
+				HwMdPuts("rhythmic", 0x0000, 32, 1);
+
+			draw = 0;
+		}
+
+		if (y > 132 + vary)
+		{
+			speed = -1;
+			change = 1;
+			if (variation)
+			{
+				if (random() % 2)
+					vary = random() % 7;
+				else
+					vary = -1 * random() % 7;
+			}
+		}
+
+		if (y < 60 + vary)
+		{
+			speed = 1;
+			change = 1;
+
+			if (variation)
+			{
+				if (random() % 2)
+					vary = random() % 7;
+				else
+					vary = -1 * random() % 7;
+			}
+		}
+
+		y += speed;
+		x2 += speed;
+
+		drawSprite(MARKER_TILE3, x, 96, 32, 32, 0, 0);
+		drawSprite(MARKER_TILE1, x, y, 32, 32, 0, 0);
+
+		if (y == 96)							// Red on the spot
+			cram16[2] = COLOR(31, 0, 0);
+
+		if (y == 95 || y == 97)				// Green one pixel before or after
+			cram16[2] = COLOR(0, 31, 0);
+
+		if (y == 98 || y == 94)				// Back to white two pixels before or after
+			cram16[2] = COLOR(31, 31, 31);
+
+		if (view == 0 || view == 2)
+			drawSprite(MARKER_TILE1, x, y, 32, 32, 0, 0);
+		else
+			drawSprite(MARKER_TILE1, 320, 224, 32, 32, 0, 0);
+
+		if (view == 1 || view == 2)
+			drawSprite(MARKER_TILE2, x2, y2, 32, 32, 0, 0);
+		else
+			drawSprite(MARKER_TILE2, 320, 224, 32, 32, 0, 0);
+
+		if (y == 96)						// Half the screen?        
+		{
+			if(audio)
+			{
+				HwMdPSGSetFrequency(0, 1000);
+				HwMdPSGSetEnvelope(0, PSG_ENVELOPE_MAX);
+			}
+
+			//TODO Screen Flash Here
+
+		}
+
+		drawLineTable(4);
+
+		Hw32xScreenFlip(0);
+	}
+
+	if (pos > 9)
+	{	
+		int totald = 0, cnt, tot;
+		u16 total = 0, count = 0, c = 0;
+
+		HwMdClearScreen();
+
+		marsVDP256Start();
+
+		Hw32xScreenFlip(0);
+
+		Hw32xFlipWait();
+
+		HwMdPSGSetEnvelope(0, PSG_ENVELOPE_MIN);
+
+		for(c = 0; c < 10; c++)
+		{
+			if (clicks[c] != 0xFF)
+			{
+				intToStr(clicks[c], str, 1);
+
+				pal = 0x0000;
+				if (clicks[c] == 0)
+					pal = 0x4000;
+
+				if (clicks[c] < 0)
+					pal = 0x2000;
+
+				if (clicks[c] >= 0)
+				{
+					total += clicks[c];
+					count++;
+				}
+			}
+			HwMdPuts(str, pal, 10, c + 7);
+		}
+
+		HwMdPuts("+", 0x0000, 8, 11);
+
+		if (count > 0)
+		{
+			u16 h = 10;
+			u16 v = 18;
+			const int framerate = MARS_VDP_DISPMODE & MARS_NTSC_FORMAT ? 22.801467 : 23.011360;
+			
+			HwMdPuts("----", 0x0000, h - 2, v++);
+
+			cnt = intToFix32(count);
+			tot = intToFix32(total);
+
+			intToStr(total, str, 1);
+			HwMdPuts(str, 0x0000, h, v);
+			h += strlen(str);
+			HwMdPuts("/", 0x0000, h++, v);
+
+			intToStr(count, str, 1);
+			HwMdPuts(str, 0x0000, h, v);
+			h += strlen(str);
+			HwMdPuts("=", 0x0000, h++, v);
+
+			totald = fix32Div(tot, cnt);
+			fix32ToStr(totald, str, 4);
+			HwMdPuts(str, 0x0000, h, v);
+			h += strlen(str);
+			h -= 2;
+			HwMdPuts("frames", 0x0000, h, v);
+			HwMdPuts("These are your reflexes, not a", 0x0000, 5, ++v);
+			HwMdPuts("lag test. A frame is", 0x0000, 5, ++v);
+			fix32ToStr(framerate, str, 6);
+			HwMdPuts(str, 0x0000, 26, v);
+			HwMdPuts("ms.", 0x0000, 32, v);
+
+			h = 14;
+			v = 12;
+			cnt = fix32Mul(totald, framerate);
+			fix32ToStr(cnt, str, 2);
+			HwMdPuts(str, 0x4000, h, v);
+			h += strlen(str);
+			HwMdPuts(" milliseconds", 0x0000, h, v);
+
+			if (total < 5)
+				HwMdPuts("EXCELLENT REFLEXES!", 0x4000, 14, 15);
+
+			if (total == 0)
+				HwMdPuts("INCREDIBLE REFLEXES!!", 0x4000, 14, 15);
+		}
+
+		loadPalette(&BACKGROUND_PAL[0], &BACKGROUND_PAL[255],0);
+		drawBG(BACKGROUND_TILE);
+			
+		drawLineTable(4);
+			
+		Hw32xScreenFlip(0);
+			
+		done = 0;
+			
+		while (!done)
+		{
+			button = MARS_SYS_COMM8;
+
+			if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
+			{
+				button = MARS_SYS_COMM10;
+			}
+
+			pressedButton = button & ~oldButton;
+    		oldButton = button;
+		
+			if (pressedButton & SEGA_CTRL_START || pressedButton & SEGA_CTRL_B)
+			{
+				done = 1;
+			}
+		}
+	}
 }
 
 void vt_horizontal_stripes()
@@ -903,6 +1373,8 @@ void vt_backlitzone_test()
 	{
 		Hw32xFlipWait();
 
+		//clearScreen_Fill8bit();
+
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
@@ -997,8 +1469,10 @@ void vt_backlitzone_test()
 void at_sound_test()
 {
 	int done = 0;
-	int frameDelay = 5;
-	int curse = 2;
+	//int frameDelay = 5;
+	int xcurse = 2;
+	int ycurse = 1;
+	int psgoff = 0;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 BACKGROUND_PAL[];
 	extern const u8 BACKGROUND_TILE[] __attribute__((aligned(16)));
@@ -1008,6 +1482,8 @@ void at_sound_test()
 	//sound_t BEEP;
 
 	//Hw32xAudioInit();
+
+	MDPSG_init();
 
 	for (int i = 0; i < 27; i++){
 		cram16[i] = BACKGROUND_PAL[i] & 0x7FFF;
@@ -1033,10 +1509,18 @@ void at_sound_test()
 
 		memcpy(frameBuffer16 + 0x100, BACKGROUND_TILE, 320*224);
 
-		mars_drawTextwShadow("Sound Test", 54, 58, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Left Channel", -15, 80, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Center Channel", 40, 100, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Right Channel", 110, 80, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Sound Test", 54, 35, fontColorGreen, fontColorGray);
+
+		mars_drawTextwShadow("32X PCM", 64, 66, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Left", 20, 80, ycurse == 1 && xcurse == 1 ? fontColorRed : fontColorWhite, ycurse == 1 && xcurse == 1 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Center", 68, 80, ycurse == 1 && xcurse == 2 ? fontColorRed : fontColorWhite, ycurse == 1 && xcurse == 2 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Right", 130, 80, ycurse == 1 && xcurse == 3 ? fontColorRed : fontColorWhite, ycurse == 1 && xcurse == 3 ? fontColorBlack : fontColorGray);
+
+		mars_drawTextwShadow("Genesis PSG Channel", 18, 110, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("0", 74, 124, ycurse == 2 && xcurse == 1 ? fontColorRed : fontColorWhite, ycurse == 2 && xcurse == 1 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("1", 84, 124, ycurse == 2 && xcurse == 2 ? fontColorRed : fontColorWhite, ycurse == 2 && xcurse == 2 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("2", 94, 124, ycurse == 2 && xcurse == 3 ? fontColorRed : fontColorWhite, ycurse == 2 && xcurse == 3 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("3", 104, 124, ycurse == 2 && xcurse == 4 ? fontColorRed : fontColorWhite, ycurse == 2 && xcurse == 4 ? fontColorBlack : fontColorGray);
 
 		button = MARS_SYS_COMM8;
 
@@ -1050,16 +1534,48 @@ void at_sound_test()
 
     	if (pressedButton & SEGA_CTRL_RIGHT)
 		{
-			curse++;
-		 	if(curse > 3)
-		 		curse = 1;
+			xcurse++;
+		 	if(xcurse > 3 && ycurse == 1)
+		 		xcurse = 1;
+			else if (xcurse > 4 && ycurse == 2)
+			{
+				xcurse = 1;
+			}
 		 }
 
 		if (pressedButton & SEGA_CTRL_LEFT)
 		{
-		 	curse--;
-		 	if(curse < 1)
-		 		curse = 3;
+		 	xcurse--;
+			if(xcurse < 1 && ycurse == 1)
+		 		xcurse = 3;
+			else if (xcurse < 1 && ycurse == 2)
+			{
+				xcurse = 4;
+			}
+		}
+
+		if (pressedButton & SEGA_CTRL_UP)
+		{
+			ycurse++;
+		 	if(ycurse > 2)
+		 		ycurse = 1;
+			else if (ycurse == 2 && xcurse > 4)
+			{
+				ycurse = 1;
+				xcurse = 3;
+			}
+		}
+
+		if (pressedButton & SEGA_CTRL_DOWN)
+		{
+		 	ycurse--;
+		 	if(ycurse < 1)
+		 		ycurse = 2;
+			else if (ycurse == 2 && xcurse > 4)
+			{
+				ycurse = 1;
+				xcurse = 3;
+			}
 		}
 
 		if (pressedButton & SEGA_CTRL_START)
@@ -1070,25 +1586,52 @@ void at_sound_test()
 
 		if (pressedButton & SEGA_CTRL_A)
 		{
-			switch (curse) 
+			if (xcurse == 1 && ycurse == 1)
 			{
-				case 1:
-					//Hw32xAudioLoad(&JUMP, "jump");
-					//Hw32xAudioPlay(&JUMP, 1, 1);  // Left Channel Only
-					//Hw32xAudioFree(&JUMP);
-				break;
-					
-				case 2:
-					//Hw32xAudioLoad(&JUMP, "jump");
-					//Hw32xAudioPlay(&JUMP, 1, 3);  // Center
-					//Hw32xAudioFree(&JUMP);
-				break;
-
-				case 3:
-					//Hw32xAudioLoad(&JUMP, "jump");
-					//Hw32xAudioPlay(&JUMP, 1, 2);  // Right Channel Only
-					//Hw32xAudioFree(&JUMP);
-				break;
+				//Hw32xAudioLoad(&JUMP, "jump");
+				//Hw32xAudioPlay(&JUMP, 1, 1);  // Left Channel Only
+				//Hw32xAudioFree(&JUMP);
+			}
+			if (xcurse == 2 && ycurse == 1)
+			{
+				//Hw32xAudioLoad(&JUMP, "jump");
+				//Hw32xAudioPlay(&JUMP, 1, 3);  // Center
+				//Hw32xAudioFree(&JUMP);
+			}
+			if (xcurse == 3 && ycurse == 1)
+			{
+				//Hw32xAudioLoad(&JUMP, "jump");
+				//Hw32xAudioPlay(&JUMP, 1, 2);  // Right Channel Only
+				//Hw32xAudioFree(&JUMP);
+			}
+			if (xcurse == 1 && ycurse == 2)
+			{
+				HwMdPSGSetChandVol(0, 0);
+				HwMdPSGSetFrequency(0, 200);
+				if (psgoff == 0)
+					psgoff = 80;
+			}
+			if (xcurse == 2 && ycurse == 2)
+			{
+				HwMdPSGSetChandVol(1, 0);
+				HwMdPSGSetFrequency(1, 2000);
+				if (psgoff == 0)
+					psgoff = 80;
+			}
+			if (xcurse == 3 && ycurse == 2)
+			{
+				HwMdPSGSetChandVol(2, 0);
+				HwMdPSGSetFrequency(2, 4095);
+				if (psgoff == 0)
+					psgoff = 80;
+			}
+			if (xcurse == 4 && ycurse == 2)
+			{
+				HwMdPSGSetChandVol(3, 0);
+				HwMdPSGSetNoise(PSG_NOISE_TYPE_WHITE, PSG_NOISE_FREQ_TONE3);
+				HwMdPSGSetFrequency(3, 500);
+				if (psgoff == 0)
+					psgoff = 80;
 			}
 		}
 
@@ -1104,7 +1647,12 @@ void at_sound_test()
 
 		Hw32xScreenFlip(0);
 
-		Hw32xDelay(frameDelay);
+		if(psgoff)
+		{
+			psgoff--;
+			if(psgoff == 0)
+				MDPSG_stop();
+		}
 	}
     return;
 }
