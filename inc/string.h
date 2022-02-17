@@ -54,9 +54,12 @@ typedef __gnuc_va_list va_list;
 
 size_t strlen(const char *str);
 size_t strnlen(const char *str, size_t maxlen);
+char* strcpy(char *dest, const char *src);
+char* strcat(char *dest, const char *src);
 size_t vsprintf(char *buf, const char *fmt, va_list args);
 size_t sprintf(char *buffer,const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 u16 intToStr(s32 value, char *str, u16 minsize);
+u32 intToHex(u32 value, char *str, u16 minsize);
 u16 uintToStr(u32 value, char *str, u16 minsize);
 void fix32ToStr(fix32 value, char *str, u16 numdec);
 

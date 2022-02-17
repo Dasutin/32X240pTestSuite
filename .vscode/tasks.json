@@ -8,7 +8,8 @@
             "type": "shell",
             "command": "make clean && make release",
             "presentation": {
-                "reveal": "always"
+                "reveal": "always",
+                "clear": true
             },
             "problemMatcher": "$msCompile"
         },

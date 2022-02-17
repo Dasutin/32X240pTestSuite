@@ -1068,14 +1068,14 @@ void Hw32xAudioShutdown(void)
     isAudioActive = FALSE;
 }
 
-/*
-* Toggle mute
-*
-* When muted, sounds are still managed but not sent to the dsp, hence
-* it is possible to un-mute at any time.
-*/
+//
+// Toggle mute
+//
+// When muted, sounds are still managed but not sent to the dsp, hence
+// it is possible to un-mute at any time.
+//
 
-/* void Hw32xAudioToggleMute(void)
+ void Hw32xAudioToggleMute(void)
 {
     sndMute = !sndMute;
 }
@@ -1087,17 +1087,17 @@ void Hw32xAudioVolume(char d)
         sndUVol += d;
         sndVol = sndUVol << 1;
     }
-}*/
+}
 
-/*
- * Play a sound
- *
- * loop: number of times the sound should be played, -1 to loop forever
- * returns: channel number, or -1 if none was available
- *
- * NOTE if sound is already playing, simply reset it (i.e. can not have
- * twice the same sound playing
- */
+//
+// Play a sound
+//
+// loop: number of times the sound should be played, -1 to loop forever
+// returns: channel number, or -1 if none was available
+//
+// NOTE if sound is already playing, simply reset it (i.e. can not have
+// twice the same sound playing
+//
 
 /* char Hw32xAudioPlay(sound_t *sound, char loop, char selectch)
 {
