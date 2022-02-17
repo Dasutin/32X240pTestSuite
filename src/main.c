@@ -63,12 +63,12 @@ int main()
 
     NTSC = (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT) != 0;
 
-	SH2_WDT_WTCSR_TCNT = 0x5A00; /* WDT TCNT = 0 */
-    SH2_WDT_WTCSR_TCNT = 0xA53E; /* WDT TCSR = clr OVF, IT mode, timer on, clksel = Fs/4096 */
+	SH2_WDT_WTCSR_TCNT = 0x5A00; // WDT TCNT = 0
+    SH2_WDT_WTCSR_TCNT = 0xA53E; // WDT TCSR = clr OVF, IT mode, timer on, clksel = Fs/4096
 
-	/* init hires timer system */
-    SH2_WDT_VCR = (65 << 8) | (SH2_WDT_VCR & 0x00FF); // set exception vector for WDT
-    SH2_INT_IPRA = (SH2_INT_IPRA & 0xFF0F) | 0x0020; // set WDT INT to priority 2
+	// Init hires timer system
+    SH2_WDT_VCR = (65 << 8) | (SH2_WDT_VCR & 0x00FF); // Set exception vector for WDT
+    SH2_INT_IPRA = (SH2_INT_IPRA & 0xFF0F) | 0x0020; // Set WDT INT to priority 2
 
 	MARS_SYS_COMM4 = 0;
 	MARS_SYS_COMM6 = 0;
@@ -545,9 +545,10 @@ void menu_at()
 		loadTextPalette();
 
 		mars_drawTextwShadow("Sound Test", -15, 80, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Audio Sync Test", -15, 88, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("Help", -15, 146, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Back to Main Menu", -15, 161, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Help", -15, 146, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Back to Main Menu", -15, 161, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorBlack : fontColorGray);
 
 		if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT)
 		mars_drawTextwShadow("NTSC VDP 320x224p", 90, 193, fontColorWhite, fontColorGray);
@@ -568,7 +569,7 @@ void menu_at()
 		if (pressedButton & SEGA_CTRL_DOWN)
 		{
 			curse++;
-		 	if(curse > 3)
+		 	if(curse > 4)
 		 		curse = 1;
 		}
 
@@ -582,7 +583,7 @@ void menu_at()
 		{
 		 	curse--;
 		 	if(curse < 1)
-		 		curse = 3;
+		 		curse = 4;
 		}
 
 		if (pressedButton & SEGA_CTRL_START)
@@ -609,11 +610,18 @@ void menu_at()
 
 				case 2:
 					screenFadeOut(1);
-					DrawHelp(HELP_GENERAL);
+					at_audiosync_test();
+					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 3:
+					screenFadeOut(1);
+					DrawHelp(HELP_GENERAL);
+					DrawMainBGwGillian();
+				break;
+
+				case 4:
 					screenFadeOut(1);
 					done = 1;
 				break;
