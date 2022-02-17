@@ -21,6 +21,7 @@
  */
 
 #include "types.h"
+#include "string.h"
 #include "32x.h"
 #include "hw_32x.h"
 #include "32x_images.h"
@@ -616,101 +617,16 @@ void tp_gray_ramp()
 	return;
 }
 
-/* void tp_white_rgb()
-{
-	u16 done = 0;
-	int frameDelay = 5;
-	int color = 1;
-	int i;
-	int l = 320*224 + 0x100;
-	u16 button, pressedButton, oldButton = 0xFFFF;
-	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
-	
-	cleanup();
-	marsVDP32KStart();
-
-	Hw32xScreenFlip(0);
-
-	while (!done)
-	{
-		Hw32xFlipWait();
-
-		button = MARS_SYS_COMM8;
-
-		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
-		{
-			button = MARS_SYS_COMM10;
-		}
-
-		pressedButton = button & ~oldButton;
-    	oldButton = button;
-
-		if (pressedButton & SEGA_CTRL_START)
-		{
-			done = 1;
-		}
-
-		if (pressedButton & SEGA_CTRL_A)
-		{
-			color++;
-			if(color > 5)
-				color = 1;
-		}
-
-		if (pressedButton & SEGA_CTRL_Z)
-		{
-			DrawHelp(HELP_GENERAL);
-			marsVDP32KStart();
-		}
-
-		switch (color){
-			case 1:
-				for (i=0x100; i<=l; i++){
-					frameBuffer16[i] = 0x7FFF;
-				} 
-			break;
-
-			case 2:
-				for (i=0x100; i<=l; i++){
-					frameBuffer16[i] = 0x0000;
-				}
-			break;
-
-			case 3:
-				for (i=0x100; i<=l; i++){
-					frameBuffer16[i] = 0x001F;
-				}
-			break;
-				
-			case 4:
-				for (i=0x100; i<=l; i++){
-					frameBuffer16[i] = 0x03E0;
-				}
-			break;
-
-			case 5:
-				for (i=0x100; i<=l; i++){
-					frameBuffer16[i] = 0x7C00;
-				}
-			break;
-		}
-
-		Hw32xScreenFlip(0);
-
-		Hw32xDelay(frameDelay);
-	}
-	return;
-} */
-
 void tp_white_rgb()
 {
-	u16 done = 0;
-	u16 color = 1;
-	u16 draw = 0;
-	u16 sel = 1;
-	u16 l = 320*224;
-	u16 r = 31, g = 31, b = 31, custom = 0;
-	u16 str[20], num[4];
+	int done = 0;
+	int color = 1;
+	int draw = 1;
+	int sel = 1;
+	int l = 320*224;
+	u16 r = 31, g = 31, b = 31;
+	u8 custom = 0;
+	char str[20], num[4];
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
 	vu16 *cram16 = &MARS_CRAM;
@@ -753,73 +669,78 @@ void tp_white_rgb()
 			draw = 1;
 		}
 
-		if(color > 5)
-			color = 1;
-
-		if(color < 1)
-			color = 5;
-
-		if(draw)
+		if (pressedButton & SEGA_CTRL_C)
 		{
-			cram16[0] = COLOR(r, g, b);
+			custom = !custom;
+			draw = 1;
+		}
 
-			switch (color){
-				case 1:
-					for (int i=0; i<=l; i++){
-						frameBuffer16[i] = 0x0000;
-					} 
-				break;
+		if (pressedButton & SEGA_CTRL_A)
+		{
+			color++;
+			draw = 1;
+		}
 
-				case 2:
-					for (int i=0; i<=l; i++){
-						frameBuffer16[i] = 0x0101;
-					}
-				break;
+		if (pressedButton & SEGA_CTRL_B)
+		{
+			color--;
+			draw = 1;
+		}
 
-				case 3:
-					for (int i=0; i<=l; i++){
-						frameBuffer16[i] = 0x0202;
-					}
-				break;
+		cram16[0] = COLOR(r, g, b);
+
+		switch (color)
+		{
+			case 1:
+				for (int i=0; i<=l; i++){
+					frameBuffer16[i] = 0x0000;
+				} 
+			break;
+
+			case 2:
+				for (int i=0; i<=l; i++){
+					frameBuffer16[i] = 0x0101;
+				}
+			break;
+
+			case 3:
+				for (int i=0; i<=l; i++){
+					frameBuffer16[i] = 0x0202;
+				}
+			break;
 					
-				case 4:
-					for (int i=0; i<=l; i++){
-						frameBuffer16[i] = 0x0303;
-					}
-				break;
+			case 4:
+				for (int i=0; i<=l; i++){
+					frameBuffer16[i] = 0x0303;
+				}
+			break;
 
-				case 5:
-					for (int i=0; i<=l; i++){
-						frameBuffer16[i] = 0x0404;
-					}
-				break;
-			}
+			case 5:
+				for (int i=0; i<=l; i++){
+					frameBuffer16[i] = 0x0404;
+				}
+			break;
+		}
 
-			if(custom && color == 0)
-			{
-				strcpy(str, "R:");
-				intToStr(r, num, 2);
-				strcat(str, num);
+		if(custom && color == 1)
+		{
+			strcpy(str, "R:");
+			intToStr(r, num, 2);
+			strcat(str, num);
 
-				HwMdPuts(str, sel == 1 ? 0x4000 : 0x2000, 22, 1);
+			HwMdPuts(str, sel == 1 ? 0x4000 : 0x2000, 22, 1);
 
-				strcpy(str, "G:");
-				intToStr(g, num, 2);
-				strcat(str, num);
+			strcpy(str, "G:");
+			intToStr(g, num, 2);
+			strcat(str, num);
 
-				HwMdPuts(str, sel == 2 ? 0x4000 : 0x2000, 27, 1);
+			HwMdPuts(str, sel == 2 ? 0x4000 : 0x2000, 27, 1);
 
-				strcpy(str, "B:");
-				intToStr(b, num, 2);
-				strcat(str, num);
+			strcpy(str, "B:");
+			intToStr(b, num, 2);
+			strcat(str, num);
 
-				HwMdPuts(str, sel == 3 ? 0x4000 : 0x2000, 32, 1);
-			}
-			else
-				HwMdClearScreen();
-
-			//Hw32xScreenFlip(0);
-			draw = 0;
+			HwMdPuts(str, sel == 3 ? 0x4000 : 0x2000, 32, 1);
 		}
 
 		if(custom)
@@ -827,36 +748,33 @@ void tp_white_rgb()
 			if(pressedButton & SEGA_CTRL_LEFT)
 			{
 				sel--;
-				draw = 1;
 			}
 
 			if(pressedButton & SEGA_CTRL_RIGHT)
 			{
 				sel++;
-				draw = 1;
 			}
 
 			if (pressedButton & SEGA_CTRL_UP)
 			{
 				switch (sel)
 				{
-				case 0:
+				case 1:
 					r++;
 					if (r > 31)
 						r = 0;
 					break;
-				case 1:
+				case 2:
 					g++;
 					if (g > 31)
 						g = 0;
 					break;
-				case 2:
+				case 3:
 					b++;
 					if (b > 31)
 						b = 0;
 					break;
 				}
-				draw = 1;
 			}
 
 			if (pressedButton & SEGA_CTRL_DOWN)
@@ -879,7 +797,6 @@ void tp_white_rgb()
 						b = 31;
 					break;
 				}
-				draw = 1;
 			}
 			if(sel < 1)
 				sel = 3;
@@ -887,25 +804,13 @@ void tp_white_rgb()
 				sel = 1;
 		}
 
-		if (pressedButton & SEGA_CTRL_C)
-		{
-			custom = !custom;
-			draw = 1;
-		}
-
-		if (pressedButton & SEGA_CTRL_A)
-		{
-			color++;
-			draw = 1;
-		}
-
-		if (pressedButton & SEGA_CTRL_B)
-		{
-			color--;
-			draw = 1;
-		}
-
 		drawLineTable(4);
+
+		if(color > 5)
+			color = 1;
+
+		if(color < 1)
+			color = 5;
 
 		Hw32xScreenFlip(0);
 	}
