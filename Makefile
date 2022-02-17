@@ -9,7 +9,8 @@ CCFLAGS = -m2 -mb -Wall -c -fomit-frame-pointer -fno-builtin  -ffunction-section
 CCFLAGS += -fno-align-loops -fno-align-functions -fno-align-jumps -fno-align-labels
 
 HWFLAGS := $(CCFLAGS)
-HWFLAGS += -Os -fno-lto
+# HWFLAGS += -Os -fno-lto
+HWFLAGS += -fno-lto
 
 CCFLAGS += -funroll-loops -fno-align-loops -fno-align-functions -fno-align-jumps -fno-align-labels -lto
 
@@ -39,7 +40,7 @@ SHOBJS += $(SHSS:.s=.o)
 
 .PHONY: all release debug
 
-release: EXTRA = -O2
+release: EXTRA = -Os
 release: m68k.bin $(TARGET).32x
 
 debug: EXTRA = -O0 -g -gdwarf-2
