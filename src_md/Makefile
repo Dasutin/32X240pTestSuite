@@ -26,7 +26,8 @@ OBJS = crt0.o font.o pal.o main.o kos.o cd.o lzss.o vgm.o vgm_player.o xvprintf.
 
 .PHONY: all release debug
 
-release: EXTRA = -O1
+# release: EXTRA = -O1
+release: EXTRA = -Os
 release: $(TARGET).bin
 
 debug: EXTRA = -O0 -g -gdwarf-2
