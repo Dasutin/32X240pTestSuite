@@ -1157,11 +1157,9 @@ void vt_scroll_test()
 	int done = 0;
 	vu16 *cram16 = &MARS_CRAM;
 	u16 button = 0, pressedButton = 0, oldButton = 0xFFFF;
-	//MARS_SYS_COMM6 = 0;
 
-	marsVDP256Start();
-
-	Hw32xScreenClear();
+	canvas_pitch = 384; // canvas_width + scrollwidth
+	Hw32xUpdateLineTable(0, 0, 0);
 
 	SetSH2SR(1);
 

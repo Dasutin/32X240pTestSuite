@@ -107,8 +107,6 @@ typedef struct {
 
 typedef void(*draw_spritefn_t)(void *dst, drawsprcmd_t* cmd);
 
-//typedef unsigned long int size_t;
-
 typedef unsigned char u8;
 typedef unsigned short int u16;
 typedef unsigned long int u32;

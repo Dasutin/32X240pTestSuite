@@ -23,8 +23,6 @@
 #ifndef DTILES_H_
 #define DTILES_H_
 
-//drawtilelayerscmd_t slave_drawtilelayerscmd;
-//extern drawtilelayerscmd_t slave_drawtilelayerscmd;
 
 static int old_camera_x, old_camera_y;
 static int main_camera_x, main_camera_y;

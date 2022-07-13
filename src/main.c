@@ -36,46 +36,25 @@ extern int fontColorGreen;
 extern int fontColorGray;
 extern int fontColorBlack;
 
-//volatile unsigned mars_pwdt_ovf_count = 0;
-//volatile unsigned mars_swdt_ovf_count = 0;
-
-//unsigned mars_frtc2msec_frac = 0;
-
-//const int NTSC_CLOCK_SPEED = 23011360; // HZ
-//const int PAL_CLOCK_SPEED = 22801467; // HZ
-
-//Hw32xInitSoundDMA();
-
-//snddma_secondary_init();
-
-Hw32xInitSoundDMA();
+uint32_t  canvas_pitch = 320; // canvas_width + scrollwidth
+uint32_t canvas_yaw = 224; // canvas_height + scrollheight
 
 int main()
 {
 	int frameDelay = 0;
 	int curse = 1;
-	unsigned short button, pressedButton, oldButton = 0xFFFF;
 	char NTSC;
-
+	unsigned short button, pressedButton, oldButton = 0xFFFF;
+	
 	marsVDP256Start();
+
+	Hw32xUpdateLineTable(0, 0, 0);
 
 	SetSH2SR(1);
 
-	//while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
+	while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
 
-    //NTSC = (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT) != 0;
-
-	//SH2_WDT_WTCSR_TCNT = 0x5A00; // WDT TCNT = 0
-    //SH2_WDT_WTCSR_TCNT = 0xA53E; // WDT TCSR = clr OVF, IT mode, timer on, clksel = Fs/4096
-
-	// Init hires timer system
-    //SH2_WDT_VCR = (65 << 8) | (SH2_WDT_VCR & 0x00FF); // Set exception vector for WDT
-   // SH2_INT_IPRA = (SH2_INT_IPRA & 0xFF0F) | 0x0020; // Set WDT INT to priority 2
-
-	//MARS_SYS_COMM4 = 0;
-	//MARS_SYS_COMM6 = 0;
-
-	//mars_frtc2msec_frac = 4096.0f * 1000.0f / (NTSC ? NTSC_CLOCK_SPEED : PAL_CLOCK_SPEED) * 65536.0f;
+    NTSC = (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT) != 0;
 
 	Hw32xScreenFlip(0);
 

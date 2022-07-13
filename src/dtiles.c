@@ -8,15 +8,6 @@
 
 drawtilelayerscmd_t slave_drawtilelayerscmd;
 
-//static int old_camera_x, old_camera_y;
-//static int main_camera_x, main_camera_y;
-
-//static int camera_x, camera_y;
-
-//static int draw_tile_layer(tilemap_t *tm, int layer, int fpcamera_x, 
-//int fpcamera_y, int numlayers, int *pclipped)
-//ATTR_DATA_ALIGNED;
-
 void init_tilemap(tilemap_t *tm, int tw, int th, int numh, int numv, 
     const uint16_t **l, int nl, const int *lplx, fixed_t wrapX, fixed_t wrapY)
 {

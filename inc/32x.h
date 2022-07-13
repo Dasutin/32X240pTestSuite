@@ -22,9 +22,9 @@
 #define MARS_SYS_HINT_CLR   (*(volatile unsigned short *)0x20004018)
 #define MARS_SYS_CMDI_CLR   (*(volatile unsigned short *)0x2000401A)
 #define MARS_SYS_PWMI_CLR   (*(volatile unsigned short *)0x2000401C)
-#define MARS_SYS_COMM0      (*(volatile unsigned short *)0x20004020) // Master SH2 communication
+#define MARS_SYS_COMM0      (*(volatile unsigned short *)0x20004020) // Primary SH2 communication
 #define MARS_SYS_COMM2      (*(volatile unsigned short *)0x20004022)
-#define MARS_SYS_COMM4      (*(volatile unsigned short *)0x20004024) // Slave SH2 communication
+#define MARS_SYS_COMM4      (*(volatile unsigned short *)0x20004024) // Secondary SH2 communication
 #define MARS_SYS_COMM6      (*(volatile unsigned short *)0x20004026)
 #define MARS_SYS_COMM8      (*(volatile unsigned short *)0x20004028) // Controller 1 current value
 #define MARS_SYS_COMM10     (*(volatile unsigned short *)0x2000402A) // Controller 2 current value
@@ -161,9 +161,6 @@
 	} while (0)
 
 extern void fast_memcpy(void* dst, void* src, int len);
-
-// Copies words, runs from sdram for speed. len is in words
-//(void *dst, void *src, int len);
 
 extern void word_8byte_copy(void *dst, void *src, int count);
 extern void word_8byte_copy_bytereverse(short *dst, short *src, int count);

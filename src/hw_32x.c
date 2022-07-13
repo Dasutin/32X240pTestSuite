@@ -10,7 +10,6 @@
 #include <stdint.h>
 #include <stdarg.h>
 #include <stdio.h>
-//#include <string.h>
 
 #include "32x.h"
 #include "hw_32x.h"
@@ -38,12 +37,6 @@ int nodraw = 0;
 
 int32_t canvas_width = 320+4; // +4 to avoid hitting that 0xXXFF bug in the shift register
 int32_t canvas_height = 224;
-
-// 384 seems to be the ideal value - anything thing 
-// increases the odds of hitting the "0xFF screen shift
-// register bug"
-uint32_t canvas_pitch = 320; // canvas_width + scrollwidth
-uint32_t canvas_yaw = 224; // canvas_height + scrollheight
 
 extern drawsprcmd_t slave_drawsprcmd;
 extern drawspr4cmd_t slave_drawspr4cmd;
@@ -94,13 +87,6 @@ int Hw32xDetectPAL()
 {
     int PAL_MODE = 1;
 
-    //int PAL_VIDEO_MODE = MARS_VDP_DISPMODE & MARS_PAL_FORMAT;
-
-    //if (PAL_VIDEO_MODE)
-        //PAL_MODE = 1;
-    //else
-        //PAL_MODE = 0;
-
     return PAL_MODE;
 }
 
@@ -125,133 +111,6 @@ void Hw32xSetPalette(const char *palette)
     new_palette = palette;
 }
 
-/* void Hw32xInit(int vmode, int lineskip)
-{
-    volatile unsigned short *frameBuffer16 = &MARS_FRAMEBUFFER;
-    int i;
-
-    // Wait for the SH2 to gain access to the VDP
-    while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0) ;
-
-    if (vmode == MARS_VDP_MODE_256)
-    {
-        // Set 8-bit paletted mode, 224 lines
-        MARS_VDP_DISPMODE = MARS_224_LINES | MARS_VDP_MODE_256;
-
-        // Init both framebuffers
-
-        // Flip the framebuffer selection bit and wait for it to take effect
-        MARS_VDP_FBCTL = UNCACHED_CURFB ^ 1;
-        while ((MARS_VDP_FBCTL & MARS_VDP_FS) == UNCACHED_CURFB) ;
-        UNCACHED_CURFB ^= 1;
-        // rewrite line table
-        for (i=0; i<224/(lineskip+1); i++)
-        {
-            int j = lineskip + 1;
-            while (j)
-            {
-                frameBuffer16[i*(lineskip+1) + (lineskip + 1 - j)] = i*160 + 0x100; // Word offset of line
-                j--;
-            }
-        }
-        // Clear screen
-        for (i=0x100; i<0x10000; i++)
-            frameBuffer16[i] = 0;
-
-        // Flip the framebuffer selection bit and wait for it to take effect
-        MARS_VDP_FBCTL = UNCACHED_CURFB ^ 1;
-        while ((MARS_VDP_FBCTL & MARS_VDP_FS) == UNCACHED_CURFB) ;
-        UNCACHED_CURFB ^= 1;
-        // Rewrite line table
-        for (i=0; i<224/(lineskip+1); i++)
-        {
-            int j = lineskip + 1;
-            while (j)
-            {
-                frameBuffer16[i*(lineskip+1) + (lineskip + 1 - j)] = i*160 + 0x100; // Word offset of line
-                j--;
-            }
-        }
-        // Clear screen
-        for (i=0x100; i<0x10000; i++)
-            frameBuffer16[i] = 0;
-
-        MX = 40;
-        MY = 28/(lineskip+1);
-    }
-    else if (vmode == MARS_VDP_MODE_32K)
-    {
-        // Set 16-bit direct mode, 224 lines
-        MARS_VDP_DISPMODE = MARS_224_LINES | MARS_VDP_MODE_32K;
-
-        // Init both framebuffers
-
-        // Flip the framebuffer selection bit and wait for it to take effect
-        MARS_VDP_FBCTL = UNCACHED_CURFB ^ 1;
-        while ((MARS_VDP_FBCTL & MARS_VDP_FS) == UNCACHED_CURFB) ;
-        UNCACHED_CURFB ^= 1;
-        // Rewrite line table
-        for (i=0; i<224/(lineskip+1); i++)
-        {
-            if (lineskip)
-            {
-                int j = lineskip + 1;
-                while (j)
-                {
-                    frameBuffer16[i*(lineskip+1) + (lineskip + 1 - j)] = i*320 + 0x100; // Word offset of line
-                    j--;
-                }
-            }
-            else
-            {
-                if (i<200)
-                    frameBuffer16[i] = i*320 + 0x100; // Word offset of line
-                else
-                    frameBuffer16[i] = 200*320 + 0x100; // Word offset of line
-            }
-        }
-        // Clear screen
-        for (i=0x100; i<0x10000; i++)
-            frameBuffer16[i] = 0;
-
-        // Flip the framebuffer selection bit and wait for it to take effect
-        MARS_VDP_FBCTL = UNCACHED_CURFB ^ 1;
-        while ((MARS_VDP_FBCTL & MARS_VDP_FS) == UNCACHED_CURFB) ;
-        UNCACHED_CURFB ^= 1;
-        // Rewrite line table
-        for (i=0; i<224/(lineskip+1); i++)
-        {
-            if (lineskip)
-            {
-                int j = lineskip + 1;
-                while (j)
-                {
-                    frameBuffer16[i*(lineskip+1) + (lineskip + 1 - j)] = i*320 + 0x100; // Word offset of line
-                    j--;
-                }
-            }
-            else
-            {
-                if (i<200)
-                    frameBuffer16[i] = i*320 + 0x100; // Word offset of line
-                else
-                    frameBuffer16[i] = 200*320 + 0x100; // Word offset of line
-            }
-        }
-        // Clear screen
-        for (i=0x100; i<0x10000; i++)
-            frameBuffer16[i] = 0;
-
-        MX = 40;
-        MY = 25/(lineskip+1);
-    }
-
-    Hw32xSetFGColor(255,31,31,31);
-    Hw32xSetBGColor(0,0,0,0);
-    X = Y = 0;
-    init = vmode;
-} */
-
 void Hw32xUpdateLineTable(int hscroll, int vscroll, int lineskip)
 {
     int i;
@@ -268,7 +127,7 @@ void Hw32xUpdateLineTable(int hscroll, int vscroll, int lineskip)
         unsigned n = ((unsigned)count + 7) >> 3;
         const int mpitch = pitch * canvas_yaw;
 
-#define DO_LINE() do { \
+            #define DO_LINE() do { \
             if (ppitch >= mpitch) ppitch -= mpitch; \
             *frameBuffer16++ = ppitch + hscroll; /* word offset of line */ \
             ppitch += pitch; \
@@ -671,19 +530,6 @@ void Hw32xFlipWait()
     UNCACHED_CURFB ^= 1;
 }
 
-/* void main_dma1_handler(void)
-{
-    SH2_DMA_CHCR1; // read TE
-    SH2_DMA_CHCR1 = 0; // clear TE
-
-    // Flip the framebuffer selection bit
-    currentFB ^= 1;
-    MARS_VDP_FBCTL = currentFB;
-
-    dmaDone = 1;
-}
- */
-
 // Mega Drive Command Support Code ---------------------------------------------
 
 unsigned short HwMdReadPad(int port)
@@ -883,6 +729,8 @@ void HwMdPSGSetEnvelope(u8 channel, u8 value)
     HwMdPSGSendEnvelope(data);
 }
 
+// --------Put Secondary Calls here ---------
+
 int secondary_task(int cmd)
 {
     switch (cmd) {
@@ -939,30 +787,9 @@ void secondary(void)                            // Slave waiting for commands (c
     }
 }
 
-void Hw32xSecWait(void)
-{
-	while (MARS_SYS_COMM4 != 0);
-}
-
-// --------Put Secondary Calls here ---------
-int Hw32xInitSoundDMA(void)
-{
-	Hw32xSecWait();
-	MARS_SYS_COMM4 = 1;
-	Hw32xSecWait();
-}
-
-void Hw32xSecondaryBIOS(void)
-{
-	Hw32xSecWait();
-	MARS_SYS_COMM4 = 6;
-	Hw32xSecWait();
-}
-// --------Put Secondary Calls here ---------
-
 // Audio Data Loading Code -----------------------------------------------------------------------------------------
 
- static int foffs[NUM_AUDIO_FILES];
+static int foffs[NUM_AUDIO_FILES];
 
 // Open Data File
 audio_file_t *audio_file_open(char *name)
@@ -1316,108 +1143,3 @@ void Hw32xAudioFree(sound_t *s)
 {
     s->valid = FALSE;
 }
-
-// Slave SH2 support code ----------------------------------------------
-
-void task_handler(void)
-{
-    MARS_SYS_COMM4 = 0; // Done
-}
-
-/* void slave(void)
-{
-    u16 sample, ix;
-
-    // Init DMA
-    SH2_DMA_SAR0 = 0;
-    SH2_DMA_DAR0 = 0;
-    SH2_DMA_TCR0 = 0;
-    SH2_DMA_CHCR0 = 0;
-    SH2_DMA_DRCR0 = 0;
-    SH2_DMA_SAR1 = 0;
-    SH2_DMA_DAR1 = 0x20004034; // Storing a long here will set left and right
-    SH2_DMA_TCR1 = 0;
-    SH2_DMA_CHCR1 = 0;
-    SH2_DMA_DRCR1 = 0;
-    SH2_DMA_DMAOR = 1; // Enable DMA
-
-    // Init the Audio hardware
-    MARS_PWM_MONO = 1;
-    MARS_PWM_MONO = 1;
-    MARS_PWM_MONO = 1;
-    if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT)
-        MARS_PWM_CYCLE = (((23011361 << 1)/SAMPLE_RATE + 1) >> 1) + 1; // for NTSC clock
-    else
-        MARS_PWM_CYCLE = (((22801467 << 1)/SAMPLE_RATE + 1) >> 1) + 1; // for PAL clock
-    MARS_PWM_CTRL = 0x0185; // TM = 0, RTP, RMD = right, LMD = left
-    //MARS_PWM_CTRL = 0x0184; // Right only
-    //MARS_PWM_CTRL = 0x0183; // Left only
-
-    sample = SAMPLE_MIN;
-    // Ramp up to SAMPLE_CENTER to avoid click in audio (real 32X)
-    while (sample < SAMPLE_CENTER)
-    {
-        //for (ix=0; ix<SAMPLE_RATE/SAMPLE_CENTER; ix++)
-        for (ix=0; ix<(SAMPLE_RATE*2)/(SAMPLE_CENTER - SAMPLE_MIN); ix++)
-        {
-            while (MARS_PWM_MONO & 0x8000) ; // wait while full
-            MARS_PWM_MONO = sample;
-        }
-        sample++;
-    }
-
-    while (1)
-    {
-        if (MARS_SYS_COMM4)
-            task_handler();
-
-        if (MARS_SYS_COMM6 == 2)
-            continue; // Locked by Master SH2
-
-        if (MARS_SYS_COMM6 == 0)
-        {
-            MARS_SYS_COMM6 = 3;
-            // Fill first buffer
-            Hw32xAudioCallback((unsigned long)&sndbuf);
-            MARS_SYS_COMM6 = 1; // Sound subsystem running
-        }
-
-        // Only do audio when audio subsytem initialized and unlocked
-        while (MARS_SYS_COMM6 == 1)
-        {
-            // Start DMA on first buffer and fill second
-            SH2_DMA_SAR1 = ((unsigned long)&sndbuf) | 0x20000000;
-            SH2_DMA_TCR1 = NUM_SAMPLES; // number longs
-            SH2_DMA_CHCR1 = 0x18E1; // dest fixed, src incr, size long, ext req, dack mem to dev, dack hi, dack edge, dreq rising edge, cycle-steal, dual addr, intr disabled, clear TE, dma enabled
-
-            while (MARS_SYS_COMM6 == 2) ;
-            MARS_SYS_COMM6 = 3;
-            Hw32xAudioCallback((unsigned long)&sndbuf + MAX_NUM_SAMPLES * 4);
-            MARS_SYS_COMM6 = 1;
-
-            // Wait on DMA
-            while (!(SH2_DMA_CHCR1 & 2)) // wait on TE
-            {
-                if (MARS_SYS_COMM4)
-                    task_handler();
-            }
-
-            // Start DMA on second buffer and fill first
-            SH2_DMA_SAR1 = ((unsigned long)&sndbuf + MAX_NUM_SAMPLES * 4) | 0x20000000;
-            SH2_DMA_TCR1 = NUM_SAMPLES; // Number longs
-            SH2_DMA_CHCR1 = 0x18E1; // dest fixed, src incr, size long, ext req, dack mem to dev, dack hi, dack edge, dreq rising edge, cycle-steal, dual addr, intr disabled, clear TE, dma enabled
-
-            while (MARS_SYS_COMM6 == 2) ;
-            MARS_SYS_COMM6 = 3;
-            Hw32xAudioCallback((unsigned long)&sndbuf);
-            MARS_SYS_COMM6 = 1;
-
-            // Wait on DMA
-            while (!(SH2_DMA_CHCR1 & 2)) // Wait on TE
-            {
-                if (MARS_SYS_COMM4)
-                    task_handler();
-            }
-        }
-    }
-} */
