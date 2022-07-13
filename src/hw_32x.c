@@ -7,11 +7,17 @@
  *
  * 32X by Chilly Willy
  */
+#include <stdint.h>
+#include <stdarg.h>
+#include <stdio.h>
+//#include <string.h>
 
 #include "32x.h"
 #include "hw_32x.h"
 #include "string.h"
 #include "shared_objects.h"
+#include "draw.h"
+#include "dtiles.h"
 
 extern int fontColorWhite;
 extern int fontColorRed;
@@ -28,14 +34,20 @@ static unsigned char fgs = 0, bgs = 0;
 int sysarg_args_nosound = 0;
 int sysarg_args_vol = 0;
 
-uint32_t canvas_width = 320+4; // +4 to avoid hitting that 0xXXFF bug in the shift register
-uint32_t canvas_height = 224;
+int nodraw = 0;
+
+int32_t canvas_width = 320+4; // +4 to avoid hitting that 0xXXFF bug in the shift register
+int32_t canvas_height = 224;
 
 // 384 seems to be the ideal value - anything thing 
 // increases the odds of hitting the "0xFF screen shift
 // register bug"
 uint32_t canvas_pitch = 320; // canvas_width + scrollwidth
 uint32_t canvas_yaw = 224; // canvas_height + scrollheight
+
+extern drawsprcmd_t slave_drawsprcmd;
+extern drawspr4cmd_t slave_drawspr4cmd;
+extern drawtilelayerscmd_t slave_drawtilelayerscmd;
 
 static volatile unsigned int mars_vblank_count = 0;
 
@@ -48,6 +60,28 @@ volatile unsigned short dmaDone = 1;
 void pri_vbi_handler(void)
 {
     mars_vblank_count++;
+    
+    if (new_palette)
+	{
+        int i;
+        volatile unsigned short *palette = &MARS_CRAM;
+
+        if ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0)
+		    return;
+
+        for (i = 0; i < 256; i++)
+        {
+             palette[i] = COLOR(new_palette[0] >> 3, new_palette[1] >> 3, new_palette[2] >> 3);
+             new_palette += 3;
+        }
+
+        new_palette = NULL;
+	}
+}
+
+unsigned Hw32xGetTicks(void)
+{
+    return mars_vblank_count;
 }
 
 void pri_dma1_handler(void)
@@ -84,6 +118,11 @@ void Hw32xSetBGColor(int s, int r, int g, int b)
     bgs = s;
     bgc = COLOR(r, g, b);
     palette[bgs] = bgc;
+}
+
+void Hw32xSetPalette(const char *palette)
+{
+    new_palette = palette;
 }
 
 /* void Hw32xInit(int vmode, int lineskip)
@@ -398,7 +437,7 @@ void Hw32xScreenSetXY(int x, int y)
 void Hw32xScreenClear()
 {
     int i;
-    int l = (init == MARS_VDP_MODE_256) ? 320*224/2 + 0x100 : 320*200 + 0x100;
+    int l = (init == MARS_VDP_MODE_256) ? canvas_pitch *224/2 + 0x100 : canvas_pitch *200 + 0x100;
     volatile unsigned short *frameBuffer16 = &MARS_FRAMEBUFFER;
 
     // Clear screen
@@ -853,13 +892,13 @@ int secondary_task(int cmd)
     case 2:
         return 1;
     case 3:
-        /* ClearCacheLines(&slave_drawsprcmd, (sizeof(drawsprcmd_t) + 15) / 16);
+        ClearCacheLines(&slave_drawsprcmd, (sizeof(drawsprcmd_t) + 15) / 16);
         draw_handle_drawspritecmd(&slave_drawsprcmd);
-        return 1; */
+        return 1;
     case 4:
         return 1;
     case 5:
-        /* ClearCacheLines((uintptr_t)&canvas_width & ~15, 1);
+        ClearCacheLines((uintptr_t)&canvas_width & ~15, 1);
         ClearCacheLines((uintptr_t)&canvas_height & ~15, 1);
         ClearCacheLines((uintptr_t)&window_canvas_x & ~15, 1);
         ClearCacheLines((uintptr_t)&window_canvas_y & ~15, 1);
@@ -872,7 +911,10 @@ int secondary_task(int cmd)
         ClearCacheLines((uintptr_t)&nodraw & ~15, 1);
         ClearCacheLines(&slave_drawtilelayerscmd, (sizeof(drawtilelayerscmd_t) + 15) / 16);
         ClearCacheLines(&tm, (sizeof(tilemap_t) + 15) / 16);
-        draw_tile_layer(&slave_drawtilelayerscmd); */
+        draw_handle_layercmd(&slave_drawtilelayerscmd);
+        return 1;
+    case 6: 
+
         return 1;
     default:
         break;
@@ -881,7 +923,7 @@ int secondary_task(int cmd)
     return 0;
 }
 
-void secondary(void)
+void secondary(void)                            // Slave waiting for commands (called by crt0.s)
 {
     ClearCache();
 
@@ -897,9 +939,30 @@ void secondary(void)
     }
 }
 
+void Hw32xSecWait(void)
+{
+	while (MARS_SYS_COMM4 != 0);
+}
+
+// --------Put Secondary Calls here ---------
+int Hw32xInitSoundDMA(void)
+{
+	Hw32xSecWait();
+	MARS_SYS_COMM4 = 1;
+	Hw32xSecWait();
+}
+
+void Hw32xSecondaryBIOS(void)
+{
+	Hw32xSecWait();
+	MARS_SYS_COMM4 = 6;
+	Hw32xSecWait();
+}
+// --------Put Secondary Calls here ---------
+
 // Audio Data Loading Code -----------------------------------------------------------------------------------------
 
-/* static int foffs[NUM_AUDIO_FILES];
+ static int foffs[NUM_AUDIO_FILES];
 
 // Open Data File
 audio_file_t *audio_file_open(char *name)
@@ -1099,7 +1162,7 @@ void Hw32xAudioVolume(char d)
 // twice the same sound playing
 //
 
-/* char Hw32xAudioPlay(sound_t *sound, char loop, char selectch)
+char Hw32xAudioPlay(sound_t *sound, char loop, char selectch)
 {
     unsigned char c;
 
@@ -1147,9 +1210,9 @@ void Hw32xAudioVolume(char d)
     MARS_SYS_COMM6 = 1;
 
     return c;
-} */
+}
 
-/* // Pause
+// Pause
 void Hw32xAudioPause(char pause)
 {
     if (pause == TRUE)
@@ -1259,7 +1322,7 @@ void Hw32xAudioFree(sound_t *s)
 void task_handler(void)
 {
     MARS_SYS_COMM4 = 0; // Done
-} */
+}
 
 /* void slave(void)
 {
@@ -1357,4 +1420,4 @@ void task_handler(void)
             }
         }
     }
-} */ 
+} */

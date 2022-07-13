@@ -1,0 +1,6 @@
+make.exe --dry-run --keep-going --print-directory
+make: Entering directory '/home/dasut/marsdev/32X240pTestSuite'
+make -C src_md
+ 
+make: Leaving directory '/home/dasut/marsdev/32X240pTestSuite'
+ 

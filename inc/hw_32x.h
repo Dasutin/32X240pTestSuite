@@ -23,6 +23,10 @@
 #ifndef HW_32X_H
 #define HW_32X_H
 
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
+
 #define MD_PAL_0 0x0100
 #define MD_PAL_1 0x0200
 #define MD_PAL_2 0x0300
@@ -42,7 +46,9 @@
 #define PSG_NOISE_FREQ_CLOCK8   2
 #define PSG_NOISE_FREQ_TONE3    3
 
-/* // Audio section
+static volatile const char *new_palette;
+
+// Audio section
 typedef struct {
   unsigned char *buf;
   unsigned long len;
@@ -56,13 +62,14 @@ typedef struct {
 	char loop;
     char pan;       // When get around to making stereo sfx
     unsigned char pad[2]; // Pad to one cache line
-} channel_t; */
+} channel_t;
 
 #define HW32X_ATTR_DATA_ALIGNED __attribute__((section(".data"), aligned(16)))
 
 extern int Hw32xDetectPAL();
 extern void Hw32xSetFGColor(int s, int r, int g, int b);
 extern void Hw32xSetBGColor(int s, int r, int g, int b);
+extern void Hw32xSetPalette(const char *palette) HW32X_ATTR_DATA_ALIGNED;
 extern void Hw32xInit(int vmode, int lineskip);
 extern int Hw32xScreenGetX();
 extern int Hw32xScreenGetY();
@@ -103,7 +110,7 @@ extern void HwMdPSGSetTone(u8 channel, u16 value);
 extern void HwMdPSGSetNoise(u8 type, u8 frequency);
 extern void HwMdPSGSetEnvelope(u8 channel, u8 value);
 
-/* extern void Hw32xAudioCallback(unsigned long buffer);
+extern void Hw32xAudioCallback(unsigned long buffer);
 extern void Hw32xAudioInit(void);
 extern void Hw32xAudioShutdown(void);
 extern void Hw32xAudioToggleMute(void);
@@ -115,27 +122,22 @@ extern void Hw32xAudioStopAudio(sound_t *sound);
 extern int Hw32xAudioIsPlaying(sound_t *sound);
 extern void Hw32xAudioStopAllChannels(void);
 extern void Hw32xAudioLoad(sound_t *snd, char *name);
-extern void Hw32xAudioFree(sound_t *s); */
+extern void Hw32xAudioFree(sound_t *s);
 
-static inline void Hw32xSecWait(void)
-{
-	while (MARS_SYS_COMM4 != 0);
-}
+extern void Hw32xSecWait(void);
 
-static inline void Hw32xInitSoundDMA(void)
-{
-	Hw32xSecWait();
-	MARS_SYS_COMM4 = 1;
-	Hw32xSecWait();
-}
+extern int Hw32xInitSoundDMA(void);
+extern void Hw32xSecondaryBIOS(void);
 
 void pri_vbi_handler(void) HW32X_ATTR_DATA_ALIGNED;
 void pri_dma1_handler(void) HW32X_ATTR_DATA_ALIGNED;
 
+unsigned Hw32xGetTicks(void) HW32X_ATTR_DATA_ALIGNED;
+
 int secondary_task(int cmd) HW32X_ATTR_DATA_ALIGNED;
 void secondary(void) HW32X_ATTR_DATA_ALIGNED;
 
-/* extern unsigned short sndbuf[];
+extern unsigned short sndbuf[];
 
 extern int sysarg_args_nosound;
 extern int sysarg_args_vol;
@@ -164,6 +166,6 @@ extern void sysarg_init(int, char **);
 #define SAMPLE_CENTER 516
 #define MAX_NUM_SAMPLES 1024
 #define NUM_SAMPLES 1024
-#define SAMPLE_MIN 2 */
+#define SAMPLE_MIN 2
 
 #endif

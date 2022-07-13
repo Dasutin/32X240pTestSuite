@@ -20,17 +20,92 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _TYPES_H_
-#define _TYPES_H_
+#ifndef TYPES_H__
+#define TYPES_H__
 
 #include <stdint.h>
 #include <stdlib.h>
 #include <limits.h>
 
-#define NULL 0
+#include "fixed.h"
+
+//#define NULL 0
 
 #define ATTR_CACHE_ALIGNED  __attribute__((aligned(16)))
 #define ATTR_DATA_ALIGNED   __attribute__((section(".data"), aligned(16)))
+
+enum {
+    DRAWSPR_NORM        = 0,
+    DRAWSPR_HFLIP       = 1,
+    DRAWSPR_VFLIP       = 2,
+
+    DRAWSPR_OVERWRITE   = 4,
+    DRAWSPR_PRECISE     = 8,
+    DRAWSPR_SCALE       = 16,
+    DRAWSPR_MULTICORE   = 32,
+};
+
+typedef struct {
+    int16_t x, y;
+} point_t;
+
+typedef struct {
+    int16_t x1, y1;
+    int16_t x2, y2;
+} rect_t;
+
+typedef struct {
+    int tw, th;
+
+    int numlayers;
+    int numtiles;
+    uint16_t** layers;
+    int* lplx;
+    fixed_t wrapX, wrapY;
+
+    int tiles_hor, tiles_ver;
+    int canvas_tiles_hor, canvas_tiles_ver;
+    int scroll_tiles_hor, scroll_interval_hor;
+    int scroll_tiles_ver, scroll_interval_ver;
+} tilemap_t;
+
+typedef struct {
+    void *sdata;
+    uint16_t flags;
+    int16_t sx, sy;
+    uint16_t sw, sh;
+    uint16_t x, y;
+    uint16_t w, h;
+    fixed_t scale;
+} drawsprcmd_t;
+
+typedef struct {
+    void* sdata;
+    uint16_t flags;
+    int16_t sx, sy;
+    uint16_t sw, sh;
+    uint16_t x1, y1;
+    uint16_t x2, y2;
+    uint16_t x3, y3;
+    uint16_t x4, y4;
+    uint16_t w, h;
+    fixed_t scale;
+} drawspr4cmd_t;
+
+typedef struct {
+    tilemap_t* tm;
+    int16_t startlayer;
+    int16_t numlayers;
+    int32_t camera_x, camera_y;
+    int16_t x, y;
+    uint16_t start_tile, end_tile;
+    uint16_t scroll_tile_id;
+    uint16_t num_tiles_x;
+    uint16_t drawmode;
+    uint16_t drawcnt;
+} drawtilelayerscmd_t;
+
+typedef void(*draw_spritefn_t)(void *dst, drawsprcmd_t* cmd);
 
 //typedef unsigned long int size_t;
 

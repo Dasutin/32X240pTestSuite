@@ -35,6 +35,7 @@ void tp_gray_ramp(void);
 void tp_white_rgb(void);
 void tp_100_ire(void);
 void tp_sharpness(void);
+void tp_overscan(void);
 void tp_convergence(void);
 
 #endif

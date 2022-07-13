@@ -38,7 +38,7 @@
 #define MARS_PWM_MONO       (*(volatile unsigned short *)0x20004038)
 
 #define MARS_VDP_DISPMODE   (*(volatile unsigned short *)0x20004100)
-#define MARS_VDP_SFT		(*(volatile unsigned short *)0x20004102)
+#define MARS_VDP_SHIFTREG   (*(volatile unsigned short *)0x20004102)
 #define MARS_VDP_FILLEN     (*(volatile unsigned short *)0x20004104)
 #define MARS_VDP_FILADR     (*(volatile unsigned short *)0x20004106)
 #define MARS_VDP_FILDAT     (*(volatile unsigned short *)0x20004108)

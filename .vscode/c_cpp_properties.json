@@ -21,7 +21,8 @@
             },
             "cStandard": "c99",
             "cppStandard": "c++11"
-        },{
+        },
+        {
             "name": "Mega32X",
             "includePath": [
                 "${workspaceRoot}/inc",
@@ -40,7 +41,8 @@
                 "databaseFilename": ""
             },
             "cStandard": "c99",
-            "cppStandard": "c++11"
+            "cppStandard": "c++11",
+            "configurationProvider": "ms-vscode.makefile-tools"
         }
     ],
     "version": 4

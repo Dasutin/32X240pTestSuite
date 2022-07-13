@@ -22,7 +22,7 @@ RM = rm -f
 
 TARGET = m68k
 LIBS = $(LIBPATH) -lc -lgcc -lnosys
-OBJS = crt0.o font.o pal.o main.o kos.o cd.o lzss.o vgm.o vgm_player.o xvprintf.o
+OBJS = crt0.o font.o pal.o psg.o main.o kos.o cd.o lzss.o vgm.o vgm_player.o xvprintf.o
 
 .PHONY: all release debug
 

@@ -1,0 +1,1 @@
+{"buildTargets":["all","build/240pMars.32x","build/240pMars.elf","clean","crt0.o","debug","m68k.bin","release","src/hw_32x.o"],"launchTargets":[],"customConfigurationProvider":{"workspaceBrowse":{"browsePath":[],"compilerArgs":[]},"fileIndex":[]}}

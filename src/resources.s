@@ -172,9 +172,15 @@ _COLORCHART_PAL:
 
 			.align 2
 
-			.global _EBU_COLORBARS_PAL
-_EBU_COLORBARS_PAL:
-			.incbin "res/ebu_colorbars_pal.bin"
+			.global _EBU_COLORBARS_100_PAL
+_EBU_COLORBARS_100_PAL:
+			.incbin "res/ebu_colorbars_100_pal.bin"
+
+			.align 2
+
+			.global _EBU_COLORBARS_75_PAL
+_EBU_COLORBARS_75_PAL:
+			.incbin "res/ebu_colorbars_75_pal.bin"
 
 			.align 2
 
@@ -413,25 +419,25 @@ audioFile1:
 			.incbin "res/jump.wav"
 audioFileEnd1:
 			.align  4
-audioFile2:
-			.incbin "res/beep.wav"
-audioFileEnd2:
+# audioFile2:
+# 			.incbin "res/beep.wav"
+# audioFileEnd2:
 
-			.align  4
+# 			.align  4
 
 			.global _audioFileName
 _audioFileName:
 			.long   audioFileName1
-			.long   audioFileName2
+			# .long   audioFileName2
 
 			.global _audioFileSize
 _audioFileSize:
 			.long   audioFileEnd1 - audioFile1
-			.long   audioFileEnd2 - audioFile2
+			# .long   audioFileEnd2 - audioFile2
 
 			.global _audioFilePtr
 _audioFilePtr:        
 			.long   audioFile1
-			.long   audioFile2
+			# .long   audioFile2
 
 			.align  4
