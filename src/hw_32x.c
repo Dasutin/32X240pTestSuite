@@ -615,6 +615,23 @@ void HwMdPutc(char chr, int color, int x, int y)
     HwMdSetNTable(((chr - 0x20) & 0xFF) | color);
 }
 
+void HwMdScreenPrintf(const char *format, ...)
+{
+   va_list  opt;
+   char     buff[128];
+   int      n;
+   int      x;
+   int      y;
+   int      color;
+
+   va_start(opt, format);
+   n = vsnprintf(buff, (size_t)sizeof(buff), format, opt);
+   va_end(opt);
+   buff[sizeof(buff) - 1] = 0;
+
+   HwMdPuts(buff, color, x, y);
+}
+
 void HwMdSetPal(unsigned short pal)
 {
     while (MARS_SYS_COMM0) ;                    // Wait until 68000 has responded to any earlier requests

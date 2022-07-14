@@ -5,7 +5,7 @@ LDSCRIPTSDIR = $(ROOTDIR)/ldscripts
 LIBPATH = -L$(ROOTDIR)/sh-elf/lib -L$(ROOTDIR)/sh-elf/lib/gcc/sh-elf/4.6.2 -L$(ROOTDIR)/sh-elf/sh-elf/lib
 INCPATH = -Isrc -Iinc -I$(ROOTDIR)/sh-elf/include -I$(ROOTDIR)/sh-elf/sh-elf/include
 
-CCFLAGS = -m2 -mb -Wall -c -fomit-frame-pointer -fno-builtin  -ffunction-sections -fdata-sections
+CCFLAGS = -m2 -mb -Wall -c -fomit-frame-pointer -fno-builtin  -ffunction-sections -fdata-sections #-g
 CCFLAGS += -fno-align-loops -fno-align-functions -fno-align-jumps -fno-align-labels
 CCFLAGS += -D__32X__ -DMARS
 
@@ -16,7 +16,7 @@ HWFLAGS += -Os -fno-lto
 CCFLAGS += -O2 -funroll-loops -fno-align-loops -fno-align-functions -fno-align-jumps -fno-align-labels -lto
 
 #LDFLAGS = -T $(LDSCRIPTSDIR)/mars.ld -Wl,-Map=output.map -nostdlib -Wl,--gc-sections --specs=nosys.specs -flto
-LDFLAGS = -T $(LDSCRIPTSDIR)/mars_chill.ld -Wl,-Map=output.map -nostdlib -Wl,--gc-sections -flto
+LDFLAGS = -T $(LDSCRIPTSDIR)/mars_chill.ld -Wl,-Map=output.map -nostdlib -Wl,--gc-sections --specs=nosys.specs -flto
 ASFLAGS = --big
 
 EXTRA = 

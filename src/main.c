@@ -139,6 +139,8 @@ int main()
 			}
 		}
 
+		HwMdScreenPrintf("canvas_pitch: %02d", canvas_pitch, 0x4000, 32, 14);
+
 		Hw32xScreenFlip(0);
 	}
     return 0;
@@ -372,6 +374,8 @@ void menu_vt()
 	{
 		Hw32xFlipWait();
 
+		
+
 		DrawMainBGwGillian();
 		loadTextPalette();
 
@@ -466,6 +470,9 @@ void menu_vt()
 					screenFadeOut(1);
 					vt_scroll_test();
 					HwMdClearScreen();
+					canvas_pitch = 320;
+					Hw32xUpdateLineTable(0, 0, 0);
+					//HwMdScreenPrintf("canvas_pitch: %02d", canvas_pitch, 0x4000, 32, 14);
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;

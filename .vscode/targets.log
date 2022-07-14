@@ -7,7 +7,7 @@ make.exe all --print-data-base --no-builtin-variables --no-builtin-rules --quest
 # There is NO WARRANTY, to the extent permitted by law.
  
 
-# Make data base, printed on Wed Jul 13 07:35:51 2022
+# Make data base, printed on Wed Jul 13 14:19:45 2022
 
 # Variables
 
@@ -15,7 +15,6 @@ make.exe all --print-data-base --no-builtin-variables --no-builtin-rules --quest
 SYSTEMDRIVE = C:
 # environment
 JAVA_HOME = C:\Tools\Java\bin
- 
 # makefile (from 'Makefile', line 26)
 AS = $(PREFIX)as
 # environment
@@ -71,6 +70,7 @@ VSCODE_CODE_CACHE_PATH = C:\Users\dasut\AppData\Roaming\Code\CachedData\92d25e35
 # environment
 LANG = C
 # environment
+ 
 MARSPROJECTS = C:\msys64\home\dasut\marsdev\
 # default
 .LOADED := 
@@ -117,7 +117,7 @@ VSCODE_PID = 39740
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # makefile (from 'Makefile', line 16)
-CCFLAGS = -m2 -mb -Wall -c -fomit-frame-pointer -fno-builtin  -ffunction-sections -fdata-sections -fno-align-loops -fno-align-functions -fno-align-jumps -fno-align-labels -D__32X__ -DMARS -O2 -funroll-loops -fno-align-loops -fno-align-functions -fno-align-jumps -fno-align-labels -lto
+CCFLAGS = -m2 -mb -Wall -c -fomit-frame-pointer -fno-builtin  -ffunction-sections -fdata-sections  -fno-align-loops -fno-align-functions -fno-align-jumps -fno-align-labels -D__32X__ -DMARS -O2 -funroll-loops -fno-align-loops -fno-align-functions -fno-align-jumps -fno-align-labels -lto
 # automatic
 *F = $(notdir $*)
 # makefile (from 'Makefile', line 5)
@@ -185,7 +185,7 @@ USERDOMAIN = DASUTINPC22
 # 'override' directive
 GNUMAKEFLAGS := 
 # makefile (from 'Makefile', line 13)
-HWFLAGS := -m2 -mb -Wall -c -fomit-frame-pointer -fno-builtin  -ffunction-sections -fdata-sections -fno-align-loops -fno-align-functions -fno-align-jumps -fno-align-labels -D__32X__ -DMARS -Os -fno-lto
+HWFLAGS := -m2 -mb -Wall -c -fomit-frame-pointer -fno-builtin  -ffunction-sections -fdata-sections  -fno-align-loops -fno-align-functions -fno-align-jumps -fno-align-labels -D__32X__ -DMARS -Os -fno-lto
 # environment
 OS = Windows_NT
 # environment
@@ -196,6 +196,7 @@ NDI_RUNTIME_DIR_V3 = C:\Program Files\NewTek\NDI 4 Runtime\v4
 SHSS = $(wildcard src/*.s)
 # makefile (from 'Makefile', line 31)
 RM = rm -f
+ 
 # default
 MAKE_VERSION := 4.3
 # makefile (from 'Makefile', line 6)
@@ -205,8 +206,7 @@ PROGRAMFILES(X86) = C:\Program Files (x86)
 # makefile (from 'Makefile', line 22)
 EXTRA = 
 # makefile (from 'Makefile', line 19)
-LDFLAGS = -T $(LDSCRIPTSDIR)/mars_chill.ld -Wl,-Map=output.map -nostdlib -Wl,--gc-sections -flto
- 
+LDFLAGS = -T $(LDSCRIPTSDIR)/mars_chill.ld -Wl,-Map=output.map -nostdlib -Wl,--gc-sections --specs=nosys.specs -flto
 # environment
 USERDOMAIN_ROAMINGPROFILE = DASUTINPC22
 # environment
@@ -317,7 +317,6 @@ debug: m68k.bin build/240pMars.32x
 # Load=1/32=3%, Rehash=0, Collisions=0/2=0%
 
 # Not a target:
- 
 src/font.o:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
@@ -332,7 +331,7 @@ sh2_fixed.o:
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-07-13 07:35:36.1881276
+#  Last modified 2022-07-13 14:14:48.6002262
 #  File has been updated.
 #  Successfully updated.
 
@@ -354,6 +353,7 @@ src/tests.o:
 #  Modification time never checked.
 #  File has not been updated.
 
+ 
 clean:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
@@ -387,7 +387,6 @@ src/dtiles.o:
 #  Modification time never checked.
 #  File has not been updated.
 
- 
 # Not a target:
 src/main.o:
 #  Implicit rule search has not been done.
@@ -508,6 +507,6 @@ src/sound.o:
 # strcache performance: lookups = 121 / hit rate = 26%
 # hash-table stats:
 # Load=89/8192=1%, Rehash=0, Collisions=2/121=2%
-# Finished Make data base on Wed Jul 13 07:35:51 2022
+# Finished Make data base on Wed Jul 13 14:19:45 2022
 
  
