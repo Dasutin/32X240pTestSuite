@@ -269,153 +269,182 @@ void MDPSG_stop()
 
 void vt_drop_shadow_test()
 {
+	int framecount;
+    int fpscount;
+    int prevsec;
+    int prevsecframe;
+    int totaltics;
+    char hud = 0, clearhud = 0;
+    int ticksperframe;
+    int buttons, oldbuttons;
+    char NTSC;
 	int done = 0;
-	//int frameDelay = 1;
-	int x = 10;
-	int y = 10;
-	int bee_mirror = 1; // Start right
+	vu16 *cram16 = &MARS_CRAM;
+	u16 button = 0, pressedButton = 0, oldButton = 0xFFFF;
 	int frameCount = 0;
 	int evenFrames = 0;
-	u8 dirtyrec[0];
-	extern const u8 BUZZ_TILE[] __attribute__((aligned(16)));
-	extern const u8 BUZZ_SHADOW_TILE[] __attribute__((aligned(16)));
-	extern const u8 MARKER_SHADOW_TILE[] __attribute__((aligned(16)));
-	int changeSprite = 0;
-	int background = 1;
-	//extern const u16 TEST_PAL[];
-	extern const u16 DONNA_PAL[];
-	extern const u8 DONNA_TILE[] __attribute__((aligned(16)));
-	extern const u8 H_STRIPES_SHADOW_TILE[] __attribute__((aligned(16)));
-	extern const u8 CHECKERBOARD_SHADOW_TILE[] __attribute__((aligned(16)));
-	u16 button = 0, pressedButton = 0, oldButton = 0xFFFF;
-	vu16 *cram16 = &MARS_CRAM;
-
-	//loadPalette(&DONNA_PAL[0], &DONNA_PAL[255],0);
-	for (int i = 0; i <= 255; i++){
-			cram16[i] = DONNA_PAL[i] & 0x7FFF;
-		}
-
-	Hw32xScreenFlip(0);
-
-	while (!done)
-	{
-		Hw32xFlipWait();
-		//clearScreen_Fill8bit();
-		clearScreen_Fill16bit();
-
-		button = MARS_SYS_COMM8;
-
-		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
-		{
-			button = MARS_SYS_COMM10;
-		}
-
-    	pressedButton = button & ~oldButton;
-    	oldButton = button;
-
-		if (pressedButton & SEGA_CTRL_A)
-		{
-		}
-
-		if (pressedButton & SEGA_CTRL_B)
-		{
-			background++;
+    int mode = DRAWSPR_OVERWRITE;
+	unsigned i;
+    //char NTSC;
+    int x = 30;
+	int y = 30;
+	uint8_t *buzz_sprite;
+	uint8_t *buzz_shadow_sprite;
+	uint8_t *donna_reslist;
+	uint8_t *reslist;
 	
-			if(background > 3){
-		 		background = 1;
-			}
-		}
+	memcpy(donna_reslist, reslist, sizeof(donna_reslist));
 
-		if (pressedButton & SEGA_CTRL_C)
-		{
-			if(changeSprite == 0){
-				changeSprite = 1;
-			}	
-			else {
-				changeSprite = 0;
-			}
-		}
+	//canvas_pitch = 384; // canvas_width + scrollwidth
+	//Hw32xUpdateLineTable(0, 0, 0);
 
-		if (pressedButton & SEGA_CTRL_Z)
-		{
-			DrawHelp(HELP_SHADOW);
+	SetSH2SR(1);
 
-			for (int i = 0; i <= 255; i++){
-				cram16[i] = DONNA_PAL[i] & 0x7FFF;
-			}
-			//loadPalette(&DONNA_PAL[0], &DONNA_PAL[255],0);
-		}
+	while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
 
-		if (button & SEGA_CTRL_UP)
+	//NTSC = (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT) != 0;
+
+	SH2_WDT_WTCSR_TCNT = 0x5A00; /* WDT TCNT = 0 */
+    SH2_WDT_WTCSR_TCNT = 0xA53E; /* WDT TCSR = clr OVF, IT mode, timer on, clksel = Fs/4096 */
+
+	/* init hires timer system */
+    SH2_WDT_VCR = (65 << 8) | (SH2_WDT_VCR & 0x00FF); // set exception vector for WDT
+    SH2_INT_IPRA = (SH2_INT_IPRA & 0xFF0F) | 0x0020; // set WDT INT to priority 2
+
+	// change 4096.0f to something else if WDT TCSR is changed!
+    //mars_frtc2msec_frac = 4096.0f * 1000.0f / (NTSC ? NTSC_CLOCK_SPEED : PAL_CLOCK_SPEED) * 65536.0f;
+
+	Hw32xSetPalette((const char *)donna_palette);
+
+	MARS_SYS_COMM4 = 0;
+    MARS_SYS_COMM6 = 0;
+
+    ticksperframe = 1;
+
+    fpscount = 0;
+    framecount = 0;
+
+    prevsec = 0;
+    prevsecframe = 0;
+
+    totaltics = 0;
+
+    fpcamera_x = fpcamera_y = 0;
+
+    canvas_rebuild_id = 1;
+
+    buttons = oldbuttons = 0;
+
+    Hw32xScreenFlip(0);
+
+    init_tilemap(&tm, donna_tmx.tilew, donna_tmx.tileh, donna_tmx.numtw, donna_tmx.numth, 
+        (const uint16_t **)donna_tmx.layers, donna_tmx.numlayers, (const int *)donna_tmx.layerplx, 
+        donna_tmx.wrapX * (1<<16), donna_tmx.wrapY * (1<<16));
+
+    hud = (hud + 1) % 2;
+    //clearhud = 2;
+
+    while (!done) 
+	{
+        int starttics;
+        int waittics;
+        int clip;
+        int old_fpcamera_x, old_fpcamera_y;
+        int n;
+        
+        //starttics = Hw32xGetTicks();
+
+        //sec = starttics / (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT ? 60 : 50); // FIXME: add proper NTSC vs PAL rate detection
+        //if (sec != prevsec) {
+        //    fpscount = (framecount - prevsecframe) / (sec - prevsec);
+        //    prevsec = sec;
+       //     prevsecframe = framecount;
+        //}
+
+        oldbuttons = buttons;
+        buttons = MARS_SYS_COMM8;
+        int newbuttons = (buttons ^ oldbuttons) & buttons;
+
+        old_fpcamera_x = fpcamera_x;
+        old_fpcamera_y = fpcamera_y;
+
+        //fpcamera_x += fpmoveinc_x;
+
+        if (buttons & SEGA_CTRL_UP)
 		{
 			y--;
-			if(y < 1)
-				y = 1;
+			if(y < 20)
+				y = 20;
 		}
 
-		if (button & SEGA_CTRL_DOWN)
+		if (buttons & SEGA_CTRL_DOWN)
 		{
 			y++;
 			if(y > 192)
 				y = 192;
 		}
 
-		if (button & SEGA_CTRL_LEFT)
+		if (buttons & SEGA_CTRL_LEFT)
 		{
-			bee_mirror = 0;
+			mode = DRAWSPR_PRECISE;
 			x--;
-			if(x < 1)
-				x = 1;
+			if(x < 25)
+				x = 25;
 		}
 
-		if (button & SEGA_CTRL_RIGHT)
+		if (buttons & SEGA_CTRL_RIGHT)
 		{
-			bee_mirror = 1;
+			mode = DRAWSPR_HFLIP;
 			x++;
 			if(x > 288)
 				x = 288;
 		}
 
-		if (pressedButton & SEGA_CTRL_START)
+
+        Hw32xFlipWait();
+
+		if (newbuttons & SEGA_CTRL_START)
 		{
 			screenFadeOut(1);
+			//uint32_t canvas_pitch = 320;
+			//uint32_t canvas_yaw = 224;
+			//Hw32xUpdateLineTable(0, 0, 0);
 			done = 1;
 		}
 
-		switch (background) {
-			case 1:
-				drawBG(DONNA_TILE);
-			break;
-				
-			case 2:
-				drawBG(CHECKERBOARD_SHADOW_TILE);
-			break;
+        clip = display(framecount, hud, fpscount, totaltics, clearhud);
+         if (clip & 2)
+        {
+            // clipped to the right
+            fpcamera_x = old_fpcamera_x;
+        }
+        if (clip & 8)
+        {
+            // clipped to the right
+            fpcamera_y = old_fpcamera_y;
+        }
 
-			case 3:
-				drawBG(H_STRIPES_SHADOW_TILE);
-			break;
-		}
-
-		if (changeSprite == 0){
 		if (frameCount % 2 == evenFrames ) {
-		drawSprite(BUZZ_SHADOW_TILE,x,y,32,32,bee_mirror,0);
-		}
-		drawSprite(BUZZ_TILE,x-20,y-20,32,32,bee_mirror,0);
-		drawSprite(BUZZ_TILE,x-20,y-20,32,32,bee_mirror,0);
-		}
-		else {
-		if (frameCount % 2 == evenFrames ) {
-		drawSprite(MARKER_SHADOW_TILE,x,y,32,32,0,0);
-		}
-		}
-		
-		frameCount++;
+            draw_sprite(x, y, 32, 32, buzz_shadow_sprite, DRAWSPR_OVERWRITE | DRAWSPR_PRECISE | mode, 1);
+        }
+        draw_sprite(x-20, y-20, 32, 32, buzz_sprite, DRAWSPR_OVERWRITE | mode | DRAWSPR_PRECISE, 1);
 
-		drawLineTable(4);
+		HwMdScreenPrintf("fpcamera_x: %02d", fpcamera_x, 0x4000, 32, 14);
 
-		Hw32xScreenFlip(0);
-		
-		//Hw32xDelay(frameDelay);
+        //clearhud--;
+        //if (clearhud < 0)
+       //     clearhud = 0;
+
+        //totaltics = Hw32xGetTicks() - starttics;
+
+        //waittics = totaltics;
+        //while (waittics < ticksperframe) {
+        //    waittics = Hw32xGetTicks() - starttics;
+        //}
+
+        framecount++;
+
+        Hw32xScreenFlip(0);
 	}
 	return;
 }
@@ -1158,6 +1187,11 @@ void vt_scroll_test()
 	vu16 *cram16 = &MARS_CRAM;
 	u16 button = 0, pressedButton = 0, oldButton = 0xFFFF;
 
+	uint8_t *sonic_reslist;
+	uint8_t *reslist;
+	
+	memcpy(sonic_reslist, reslist, sizeof(sonic_reslist));
+
 	canvas_pitch = 384; // canvas_width + scrollwidth
 	Hw32xUpdateLineTable(0, 0, 0);
 
@@ -1177,7 +1211,7 @@ void vt_scroll_test()
 	// change 4096.0f to something else if WDT TCSR is changed!
     mars_frtc2msec_frac = 4096.0f * 1000.0f / (NTSC ? NTSC_CLOCK_SPEED : PAL_CLOCK_SPEED) * 65536.0f;
 
-	Hw32xSetPalette((const char *)palette);
+	Hw32xSetPalette((const char *)sonic_palette);
 
 	MARS_SYS_COMM4 = 0;
     MARS_SYS_COMM6 = 0;
@@ -1202,9 +1236,9 @@ void vt_scroll_test()
 
     Hw32xScreenFlip(0);
 
-    init_tilemap(&tm, tmx.tilew, tmx.tileh, tmx.numtw, tmx.numth, 
-        (const uint16_t **)tmx.layers, tmx.numlayers, (const int *)tmx.layerplx, 
-        tmx.wrapX * (1<<16), tmx.wrapY * (1<<16));
+    init_tilemap(&tm, sonic_tmx.tilew, sonic_tmx.tileh, sonic_tmx.numtw, sonic_tmx.numth, 
+        (const uint16_t **)sonic_tmx.layers, sonic_tmx.numlayers, (const int *)sonic_tmx.layerplx, 
+        sonic_tmx.wrapX * (1<<16), sonic_tmx.wrapY * (1<<16));
 
     hud = (hud + 1) % 2;
     //clearhud = 2;
@@ -1217,14 +1251,14 @@ void vt_scroll_test()
         int old_fpcamera_x, old_fpcamera_y;
         int n;
         
-        starttics = Hw32xGetTicks();
+        //starttics = Hw32xGetTicks();
 
-        sec = starttics / (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT ? 60 : 50); // FIXME: add proper NTSC vs PAL rate detection
-        if (sec != prevsec) {
-            fpscount = (framecount - prevsecframe) / (sec - prevsec);
-            prevsec = sec;
-            prevsecframe = framecount;
-        }
+        //sec = starttics / (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT ? 60 : 50); // FIXME: add proper NTSC vs PAL rate detection
+        //if (sec != prevsec) {
+        //    fpscount = (framecount - prevsecframe) / (sec - prevsec);
+        //    prevsec = sec;
+       //     prevsecframe = framecount;
+        //}
 
         oldbuttons = buttons;
         buttons = MARS_SYS_COMM8;
@@ -1242,15 +1276,15 @@ void vt_scroll_test()
             palswap = 60;
 
         if(palswap == 60)
-            Hw32xSetPalette((const char *)paletteswap);
+            Hw32xSetPalette((const char *)sonic_paletteswap);
         if(palswap == 120)
-            Hw32xSetPalette((const char *)palette);
+            Hw32xSetPalette((const char *)sonic_palette);
 
         if (MARS_SYS_COMM8 & SEGA_CTRL_RIGHT) {
-            fpcamera_x += fpmoveinc_x * 8;
+            fpcamera_x += fpmoveinc_x;
         }
         else if (MARS_SYS_COMM8 & SEGA_CTRL_LEFT) {
-            fpcamera_x -= fpmoveinc_x * 15;
+            fpcamera_x -= fpmoveinc_x;
         }
 
         //if (MARS_SYS_COMM8 & SEGA_CTRL_DOWN) {
@@ -1261,9 +1295,9 @@ void vt_scroll_test()
         //}
 
         //if (fpcamera_x < 0) fpcamera_x = 0;
-        if (fpcamera_y < 0) fpcamera_y = 0;
+        //if (fpcamera_y < 0) fpcamera_y = 0;
         
-        if (newbuttons & SEGA_CTRL_B)
+/*         if (newbuttons & SEGA_CTRL_B)
         {
             hud = (hud + 1) % 2;
             clearhud = 2;
@@ -1274,15 +1308,18 @@ void vt_scroll_test()
             sprmode++;
             if (sprmode == 8)
                 sprmode = -1;
-        }
+        } */
+
+        Hw32xFlipWait();
 
 		if (newbuttons & SEGA_CTRL_START)
 		{
 			screenFadeOut(1);
+			//uint32_t canvas_pitch = 320;
+			//uint32_t canvas_yaw = 224;
+			//Hw32xUpdateLineTable(0, 0, 0);
 			done = 1;
 		}
-
-        Hw32xFlipWait();
 
         clip = display(framecount, hud, fpscount, totaltics, clearhud);
          if (clip & 2)
@@ -1296,16 +1333,18 @@ void vt_scroll_test()
             fpcamera_y = old_fpcamera_y;
         }
 
-        clearhud--;
-        if (clearhud < 0)
-            clearhud = 0;
+		HwMdScreenPrintf("fpcamera_x: %02d", fpcamera_x, 0x4000, 32, 14);
 
-        totaltics = Hw32xGetTicks() - starttics;
+        //clearhud--;
+        //if (clearhud < 0)
+       //     clearhud = 0;
 
-        waittics = totaltics;
-        while (waittics < ticksperframe) {
-            waittics = Hw32xGetTicks() - starttics;
-        }
+        //totaltics = Hw32xGetTicks() - starttics;
+
+        //waittics = totaltics;
+        //while (waittics < ticksperframe) {
+        //    waittics = Hw32xGetTicks() - starttics;
+        //}
 
         framecount++;
 
