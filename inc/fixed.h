@@ -1,10 +1,9 @@
-#ifndef FIXED_H__
-#define FIXED_H__
+#ifndef FIXED_H_
+#define FIXED_H_
 
 #include <stddef.h>
-#include "types.h"
 
-typedef s32 fixed_t;
+typedef int32_t fixed_t;
 
 #define FIXED_SHIFT_BITS    16
 #define FIXED_UNIT          (1<<FIXED_SHIFT_BITS)

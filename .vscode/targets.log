@@ -1,0 +1,508 @@
+make.exe all --print-data-base --no-builtin-variables --no-builtin-rules --question
+# GNU Make 4.3
+# Built for x86_64-pc-msys
+# Copyright (C) 1988-2020 Free Software Foundation, Inc.
+# License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+# This is free software: you are free to change and redistribute it.
+# There is NO WARRANTY, to the extent permitted by law.
+
+# Make data base, printed on Sat Jul 16 19:13:03 2022
+
+# Variables
+
+# environment
+FPS_BROWSER_APP_PROFILE_STRING = Internet Explorer
+# environment
+SYSTEMDRIVE = C:
+# environment
+JAVA_HOME = C:\Tools\Java\bin
+# makefile (from 'Makefile', line 26)
+AS = $(PREFIX)as
+# environment
+LC_ALL = C
+# environment
+ACSVCPORT = 17532
+# environment
+USERPROFILE = C:\Users\dasut
+# makefile (from 'Makefile', line 28)
+OBJC = $(PREFIX)objcopy
+# environment
+LOCALAPPDATA = C:\Users\dasut\AppData\Local
+# environment
+NDI_RUNTIME_DIR_V2 = C:\Program Files\NewTek\NDI 4 Runtime\v4
+# environment
+VSCODE_CWD = C:\Users\dasut\AppData\Local\Programs\Microsoft VS Code
+# makefile (from 'Makefile', line 3)
+LDSCRIPTSDIR = $(ROOTDIR)/ldscripts
+# environment
+SYSTEMROOT = C:\Windows
+# makefile (from 'Makefile', line 34)
+LIBS = $(LIBPATH) -lc -lgcc -lgcc-Os-4-200 -lnosys
+# environment
+NESPROJECTS = C:\Dev\nes\
+# environment
+PROCESSOR_LEVEL = 6
+# environment
+PSMODULEPATH = C:\Program Files\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell\v1.0\Modules
+# default
+MAKE_COMMAND := make
+# makefile (from 'Makefile', line 30)
+DD = dd
+# automatic
+@D = $(patsubst %/,%,$(dir $@))
+# environment
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_31380_PJVWPCMVUBIABJOP
+# environment
+ONEDRIVECOMMERCIAL = C:\Users\dasut\OneDrive - Zones
+# environment
+FPS_BROWSER_USER_PROFILE_STRING = Default
+# environment
+VSCODE_HANDLES_UNCAUGHT_ERRORS = true
+# default
+.VARIABLES := 
+# automatic
+%D = $(patsubst %/,%,$(dir $%))
+# environment
+BIZHAWK = C:\Tools\Emulation\BizHawk-2.7\EmuHawk.exe
+# automatic
+^D = $(patsubst %/,%,$(dir $^))
+# automatic
+%F = $(notdir $%)
+# environment
+VSCODE_CODE_CACHE_PATH = C:\Users\dasut\AppData\Roaming\Code\CachedData\b06ae3b2d2dbfe28bca3134cc6be65935cdfea6a
+# environment
+LANG = C
+# environment
+MARSPROJECTS = C:\msys64\home\dasut\marsdev\
+# default
+.LOADED := 
+# environment
+TMP = /c/Users/dasut/AppData/Local/Temp
+# default
+.INCLUDE_DIRS = /usr/include /usr/include
+# makefile
+MAKEFLAGS = pqrR
+# environment
+ULTRAMON_LANGDIR = C:\Program Files\UltraMon\Resources\en
+# environment
+ONEDRIVE = C:\Users\dasut\OneDrive - Zones
+# makefile
+CURDIR := /home/dasut/marsdev/32X240pTestSuite
+# environment
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
+# automatic
+*D = $(patsubst %/,%,$(dir $*))
+# environment
+PROGRAMFILES = C:\Program Files
+# environment
+MFLAGS = -pqrR
+# default
+.SHELLFLAGS := -c
+# environment
+!C: = c:\msys64\home\dasut\marsdev\32X240pTestSuite
+# environment
+MARSDEV = /home/dasut/mars
+# environment
+NDI_RUNTIME_DIR_V4 = C:\Program Files\NewTek\NDI 4 Runtime\v4
+# environment
+COMMONPROGRAMW6432 = C:\Program Files\Common Files
+# automatic
++D = $(patsubst %/,%,$(dir $+))
+# makefile (from 'Makefile', line 1)
+MAKEFILE_LIST := Makefile
+# makefile (from 'Makefile', line 20)
+ASFLAGS = --big
+# automatic
+@F = $(notdir $@)
+# environment
+VSCODE_PID = 31380
+# automatic
+?D = $(patsubst %/,%,$(dir $?))
+# makefile (from 'Makefile', line 16)
+CCFLAGS = -m2 -mb -Wall -c -fomit-frame-pointer -fno-builtin  -ffunction-sections -fdata-sections  -fno-align-loops -fno-align-functions -fno-align-jumps -fno-align-labels -D__32X__ -DMARS -O2 -funroll-loops -fno-align-loops -fno-align-functions -fno-align-jumps -fno-align-labels -lto
+# automatic
+*F = $(notdir $*)
+# makefile (from 'Makefile', line 5)
+LIBPATH = -L$(ROOTDIR)/sh-elf/lib -L$(ROOTDIR)/sh-elf/lib/gcc/sh-elf/4.6.2 -L$(ROOTDIR)/sh-elf/sh-elf/lib
+# automatic
+<D = $(patsubst %/,%,$(dir $<))
+# environment
+VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupport":true}
+# environment
+ONEDRIVECONSUMER = C:\Users\dasut\OneDrive
+# default
+MAKE_HOST := x86_64-pc-msys
+# makefile (from 'Makefile', line 36)
+OBJS = $(wildcard src/*.c)
+# environment
+PROGRAMDATA = C:\ProgramData
+# default
+SHELL := /bin/sh
+# environment
+HOMEPATH = \Users\dasut
+# default
+MAKECMDGOALS := all
+# environment
+DRIVERDATA = C:\Windows\System32\Drivers\DriverData
+# environment
+COMSPEC = C:\Windows\system32\cmd.exe
+# environment
+WINDIR = C:\Windows
+# environment
+MAKELEVEL := 0
+# default
+MAKE = $(MAKE_COMMAND)
+# environment
+PATH = /usr/bin:/c/msys32/usr/local/bin:/c/Tools/Genesis32X/megalink:/c/program files (x86)/common files/oracle/java/javapath:/c/windows/system32:/c/windows:/c/windows/system32/wbem:/c/windows/system32/windowspowershell/v1.0:/c/windows/system32/openssh:/c/program files/nvidia corporation/nvidia nvdlisr:/c/program files/git/cmd:/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/c/Program Files/dotnet:/c/Program Files/Docker/Docker/resources/bin:/d/GAMADV-XTD3:/c/Users/dasut/AppData/Local/Programs/Python/Python39/Scripts:/c/Users/dasut/AppData/Local/Programs/Python/Python39:/c/Users/dasut/AppData/Local/Programs/Python/Python310/Scripts:/c/Users/dasut/AppData/Local/Programs/Python/Python310:/c/Users/dasut/AppData/Local/Microsoft/WindowsApps:/c/Users/dasut/AppData/Local/Programs/Microsoft VS Code/bin:/mingw64/bin:/usr/bin:/c/SysGCC/m68k-elf/bin:/home/dasut/mars/sh-elf/bin:/c/Users/dasut/AppData/Local/GitHubDesktop/bin:/home/dasut/cc65/bin
+# environment
+COMPUTERNAME = DASUTINPC22
+# default
+MAKEFILES := 
+# automatic
+^F = $(notdir $^)
+# environment
+PROMPT = $P$G
+# makefile (from 'Makefile', line 24)
+PREFIX = $(ROOTDIR)/sh-elf/bin/sh-elf-
+# environment
+LOGONSERVER = \\DASUTINPC22
+# environment
+USERNAME = dasut
+# environment
+SNESPROJECTS = C:\Dev\snes\
+# environment
+COMMONPROGRAMFILES = C:\Program Files\Common Files
+# automatic
+?F = $(notdir $?)
+# environment
+PROGRAMW6432 = C:\Program Files
+# environment
+PATHEXT = .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC
+# automatic
++F = $(notdir $+)
+# environment
+ORIGINAL_XDG_CURRENT_DESKTOP = undefined
+# environment
+USERDOMAIN = DASUTINPC22
+# 'override' directive
+GNUMAKEFLAGS := 
+# makefile (from 'Makefile', line 13)
+HWFLAGS := -m2 -mb -Wall -c -fomit-frame-pointer -fno-builtin  -ffunction-sections -fdata-sections  -fno-align-loops -fno-align-functions -fno-align-jumps -fno-align-labels -D__32X__ -DMARS -O1 -fno-lto
+# environment
+OS = Windows_NT
+# environment
+NDI_RUNTIME_DIR_V3 = C:\Program Files\NewTek\NDI 4 Runtime\v4
+# makefile
+.DEFAULT_GOAL := release
+# makefile (from 'Makefile', line 37)
+SHSS = $(wildcard src/*.s)
+# makefile (from 'Makefile', line 31)
+RM = rm -f
+# default
+MAKE_VERSION := 4.3
+# makefile (from 'Makefile', line 6)
+INCPATH = -Isrc -Iinc -Ires -I$(ROOTDIR)/sh-elf/include -I$(ROOTDIR)/sh-elf/sh-elf/include
+# environment
+PROGRAMFILES(X86) = C:\Program Files (x86)
+# makefile (from 'Makefile', line 22)
+EXTRA = 
+# makefile (from 'Makefile', line 19)
+LDFLAGS = -T $(LDSCRIPTSDIR)/mars_chill.ld -Wl,-Map=output.map -nostdlib -Wl,--gc-sections --specs=nosys.specs -flto
+# environment
+USERDOMAIN_ROAMINGPROFILE = DASUTINPC22
+# environment
+NUMBER_OF_PROCESSORS = 24
+# environment
+PUBLIC = C:\Users\Public
+# environment
+QUARTUS_ROOTDIR = C:\altera\13.1\qprogrammer
+# environment
+APPDATA = C:\Users\dasut\AppData\Roaming
+# environment
+HOMEDRIVE = C:
+# environment
+MESEN = C:\Tools\Emulation\Mesen\Mesen.exe
+# environment
+PROCESSOR_ARCHITECTURE = AMD64
+# makefile (from 'Makefile', line 42)
+SHOBJS = crt0.o sh2_fixed.o $(OBJS:.c=.o) $(SHSS:.s=.o)
+# environment
+VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
+# environment
+HOME = /home/dasut
+# environment
+COMMONPROGRAMFILES(X86) = C:\Program Files (x86)\Common Files
+# environment
+GENS = C:\Tools\genesis32x\gensKMod_073\gens.exe
+# environment
+ELECTRON_RUN_AS_NODE = 1
+# environment
+TEMP = /c/Users/dasut/AppData/Local/Temp
+# environment
+VSCODE_IPC_HOOK = \\.\pipe\b7af5bf54e9b212c3fd12aaebaea1b11-1.69.1-main-sock
+# environment
+TERM = xterm-256color
+# default
+.RECIPEPREFIX := 
+# automatic
+<F = $(notdir $<)
+# default
+SUFFIXES := 
+# environment
+ALLUSERSPROFILE = C:\ProgramData
+# makefile (from 'Makefile', line 27)
+LD = $(PREFIX)ld
+# makefile (from 'Makefile', line 33)
+TARGET = build/240pMars
+# environment
+SESSIONNAME = Console
+# default
+.FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell nocomment grouped-target extra-prereqs archives jobserver output-sync check-symlink load
+# environment
+PROCESSOR_REVISION = 9702
+# makefile (from 'Makefile', line 25)
+CC = $(PREFIX)gcc
+# environment
+MESENS = C:\Tools\Emulation\Mesen-S\Mesen-S.exe
+# makefile (from 'Makefile', line 1)
+ROOTDIR = $(MARSDEV)
+# environment
+PROCESSOR_IDENTIFIER = Intel64 Family 6 Model 151 Stepping 2, GenuineIntel
+# variable set hash-table stats:
+ 
+# Load=129/1024=13%, Rehash=0, Collisions=21/179=12%
+
+# Pattern-specific Variable Values
+
+# No pattern-specific variable values.
+
+# Directories
+
+# src (device 572360812, inode 281474977994544): 34 files, no impossibilities.
+# . (device 572360812, inode 22517998136876355): 23 files, no impossibilities.
+
+# 57 files, no impossibilities in 2 directories.
+
+# Implicit Rules
+
+src/%.o: src/%.c
+#  recipe to execute (from 'Makefile', line 69):
+	$(CC) $(CCFLAGS) $(EXTRA) $(INCPATH) $< -o $@
+
+src/%.o: src/%.s
+#  recipe to execute (from 'Makefile', line 72):
+	$(AS) $(ASFLAGS) $(INCPATH) $< -o $@
+
+# 2 implicit rules, 0 (0.0%) terminal.
+# Files
+
+# Not a target:
+src/32x_images.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/help.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# makefile (from 'Makefile', line 49)
+debug: EXTRA = -O0 -g -gdwarf-2
+debug: m68k.bin build/240pMars.32x
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+# variable set hash-table stats:
+# Load=1/32=3%, Rehash=0, Collisions=0/2=0%
+
+# Not a target:
+src/font.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+sh2_fixed.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+Makefile:
+#  Implicit rule search has been done.
+#  Last modified 2022-07-15 11:40:11.8944863
+#  File has been updated.
+#  Successfully updated.
+
+# Not a target:
+src/string.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/tests.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+clean:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 75):
+	make clean -C src_md
+	$(RM) *.o $(TARGET).32x $(TARGET).elf output.map
+	$(RM) src/*.o
+
+# Not a target:
+src/dsprite.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/hw_32x.c:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/graphics.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/dtiles.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/main.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+.DEFAULT:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/lzss_decode.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+all:
+#  Phony target (prerequisite of .PHONY).
+#  Command line target.
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has been updated.
+#  Successfully updated.
+
+m68k.bin:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 53):
+	make -C src_md
+
+build/240pMars.elf: crt0.o sh2_fixed.o src/32x_images.o src/draw.o src/dsprite.o src/dtiles.o src/font.o src/graphics.o src/help.o src/hw_32x.o src/main.o src/patterns.o src/shared_objects.o src/sound.o src/string.o src/tests.o src/lzss_decode.o src/resources.o
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 61):
+	$(CC) $(LDFLAGS) $(SHOBJS) $(LIBS) -o $(TARGET).elf
+
+crt0.o: | m68k.bin
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+src/hw_32x.o: src/hw_32x.c
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 66):
+	$(CC) $(HWFLAGS) $(INCPATH) $< -o $@
+
+# Not a target:
+src/resources.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+build/240pMars.32x: build/240pMars.elf
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 56):
+	$(OBJC) -O binary $< temp.bin
+	$(DD) if=temp.bin of=$@ bs=128K conv=sync
+	$(RM) temp.bin
+
+# makefile (from 'Makefile', line 46)
+release: EXTRA = -Os
+release: m68k.bin build/240pMars.32x
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+# variable set hash-table stats:
+# Load=1/32=3%, Rehash=0, Collisions=0/2=0%
+
+# Not a target:
+src/draw.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/patterns.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/shared_objects.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+.PHONY: all release debug
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/sound.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# files hash-table stats:
+ 
+# Load=30/1024=3%, Rehash=0, Collisions=0/77=0%
+# VPATH Search Paths
+
+# No 'vpath' search paths.
+
+# No general ('VPATH' variable) search path.
+
+# strcache buffers: 1 (0) / strings = 86 / storage = 881 B / avg = 10 B
+# current buf: size = 8162 B / used = 881 B / count = 86 / avg = 10 B
+
+# strcache performance: lookups = 118 / hit rate = 27%
+# hash-table stats:
+# Load=86/8192=1%, Rehash=0, Collisions=2/118=2%
+# Finished Make data base on Sat Jul 16 19:13:03 2022
+
+ 

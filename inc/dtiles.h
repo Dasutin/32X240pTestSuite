@@ -20,31 +20,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef TESTS_H
-#define TESTS_H
+#ifndef DTILES_H_
+#define DTILES_H_
 
-#define MEMORY_OK 0xFFFFFFFF
+static int old_camera_x, old_camera_y;
+static int main_camera_x, main_camera_y;
 
-void ShowMessageAndData(char *message, u32 address, u8 color, int len, int xpos, int ypos);
+static int camera_x, camera_y;
 
-void MDPSG_init();
-void MDPSG_stop();
-
-void vt_drop_shadow_test(void);
-void vt_striped_sprite_test(void);
-void vt_reflex_test(void);
-void vt_scroll_test(void);
-void vt_vert_scroll_test(void);
-void vt_gridscroll_test(void);
-void vt_horizontal_stripes(void);
-void vt_vertical_stripes(void);
-void vt_checkerboard(void);
-void vt_backlitzone_test(void);
-void at_sound_test(void);
-void at_audiosync_test(void);
-void ht_controller_test(void);
-void ht_memory_viewer(u32 address);
-void ht_check_32x_bios_crc(u32 address);
-void ht_test_32x_sdram();
-
-#endif
+#endif /* _DTILES_H_ */

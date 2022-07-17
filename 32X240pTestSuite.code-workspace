@@ -5,6 +5,11 @@
         }
     ],
     "settings": {
-        "git.ignoreLimitWarning": true
+        "git.ignoreLimitWarning": true,
+        "files.associations": {
+            "*.s": "asm-collection",
+            "types.h": "c",
+            "draw.h": "c"
+        }
     }
 }

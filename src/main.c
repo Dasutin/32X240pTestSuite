@@ -36,44 +36,25 @@ extern int fontColorGreen;
 extern int fontColorGray;
 extern int fontColorBlack;
 
-volatile unsigned mars_pwdt_ovf_count = 0;
-volatile unsigned mars_swdt_ovf_count = 0;
-
-unsigned mars_frtc2msec_frac = 0;
-
-const int NTSC_CLOCK_SPEED = 23011360; // HZ
-const int PAL_CLOCK_SPEED = 22801467; // HZ
-
-//Hw32xInitSoundDMA();
-
-snddma_secondary_init();
+uint32_t  canvas_pitch = 320; // canvas_width + scrollwidth
+uint32_t  canvas_yaw = 224; // canvas_height + scrollheight
 
 int main()
 {
 	int frameDelay = 0;
 	int curse = 1;
-	unsigned short button, pressedButton, oldButton = 0xFFFF;
 	char NTSC;
-
+	unsigned short button, pressedButton, oldButton = 0xFFFF;
+	
 	marsVDP256Start();
+
+	Hw32xUpdateLineTable(0, 0, 0);
 
 	SetSH2SR(1);
 
 	while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
 
     NTSC = (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT) != 0;
-
-	SH2_WDT_WTCSR_TCNT = 0x5A00; // WDT TCNT = 0
-    SH2_WDT_WTCSR_TCNT = 0xA53E; // WDT TCSR = clr OVF, IT mode, timer on, clksel = Fs/4096
-
-	// Init hires timer system
-    SH2_WDT_VCR = (65 << 8) | (SH2_WDT_VCR & 0x00FF); // Set exception vector for WDT
-    SH2_INT_IPRA = (SH2_INT_IPRA & 0xFF0F) | 0x0020; // Set WDT INT to priority 2
-
-	MARS_SYS_COMM4 = 0;
-	MARS_SYS_COMM6 = 0;
-
-	mars_frtc2msec_frac = 4096.0f * 1000.0f / (NTSC ? NTSC_CLOCK_SPEED : PAL_CLOCK_SPEED) * 65536.0f;
 
 	Hw32xScreenFlip(0);
 
@@ -84,7 +65,7 @@ int main()
 		DrawMainBGwGillian();
 		loadTextPalette();
 
-		mars_drawTextwShadow("Test Paterns",  -15, 80, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Test Patterns",  -15, 80, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);
 		mars_drawTextwShadow("Video tests", -15, 88, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
 		mars_drawTextwShadow("Audio tests", -15, 96, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
 		mars_drawTextwShadow("Hardware tools", -15, 104, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorBlack : fontColorGray);
@@ -158,6 +139,8 @@ int main()
 			}
 		}
 
+		//HwMdScreenPrintf("canvas_pitch: %02d", canvas_pitch, 0x4000, 32, 14);
+
 		Hw32xScreenFlip(0);
 	}
     return 0;
@@ -191,10 +174,11 @@ void menu_tp()
 		mars_drawTextwShadow("White & RGB Screens", -24, 120, curse == 10 ? fontColorRed : fontColorWhite, curse == 10 ? fontColorBlack : fontColorGray);
 		mars_drawTextwShadow("100 IRE", -24, 128, curse == 11 ? fontColorRed : fontColorWhite, curse == 11 ? fontColorBlack : fontColorGray);
 		mars_drawTextwShadow("Sharpness", -24, 136, curse == 12 ? fontColorRed : fontColorWhite, curse == 12 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Convergence", -24, 144, curse == 13 ? fontColorRed : fontColorWhite, curse == 13 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Overscan", -24, 144, curse == 13 ? fontColorRed : fontColorWhite, curse == 13 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Convergence", -24, 152, curse == 14 ? fontColorRed : fontColorWhite, curse == 14 ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("Help", -24, 162, curse == 14 ? fontColorRed : fontColorWhite, curse == 14 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Back to Main Menu", -24, 178, curse == 15 ? fontColorRed : fontColorWhite, curse == 15 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Help", -24, 162, curse == 15 ? fontColorRed : fontColorWhite, curse == 15 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Back to Main Menu", -24, 178, curse == 16 ? fontColorRed : fontColorWhite, curse == 16 ? fontColorBlack : fontColorGray);
 
 		if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT)
 		mars_drawTextwShadow("NTSC VDP 320x224p", 90, 193, fontColorWhite, fontColorGray);
@@ -215,7 +199,7 @@ void menu_tp()
 		if (pressedButton & SEGA_CTRL_DOWN)
 		{
 			curse++;
-			if(curse > 15)
+			if(curse > 16)
 				curse = 1;
 		}
 
@@ -223,7 +207,7 @@ void menu_tp()
 		{
 		 	curse--;
 			if(curse < 1)
-				curse = 15;
+				curse = 16;
 		}
 
 		if (pressedButton & SEGA_CTRL_B)
@@ -334,18 +318,26 @@ void menu_tp()
 
 				case 13:
 					screenFadeOut(1);
-					tp_convergence();
+					tp_overscan();
+					HwMdClearScreen();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 14:
 					screenFadeOut(1);
-					DrawHelp(HELP_GENERAL);
+					tp_convergence();
+					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 15:
+					screenFadeOut(1);
+					DrawHelp(HELP_GENERAL);
+					DrawMainBGwGillian();
+				break;
+
+				case 16:
 					screenFadeOut(1);
 					done = 1;
 				break;
@@ -374,27 +366,28 @@ void menu_vt()
 	int done = 0;
 	int frameDelay = 0;
 	int curse = 1;
-	u16 button, pressedButton, oldButton  = 0xFFFF;
+	unsigned short button, pressedButton, oldButton  = 0xFFFF;
 
 	Hw32xScreenFlip(0);
 	
 	while(!done) 
 	{
 		Hw32xFlipWait();
-
 		DrawMainBGwGillian();
 		loadTextPalette();
 
-		mars_drawTextwShadow("Drop Shadow Test", -24, 88, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);		
-		mars_drawTextwShadow("Striped Sprite Test", -24, 96, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Timing & Reflex Test", -24, 104, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Horizontal Stripes", -24, 112, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Vertical Stripes", -24, 120, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Checkerboard", -24, 128, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Backlit Zone Test", -24, 136, curse == 7 ? fontColorRed : fontColorWhite, curse == 7 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Drop Shadow Test", -24, 64, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);		
+		mars_drawTextwShadow("Striped Sprite Test", -24, 72, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Timing & Reflex Test", -24, 80, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Scroll Test", -24, 88, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Grid Scroll Test", -24, 96, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Horizontal Stripes", -24, 104, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Vertical Stripes", -24, 112, curse == 7 ? fontColorRed : fontColorWhite, curse == 7 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Checkerboard", -24, 120, curse == 8 ? fontColorRed : fontColorWhite, curse == 8 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Backlit Zone Test", -24, 128, curse == 9 ? fontColorRed : fontColorWhite, curse == 9 ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("Help", -24, 150, curse == 8 ? fontColorRed : fontColorWhite, curse == 8 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Back to Main Menu", -24, 166, curse == 9 ? fontColorRed : fontColorWhite, curse == 9 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Help", -24, 150, curse == 10 ? fontColorRed : fontColorWhite, curse == 10 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Back to Main Menu", -24, 166, curse == 11 ? fontColorRed : fontColorWhite, curse == 11 ? fontColorBlack : fontColorGray);
 
 		if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT)
 		mars_drawTextwShadow("NTSC VDP 320x224p", 90, 193, fontColorWhite, fontColorGray);
@@ -415,7 +408,7 @@ void menu_vt()
 		if (pressedButton & SEGA_CTRL_DOWN)
 		{
 			curse++;
-			if(curse > 9)
+			if(curse > 11)
 				curse = 1;
 		}
 
@@ -423,7 +416,7 @@ void menu_vt()
 		{
 		 	curse--;
 		 	if(curse < 1)
-		 		curse = 9;
+		 		curse = 11;
 		}
 
 		if (pressedButton & SEGA_CTRL_B)
@@ -472,39 +465,62 @@ void menu_vt()
 
 				case 4:
 					screenFadeOut(1);
-					vt_horizontal_stripes();
+					vt_vert_scroll_test();
+					HwMdClearScreen();
+					canvas_pitch = 320;
+					canvas_yaw = 224;
+					Hw32xUpdateLineTable(0, 0, 0);
+					//HwMdScreenPrintf("canvas_pitch: %02d", canvas_pitch, 0x4000, 32, 14);
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 5:
 					screenFadeOut(1);
-					vt_vertical_stripes();
+					vt_gridscroll_test();
+					HwMdClearScreen();
+					canvas_pitch = 320;
+					canvas_yaw = 224;
+					Hw32xUpdateLineTable(0, 0, 0);
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 6:
 					screenFadeOut(1);
-					vt_checkerboard();
+					vt_horizontal_stripes();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 7:
 					screenFadeOut(1);
+					vt_vertical_stripes();
+					marsVDP256Start();
+					DrawMainBGwGillian();
+				break;
+
+				case 8:
+					screenFadeOut(1);
+					vt_checkerboard();
+					marsVDP256Start();
+					DrawMainBGwGillian();
+				break;
+
+				case 9:
+					screenFadeOut(1);
 					vt_backlitzone_test();
 					marsVDP256Start();
 					DrawMainBGwGillian();	
 				break;
 
-				case 8:
+				case 10:
 					screenFadeOut(1);
 					DrawHelp(HELP_GENERAL);
 					DrawMainBGwGillian();
 				break;
 
-				case 9:
+				case 11:
 					screenFadeOut(1);
 					done = 1;
 				break;
@@ -533,7 +549,7 @@ void menu_at()
 	int done = 0;
 	int frameDelay = 0;
 	int curse = 1;
-	u16 button, pressedButton, oldButton  = 0xFFFF;
+	unsigned short button, pressedButton, oldButton  = 0xFFFF;
 
 	Hw32xScreenFlip(0);
 	
@@ -640,7 +656,7 @@ void menu_ht()
 	int done = 0;
 	int frameDelay = 0;
 	int curse = 1;
-	u16 button, pressedButton, oldButton = 0xFFFF;
+	unsigned short button, pressedButton, oldButton = 0xFFFF;
 
 	Hw32xScreenFlip(0);
 
@@ -777,9 +793,9 @@ void options()
 
 void credits()
 {
+	int done = 0;
 	int frameDelay = 0;
-	u16 button, pressedButton, oldButton = 0xFFFF;
-	u16 done = 0;
+	unsigned short button, pressedButton, oldButton = 0xFFFF;
 
 	Hw32xScreenFlip(0);
 
@@ -791,18 +807,20 @@ void credits()
 		loadTextPalette();
 
 		mars_drawTextwShadow("Credits", 60, 35, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Ver. 0.6", 156, 57, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("1/27/2022", 156, 65, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("Code and Port by:", -30, 81, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Dasutin", -22, 90, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("Patterns:", -30, 98, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Artemio Urbina", -22, 106, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("Menu Pixel Art:", -30, 114, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Asher", -22, 122, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("Donna:", -30, 130, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Jose Salot", -22, 138, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("32X Toolchain:", -30, 146, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Marsdev (Chilly Willy)", -22, 154, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("Ver. 0.8", 156, 50, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("7/16/2022", 156, 58, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("Code and Port by:", -30, 66, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Dasutin (Dustin Dembrosky)", -22, 74, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("Patterns:", -30, 82, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Artemio Urbina", -22, 90, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("Menu Pixel Art:", -30, 98, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Asher", -22, 106, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("Donna:", -30, 114, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Jose Salot", -22, 122, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("32X Toolchain:", -30, 130, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Chilly Willy (Joseph Fenton)", -22, 138, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("Tile Mapper:", -30, 146, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Vic (Victor Luchitz)", -22, 154, fontColorWhite, fontColorGray);
 		mars_drawTextwShadow("Info on using this test suite:", -30, 162, fontColorGreen, fontColorGray);
 		mars_drawTextwShadow("http://junkerhq.net/240p", -22, 170, fontColorWhite, fontColorGray);
 

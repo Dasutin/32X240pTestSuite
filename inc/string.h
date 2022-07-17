@@ -20,8 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __STRING_H__
-#define __STRING_H__
+#ifndef STRING_H
+#define STRING_H
 
 #define isdigit(c)      ((c) >= '0' && (c) <= '9')
 
@@ -56,8 +56,8 @@ size_t strlen(const char *str);
 size_t strnlen(const char *str, size_t maxlen);
 char* strcpy(char *dest, const char *src);
 char* strcat(char *dest, const char *src);
-size_t vsprintf(char *buf, const char *fmt, va_list args);
-size_t sprintf(char *buffer,const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
+//size_t vsprintf(char *buf, const char *fmt, va_list args);
+//size_t sprintf(char *buffer,const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 u16 intToStr(s32 value, char *str, u16 minsize);
 u32 intToHex(u32 value, char *str, u16 minsize);
 u16 uintToStr(u32 value, char *str, u16 minsize);

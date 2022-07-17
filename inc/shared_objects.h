@@ -54,6 +54,12 @@ u32 CRC32_finalize();
 u32 CalculateCRC(u32 startAddress, u32 size);
 int memcmp1(const void *s1, const void *s2, int n);
 
+// 384 seems to be the ideal value - anything thing 
+// increases the odds of hitting the "0xFF screen shift
+// register bug"
+extern uint32_t canvas_pitch; // canvas_width + scrollwidth
+extern uint32_t canvas_yaw; // canvas_height + scrollheight
+
 void setRandomSeed(u16 seed);
 u16 random();
 

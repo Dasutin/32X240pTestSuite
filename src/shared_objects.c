@@ -37,6 +37,15 @@ vu16 overwriteImg16;
 u32 _state = ~0L;
 u16 randbase;
 
+volatile unsigned mars_pwdt_ovf_count = 0;
+volatile unsigned mars_swdt_ovf_count = 0;
+
+int Mars_GetFRTCounter(void)
+{
+    unsigned int cnt = SH2_WDT_RTCNT;
+    return (int)((mars_pwdt_ovf_count << 8) | cnt);
+}
+
 static const u32 crc32_table[] = {
     0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac,
     0x76dc4190, 0x6b6b51f4, 0x4db26158, 0x5005713c,

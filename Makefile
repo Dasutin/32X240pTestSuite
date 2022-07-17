@@ -3,19 +3,20 @@ ROOTDIR = $(MARSDEV)
 LDSCRIPTSDIR = $(ROOTDIR)/ldscripts
 
 LIBPATH = -L$(ROOTDIR)/sh-elf/lib -L$(ROOTDIR)/sh-elf/lib/gcc/sh-elf/4.6.2 -L$(ROOTDIR)/sh-elf/sh-elf/lib
-INCPATH = -Isrc -Iinc -I$(ROOTDIR)/sh-elf/include -I$(ROOTDIR)/sh-elf/sh-elf/include
+INCPATH = -Isrc -Iinc -Ires -I$(ROOTDIR)/sh-elf/include -I$(ROOTDIR)/sh-elf/sh-elf/include
 
-CCFLAGS = -m2 -mb -Wall -c -fomit-frame-pointer -fno-builtin  -ffunction-sections -fdata-sections
+CCFLAGS = -m2 -mb -Wall -c -fomit-frame-pointer -fno-builtin  -ffunction-sections -fdata-sections #-g
 CCFLAGS += -fno-align-loops -fno-align-functions -fno-align-jumps -fno-align-labels
+CCFLAGS += -D__32X__ -DMARS
 
 HWFLAGS := $(CCFLAGS)
-# HWFLAGS += -Os -fno-lto
-HWFLAGS += -fno-lto
+HWFLAGS += -O1 -fno-lto
+#HWFLAGS += -fno-lto
 
-CCFLAGS += -funroll-loops -fno-align-loops -fno-align-functions -fno-align-jumps -fno-align-labels -lto
+CCFLAGS += -O2 -funroll-loops -fno-align-loops -fno-align-functions -fno-align-jumps -fno-align-labels -lto
 
 #LDFLAGS = -T $(LDSCRIPTSDIR)/mars.ld -Wl,-Map=output.map -nostdlib -Wl,--gc-sections --specs=nosys.specs -flto
-LDFLAGS = -T $(LDSCRIPTSDIR)/mars_chill.ld -Wl,-Map=output.map -nostdlib -Wl,--gc-sections -flto
+LDFLAGS = -T $(LDSCRIPTSDIR)/mars_chill.ld -Wl,-Map=output.map -nostdlib -Wl,--gc-sections --specs=nosys.specs -flto
 ASFLAGS = --big
 
 EXTRA = 
@@ -34,7 +35,9 @@ LIBS = $(LIBPATH) -lc -lgcc -lgcc-Os-4-200 -lnosys
 
 OBJS = $(wildcard src/*.c)
 SHSS = $(wildcard src/*.s)
-SHOBJS  = crt0.o
+SHOBJS = \
+	crt0.o \
+	sh2_fixed.o
 SHOBJS += $(OBJS:.c=.o)
 SHOBJS += $(SHSS:.s=.o)
 
