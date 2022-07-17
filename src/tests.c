@@ -68,9 +68,6 @@ int fpmoveinc_x = 1<<16, fpmoveinc_y = 1<<16; // in 16.16 fixed point
 
 uint16_t canvas_rebuild_id;
 
-int debug = 0;
-int sprmode = -1;
-
 int window_canvas_x = 0, window_canvas_y = 0;
 
 const int NTSC_CLOCK_SPEED = 23011360; // HZ
@@ -79,61 +76,6 @@ const int PAL_CLOCK_SPEED = 22801467; // HZ
 tilemap_t tm;
 
 int sec;
-
-int display(int framecount, int hudenable, int fpscount, int totaltics, int clearhud)
-{
-    int i, j;
-    int start = Mars_GetFRTCounter(), total;
-    int drawcnt = 0;
-    int cameraclip = 0;
-    static int prevsec;
-    static int maxdrawcnt;
-
-    if (prevsec != sec)
-    {
-        maxdrawcnt = 0;
-        prevsec = sec;
-    }
-
-    draw_setScissor(0, 0, 320, 224);
-
-    drawcnt = draw_tilemap(&tm, fpcamera_x, fpcamera_y, &cameraclip);
-    if (drawcnt > maxdrawcnt)
-    {
-        maxdrawcnt = drawcnt;
-    }
-    total = Mars_GetFRTCounter() - start;
-
-    draw_setScissor(0, 0, 320, 224);
-
-    /* if (sprmode >= 0)
-    {
-        int mode = DRAWSPR_OVERWRITE|DRAWSPR_MULTICORE;
-        if (sprmode < 3)
-            mode |= sprmode | DRAWSPR_PRECISE;
-        else
-            mode |= (sprmode - 3);
-        for (j = 0; j < 5; j++)
-        {
-            for (i = 0; i < 5; i++)
-                draw_sprite(i * 64 + 16, j * 64 + 16, 32, 32, test32x32_trans_smileData, DRAWSPR_OVERWRITE | mode, 1);
-        }
-        draw_pivot_stretch_sprite(160, 112, 32, 32, test32x32_trans_smileData, DRAWSPR_SCALE | mode, 0x10000 + ((start * 16) & 0xffff));
-    } */
-
-    //Hw32xScreenSetXY(0, 23);
-
-    //switch (hudenable) {
-    //case 1:
-        //Hw32xScreenPrintf("fps:%02d %03d ms:%02d", fpscount, maxdrawcnt, Mars_FRTCounter2Msec(total));
-        //Hw32xScreenPrintf("fps:%02d %03d ", fpscount, fpcamera_x);
-    //    break;
-    //default:
-    //    break;
-    //}
-
-    return cameraclip;
-}
 
 //TODO Move CRC and BIOS support functions
 typedef struct bios_data {
@@ -320,8 +262,6 @@ void vt_drop_shadow_test()
 
     while (!done) 
 	{
-        int old_fpcamera_x, old_fpcamera_y;
-
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
@@ -331,9 +271,6 @@ void vt_drop_shadow_test()
 
 		pressedButton = button & ~oldButton;
     	oldButton = button;
-
-        old_fpcamera_x = fpcamera_x;
-        old_fpcamera_y = fpcamera_y;
 
         if (button & SEGA_CTRL_UP)
 		{
@@ -391,15 +328,8 @@ void vt_drop_shadow_test()
 
 void vt_striped_sprite_test()
 {
-	int framecount;
-    int fpscount;
-    int prevsec;
-    int prevsecframe;
-    int totaltics;
-    char hud = 0, clearhud = 0;
-    int ticksperframe;
-    char NTSC;
 	int done = 0;
+    char NTSC;
 	unsigned short button = 0, pressedButton = 0, oldButton = 0xFFFF;
     int x = 30;
 	int y = 30;
@@ -425,29 +355,14 @@ void vt_striped_sprite_test()
 	MARS_SYS_COMM4 = 0;
     MARS_SYS_COMM6 = 0;
 
-    ticksperframe = 1;
-    fpscount = 0;
-    framecount = 0;
-    prevsec = 0;
-    prevsecframe = 0;
-    totaltics = 0;
     fpcamera_x = fpcamera_y = 0;
-    canvas_rebuild_id = 1;
 
     Hw32xScreenFlip(0);
 
 	init_tilemap(&tm, &donna_tmx, (uint8_t **)donna_reslist);
 
-    hud = (hud + 1) % 2;
-
     while (!done) 
 	{
-        int starttics;
-        int waittics;
-        int clip;
-        int old_fpcamera_x, old_fpcamera_y;
-        int n;
-        
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
@@ -457,9 +372,6 @@ void vt_striped_sprite_test()
 
 		pressedButton = button & ~oldButton;
     	oldButton = button;
-
-        old_fpcamera_x = fpcamera_x;
-        old_fpcamera_y = fpcamera_y;
 
         if (button & SEGA_CTRL_UP)
 		{
@@ -497,17 +409,8 @@ void vt_striped_sprite_test()
 			done = 1;
 		}
 
-        clip = display(framecount, hud, fpscount, totaltics, clearhud);
-         if (clip & 2)
-        {
-            // clipped to the right
-            fpcamera_x = old_fpcamera_x;
-        }
-        if (clip & 8)
-        {
-            // clipped to the right
-            fpcamera_y = old_fpcamera_y;
-        }
+		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+		draw_setScissor(0, 0, 320, 224);
 
 		draw_sprite(x, y, 32, 32, marker_striped_tile, DRAWSPR_OVERWRITE | DRAWSPR_PRECISE, 1);
 
@@ -968,13 +871,6 @@ void vt_reflex_test()
 void vt_scroll_test()
 {
 	int done = 0;
-	int framecount;
-    int fpscount;
-    int prevsec;
-    int prevsecframe;
-    int totaltics;
-    char hud = 0, clearhud = 0;
-    int ticksperframe;
     char NTSC;
 	unsigned short button = 0, pressedButton = 0, oldButton = 0xFFFF;
 
@@ -1003,32 +899,17 @@ void vt_scroll_test()
 
 	MARS_SYS_COMM4 = 0;
     MARS_SYS_COMM6 = 0;
-
-    ticksperframe = 1;
-    fpscount = 0;
-    framecount = 0;
-    prevsec = 0;
-    prevsecframe = 0;
-    totaltics = 0;
+ 
     fpcamera_x = fpcamera_y = 0;
 	int fpmoveinc_x = 1<<16, fpmoveinc_y = 1<<16; // in 16.16 fixed point
-    canvas_rebuild_id = 1;
     int palswap = 0;
 
     Hw32xScreenFlip(0);
 
 	init_tilemap(&tm, &sonic_tmx, (uint8_t **)sonic_reslist);
 
-    hud = (hud + 1) % 2;
-
     while (!done) 
 	{
-        int starttics;
-        int waittics;
-        int clip;
-        int old_fpcamera_x, old_fpcamera_y;
-        int n;
-
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
@@ -1038,9 +919,6 @@ void vt_scroll_test()
 
 		pressedButton = button & ~oldButton;
     	oldButton = button;
-
-        old_fpcamera_x = fpcamera_x;
-        old_fpcamera_y = fpcamera_y;
 
         if(palswap == 180)
             palswap = 60;
@@ -1070,19 +948,9 @@ void vt_scroll_test()
 			done = 1;
 		}
 
-        clip = display(framecount, hud, fpscount, totaltics, clearhud);
-        if (clip & 2)
-        {
-            // clipped to the right
-            fpcamera_x = old_fpcamera_x;
-        }
-        if (clip & 8)
-        {
-            // clipped to the right
-            fpcamera_y = old_fpcamera_y;
-        }
+		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+		draw_setScissor(0, 0, 320, 224);
 
-        framecount++;
         palswap++;
 
         Hw32xScreenFlip(0);
@@ -1092,23 +960,12 @@ void vt_scroll_test()
 
 void vt_vert_scroll_test()
 {
-	int framecount;
-    int fpscount;
-    int prevsec;
-    int prevsecframe;
-    int totaltics;
-    char hud = 0, clearhud = 0;
-    int ticksperframe;
-    char NTSC;
 	int done = 0;
+    char NTSC;
 	unsigned short button = 0, pressedButton = 0, oldButton = 0xFFFF;
-
 	canvas_yaw = 288;
 
 	SetSH2SR(1);
-
-		// Set screen priority for the 32X 
-	MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X | MARS_224_LINES | MARS_VDP_MODE_256;
 
 	while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
 
@@ -1129,30 +986,15 @@ void vt_vert_scroll_test()
 	MARS_SYS_COMM4 = 0;
     MARS_SYS_COMM6 = 0;
 
-    ticksperframe = 1;
-    fpscount = 0;
-    framecount = 0;
-    prevsec = 0;
-    prevsecframe = 0;
-    totaltics = 0;
     fpcamera_x = fpcamera_y = 0;
 	int fpmoveinc_x = 1<<16, fpmoveinc_y = 1<<16; // in 16.16 fixed point
-    canvas_rebuild_id = 1;
 
     Hw32xScreenFlip(0);
 
 	init_tilemap(&tm, &kiki_Map, (uint8_t **)kiki_tiles_Reslist);
 
-    hud = (hud + 1) % 2;
-
     while (!done) 
 	{
-        int starttics;
-        int waittics;
-        int clip;
-        int old_fpcamera_x, old_fpcamera_y;
-        int n;
-
         button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
@@ -1162,9 +1004,6 @@ void vt_vert_scroll_test()
 
 		pressedButton = button & ~oldButton;
     	oldButton = button;
-
-        old_fpcamera_x = fpcamera_x;
-        old_fpcamera_y = fpcamera_y;
 
 		if (fpcamera_y < 0) fpcamera_y = kiki_Map.wrapY*(1<<16);
 
@@ -1186,19 +1025,8 @@ void vt_vert_scroll_test()
 			done = 1;
 		}
 
-        clip = display(framecount, hud, fpscount, totaltics, clearhud);
-         if (clip & 2)
-        {
-            // clipped to the right
-            fpcamera_x = old_fpcamera_x;
-        }
-        if (clip & 8)
-        {
-            // clipped to the right
-            fpcamera_y = old_fpcamera_y;
-        }
-
-        framecount++;
+		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+		draw_setScissor(0, 0, 320, 224);
 
         Hw32xScreenFlip(0);
 		Hw32xDelay(1);
@@ -1209,13 +1037,6 @@ void vt_vert_scroll_test()
 void vt_gridscroll_test()
 {
 	int done = 0;
-	int framecount;
-    int fpscount;
-    int prevsec;
-    int prevsecframe;
-    int totaltics;
-    char hud = 0, clearhud = 0;
-    int ticksperframe;
     char NTSC;
 	unsigned short button = 0, pressedButton = 0, oldButton = 0xFFFF;
 
@@ -1223,9 +1044,6 @@ void vt_gridscroll_test()
 	canvas_yaw = 288; // canvas_height + scrollheight
 
 	SetSH2SR(1);
-
-	// Set screen priority for the 32X 
-	MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X | MARS_224_LINES | MARS_VDP_MODE_256;
 
 	while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
 
@@ -1246,31 +1064,15 @@ void vt_gridscroll_test()
 	MARS_SYS_COMM4 = 0;
     MARS_SYS_COMM6 = 0;
 
-    ticksperframe = 1;
-    fpscount = 0;
-    framecount = 0;
-    prevsec = 0;
-    prevsecframe = 0;
-    totaltics = 0;
     fpcamera_x = fpcamera_y = 0;
 	int fpmoveinc_x = 1<<16, fpmoveinc_y = 1<<16; // in 16.16 fixed point
-
-    canvas_rebuild_id = 1;
 
     Hw32xScreenFlip(0);
 
 	init_tilemap(&tm, &grid_tmx, (uint8_t **)grid_reslist);
 
-    hud = (hud + 1) % 2;
-
     while (!done) 
 	{
-        int starttics;
-        int waittics;
-        int clip;
-        int old_fpcamera_x, old_fpcamera_y;
-        int n;
-
         button = MARS_SYS_COMM8;
 		
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
@@ -1280,9 +1082,6 @@ void vt_gridscroll_test()
 
 		pressedButton = button & ~oldButton;
     	oldButton = button;
-
-        old_fpcamera_x = fpcamera_x;
-        old_fpcamera_y = fpcamera_y;
 
 		fpcamera_x += fpmoveinc_x;
 
@@ -1313,17 +1112,8 @@ void vt_gridscroll_test()
 			done = 1;
 		}
 
-        clip = display(framecount, hud, fpscount, totaltics, clearhud);
-         if (clip & 2)
-        {
-            // clipped to the right
-            fpcamera_x = old_fpcamera_x;
-        }
-        if (clip & 8)
-        {
-            // clipped to the right
-            fpcamera_y = old_fpcamera_y;
-        }
+		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+		draw_setScissor(0, 0, 320, 224);
 
         Hw32xScreenFlip(0);
 		Hw32xDelay(1);
@@ -1733,22 +1523,12 @@ void vt_backlitzone_test()
 {
 	int done = 0;
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
-	//vu8 background_color;
 	int x = 160;
 	int y = 112;
-	//int blockColor_1 = 1;
-	//int backgroundColor_2 = 2;
 	int block = 2;
-	int framecount = 0;
 	char NTSC;
-	char hud = 0, clearhud = 0;
-	int fpscount = 0;
-	int totaltics = 0;
 
 	SetSH2SR(1);
-
-		// Set screen priority for the 32X 
-	MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X | MARS_224_LINES | MARS_VDP_MODE_256;
 
 	while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
 
@@ -1841,9 +1621,6 @@ void vt_backlitzone_test()
 
 	while (!done) 
 	{
-		int clip;
-		int old_fpcamera_x, old_fpcamera_y;
-
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
@@ -1853,9 +1630,6 @@ void vt_backlitzone_test()
 
     	pressedButton = button & ~oldButton;
     	oldButton = button;
-
-		old_fpcamera_x = fpcamera_x;
-        old_fpcamera_y = fpcamera_y;
 
 		if (pressedButton & SEGA_CTRL_A)
 		{
@@ -1907,23 +1681,12 @@ void vt_backlitzone_test()
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
-			//screenFadeOut(1);
+			screenFadeOut(1);
 			done = 1;
 		}
 
- 		clip = display(framecount, hud, fpscount, totaltics, clearhud);
-        if (clip & 2)
-        {
-            // clipped to the right
-            fpcamera_x = old_fpcamera_x;
-        }
-        if (clip & 8)
-        {
-            // clipped to the right
-            fpcamera_y = old_fpcamera_y;
-        }
-
-		HwMdScreenPrintf(0x4000, 0, 0, "clip: %03d", x);
+		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+		draw_setScissor(0, 0, 320, 224);
 
 		switch (block)
 		{

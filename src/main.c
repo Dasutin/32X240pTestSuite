@@ -465,12 +465,11 @@ void menu_vt()
 
 				case 4:
 					screenFadeOut(1);
-					vt_vert_scroll_test();
+					vt_scroll_test();
 					HwMdClearScreen();
 					canvas_pitch = 320;
 					canvas_yaw = 224;
 					Hw32xUpdateLineTable(0, 0, 0);
-					//HwMdScreenPrintf("canvas_pitch: %02d", canvas_pitch, 0x4000, 32, 14);
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;

@@ -175,7 +175,6 @@ void draw_handle_layercmd(drawtilelayerscmd_t *cmd)
                 if (idx != 0)
                 {
                     const uint8_t* res = reslist[(idx >> 2) - 1];
-                    //if (debug) res = reslist[0];
                     draw_sprite(x, y, w, h, res, drawmode | (idx & 3), 1);
                     drawcnt++;
                 }

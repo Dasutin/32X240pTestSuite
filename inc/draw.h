@@ -52,8 +52,6 @@ extern int window_canvas_x, window_canvas_y;
 extern int32_t canvas_width, canvas_height;
 extern uint32_t canvas_pitch, canvas_yaw;
 
-extern int debug;
-
 extern drawtilelayerscmd_t slave_drawtilelayerscmd
 ATTR_CACHE_ALIGNED;
 

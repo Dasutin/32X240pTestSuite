@@ -665,13 +665,11 @@ void drawLineTable(const int xOff)
 void mars_drawText(const char *str, int x, int y, int palOffs)
 {
 	int c;
-	//vu8 *fb = (vu8 *)&MARS_FRAMEBUFFER + 0x100;
 	volatile unsigned char *frameBuffer16 = &MARS_FRAMEBUFFER + 0x100;
 	unsigned char *font;
 	int screenOffs;
 	int fontOffs;
-	//static unsigned short fc = 0;
-	extern u8 FONT_HIGHLIGHT_TILE[];
+	extern const uint8_t FONT_HIGHLIGHT_TILE[]; __attribute__((aligned(16)));
 
 	for (int i = 0; i < 40; i++) {
 		c = str[i];
