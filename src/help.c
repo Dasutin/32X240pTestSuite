@@ -89,47 +89,47 @@ void DrawHelp(int option)
 				switch (page)
 				{
 				case 1:
-					mars_drawTextwShadow("HELP (1/2)", 60, 35, fontColorGreen, fontColorGray);
+					mars_drawTextwShadow("HELP (1/2)", 125, 35, fontColorGreen, fontColorGray);
 
-					mars_drawTextwShadow("The 240p Test Suite was designed", -30, 57, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("with two goals in mind:", -30, 65, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("The 240p Test Suite was designed", 35, 57, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("with two goals in mind:", 35, 65, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("1) Evaluate 240p signals on TV", -30, 81, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("sets and video processors; and", -30, 90, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("1) Evaluate 240p signals on TV", 35, 81, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("sets and video processors; and", 35, 90, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("2) Provide calibration patterns", -30, 106, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("from a game console to help in", -30, 114, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("properly calibrating the display", -30, 122, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("black, white, and color levels.", -30, 130, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("2) Provide calibration patterns", 35, 106, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("from a game console to help in", 35, 114, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("properly calibrating the display", 35, 122, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("black, white, and color levels.", 35, 130, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("Help can be shown with 'Z' in", -30, 146, fontColorGreen, fontColorGray);
-					mars_drawTextwShadow("any test. Video Options can be", -30, 154, fontColorGreen, fontColorGray);
-					mars_drawTextwShadow("changed with 'Y'.", -30, 162, fontColorGreen, fontColorGray);
+					mars_drawTextwShadow("Help can be shown with 'Z' in", 35, 146, fontColorGreen, fontColorGray);
+					mars_drawTextwShadow("any test. Video Options can be", 35, 154, fontColorGreen, fontColorGray);
+					mars_drawTextwShadow("changed with 'Y'.", 35, 162, fontColorGreen, fontColorGray);
 
-					mars_drawTextwShadow("(cont...)", 142, 178, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("(cont...)", 207, 178, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("Press Z to exit help", 26, 193, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("Press Z to exit help", 91, 193, fontColorWhite, fontColorGray);
 					break;
 				case 2:
-					mars_drawTextwShadow("HELP (2/2)", 60, 35, fontColorGreen, fontColorGray);
+					mars_drawTextwShadow("HELP (2/2)", 125, 35, fontColorGreen, fontColorGray);
                                                               //|
-					mars_drawTextwShadow("The Sega 32X can output 224", -30, 50, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("active video lines. In PAL", -30, 58, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("consoles, it can display either", -30, 66, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("224 or 240 lines.", -30, 74, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("The Sega 32X can output 224", 35, 50, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("active video lines. In PAL", 35, 58, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("consoles, it can display either", 35, 66, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("224 or 240 lines.", 35, 74, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("The 240p suite is also available", -30, 90, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("on NES/FC, SNES/SFC, GameCube,", -30, 98, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("Wii, GBA, Neo Geo MVS/AES and CD,", -30, 106, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("Dreamcast, Genesis/Mega Drive,", -30, 114, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("Sega/Mega CD, SMS, and", -30, 122, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("PCE/TG-16/PCE-Duo/SCD/SCD2", -30, 130, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("The 240p suite is also available", 35, 90, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("on NES/FC, SNES/SFC, GameCube,", 35, 98, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("Wii, GBA, Neo Geo MVS/AES and CD,", 35, 106, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("Dreamcast, Genesis/Mega Drive,", 35, 114, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("Sega/Mega CD, SMS, and", 35, 122, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("PCE/TG-16/PCE-Duo/SCD/SCD2", 35, 130, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("Visit:", -30, 150, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("http://junkerhq.net/240p", -30, 160, fontColorGreen, fontColorGray);
-					mars_drawTextwShadow("for more information", -30, 170, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("Visit:", 35, 150, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("http://junkerhq.net/240p", 35, 160, fontColorGreen, fontColorGray);
+					mars_drawTextwShadow("for more information", 35, 170, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("Press Z to exit help", 26, 193, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("Press Z to exit help", 91, 193, fontColorWhite, fontColorGray);
 					break;
 				}
 				break;
@@ -137,313 +137,313 @@ void DrawHelp(int option)
 				switch (page)
 				{
 				case 1:
-					mars_drawTextwShadow("PLUGE (1/3)", 50, 35, fontColorGreen, fontColorGray);
+					mars_drawTextwShadow("PLUGE (1/3)", 115, 35, fontColorGreen, fontColorGray);
 
-					mars_drawTextwShadow("NTSC levels require black to be", -30, 57, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("at 7.5 IRE for video. This HW", -30, 65, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("lowest is 6 IRE (6%), so using", -30, 73, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("this value for general 240p use", -30, 81, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("is not recommended.", -30, 89, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("NTSC levels require black to be", 35, 57, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("at 7.5 IRE for video. This HW", 35, 65, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("lowest is 6 IRE (6%), so using", 35, 73, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("this value for general 240p use", 35, 81, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("is not recommended.", 35, 89, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("Of course using it as reference", -30, 106, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("will work perfectly for games", -30, 114, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("in this platform.", -30, 122, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("Of course using it as reference", 35, 106, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("will work perfectly for games", 35, 114, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("in this platform.", 35, 122, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("In PAL - and console gaming in", -30, 139, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("general - it is adviced to use", -30, 147, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("a value of 2 IRE as black.", -30, 155, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("In PAL - and console gaming in", 35, 139, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("general - it is adviced to use", 35, 147, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("a value of 2 IRE as black.", 35, 155, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("(cont...)", 142, 178, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("(cont...)", 207, 178, fontColorWhite, fontColorGray);
 					break;
 				case 2:
-					mars_drawTextwShadow("PLUGE (2/3)", 50, 35, fontColorGreen, fontColorGray);
+					mars_drawTextwShadow("PLUGE (2/3)", 115, 35, fontColorGreen, fontColorGray);
 
-					mars_drawTextwShadow("The PLUGE pattern is used to", -30, 57, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("help adjust the black level to", -30, 65, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("a correct value.", -30, 73, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("The PLUGE pattern is used to", 35, 57, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("help adjust the black level to", 35, 65, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("a correct value.", 35, 73, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("The inner bars on the sides are", -30, 90, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("black at 6%, the outer at 12%.", -30, 98, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("If these bars are not visible,", -30, 106, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("adjust the \"brightness\" control", -30, 114, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("until they are.", -30, 122, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("The inner bars on the sides are", 35, 90, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("black at 6%, the outer at 12%.", 35, 98, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("If these bars are not visible,", 35, 106, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("adjust the \"brightness\" control", 35, 114, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("until they are.", 35, 122, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("You should lower it until they", -30, 139, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("are not visible, and raise it", -30, 147, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("until they show.", -30, 155, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("You should lower it until they", 35, 139, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("are not visible, and raise it", 35, 147, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("until they show.", 35, 155, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("(cont...)", 142, 178, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("(cont...)", 207, 178, fontColorWhite, fontColorGray);
 					break;
 				case 3:
-					mars_drawTextwShadow("PLUGE (3/3)", 50, 35, fontColorGreen, fontColorGray);
+					mars_drawTextwShadow("PLUGE (3/3)", 115, 35, fontColorGreen, fontColorGray);
 
-					mars_drawTextwShadow("You can change to a contrast", -30, 57, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("test with C.", -30, 65, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("You can change to a contrast", 35, 57, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("test with C.", 35, 65, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("Within it A button changes", -30, 82, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("palettes between the original,", -30, 90, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("highest and lowest values the", -30, 98, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("hardware can display.", -30, 106, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("Within it A button changes", 35, 82, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("palettes between the original,", 35, 90, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("highest and lowest values the", 35, 98, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("hardware can display.", 35, 106, fontColorWhite, fontColorGray);
 					break;
 				}
 				break;
 			case HELP_COLORS:
-				mars_drawTextwShadow("COLORBARS", 60, 35, fontColorGreen, fontColorGray);
+				mars_drawTextwShadow("COLORBARS", 125, 35, fontColorGreen, fontColorGray);
 
-				mars_drawTextwShadow("This pattern allows you to", -30, 57, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("calibrate each color: Red, Green", -30, 65, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("and Blue; as well as white.", -30, 73, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("This pattern allows you to", 35, 57, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("calibrate each color: Red, Green", 35, 65, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("and Blue; as well as white.", 35, 73, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("Adjust the white level first,", -30, 90, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("using the \"Contrast\" control", -30, 98, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("on your TV set. Raise it until", -30, 106, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("you cannot distinguish between", -30, 114, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("the blocks under \"C\" and \"E\",", -30, 122, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("and lower it slowly until you", -30, 130, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("can clearly tell them appart.", -30, 138, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("Adjust the white level first,", 35, 90, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("using the \"Contrast\" control", 35, 98, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("on your TV set. Raise it until", 35, 106, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("you cannot distinguish between", 35, 114, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("the blocks under \"C\" and \"E\",", 35, 122, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("and lower it slowly until you", 35, 130, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("can clearly tell them appart.", 35, 138, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("Do the same for each color.", -30, 155, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("Do the same for each color.", 35, 155, fontColorWhite, fontColorGray);
 				break;
 			case HELP_GRID:
-				mars_drawTextwShadow("GRID", 75, 35, fontColorGreen, fontColorGray);
+				mars_drawTextwShadow("GRID", 140, 35, fontColorGreen, fontColorGray);
 
-				mars_drawTextwShadow("This grid uses the full 320x224", -30, 57, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("resolution.", -30, 65, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("This grid uses the full 320x224", 35, 57, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("resolution.", 35, 65, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("You can use it to verify that", -30, 82, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("all the visible area is being", -30, 90, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("displayed, and that there is no", -30, 98, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("distortion present.", -30, 106, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("You can use it to verify that", 35, 82, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("all the visible area is being", 35, 90, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("displayed, and that there is no", 35, 98, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("distortion present.", 35, 106, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("The full active video signal can", -30, 123, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("be filled with gray by pressing", -30, 131, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("the 'A' button.", -30, 139, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("The full active video signal can", 35, 123, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("be filled with gray by pressing", 35, 131, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("the 'A' button.", 35, 139, fontColorWhite, fontColorGray);
 				break;
 			case HELP_MONOSCOPE:
 				switch (page)
 				{
 					case 1:
-						mars_drawTextwShadow("MONOSCOPE (1/3)", 30, 35, fontColorGreen, fontColorGray);
+						mars_drawTextwShadow("MONOSCOPE (1/3)", 95, 35, fontColorGreen, fontColorGray);
 
-						mars_drawTextwShadow("This pattern contains elements", -30, 57, fontColorWhite, fontColorGray);
-						mars_drawTextwShadow("to calibrate multiple aspects", -30, 65, fontColorWhite, fontColorGray);
-						mars_drawTextwShadow("of a CRT.", -30, 73, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("This pattern contains elements", 35, 57, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("to calibrate multiple aspects", 35, 65, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("of a CRT.", 35, 73, fontColorWhite, fontColorGray);
 
-						mars_drawTextwShadow("Read your monitor's service", -30, 90, fontColorWhite, fontColorGray);
-						mars_drawTextwShadow("manual to learn how, and use", -30, 98, fontColorWhite, fontColorGray);
-						mars_drawTextwShadow("'A' button to change IRE.", -30, 106, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("Read your monitor's service", 35, 90, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("manual to learn how, and use", 35, 98, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("'A' button to change IRE.", 35, 106, fontColorWhite, fontColorGray);
 
-						mars_drawTextwShadow("Brightness adjustment: Adjust", -30, 123, fontColorWhite, fontColorGray);
-						mars_drawTextwShadow("convergence at low brightness", -30, 131, fontColorWhite, fontColorGray);
-						mars_drawTextwShadow("(13/25 IRE). An overly bright", -30, 139, fontColorWhite, fontColorGray);
-						mars_drawTextwShadow("pattern can mask convergence.", -30, 147, fontColorWhite, fontColorGray);
-						mars_drawTextwShadow("issues.", -30, 155, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("Brightness adjustment: Adjust", 35, 123, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("convergence at low brightness", 35, 131, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("(13/25 IRE). An overly bright", 35, 139, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("pattern can mask convergence.", 35, 147, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("issues.", 35, 155, fontColorWhite, fontColorGray);
 
-						mars_drawTextwShadow("(cont...)", 142, 178, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("(cont...)", 207, 178, fontColorWhite, fontColorGray);
 					break;
 					case 2:
-						mars_drawTextwShadow("MONOSCOPE (2/3)", 30, 35, fontColorGreen, fontColorGray);
+						mars_drawTextwShadow("MONOSCOPE (2/3)", 95, 35, fontColorGreen, fontColorGray);
 
-						mars_drawTextwShadow("Convergence: Use the center", -30, 57, fontColorWhite, fontColorGray);
-						mars_drawTextwShadow("crosshair to check static", -30, 65, fontColorWhite, fontColorGray);
-						mars_drawTextwShadow("(center of screen) convergence.", -30, 73, fontColorWhite, fontColorGray);
-						mars_drawTextwShadow("Use the patterns at the sides", -30, 81, fontColorWhite, fontColorGray);
-						mars_drawTextwShadow("to check dynamic (edge)", -30, 89, fontColorWhite, fontColorGray);
-						mars_drawTextwShadow("convergence.", -30, 97, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("Convergence: Use the center", 35, 57, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("crosshair to check static", 35, 65, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("(center of screen) convergence.", 35, 73, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("Use the patterns at the sides", 35, 81, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("to check dynamic (edge)", 35, 89, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("convergence.", 35, 97, fontColorWhite, fontColorGray);
 
-						mars_drawTextwShadow("Corners: After setting center", -30, 114, fontColorWhite, fontColorGray);
-						mars_drawTextwShadow("and edge convergence, use", -30, 122, fontColorWhite, fontColorGray);
-						mars_drawTextwShadow("magnets to adjust corner purity", -30, 130, fontColorWhite, fontColorGray);
-						mars_drawTextwShadow("and geometry.", -30, 138, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("Corners: After setting center", 35, 114, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("and edge convergence, use", 35, 122, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("magnets to adjust corner purity", 35, 130, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("and geometry.", 35, 138, fontColorWhite, fontColorGray);
 
-						mars_drawTextwShadow("(cont...)", 142, 178, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("(cont...)", 207, 178, fontColorWhite, fontColorGray);
 					break;
 					case 3:
-						mars_drawTextwShadow("MONOSCOPE (3/3)", 30, 35, fontColorGreen, fontColorGray);
+						mars_drawTextwShadow("MONOSCOPE (3/3)", 95, 35, fontColorGreen, fontColorGray);
 
-						mars_drawTextwShadow("Size and aspect ratio: If", -30, 57, fontColorWhite, fontColorGray);
-						mars_drawTextwShadow("vertical and horizontal size are", -30, 65, fontColorWhite, fontColorGray);
-						mars_drawTextwShadow("correct, the red squares in the", -30, 73, fontColorWhite, fontColorGray);
-						mars_drawTextwShadow("pattern will be perfect squares.", -30, 81, fontColorWhite, fontColorGray);
-						mars_drawTextwShadow("After setting H size, use a tape", -30, 89, fontColorWhite, fontColorGray);
-						mars_drawTextwShadow("measure to adjust V size to", -30, 97, fontColorWhite, fontColorGray);
-						mars_drawTextwShadow("match it.", -30, 105, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("Size and aspect ratio: If", 35, 57, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("vertical and horizontal size are", 35, 65, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("correct, the red squares in the", 35, 73, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("pattern will be perfect squares.", 35, 81, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("After setting H size, use a tape", 35, 89, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("measure to adjust V size to", 35, 97, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("match it.", 35, 105, fontColorWhite, fontColorGray);
 
-						mars_drawTextwShadow("Linearity: The squares in each", -30, 122, fontColorWhite, fontColorGray);
-						mars_drawTextwShadow("corner should get you started.", -30, 130, fontColorWhite, fontColorGray);
-						mars_drawTextwShadow("Confirm your adjustment using", -30, 138, fontColorWhite, fontColorGray);
-						mars_drawTextwShadow("the scroll tests.", -30, 146, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("Linearity: The squares in each", 35, 122, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("corner should get you started.", 35, 130, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("Confirm your adjustment using", 35, 138, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("the scroll tests.", 35, 146, fontColorWhite, fontColorGray);
 
-						mars_drawTextwShadow("Designed by Keith Raney.", -30, 164, fontColorWhite, fontColorGray);
+						mars_drawTextwShadow("Designed by Keith Raney.", 35, 164, fontColorWhite, fontColorGray);
 					break;
 				}
 				break;				
 			case HELP_BLEED:
-				mars_drawTextwShadow("COLOR BLEED", 58, 35, fontColorGreen, fontColorGray);
-				mars_drawTextwShadow("This pattern helps diagnose", -30, 57, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("color bleed caused by", -30, 65, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("unneeded color upsampling.", -30, 73, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("COLOR BLEED", 123, 35, fontColorGreen, fontColorGray);
+				mars_drawTextwShadow("This pattern helps diagnose", 35, 57, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("color bleed caused by", 35, 65, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("unneeded color upsampling.", 35, 73, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("You can toggle between", -30, 90, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("vertical bars and", -30, 98, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("checkerboard with 'A'.", -30, 106, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("You can toggle between", 35, 90, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("vertical bars and", 35, 98, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("checkerboard with 'A'.", 35, 106, fontColorWhite, fontColorGray);
 				break;
 			case HELP_IRE:
-				mars_drawTextwShadow("100 IRE", 60, 35, fontColorGreen, fontColorGray);
-				mars_drawTextwShadow("You can vary IRE intensity", -30, 57, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("with A and B. Values are:", -30, 65, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("13, 25, 41, 53, 66, 82, 94", -30, 73, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("100 IRE", 125, 35, fontColorGreen, fontColorGray);
+				mars_drawTextwShadow("You can vary IRE intensity", 35, 57, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("with A and B. Values are:", 35, 65, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("13, 25, 41, 53, 66, 82, 94", 35, 73, fontColorWhite, fontColorGray);
 				break;
 			case HELP_601CB:
-				mars_drawTextwShadow("601 COLORBARS", 55, 35, fontColorGreen, fontColorGray);
+				mars_drawTextwShadow("601 COLORBARS", 120, 35, fontColorGreen, fontColorGray);
 
-				mars_drawTextwShadow("You can use color filters or the", -30, 57, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("blue only option in your display", -30, 65, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("-if available- to confirm color", -30, 73, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("balance.", -30, 81, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("You can use color filters or the", 35, 57, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("blue only option in your display", 35, 65, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("-if available- to confirm color", 35, 73, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("balance.", 35, 81, fontColorWhite, fontColorGray);
 				break;
 			case HELP_SHARPNESS:
-				mars_drawTextwShadow("SHARPNESS", 60, 35, fontColorGreen, fontColorGray);
-				mars_drawTextwShadow("You should set the sharpness of", -30, 57, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("your CRT to a value that shows", -30, 65, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("clean black and gray transitions", -30, 73, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("with no white ghosting between.", -30, 81, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("SHARPNESS", 125, 35, fontColorGreen, fontColorGray);
+				mars_drawTextwShadow("You should set the sharpness of", 35, 57, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("your CRT to a value that shows", 35, 65, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("clean black and gray transitions", 35, 73, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("with no white ghosting between.", 35, 81, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("On most digitally controlled", -30, 98, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("displays, sharpness is an edge-", -30, 106, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("enhancement control and most", -30, 114, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("probably should be set to zero.", -30, 122, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("On most digitally controlled", 35, 98, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("displays, sharpness is an edge-", 35, 106, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("enhancement control and most", 35, 114, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("probably should be set to zero.", 35, 122, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("Pressing B toggles a diagonal", -30, 139, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("brick tileset.", -30, 147, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("Pressing B toggles a diagonal", 35, 139, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("brick tileset.", 35, 147, fontColorWhite, fontColorGray);
 				break;
 			case HELP_OVERSCAN:
-				mars_drawTextwShadow("OVERSCAN", 60, 35, fontColorGreen, fontColorGray);
-				mars_drawTextwShadow("With this pattern you can", -30, 57, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("interactively find out the", -30, 65, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("overscan in pixels of each edge", -30, 73, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("in a display.", -30, 81, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("OVERSCAN", 125, 35, fontColorGreen, fontColorGray);
+				mars_drawTextwShadow("With this pattern you can", 35, 57, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("interactively find out the", 35, 65, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("overscan in pixels of each edge", 35, 73, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("in a display.", 35, 81, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("Use left and right to increment", -30, 98, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("the overscan until you see the", -30, 106, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("white border, then go back one", -30, 114, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("pixel. The resulting number is", -30, 122, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("the amount of overscan in pixels", -30, 130, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("in each direction.", -30, 138, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("Use left and right to increment", 35, 98, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("the overscan until you see the", 35, 106, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("white border, then go back one", 35, 114, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("pixel. The resulting number is", 35, 122, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("the amount of overscan in pixels", 35, 130, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("in each direction.", 35, 138, fontColorWhite, fontColorGray);
 				break;
 			case HELP_SMPTE:
-				mars_drawTextwShadow("SMPTE COLOR BARS", 25, 35, fontColorGreen, fontColorGray);
+				mars_drawTextwShadow("SMPTE COLOR BARS", 90, 35, fontColorGreen, fontColorGray);
 
-				mars_drawTextwShadow("This pattern can be used to", -30, 57, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("calibrate for NTSC levels", -30, 65, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("regarding contrast,", -30, 73, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("brightness and colors.", -30, 81, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("This pattern can be used to", 35, 57, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("calibrate for NTSC levels", 35, 65, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("regarding contrast,", 35, 73, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("brightness and colors.", 35, 81, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("You can toggle between 75% and", -30, 98, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("100% SMPTE color bars with A.", -30, 106, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("Of course the percentages are", -30, 114, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("relative to the console output.", -30, 122, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("You can toggle between 75% and", 35, 98, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("100% SMPTE color bars with A.", 35, 106, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("Of course the percentages are", 35, 114, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("relative to the console output.", 35, 122, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("You can use color filters or the", -30, 139, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("blue only option in your display", -30, 147, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("-if available- to confirm color", -30, 155, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("balance.", -30, 163, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("You can use color filters or the", 35, 139, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("blue only option in your display", 35, 147, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("-if available- to confirm color", 35, 155, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("balance.", 35, 163, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("This HW lowest black is 6%.", -30, 180, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("This HW lowest black is 6%.", 35, 180, fontColorWhite, fontColorGray);
 				break;
 			case HELP_GRAY:
-				mars_drawTextwShadow("GRAY RAMP", 60, 35, fontColorGreen, fontColorGray);
-				mars_drawTextwShadow("This gray ramp pattern can be", -30, 57, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("used to check color balance.", -30, 65, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("GRAY RAMP", 125, 35, fontColorGreen, fontColorGray);
+				mars_drawTextwShadow("This gray ramp pattern can be", 35, 57, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("used to check color balance.", 35, 65, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("You should make sure the bars", -30, 82, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("are gray, with no red or blue", -30, 90, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("bias. This can be adjusted with", -30, 98, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("the individual color settings,", -30, 106, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("or the tint control in NTSC", -30, 114, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("displays.", -30, 122, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("You should make sure the bars", 35, 82, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("are gray, with no red or blue", 35, 90, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("bias. This can be adjusted with", 35, 98, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("the individual color settings,", 35, 106, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("or the tint control in NTSC", 35, 114, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("displays.", 35, 122, fontColorWhite, fontColorGray);
 				break;
 			case HELP_WHITE:
-				mars_drawTextwShadow("WHITE SCREEN", 50, 35, fontColorGreen, fontColorGray);
-				mars_drawTextwShadow("This pattern can be changed", -30, 57, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("between white, black, red,", -30, 65, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("green and blue screens with the", -30, 73, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("'A' and 'B' buttons.", -30, 81, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("WHITE SCREEN", 115, 35, fontColorGreen, fontColorGray);
+				mars_drawTextwShadow("This pattern can be changed", 35, 57, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("between white, black, red,", 35, 65, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("green and blue screens with the", 35, 73, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("'A' and 'B' buttons.", 35, 81, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("Some displays and scalers have", -30, 98, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("issues when changing between a", -30, 106, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("black 0 IRE and a white screen.", -30, 114, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("Some displays and scalers have", 35, 98, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("issues when changing between a", 35, 106, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("black 0 IRE and a white screen.", 35, 114, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("A custom color mode is", -30, 122, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("available by pressing 'C'.", -30, 130, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("A custom color mode is", 35, 122, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("available by pressing 'C'.", 35, 130, fontColorWhite, fontColorGray);
 				break;
 			case HELP_CONVERGENCE:
-				mars_drawTextwShadow("CONVERGENCE TESTS", 25, 35, fontColorGreen, fontColorGray);
-				mars_drawTextwShadow("These are used to adjust color", -30, 57, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("convergence in CRT displays", -30, 65, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("CONVERGENCE TESTS", 90, 35, fontColorGreen, fontColorGray);
+				mars_drawTextwShadow("These are used to adjust color", 35, 57, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("convergence in CRT displays", 35, 65, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("The 'A' button changes the cross", -30, 82, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("hatch pattern between lines,", -30, 90, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("dots and crosses", -30, 98, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("The 'A' button changes the cross", 35, 82, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("hatch pattern between lines,", 35, 90, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("dots and crosses", 35, 98, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("Resolution can be changed by", -30, 115, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("pressing 'c'", -30, 123, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("Resolution can be changed by", 35, 115, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("pressing 'c'", 35, 123, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("The 'B' button changes to a", -30, 140, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("color pattern for transition", -30, 148, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("boundary check.", -30, 156, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("The 'B' button changes to a", 35, 140, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("color pattern for transition", 35, 148, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("boundary check.", 35, 156, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("In color modes, 'A' toggles", -30, 173, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("black borders.", -30, 181, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("In color modes, 'A' toggles", 35, 173, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("black borders.", 35, 181, fontColorWhite, fontColorGray);
 				break;	
 			case HELP_CHECK:
-				mars_drawTextwShadow("CHECKERBOARD", 50, 35, fontColorGreen, fontColorGray);
-				mars_drawTextwShadow("This pattern shows all the", -30, 57, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("visible pixels in an", -30, 65, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("alternating white and black", -30, 73, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("grid array.", -30, 81, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("CHECKERBOARD", 115, 35, fontColorGreen, fontColorGray);
+				mars_drawTextwShadow("This pattern shows all the", 35, 57, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("visible pixels in an", 35, 65, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("alternating white and black", 35, 73, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("grid array.", 35, 81, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("You can toggle the pattern with", -30, 98, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("button 'Up', or turn on", -30, 106, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("auto-toggle each frame with the", -30, 114, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("'A' button. A frame counter is", -30, 122, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("also available with 'B'.", -30, 130, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("You can toggle the pattern with", 35, 98, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("button 'Up', or turn on", 35, 106, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("auto-toggle each frame with the", 35, 114, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("'A' button. A frame counter is", 35, 122, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("also available with 'B'.", 35, 130, fontColorWhite, fontColorGray);
 				break;
 			case HELP_STRIPES:
 				switch (page)
 				{
 				case 1:
-					mars_drawTextwShadow("HORIZONTAL STRIPES (1/2)", 10, 35, fontColorGreen, fontColorGray);
-					mars_drawTextwShadow("You should see a pattern of", -30, 57, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("lines, each one pixel in height", -30, 65, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("starting with a white one.", -30, 73, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("HORIZONTAL STRIPES (1/2)", 75, 35, fontColorGreen, fontColorGray);
+					mars_drawTextwShadow("You should see a pattern of", 35, 57, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("lines, each one pixel in height", 35, 65, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("starting with a white one.", 35, 73, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("You can toggle the pattern with", -30, 90, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("button 'UP', or turn on", -30, 98, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("auto-toggle each frame with the", -30, 106, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("'A' button. A frame counter is", -30, 114, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("also available with 'B'.", -30, 122, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("You can toggle the pattern with", 35, 90, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("button 'UP', or turn on", 35, 98, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("auto-toggle each frame with the", 35, 106, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("'A' button. A frame counter is", 35, 114, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("also available with 'B'.", 35, 122, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("When auto-toggle is set, you", -30, 139, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("should see the lines", -30, 147, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("alternating rapidly. On some", -30, 155, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("setups, the pattern doesn't", -30, 163, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("change at all. This means that", -30, 171, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("(cont...)", 142, 178, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("When auto-toggle is set, you", 35, 139, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("should see the lines", 35, 147, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("alternating rapidly. On some", 35, 155, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("setups, the pattern doesn't", 35, 163, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("change at all. This means that", 35, 171, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("(cont...)", 207, 178, fontColorWhite, fontColorGray);
 					break;
 				case 2:
-					mars_drawTextwShadow("HORIZONTAL STRIPES (2/2)", 10, 35, fontColorGreen, fontColorGray);
-					mars_drawTextwShadow("the signal is being treated as", -30, 57, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("480i/576i and odd or even frames", -30, 65, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("are being discarded completely.", -30, 73, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("HORIZONTAL STRIPES (2/2)", 75, 35, fontColorGreen, fontColorGray);
+					mars_drawTextwShadow("the signal is being treated as", 35, 57, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("480i/576i and odd or even frames", 35, 65, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("are being discarded completely.", 35, 73, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("You can also display vertical", -30, 90, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("bars by pressing 'LEFT'. That", -30, 98, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("pattern will help you", -30, 106, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("evaluate if the signal is not", -30, 114, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("distorted horizontaly, since", -30, 122, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("all lines should be one pixel", -30, 130, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("wide.", -30, 138, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("You can also display vertical", 35, 90, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("bars by pressing 'LEFT'. That", 35, 98, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("pattern will help you", 35, 106, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("evaluate if the signal is not", 35, 114, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("distorted horizontaly, since", 35, 122, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("all lines should be one pixel", 35, 130, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("wide.", 35, 138, fontColorWhite, fontColorGray);
 
 					break;
 				}
@@ -452,96 +452,96 @@ void DrawHelp(int option)
 				switch (page)
 				{
 				case 1:
-					mars_drawTextwShadow("DROP SHADOW TEST (1/2)", 10, 35, fontColorGreen, fontColorGray);
-					mars_drawTextwShadow("This is a crucial test for 240p", -30, 57, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("upscan converters. It displays a", -30, 65, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("simple sprite shadow against a", -30, 73, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("background, but the shadow is", -30, 81, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("shown only on each other frame.", -30, 89, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("DROP SHADOW TEST (1/2)", 75, 35, fontColorGreen, fontColorGray);
+					mars_drawTextwShadow("This is a crucial test for 240p", 35, 57, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("upscan converters. It displays a", 35, 65, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("simple sprite shadow against a", 35, 73, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("background, but the shadow is", 35, 81, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("shown only on each other frame.", 35, 89, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("On a CRT this achieves a", -30, 106, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("transparency effect, since you", -30, 114, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("are watching a 30hz (25Hz)", -30, 122, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("shadow on a 60hz (50hz) signal.", -30, 130, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("No background detail should be", -30, 138, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("lost and the shadow should be", -30, 146, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("visible.", -30, 154, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("(cont...)", 142, 178, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("On a CRT this achieves a", 35, 106, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("transparency effect, since you", 35, 114, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("are watching a 30hz (25Hz)", 35, 122, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("shadow on a 60hz (50hz) signal.", 35, 130, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("No background detail should be", 35, 138, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("lost and the shadow should be", 35, 146, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("visible.", 35, 154, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("(cont...)", 207, 178, fontColorWhite, fontColorGray);
 					break;
 				case 2:
-					mars_drawTextwShadow("DROP SHADOW TEST (2/2)", 15, 35, fontColorGreen, fontColorGray);
-					mars_drawTextwShadow("The user can toggle the frame", -30, 57, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("used to draw the shadow with", -30, 65, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("button 'A'. Backgrounds can be", -30, 73, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("switched with the 'B' button and", -30, 81, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("button 'C' toggles sprites.", -30, 89, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("DROP SHADOW TEST (2/2)", 80, 35, fontColorGreen, fontColorGray);
+					mars_drawTextwShadow("The user can toggle the frame", 35, 57, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("used to draw the shadow with", 35, 65, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("button 'A'. Backgrounds can be", 35, 73, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("switched with the 'B' button and", 35, 81, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("button 'C' toggles sprites.", 35, 89, fontColorWhite, fontColorGray);
 					break;
 				}
 				break;
 			case HELP_STRIPED:
-				mars_drawTextwShadow("STRIPED SPRITE TEST", 19, 35, fontColorGreen, fontColorGray);
-				mars_drawTextwShadow("There are deinterlacers out", -30, 57, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("there that can display the drop", -30, 65, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("shadows correctly and still", -30, 73, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("interpret 240p as 480i. With a", -30, 81, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("striped sprite it should be easy", -30, 89, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("to tell if a processor tries to", -30, 97, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("deinterlace (plus interpolate).", -30, 105, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("STRIPED SPRITE TEST", 84, 35, fontColorGreen, fontColorGray);
+				mars_drawTextwShadow("There are deinterlacers out", 35, 57, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("there that can display the drop", 35, 65, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("shadows correctly and still", 35, 73, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("interpret 240p as 480i. With a", 35, 81, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("striped sprite it should be easy", 35, 89, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("to tell if a processor tries to", 35, 97, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("deinterlace (plus interpolate).", 35, 105, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("You can change backgrounds with", -30, 122, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("'A'.", -30, 130, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("You can change backgrounds with", 35, 122, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("'A'.", 35, 130, fontColorWhite, fontColorGray);
 				break;
 			case HELP_MANUALLAG:
 				switch (page)
 				{
 				case 1:
-					mars_drawTextwShadow("MANUAL LAG TEST (1/3)", 10, 35, fontColorGreen, fontColorGray);
-					mars_drawTextwShadow("The main intention is to show a", -30, 57, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("changing pattern on the screen,", -30, 65, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("which can be complemented with", -30, 73, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("audio. This should show to some", -30, 81, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("degree any lag when processing", -30, 89, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("the signal.", -30, 97, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("MANUAL LAG TEST (1/3)", 75, 35, fontColorGreen, fontColorGray);
+					mars_drawTextwShadow("The main intention is to show a", 35, 57, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("changing pattern on the screen,", 35, 65, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("which can be complemented with", 35, 73, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("audio. This should show to some", 35, 81, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("degree any lag when processing", 35, 89, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("the signal.", 35, 97, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("As an added feature, the user", -30, 114, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("can click the 'A' button when", -30, 122, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("the sprite is aligned with the", -30, 130, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("one on the background, and the", -30, 138, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("offset in frames from the actual", -30, 146, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("intersection will be shown on", -30, 154, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("screen. A 1khz tone will be", -30, 162, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("played for 1 frame when pressed.", -30, 170, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("(cont...)", 142, 178, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("As an added feature, the user", 35, 114, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("can click the 'A' button when", 35, 122, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("the sprite is aligned with the", 35, 130, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("one on the background, and the", 35, 138, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("offset in frames from the actual", 35, 146, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("intersection will be shown on", 35, 154, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("screen. A 1khz tone will be", 35, 162, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("played for 1 frame when pressed.", 35, 170, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("(cont...)", 207, 178, fontColorWhite, fontColorGray);
 					break;
 				case 2:
-					mars_drawTextwShadow("MANUAL LAG TEST (2/3)", 10, 35, fontColorGreen, fontColorGray);
-					mars_drawTextwShadow("This can be repeated ten", -30, 57, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("times and the software will", -30, 65, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("calculate the average. Whenever", -30, 73, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("the button was pressed before", -30, 81, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("the actual intersection frame,", -30, 89, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("the result will be ignored, but", -30, 97, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("still shown onscreen. Button 'B'", -30, 105, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("can be used to change the", -30, 113, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("direction of the sprite from", -30, 121, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("vertical to horizontal, or both", -30, 129, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("at the same time.", -30, 137, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("MANUAL LAG TEST (2/3)", 75, 35, fontColorGreen, fontColorGray);
+					mars_drawTextwShadow("This can be repeated ten", 35, 57, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("times and the software will", 35, 65, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("calculate the average. Whenever", 35, 73, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("the button was pressed before", 35, 81, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("the actual intersection frame,", 35, 89, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("the result will be ignored, but", 35, 97, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("still shown onscreen. Button 'B'", 35, 105, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("can be used to change the", 35, 113, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("direction of the sprite from", 35, 121, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("vertical to horizontal, or both", 35, 129, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("at the same time.", 35, 137, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("Of course the evaluation is", -30, 154, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("dependent on reflexes and/or", -30, 162, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("rhythm more than anything. The", -30, 170, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("(cont...)", 142, 178, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("Of course the evaluation is", 35, 154, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("dependent on reflexes and/or", 35, 162, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("rhythm more than anything. The", 35, 170, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("(cont...)", 207, 178, fontColorWhite, fontColorGray);
 					break;
 				case 3:
-					mars_drawTextwShadow("MANUAL LAG TEST (3/3)", 10, 35, fontColorGreen, fontColorGray);
-					mars_drawTextwShadow("visual and audio cues are the", -30, 57, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("more revealing aspects which", -30, 65, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("the user should consider, of", -30, 73, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("course the interactive factor", -30, 81, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("can give an experienced player", -30, 89, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("the hang of the system when", -30, 97, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("testing via different", -30, 105, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("connections.", -30, 113, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("MANUAL LAG TEST (3/3)", 75, 35, fontColorGreen, fontColorGray);
+					mars_drawTextwShadow("visual and audio cues are the", 35, 57, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("more revealing aspects which", 35, 65, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("the user should consider, of", 35, 73, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("course the interactive factor", 35, 81, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("can give an experienced player", 35, 89, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("the hang of the system when", 35, 97, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("testing via different", 35, 105, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("connections.", 35, 113, fontColorWhite, fontColorGray);
 					break;
 				}
 				break;
@@ -549,86 +549,86 @@ void DrawHelp(int option)
 				switch (page)
 				{
 				case 1:
-					mars_drawTextwShadow("SCROLL TEST (1/2)", 50, 35, fontColorGreen, fontColorGray);
-					mars_drawTextwShadow("This test shows either an", -30, 57, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("horizontal 320x224 back from", -30, 65, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("Sonic or a vertical 256x224", -30, 73, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("back from Kiki Kaikai.", -30, 81, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("SCROLL TEST (1/2)", 115, 35, fontColorGreen, fontColorGray);
+					mars_drawTextwShadow("This test shows either an", 35, 57, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("horizontal 320x224 back from", 35, 65, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("Sonic or a vertical 256x224", 35, 73, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("back from Kiki Kaikai.", 35, 81, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("Speed can be varied with Up &", -30, 98, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("Down and scroll direction with", -30, 106, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("Left. The 'A' button stops the", -30, 114, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("scroll and 'B' toggles between", -30, 122, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("vertical and horizontal.", -30, 130, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("Speed can be varied with Up &", 35, 98, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("Down and scroll direction with", 35, 106, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("Left. The 'A' button stops the", 35, 114, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("scroll and 'B' toggles between", 35, 122, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("vertical and horizontal.", 35, 130, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("The vertical 256 scroll is also", -30, 147, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("used while in 320 mode but it", -30, 155, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("can be positioned with 'Right'.", -30, 163, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("The vertical 256 scroll is also", 35, 147, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("used while in 320 mode but it", 35, 155, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("can be positioned with 'Right'.", 35, 163, fontColorWhite, fontColorGray);
 					
-					mars_drawTextwShadow("(cont...)", 142, 178, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("(cont...)", 207, 178, fontColorWhite, fontColorGray);
 					break;					
 				case 2:
-					mars_drawTextwShadow("SCROLL TEST (2/2)", 50, 35, fontColorGreen, fontColorGray);
-					mars_drawTextwShadow("This can be used to notice any", -30, 57, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("drops in framerate, or pixel", -30, 65, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("width inconsistencies.", -30, 73, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("SCROLL TEST (2/2)", 115, 35, fontColorGreen, fontColorGray);
+					mars_drawTextwShadow("This can be used to notice any", 35, 57, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("drops in framerate, or pixel", 35, 65, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("width inconsistencies.", 35, 73, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("Sonic is a trademark of Sega", -30, 90, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("Enterprises Ltd. Kiki Kaikai", -30, 98, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("is a trademark of Taito.", -30, 106, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("Sonic is a trademark of Sega", 35, 90, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("Enterprises Ltd. Kiki Kaikai", 35, 98, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("is a trademark of Taito.", 35, 106, fontColorWhite, fontColorGray);
 					break;
 				}
 				break;
 			case HELP_VSCROLL:
-				mars_drawTextwShadow("GRID SCROLL TEST", 60, 35, fontColorGreen, fontColorGray);
-				mars_drawTextwShadow("A grid is scrolled vertically or", -30, 57, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("horizontally, which can be used", -30, 65, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("to test linearity of the signal", -30, 73, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("and how well the display or", -30, 81, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("video processor copes with", -30, 89, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("scrolling and framerate.", -30, 97, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("GRID SCROLL TEST", 125, 35, fontColorGreen, fontColorGray);
+				mars_drawTextwShadow("A grid is scrolled vertically or", 35, 57, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("horizontally, which can be used", 35, 65, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("to test linearity of the signal", 35, 73, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("and how well the display or", 35, 81, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("video processor copes with", 35, 89, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("scrolling and framerate.", 35, 97, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("Button 'B' can be used to toggle", -30, 114, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("between horizontal and vertical,", -30, 122, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("while Up/Down regulate speed.", -30, 130, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("Button 'B' can be used to toggle", 35, 114, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("between horizontal and vertical,", 35, 122, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("while Up/Down regulate speed.", 35, 130, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("Button 'A' stops the scroll and", -30, 147, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("'Left' changes direction.", -30, 155, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("Button 'A' stops the scroll and", 35, 147, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("'Left' changes direction.", 35, 155, fontColorWhite, fontColorGray);
 				break;
 		case HELP_LED:
 				switch (page)
 				{
 				case 1:
-					mars_drawTextwShadow("BACKLIT TEST (1/2)", 20, 35, fontColorGreen, fontColorGray);
-					mars_drawTextwShadow("This test allows you to check", -30, 57, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("how the display's backlit works", -30, 65, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("when only a small array of", -30, 73, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("pixels is shown. This can be", -30, 81, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("very revealing and can be used", -30, 89, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("to detect the zones in LED", -30, 97, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("backlit displays, or to evaluate", -30, 105, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("global and local dimming.", -30, 113, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("BACKLIT TEST (1/2)", 85, 35, fontColorGreen, fontColorGray);
+					mars_drawTextwShadow("This test allows you to check", 35, 57, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("how the display's backlit works", 35, 65, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("when only a small array of", 35, 73, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("pixels is shown. This can be", 35, 81, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("very revealing and can be used", 35, 89, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("to detect the zones in LED", 35, 97, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("backlit displays, or to evaluate", 35, 105, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("global and local dimming.", 35, 113, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("The user can move around the", -30, 130, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("white pixel arrays with the", -30, 138, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("d-pad, and change the size of", -30, 146, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("the pixel array with 'A'.", -30, 154, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("The 'B' button allows the user", -30, 162, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("to hide the pixel array in", -30, 170, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("(cont...)", 142, 178, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("The user can move around the", 35, 130, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("white pixel arrays with the", 35, 138, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("d-pad, and change the size of", 35, 146, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("the pixel array with 'A'.", 35, 154, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("The 'B' button allows the user", 35, 162, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("to hide the pixel array in", 35, 170, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("(cont...)", 207, 178, fontColorWhite, fontColorGray);
 					break;
 				case 2:
-					mars_drawTextwShadow("BACKLIT TEST (2/2)", 20, 35, fontColorGreen, fontColorGray);
-					mars_drawTextwShadow("order to alternate a fully black", -30, 57, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("screen.", -30, 65, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("BACKLIT TEST (2/2)", 85, 35, fontColorGreen, fontColorGray);
+					mars_drawTextwShadow("order to alternate a fully black", 35, 57, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("screen.", 35, 65, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("It might be necessary to have a", -30, 82, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("fully-off panel (if possible)", -30, 90, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("when displaying the black", -30, 98, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("background,  in order to", -30, 106, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("evaluate full-backlit displays", -30, 114, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("by adjusting brightness", -30, 122, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("accordingly for this test.", -30, 130, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("It might be necessary to have a", 35, 82, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("fully-off panel (if possible)", 35, 90, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("when displaying the black", 35, 98, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("background,  in order to", 35, 106, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("evaluate full-backlit displays", 35, 114, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("by adjusting brightness", 35, 122, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("accordingly for this test.", 35, 130, fontColorWhite, fontColorGray);
 					break;
 				}
 				break;
@@ -636,119 +636,119 @@ void DrawHelp(int option)
 				switch (page)
 				{
 				case 1:
-					mars_drawTextwShadow("LAG TEST (1/2)", 60, 35, fontColorGreen, fontColorGray);
-					mars_drawTextwShadow("This test is designed to be used", -30, 57, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("with two displays conected at", -30, 65, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("the same time. One being a CRT,", -30, 73, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("or a display with a known lag as", -30, 81, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("reference, and the other the", -30, 89, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("display to test.", -30, 97, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("LAG TEST (1/2)", 125, 35, fontColorGreen, fontColorGray);
+					mars_drawTextwShadow("This test is designed to be used", 35, 57, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("with two displays conected at", 35, 65, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("the same time. One being a CRT,", 35, 73, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("or a display with a known lag as", 35, 81, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("reference, and the other the", 35, 89, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("display to test.", 35, 97, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("Using a camera, a picture should", -30, 114, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("be taken of both screens at the", -30, 122, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("same time. The picture will show", -30, 130, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("the frame discrepancy between", -30, 138, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("them.", -30, 146, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("Using a camera, a picture should", 35, 114, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("be taken of both screens at the", 35, 122, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("same time. The picture will show", 35, 130, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("the frame discrepancy between", 35, 138, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("them.", 35, 146, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("The circles in the bottom help", -30, 163, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("determine the frame even when", -30, 171, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("(cont...)", 142, 178, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("The circles in the bottom help", 35, 163, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("determine the frame even when", 35, 171, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("(cont...)", 207, 178, fontColorWhite, fontColorGray);
 					break;
 				case 2:
-					mars_drawTextwShadow("LAG TEST (2/2)", 60, 35, fontColorGreen, fontColorGray);
-					mars_drawTextwShadow("the numbers are blurry.", -30, 57, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("LAG TEST (2/2)", 125, 35, fontColorGreen, fontColorGray);
+					mars_drawTextwShadow("the numbers are blurry.", 35, 57, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("This version of the suite can be", -30, 74, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("used with a Sega Nomad as the", -30, 82, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("reference display.", -30, 90, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("This version of the suite can be", 35, 74, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("used with a Sega Nomad as the", 35, 82, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("reference display.", 35, 90, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("You can also split the video", -30, 107, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("signal and feed both displays.", -30, 115, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("You can also split the video", 35, 107, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("signal and feed both displays.", 35, 115, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("The vertical bars on the sides", -30, 132, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("change color each frame to help", -30, 140, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("when using LCD photos.", -30, 148, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("The vertical bars on the sides", 35, 132, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("change color each frame to help", 35, 140, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("when using LCD photos.", 35, 148, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("Press A to start/stop, B to", -30, 165, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("reset and C for B&W test.", -30, 173, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("Press A to start/stop, B to", 35, 165, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("reset and C for B&W test.", 35, 173, fontColorWhite, fontColorGray);
 					break;
 				}
 				break;
 			case HELP_ALTERNATE:
-				mars_drawTextwShadow("ALTERNATE 240p/480i", 60, 35, fontColorGreen, fontColorGray);
-				mars_drawTextwShadow("Some devices have a delay when", -30, 57, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("the source changes between", -30, 65, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("resolutions, which happens in", -30, 73, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("some games. This test allows to", -30, 81, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("time that delay manually.", -30, 89, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("ALTERNATE 240p/480i", 125, 35, fontColorGreen, fontColorGray);
+				mars_drawTextwShadow("Some devices have a delay when", 35, 57, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("the source changes between", 35, 65, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("resolutions, which happens in", 35, 73, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("some games. This test allows to", 35, 81, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("time that delay manually.", 35, 89, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("Press A to switch the", -30, 106, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("resolution; press it again when", -30, 114, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("you are able to see the screen", -30, 122, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("back in your display.", -30, 130, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("Press A to switch the", 35, 106, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("resolution; press it again when", 35, 114, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("you are able to see the screen", 35, 122, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("back in your display.", 35, 130, fontColorWhite, fontColorGray);
 				break;
 			case HELP_VIDEO:
-				mars_drawTextwShadow("VIDEO OPTIONS", 60, 35, fontColorGreen, fontColorGray);
-				mars_drawTextwShadow("Here you can enable interlaced", -30, 57, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("(480i) mode for the whole suite", -30, 65, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("and disable horizontal 256 in", -30, 73, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("compatible screens.", -30, 81, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("VIDEO OPTIONS", 125, 35, fontColorGreen, fontColorGray);
+				mars_drawTextwShadow("Here you can enable interlaced", 35, 57, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("(480i) mode for the whole suite", 35, 65, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("and disable horizontal 256 in", 35, 73, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("compatible screens.", 35, 81, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("For PAL consoles, you can also", -30, 98, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("enable full 240p, instead of", -30, 106, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("224p.", -30, 114, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("For PAL consoles, you can also", 35, 98, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("enable full 240p, instead of", 35, 106, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("224p.", 35, 114, fontColorWhite, fontColorGray);
 				break;
 			case HELP_AUDIOSYNC:
-				mars_drawTextwShadow("AUDIO SYNC", 60, 35, fontColorGreen, fontColorGray);
-				mars_drawTextwShadow("This test flashes the whole", -30, 57, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("screen white for 2 frames,", -30, 65, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("along with a 1khz test tone.", -30, 73, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("AUDIO SYNC", 125, 35, fontColorGreen, fontColorGray);
+				mars_drawTextwShadow("This test flashes the whole", 35, 57, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("screen white for 2 frames,", 35, 65, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("along with a 1khz test tone.", 35, 73, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("You can verify the sync between", -30, 90, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("audio and video with recording", -30, 98, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("equipment or specialized", -30, 106, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("hardware.", -30, 114, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("You can verify the sync between", 35, 90, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("audio and video with recording", 35, 98, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("equipment or specialized", 35, 106, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("hardware.", 35, 114, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("Press A to start/stop the test.", -30, 131, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("Press A to start/stop the test.", 35, 131, fontColorWhite, fontColorGray);
 				break;
 			case HELP_CONTRAST:
-				mars_drawTextwShadow("PLUGE CONTRAST", 60, 35, fontColorGreen, fontColorGray);
-				mars_drawTextwShadow("This sub test fills the screen", -30, 57, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("with a pattern. By default it", -30, 65, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("is drawn in color.", -30, 73, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("PLUGE CONTRAST", 125, 35, fontColorGreen, fontColorGray);
+				mars_drawTextwShadow("This sub test fills the screen", 35, 57, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("with a pattern. By default it", 35, 65, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("is drawn in color.", 35, 73, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("You can change palettes with", -30, 90, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("A to display a dark or white", -30, 98, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("pattern in order to check", -30, 106, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("contrast and brightness.", -30, 114, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("You can change palettes with", 35, 90, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("A to display a dark or white", 35, 98, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("pattern in order to check", 35, 106, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("contrast and brightness.", 35, 114, fontColorWhite, fontColorGray);
 
-				mars_drawTextwShadow("The C button returns to PLUGE.", -30, 131, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("The C button returns to PLUGE.", 35, 131, fontColorWhite, fontColorGray);
 				break;
 			case HELP_MEMVIEW:
 				switch (page)
 				{
 				case 1:
-					mars_drawTextwShadow("MEMORY VIEWER", 60, 35, fontColorGreen, fontColorGray);
-					mars_drawTextwShadow("This shows selected regions of", -30, 57, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("the main CPU memory map.", -30, 65, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("The current address range is", -30, 73, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("shown in red at the right from", -30, 81, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("top to bottom.", -30, 89, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("The left part of the screen", -30, 97, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("shows 0x1C0 bytes in hex.", -30, 105, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("- Button A enabled CRC of of", -30, 113, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("current screen.", -30, 121, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("- Button B jumps to relevant", -30, 129, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("memory locations", -30, 137, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("(cont...)", 142, 178, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("MEMORY VIEWER", 125, 35, fontColorGreen, fontColorGray);
+					mars_drawTextwShadow("This shows selected regions of", 35, 57, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("the main CPU memory map.", 35, 65, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("The current address range is", 35, 73, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("shown in red at the right from", 35, 81, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("top to bottom.", 35, 89, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("The left part of the screen", 35, 97, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("shows 0x1C0 bytes in hex.", 35, 105, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("- Button A enabled CRC of of", 35, 113, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("current screen.", 35, 121, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("- Button B jumps to relevant", 35, 129, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("memory locations", 35, 137, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("(cont...)", 207, 178, fontColorWhite, fontColorGray);
 					break;
 				case 2:
-					mars_drawTextwShadow("- Button C switches banks in", -30, 57, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("SCD Program RAM.", -30, 65, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("With a working SCD system", -30, 73, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("Program RAM banks should show", -30, 81, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("0xAA for bank 1 (0xBB for bank", -30, 89, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("2 etc.) in all four corners.", -30, 97, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("- Button C switches banks in", 35, 57, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("SCD Program RAM.", 35, 65, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("With a working SCD system", 35, 73, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("Program RAM banks should show", 35, 81, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("0xAA for bank 1 (0xBB for bank", 35, 89, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("2 etc.) in all four corners.", 35, 97, fontColorWhite, fontColorGray);
 					break;
 				}
 				break;

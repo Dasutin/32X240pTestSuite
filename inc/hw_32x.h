@@ -137,7 +137,6 @@ int secondary_task(int cmd) HW32X_ATTR_DATA_ALIGNED;
 void secondary(void) HW32X_ATTR_DATA_ALIGNED;
 
 extern unsigned short sndbuf[];
-
 extern int sysarg_args_nosound;
 extern int sysarg_args_vol;
 

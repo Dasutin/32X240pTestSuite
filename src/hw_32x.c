@@ -617,14 +617,14 @@ void HwMdPutc(char chr, int color, int x, int y)
     HwMdSetNTable(((chr - 0x20) & 0xFF) | color);
 }
 
-void HwMdScreenPrintf(const char *format, ...)
+void HwMdScreenPrintf(int color, int x, int y, const char *format, ...)
 {
    va_list  opt;
    char     buff[128];
    int      n;
-   int      x;
-   int      y;
-   int      color;
+   //int      x;
+   //int      y;
+   //int      color;
 
    va_start(opt, format);
    n = vsnprintf(buff, (size_t)sizeof(buff), format, opt);

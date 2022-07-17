@@ -44,6 +44,7 @@
 #include "kiki_tiles.h"
 #include "kiki_tiles_palette.h"
 #include "marker_striped_res.h"
+#include "background_fill.h"
 #include "dtiles.h"
 
 // Global Variables
@@ -120,16 +121,16 @@ int display(int framecount, int hudenable, int fpscount, int totaltics, int clea
         draw_pivot_stretch_sprite(160, 112, 32, 32, test32x32_trans_smileData, DRAWSPR_SCALE | mode, 0x10000 + ((start * 16) & 0xffff));
     } */
 
-    Hw32xScreenSetXY(0, 23);
+    //Hw32xScreenSetXY(0, 23);
 
-    switch (hudenable) {
-    case 1:
+    //switch (hudenable) {
+    //case 1:
         //Hw32xScreenPrintf("fps:%02d %03d ms:%02d", fpscount, maxdrawcnt, Mars_FRTCounter2Msec(total));
         //Hw32xScreenPrintf("fps:%02d %03d ", fpscount, fpcamera_x);
-        break;
-    default:
-        break;
-    }
+    //    break;
+    //default:
+    //    break;
+    //}
 
     return cameraclip;
 }
@@ -283,17 +284,9 @@ void MDPSG_stop()
 void vt_drop_shadow_test()
 {
 	int done = 0;
-	int framecount;
-    int fpscount;
-    int prevsec;
-    int prevsecframe;
-    int totaltics;
-    char hud = 0, clearhud = 0;
-    int ticksperframe;
     char NTSC;
 	unsigned short button = 0, pressedButton = 0, oldButton = 0xFFFF;
 	int frameCount = 0;
-	int evenFrames = 0;
     int mode = DRAWSPR_OVERWRITE;
     int x = 30;
 	int y = 30;
@@ -319,28 +312,15 @@ void vt_drop_shadow_test()
 	MARS_SYS_COMM4 = 0;
     MARS_SYS_COMM6 = 0;
 
-    ticksperframe = 1;
-    fpscount = 0;
-    framecount = 0;
-    prevsec = 0;
-    prevsecframe = 0;
-    totaltics = 0;
     fpcamera_x = fpcamera_y = 0;
-    canvas_rebuild_id = 1;
 
     Hw32xScreenFlip(0);
 
 	init_tilemap(&tm, &donna_tmx, (uint8_t **)donna_reslist);
 
-    hud = (hud + 1) % 2;
-
     while (!done) 
 	{
-        int starttics;
-        int waittics;
-        int clip;
         int old_fpcamera_x, old_fpcamera_y;
-        int n;
 
 		button = MARS_SYS_COMM8;
 
@@ -393,17 +373,9 @@ void vt_drop_shadow_test()
 			done = 1;
 		}
 
-        clip = display(framecount, hud, fpscount, totaltics, clearhud);
-         if (clip & 2)
-        {
-            // clipped to the right
-            fpcamera_x = old_fpcamera_x;
-        }
-        if (clip & 8)
-        {
-            // clipped to the right
-            fpcamera_y = old_fpcamera_y;
-        }
+		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+
+		draw_setScissor(0, 0, 320, 224);
 
 		if (frameCount & 2) {
             draw_sprite(x, y, 32, 32, buzz_shadow_sprite, DRAWSPR_OVERWRITE | DRAWSPR_PRECISE | mode, 1);
@@ -436,7 +408,7 @@ void vt_striped_sprite_test()
 
 	while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
 
-	//NTSC = (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT) != 0;
+	NTSC = (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT) != 0;
 
 	SH2_WDT_WTCSR_TCNT = 0x5A00; /* WDT TCNT = 0 */
     SH2_WDT_WTCSR_TCNT = 0xA53E; /* WDT TCSR = clr OVF, IT mode, timer on, clksel = Fs/4096 */
@@ -1764,9 +1736,33 @@ void vt_backlitzone_test()
 	//vu8 background_color;
 	int x = 160;
 	int y = 112;
-	int blockColor_1 = 1;
-	int backgroundColor_2 = 2;
+	//int blockColor_1 = 1;
+	//int backgroundColor_2 = 2;
 	int block = 2;
+	int framecount = 0;
+	char NTSC;
+	char hud = 0, clearhud = 0;
+	int fpscount = 0;
+	int totaltics = 0;
+
+	SetSH2SR(1);
+
+		// Set screen priority for the 32X 
+	MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X | MARS_224_LINES | MARS_VDP_MODE_256;
+
+	while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
+
+	NTSC = (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT) != 0;
+
+	SH2_WDT_WTCSR_TCNT = 0x5A00; /* WDT TCNT = 0 */
+    SH2_WDT_WTCSR_TCNT = 0xA53E; /* WDT TCSR = clr OVF, IT mode, timer on, clksel = Fs/4096 */
+
+	/* init hires timer system */
+    SH2_WDT_VCR = (65 << 8) | (SH2_WDT_VCR & 0x00FF); // set exception vector for WDT
+    SH2_INT_IPRA = (SH2_INT_IPRA & 0xFF0F) | 0x0020; // set WDT INT to priority 2
+
+	// change 4096.0f to something else if WDT TCSR is changed!
+    mars_frtc2msec_frac = 4096.0f * 1000.0f / (NTSC ? NTSC_CLOCK_SPEED : PAL_CLOCK_SPEED) * 65536.0f;
 
 	uint8_t block_0x0_tile[] __attribute__((aligned(16))) = {
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -1780,7 +1776,7 @@ void vt_backlitzone_test()
 	};
 
 	uint8_t block_1x1_tile[] __attribute__((aligned(16))) = {
-		0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+		0x02,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -1791,8 +1787,8 @@ void vt_backlitzone_test()
 	};
 
 	uint8_t block_2x2_tile[] __attribute__((aligned(16))) = {
-		0x01,0x01,0x00,0x00,0x00,0x00,0x00,0x00,
-		0x01,0x01,0x00,0x00,0x00,0x00,0x00,0x00,
+		0x02,0x02,0x00,0x00,0x00,0x00,0x00,0x00,
+		0x02,0x02,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -1802,10 +1798,10 @@ void vt_backlitzone_test()
 	};
 
 	uint8_t block_4x4_tile[] __attribute__((aligned(16))) = {
-		0x01,0x01,0x01,0x01,0x00,0x00,0x00,0x00,
-		0x01,0x01,0x01,0x01,0x00,0x00,0x00,0x00,
-		0x01,0x01,0x01,0x01,0x00,0x00,0x00,0x00,
-		0x01,0x01,0x01,0x01,0x00,0x00,0x00,0x00,
+		0x02,0x02,0x02,0x02,0x00,0x00,0x00,0x00,
+		0x02,0x02,0x02,0x02,0x00,0x00,0x00,0x00,
+		0x02,0x02,0x02,0x02,0x00,0x00,0x00,0x00,
+		0x02,0x02,0x02,0x02,0x00,0x00,0x00,0x00,
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -1813,39 +1809,40 @@ void vt_backlitzone_test()
 	};
 
 	uint8_t block_6x6_tile[] __attribute__((aligned(16))) = {
-		0x01,0x01,0x01,0x01,0x01,0x01,0x00,0x00,
-		0x01,0x01,0x01,0x01,0x01,0x01,0x00,0x00,
-		0x01,0x01,0x01,0x01,0x01,0x01,0x00,0x00,
-		0x01,0x01,0x01,0x01,0x01,0x01,0x00,0x00,
-		0x01,0x01,0x01,0x01,0x01,0x01,0x00,0x00,
-		0x01,0x01,0x01,0x01,0x01,0x01,0x00,0x00,
+		0x02,0x02,0x02,0x02,0x02,0x02,0x00,0x00,
+		0x02,0x02,0x02,0x02,0x02,0x02,0x00,0x00,
+		0x02,0x02,0x02,0x02,0x02,0x02,0x00,0x00,
+		0x02,0x02,0x02,0x02,0x02,0x02,0x00,0x00,
+		0x02,0x02,0x02,0x02,0x02,0x02,0x00,0x00,
+		0x02,0x02,0x02,0x02,0x02,0x02,0x00,0x00,
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
 	};
 
 	uint8_t block_8x8_tile[] __attribute__((aligned(16))) = {
-		0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,
-		0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,
-		0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,
-		0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,
-		0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,
-		0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,
-		0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,
-		0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01
+		0x02,0x02,0x02,0x02,0x02,0x02,0x02,0x02,
+		0x02,0x02,0x02,0x02,0x02,0x02,0x02,0x02,
+		0x02,0x02,0x02,0x02,0x02,0x02,0x02,0x02,
+		0x02,0x02,0x02,0x02,0x02,0x02,0x02,0x02,
+		0x02,0x02,0x02,0x02,0x02,0x02,0x02,0x02,
+		0x02,0x02,0x02,0x02,0x02,0x02,0x02,0x02,
+		0x02,0x02,0x02,0x02,0x02,0x02,0x02,0x02,
+		0x02,0x02,0x02,0x02,0x02,0x02,0x02,0x02
 	};
 
-	Hw32xSetFGColor(blockColor_1,31,31,31);
-	Hw32xSetFGColor(backgroundColor_2,0,0,0);
-	
-	vu8 backgroundColor[8] = {backgroundColor_2,backgroundColor_2,backgroundColor_2,backgroundColor_2,backgroundColor_2,backgroundColor_2,backgroundColor_2,backgroundColor_2};
+	Hw32xSetPalette(background_fill_palette);
+
+	MARS_SYS_COMM4 = 0;
+    MARS_SYS_COMM6 = 0;
 
 	Hw32xScreenFlip(0);
 
+	init_tilemap(&tm, &background_fill_tmx, (uint8_t **)background_fill_reslist);
+
 	while (!done) 
 	{
-		Hw32xFlipWait();
-
-		//clearScreen_Fill8bit();
+		int clip;
+		int old_fpcamera_x, old_fpcamera_y;
 
 		button = MARS_SYS_COMM8;
 
@@ -1857,6 +1854,9 @@ void vt_backlitzone_test()
     	pressedButton = button & ~oldButton;
     	oldButton = button;
 
+		old_fpcamera_x = fpcamera_x;
+        old_fpcamera_y = fpcamera_y;
+
 		if (pressedButton & SEGA_CTRL_A)
 		{
 			block++;
@@ -1866,14 +1866,13 @@ void vt_backlitzone_test()
 
 		if (pressedButton & SEGA_CTRL_B)
 		{
-			drawSprite(block_0x0_tile,x,y,8,8,0,0);
+			draw_sprite(x, y, 8, 8, block_0x0_tile, DRAWSPR_OVERWRITE | DRAWSPR_PRECISE, 1);
 		}
 
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			DrawHelp(HELP_LED);
-			Hw32xSetFGColor(blockColor_1,31,31,31);
-			Hw32xSetFGColor(backgroundColor_2,0,0,0);
+			Hw32xSetPalette(background_fill_palette);
 		}
 
 		if (button & SEGA_CTRL_UP)
@@ -1904,34 +1903,46 @@ void vt_backlitzone_test()
 				x = 320;
 		}
 
+		Hw32xFlipWait();
+
 		if (pressedButton & SEGA_CTRL_START)
 		{
-			screenFadeOut(1);
+			//screenFadeOut(1);
 			done = 1;
 		}
 
-		drawFillRect(0,0,320,224,(vu8*)&backgroundColor);
+ 		clip = display(framecount, hud, fpscount, totaltics, clearhud);
+        if (clip & 2)
+        {
+            // clipped to the right
+            fpcamera_x = old_fpcamera_x;
+        }
+        if (clip & 8)
+        {
+            // clipped to the right
+            fpcamera_y = old_fpcamera_y;
+        }
+
+		HwMdScreenPrintf(0x4000, 0, 0, "clip: %03d", x);
 
 		switch (block)
 		{
 			case 1:
-				drawSprite(block_1x1_tile,x,y,8,8,0,0);
+				draw_sprite(x, y, 8, 8, block_1x1_tile, DRAWSPR_OVERWRITE | DRAWSPR_PRECISE, 1);
 			break;
 			case 2:
-				drawSprite(block_2x2_tile,x,y,8,8,0,0);
+				draw_sprite(x, y, 8, 8, block_2x2_tile, DRAWSPR_OVERWRITE | DRAWSPR_PRECISE, 1);
 			break;
 			case 3:
-				drawSprite(block_4x4_tile,x,y,8,8,0,0);
+				draw_sprite(x, y, 8, 8, block_4x4_tile, DRAWSPR_OVERWRITE | DRAWSPR_PRECISE, 1);
 			break;
 			case 4:
-				drawSprite(block_6x6_tile,x,y,8,8,0,0);
+				draw_sprite(x, y, 8, 8, block_6x6_tile, DRAWSPR_OVERWRITE | DRAWSPR_PRECISE, 1);
 			break;
 			case 5:
-				drawSprite(block_8x8_tile,x,y,8,8,0,0);
+				draw_sprite(x, y, 8, 8, block_8x8_tile, DRAWSPR_OVERWRITE | DRAWSPR_PRECISE, 1);
 			break;
 		}
-
-		drawLineTable(4);
 
 		Hw32xScreenFlip(0);
 	}
@@ -1980,18 +1991,18 @@ void at_sound_test()
 
 		memcpy(frameBuffer16 + 0x100, BACKGROUND_TILE, 320*224);
 
-		mars_drawTextwShadow("Sound Test", 54, 35, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Sound Test", 119, 35, fontColorGreen, fontColorGray);
 
-		mars_drawTextwShadow("32X PCM", 64, 66, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Left", 20, 80, ycurse == 1 && xcurse == 1 ? fontColorRed : fontColorWhite, ycurse == 1 && xcurse == 1 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Center", 68, 80, ycurse == 1 && xcurse == 2 ? fontColorRed : fontColorWhite, ycurse == 1 && xcurse == 2 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("32X PCM", 129, 66, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Left", 85, 80, ycurse == 1 && xcurse == 1 ? fontColorRed : fontColorWhite, ycurse == 1 && xcurse == 1 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Center", 133, 80, ycurse == 1 && xcurse == 2 ? fontColorRed : fontColorWhite, ycurse == 1 && xcurse == 2 ? fontColorBlack : fontColorGray);
 		mars_drawTextwShadow("Right", 130, 80, ycurse == 1 && xcurse == 3 ? fontColorRed : fontColorWhite, ycurse == 1 && xcurse == 3 ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("Genesis PSG Channel", 18, 110, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("0", 74, 124, ycurse == 2 && xcurse == 1 ? fontColorRed : fontColorWhite, ycurse == 2 && xcurse == 1 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("1", 84, 124, ycurse == 2 && xcurse == 2 ? fontColorRed : fontColorWhite, ycurse == 2 && xcurse == 2 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("2", 94, 124, ycurse == 2 && xcurse == 3 ? fontColorRed : fontColorWhite, ycurse == 2 && xcurse == 3 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("3", 104, 124, ycurse == 2 && xcurse == 4 ? fontColorRed : fontColorWhite, ycurse == 2 && xcurse == 4 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Genesis PSG Channel", 83, 110, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("0", 139, 124, ycurse == 2 && xcurse == 1 ? fontColorRed : fontColorWhite, ycurse == 2 && xcurse == 1 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("1", 149, 124, ycurse == 2 && xcurse == 2 ? fontColorRed : fontColorWhite, ycurse == 2 && xcurse == 2 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("2", 159, 124, ycurse == 2 && xcurse == 3 ? fontColorRed : fontColorWhite, ycurse == 2 && xcurse == 3 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("3", 169, 124, ycurse == 2 && xcurse == 4 ? fontColorRed : fontColorWhite, ycurse == 2 && xcurse == 4 ? fontColorBlack : fontColorGray);
 
 		button = MARS_SYS_COMM8;
 
@@ -2513,45 +2524,45 @@ void ht_controller_test()
 		int fontColorGray = 207;
 		int fontColorBlack = 208;
 
-		mars_drawTextwShadow("Controller Test", 30, 58, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Controller Test", 95, 58, fontColorGreen, fontColorGray);
 
 		// Controller 1
-		mars_drawTextwShadow("Up", 15, 80, pressedButton & SEGA_CTRL_UP ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_UP ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Left", -15, 90, pressedButton & SEGA_CTRL_LEFT ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_LEFT ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Right", 30, 90, pressedButton & SEGA_CTRL_RIGHT ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_RIGHT ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Down", 10, 100, pressedButton & SEGA_CTRL_DOWN ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_DOWN ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Up", 80, 80, pressedButton & SEGA_CTRL_UP ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_UP ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Left", 50, 90, pressedButton & SEGA_CTRL_LEFT ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_LEFT ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Right", 95, 90, pressedButton & SEGA_CTRL_RIGHT ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_RIGHT ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Down", 75, 100, pressedButton & SEGA_CTRL_DOWN ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_DOWN ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("Start", 90, 90, pressedButton & SEGA_CTRL_START ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_START ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Start", 155, 90, pressedButton & SEGA_CTRL_START ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_START ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("M", 210, 72, pressedButton & SEGA_CTRL_MODE ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_MODE ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("M", 275, 72, pressedButton & SEGA_CTRL_MODE ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_MODE ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("X", 154, 80, pressedButton & SEGA_CTRL_X ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_X ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Y", 174, 80, pressedButton & SEGA_CTRL_Y ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_Y ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Z", 194, 80, pressedButton & SEGA_CTRL_Z ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_Z ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("X", 219, 80, pressedButton & SEGA_CTRL_X ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_X ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Y", 239, 80, pressedButton & SEGA_CTRL_Y ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_Y ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Z", 259, 80, pressedButton & SEGA_CTRL_Z ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_Z ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("A", 154, 100, pressedButton & SEGA_CTRL_A ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_A ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("B", 174, 100, pressedButton & SEGA_CTRL_B ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_B ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("C", 194, 100, pressedButton & SEGA_CTRL_C ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_C ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("A", 219, 100, pressedButton & SEGA_CTRL_A ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_A ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("B", 239, 100, pressedButton & SEGA_CTRL_B ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_B ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("C", 259, 100, pressedButton & SEGA_CTRL_C ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_C ? fontColorBlack : fontColorGray);
 
 		// Controller 2
-		mars_drawTextwShadow("Up", 15, 130, pressedButton2 & SEGA_CTRL_UP ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_UP ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Left", -15, 140, pressedButton2 & SEGA_CTRL_LEFT ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_LEFT ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Right", 30, 140, pressedButton2 & SEGA_CTRL_RIGHT ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_RIGHT ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Down", 10, 150, pressedButton2 & SEGA_CTRL_DOWN ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_DOWN ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Up", 80, 130, pressedButton2 & SEGA_CTRL_UP ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_UP ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Left", 50, 140, pressedButton2 & SEGA_CTRL_LEFT ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_LEFT ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Right", 95, 140, pressedButton2 & SEGA_CTRL_RIGHT ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_RIGHT ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Down", 75, 150, pressedButton2 & SEGA_CTRL_DOWN ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_DOWN ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("Start", 90, 140, pressedButton2 & SEGA_CTRL_START ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_START ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Start", 155, 140, pressedButton2 & SEGA_CTRL_START ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_START ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("M", 210, 122, pressedButton2 & SEGA_CTRL_MODE ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_MODE ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("M", 275, 122, pressedButton2 & SEGA_CTRL_MODE ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_MODE ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("X", 154, 130, pressedButton2 & SEGA_CTRL_X ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_X ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Y", 174, 130, pressedButton2 & SEGA_CTRL_Y ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_Y ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Z", 194, 130, pressedButton2 & SEGA_CTRL_Z ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_Z ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("X", 219, 130, pressedButton2 & SEGA_CTRL_X ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_X ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Y", 239, 130, pressedButton2 & SEGA_CTRL_Y ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_Y ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Z", 259, 130, pressedButton2 & SEGA_CTRL_Z ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_Z ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("A", 154, 150, pressedButton2 & SEGA_CTRL_A ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_A ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("B", 174, 150, pressedButton2 & SEGA_CTRL_B ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_B ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("C", 194, 150, pressedButton2 & SEGA_CTRL_C ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_C ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("A", 219, 150, pressedButton2 & SEGA_CTRL_A ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_A ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("B", 239, 150, pressedButton2 & SEGA_CTRL_B ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_B ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("C", 259, 150, pressedButton2 & SEGA_CTRL_C ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_C ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("Use START+LEFT to exit", 0, 193, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Use START+LEFT to exit", 65, 193, fontColorGreen, fontColorGray);
 
 		Hw32xScreenFlip(0);
 
