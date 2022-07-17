@@ -23,18 +23,9 @@
 #ifndef DTILES_H_
 #define DTILES_H_
 
-
 static int old_camera_x, old_camera_y;
 static int main_camera_x, main_camera_y;
 
 static int camera_x, camera_y;
-
-static int draw_tile_layer(tilemap_t *tm, int layer, int fpcamera_x, 
-int fpcamera_y, int numlayers, int *pclipped)
-ATTR_DATA_ALIGNED;
-
-static int draw_drawtile(int x, int y, int w, int h,
-    const uint8_t* data, int flags, void* fb, draw_spritefn_t fn)
-ATTR_DATA_ALIGNED;
 
 #endif /* _DTILES_H_ */

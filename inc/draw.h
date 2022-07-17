@@ -1,5 +1,5 @@
-#ifndef DRAW_H__
-#define DRAW_H__
+#ifndef DRAW_H_
+#define DRAW_H_
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -32,8 +32,9 @@ int draw_clip(int x, int y, int w, int h, rect_t* cliprect)
 ATTR_DATA_ALIGNED;
 
 
-void init_tilemap(tilemap_t* tm, int tw, int th, int numh, int numv, 
-    const uint16_t** tmx, int nl, const int *lplx, fixed_t wrapX, fixed_t wrapY);
+void init_tilemap(tilemap_t *tm, const dtilemap_t *dtm, uint8_t **reslist);
+
+void set_tilemap_wrap(tilemap_t *tm, fixed_t wrapX, fixed_t wrapY);
 
 void draw_handle_layercmd(drawtilelayerscmd_t* cmd)
 ATTR_DATA_ALIGNED;

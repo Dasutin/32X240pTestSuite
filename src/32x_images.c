@@ -61,8 +61,6 @@ void loadPalette(const u16 *paletteStart[], const u16 *paletteEnd[], const int p
 	{
 		cram16[i] = pal16[i-paletteOffset] & 0x7FFF;
 	}
-
-	//return 1; 
 }
 
 /*

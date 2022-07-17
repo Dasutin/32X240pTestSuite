@@ -20,6 +20,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#ifndef _SOUND_H_
+#define _SOUND_H_
+
 #include <stdint.h>
 
 #define SAMPLE_MIN         2
@@ -43,3 +46,5 @@ void snddma_init(int sample_rate);
 void secondary_dma_kickstart(void);
 unsigned snddma_length(void)SND_ATTR_SDRAM;
 void snddma_wait(void) SND_ATTR_SDRAM;
+
+#endif

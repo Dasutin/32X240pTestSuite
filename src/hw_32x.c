@@ -10,7 +10,7 @@
 #include <stdint.h>
 #include <stdarg.h>
 #include <stdio.h>
-
+#include <stdint.h>
 #include "32x.h"
 #include "hw_32x.h"
 #include "string.h"
@@ -29,6 +29,8 @@ static int MX = 40, MY = 25;
 static int init = 0;
 static unsigned short fgc = 0, bgc = 0;
 static unsigned char fgs = 0, bgs = 0;
+
+static volatile const uint8_t *new_palette;
 
 int sysarg_args_nosound = 0;
 int sysarg_args_vol = 0;
@@ -106,7 +108,7 @@ void Hw32xSetBGColor(int s, int r, int g, int b)
     palette[bgs] = bgc;
 }
 
-void Hw32xSetPalette(const char *palette)
+void Hw32xSetPalette(const uint8_t *palette)
 {
     new_palette = palette;
 }

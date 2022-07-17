@@ -37,7 +37,7 @@ extern int fontColorGray;
 extern int fontColorBlack;
 
 uint32_t  canvas_pitch = 320; // canvas_width + scrollwidth
-uint32_t canvas_yaw = 224; // canvas_height + scrollheight
+uint32_t  canvas_yaw = 224; // canvas_height + scrollheight
 
 int main()
 {
@@ -139,7 +139,7 @@ int main()
 			}
 		}
 
-		HwMdScreenPrintf("canvas_pitch: %02d", canvas_pitch, 0x4000, 32, 14);
+		//HwMdScreenPrintf("canvas_pitch: %02d", canvas_pitch, 0x4000, 32, 14);
 
 		Hw32xScreenFlip(0);
 	}
@@ -366,16 +366,13 @@ void menu_vt()
 	int done = 0;
 	int frameDelay = 0;
 	int curse = 1;
-	u16 button, pressedButton, oldButton  = 0xFFFF;
+	unsigned short button, pressedButton, oldButton  = 0xFFFF;
 
 	Hw32xScreenFlip(0);
 	
 	while(!done) 
 	{
 		Hw32xFlipWait();
-
-		
-
 		DrawMainBGwGillian();
 		loadTextPalette();
 
@@ -468,9 +465,10 @@ void menu_vt()
 
 				case 4:
 					screenFadeOut(1);
-					vt_scroll_test();
+					vt_vert_scroll_test();
 					HwMdClearScreen();
 					canvas_pitch = 320;
+					canvas_yaw = 224;
 					Hw32xUpdateLineTable(0, 0, 0);
 					//HwMdScreenPrintf("canvas_pitch: %02d", canvas_pitch, 0x4000, 32, 14);
 					marsVDP256Start();
@@ -479,8 +477,11 @@ void menu_vt()
 
 				case 5:
 					screenFadeOut(1);
-					vt_reflex_test();
+					vt_gridscroll_test();
 					HwMdClearScreen();
+					canvas_pitch = 320;
+					canvas_yaw = 224;
+					Hw32xUpdateLineTable(0, 0, 0);
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
@@ -548,7 +549,7 @@ void menu_at()
 	int done = 0;
 	int frameDelay = 0;
 	int curse = 1;
-	u16 button, pressedButton, oldButton  = 0xFFFF;
+	unsigned short button, pressedButton, oldButton  = 0xFFFF;
 
 	Hw32xScreenFlip(0);
 	
@@ -655,7 +656,7 @@ void menu_ht()
 	int done = 0;
 	int frameDelay = 0;
 	int curse = 1;
-	u16 button, pressedButton, oldButton = 0xFFFF;
+	unsigned short button, pressedButton, oldButton = 0xFFFF;
 
 	Hw32xScreenFlip(0);
 
@@ -792,9 +793,9 @@ void options()
 
 void credits()
 {
+	int done = 0;
 	int frameDelay = 0;
-	u16 button, pressedButton, oldButton = 0xFFFF;
-	u16 done = 0;
+	unsigned short button, pressedButton, oldButton = 0xFFFF;
 
 	Hw32xScreenFlip(0);
 
@@ -806,18 +807,20 @@ void credits()
 		loadTextPalette();
 
 		mars_drawTextwShadow("Credits", 60, 35, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Ver. 0.6", 156, 57, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("1/27/2022", 156, 65, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("Code and Port by:", -30, 81, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Dasutin", -22, 90, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("Patterns:", -30, 98, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Artemio Urbina", -22, 106, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("Menu Pixel Art:", -30, 114, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Asher", -22, 122, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("Donna:", -30, 130, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Jose Salot", -22, 138, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("32X Toolchain:", -30, 146, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("Marsdev (Chilly Willy)", -22, 154, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("Ver. 0.8", 156, 50, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("7/16/2022", 156, 58, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("Code and Port by:", -30, 66, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Dasutin (Dustin Dembrosky)", -22, 74, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("Patterns:", -30, 82, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Artemio Urbina", -22, 90, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("Menu Pixel Art:", -30, 98, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Asher", -22, 106, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("Donna:", -30, 114, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Jose Salot", -22, 122, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("32X Toolchain:", -30, 130, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Chilly Willy (Joseph Fenton)", -22, 138, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("Tile Mapper:", -30, 146, fontColorGreen, fontColorGray);
+		mars_drawTextwShadow("Vic (Victor Luchitz)", -22, 154, fontColorWhite, fontColorGray);
 		mars_drawTextwShadow("Info on using this test suite:", -30, 162, fontColorGreen, fontColorGray);
 		mars_drawTextwShadow("http://junkerhq.net/240p", -22, 170, fontColorWhite, fontColorGray);
 

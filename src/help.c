@@ -39,10 +39,10 @@ extern int fontColorBlack;
 void DrawHelp(int option)
 {
 	int frameDelay = 5;
-	u16 button, pressedButton, oldButton = 0xFFFF;
-	u16 exit = 0;
-	u16 page = 1;
-	u16 totalpages = 1;
+	unsigned short button, pressedButton, oldButton = 0xFFFF;
+	int exit = 0;
+	int page = 1;
+	int totalpages = 1;
 
 	marsVDP256Start();
 

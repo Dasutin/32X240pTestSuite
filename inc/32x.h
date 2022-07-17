@@ -138,9 +138,8 @@
 #define SEGA_CTRL_SIX       0x1000
 #define SEGA_CTRL_NONE      0xF000
 
-// Constants
-#define SCREEN_HEIGHT 224
 #define SCREEN_WIDTH 320
+#define SCREEN_HEIGHT 224
 
 #define ClearCacheLine(addr) *(volatile int *)((addr) | 0x40000000) = 0
 

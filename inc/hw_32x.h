@@ -26,6 +26,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 #define MD_PAL_0 0x0100
 #define MD_PAL_1 0x0200
@@ -45,8 +46,6 @@
 #define PSG_NOISE_FREQ_CLOCK4   1
 #define PSG_NOISE_FREQ_CLOCK8   2
 #define PSG_NOISE_FREQ_TONE3    3
-
-static volatile const char *new_palette;
 
 // Audio section
 typedef struct {
@@ -69,7 +68,7 @@ typedef struct {
 extern int Hw32xDetectPAL();
 extern void Hw32xSetFGColor(int s, int r, int g, int b);
 extern void Hw32xSetBGColor(int s, int r, int g, int b);
-extern void Hw32xSetPalette(const char *palette) HW32X_ATTR_DATA_ALIGNED;
+extern void Hw32xSetPalette(const uint8_t *palette) HW32X_ATTR_DATA_ALIGNED;
 extern void Hw32xInit(int vmode, int lineskip);
 extern int Hw32xScreenGetX();
 extern int Hw32xScreenGetY();

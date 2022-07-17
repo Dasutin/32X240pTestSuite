@@ -25,10 +25,10 @@
 #include "32x.h"
 #include "hw_32x.h"
 #include "32x_images.h"
-#include "pal.h"
 #include "patterns.h"
 #include "shared_objects.h"
 #include "help.h"
+#include "colorchart_pal.h"
 
 
 #define BLOCK_COLOR_1 32
@@ -37,13 +37,13 @@ static volatile const char *new_palette;
 
 void tp_pluge()
 {
-	u16 done = 0;
+	int done = 0;
 	int frameDelay = 1;
 	int pattern = 1;
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 PLUGE_NTSC_PAL[];
 	extern const u16 PLUGE_RGB_PAL[];
-	extern const u8 PLUGE_TILE[] __attribute__((aligned(16)));
+	extern const uint8_t PLUGE_TILE[] __attribute__((aligned(16)));
 
 	loadPalette(&PLUGE_NTSC_PAL[0], &PLUGE_NTSC_PAL[255],0);
 
@@ -106,11 +106,11 @@ void tp_pluge()
 
 void tp_colorchart()
 {
-	u16 done = 0;
+	int done = 0;
 	int frameDelay = 5;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	//extern const uint8_t COLORCHART_PAL[] __attribute__((aligned(16))) ; 
-	extern const u8 COLORCHART_TILE[] __attribute__((aligned(16)));
+	extern const uint8_t COLORCHART_TILE[] __attribute__((aligned(16)));
 
 	Hw32xSetPalette((const char *)colorchart_palette);
 
@@ -157,13 +157,13 @@ void tp_colorchart()
 
 void tp_colorbars()
 {
-	u16 done = 0;
-	u16 frameDelay = 1, draw = 1;
-	u16 Is75 = 0, text = 0;
+	int done = 0;
+	int frameDelay = 1, draw = 1;
+	int Is75 = 0, text = 0;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 EBU_COLORBARS_100_PAL[];
 	extern const u16 EBU_COLORBARS_75_PAL[];	
-	extern const u8 EBU_COLORBARS_TILE[] __attribute__((aligned(16)));
+	extern const uint8_t EBU_COLORBARS_TILE[] __attribute__((aligned(16)));
 
 	Hw32xScreenFlip(0);
 
@@ -252,13 +252,13 @@ void tp_colorbars()
 
 void tp_smpte_color_bars()
 {
-	u16 done = 0;
-	u16 frameDelay = 1, draw = 1;
-	u16 Is75 = 0, text = 0;
+	int done = 0;
+	int frameDelay = 1, draw = 1;
+	int Is75 = 0, text = 0;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 SMPTE75IRE_PAL[];
 	extern const u16 SMPTE100IRE_PAL[];
-	extern const u8 SMPTE100IRE_TILE[] __attribute__((aligned(16)));
+	extern const uint8_t SMPTE100IRE_TILE[] __attribute__((aligned(16)));
 
 	Hw32xScreenFlip(0);
 
@@ -340,11 +340,11 @@ void tp_smpte_color_bars()
 
 void tp_ref_color_bars()
 {
-	u16 done = 0;
+	int done = 0;
 	int frameDelay = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 COLORREF_PAL[];
-	extern const u8 COLORREF_TILE[] __attribute__((aligned(16)));
+	extern const uint8_t COLORREF_TILE[] __attribute__((aligned(16)));
 
 	loadPalette(&COLORREF_PAL[0], &COLORREF_PAL[255],0);
 
@@ -389,13 +389,13 @@ void tp_ref_color_bars()
 
 void tp_color_bleed_check()
 {
-	u16 done = 0;
+	int done = 0;
 	int frameDelay = 0;
 	int pattern = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 COLORBLEED_PAL[];
-	extern const u8 COLORBLEED_TILE[] __attribute__((aligned(16)));
-	extern const u8 COLORBLEED_CHECKERBOARD_TILE[] __attribute__((aligned(16)));
+	extern const uint8_t COLORBLEED_TILE[] __attribute__((aligned(16)));
+	extern const uint8_t COLORBLEED_CHECKERBOARD_TILE[] __attribute__((aligned(16)));
 
 	loadPalette(&COLORBLEED_PAL[0], &COLORBLEED_PAL[255],0);
 
@@ -456,13 +456,13 @@ void tp_color_bleed_check()
 
 void tp_grid()
 {
-	u16 done = 0;
+	int done = 0;
 	int frameDelay = 4;
 	int pattern = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 GRID_PAL[];
 	extern const u16 GRID_GRAY_PAL[];
-	extern const u8 GRID_TILE[] __attribute__((aligned(16)));
+	extern const uint8_t GRID_TILE[] __attribute__((aligned(16)));
 
 	loadPalette(&GRID_PAL[0], &GRID_PAL[255],0);
 
@@ -526,12 +526,12 @@ void tp_grid()
 
 void tp_monoscope()
 {
-	u16 done = 0;
+	int done = 0;
 	int frameDelay = 5;
 	int pattern = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	extern const u8 MONOSCOPE_TILE[] __attribute__((aligned(16)));
-	vu16 *cram16 = &MARS_CRAM;
+	extern const uint8_t MONOSCOPE_TILE[] __attribute__((aligned(16)));
+	volatile unsigned short *cram16 = &MARS_CRAM;
 
 	cram16[0] = COLOR(30, 30, 30);
 	cram16[1] = COLOR(0, 0, 0);
@@ -624,11 +624,11 @@ void tp_monoscope()
 
 void tp_gray_ramp()
 {
-	u16 done = 0;
+	int done = 0;
 	int frameDelay = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 GRAYRAMP_PAL[];
-	extern const u8 GRAYRAMP_TILE[] __attribute__((aligned(16)));
+	extern const uint8_t GRAYRAMP_TILE[] __attribute__((aligned(16)));
 
 	loadPalette(&GRAYRAMP_PAL[0], &GRAYRAMP_PAL[255],0);
 
@@ -679,11 +679,11 @@ void tp_white_rgb()
 	int sel = 1;
 	int l = 320*224;
 	u16 r = 31, g = 31, b = 31;
-	u8 custom = 0;
+	int custom = 0;
 	char str[20], num[4];
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
-	vu16 *cram16 = &MARS_CRAM;
+	volatile unsigned short *frameBuffer16 = &MARS_FRAMEBUFFER;
+	volatile unsigned short *cram16 = &MARS_CRAM;
 
 	cram16[0] = COLOR(r, g, b);
 	cram16[1] = COLOR(0, 0, 0);
@@ -873,18 +873,18 @@ void tp_white_rgb()
 
 void tp_100_ire()
 {
+	int done = 0;
 	char str[10];
-	u16 done = 0;
 	int frameDelay = 1;
 	int pattern = 1;
-	u16 text = 0;
+	int text = 0;
 	//u16 irevals[] = { 13, 25, 41, 53, 66, 82, 94 };
 	u16 irevals[] = { 94, 82, 66, 53, 41, 25, 13 };
-	u16 draw = 1;
-	u16 ire = 6;
+	int draw = 1;
+	int ire = 6;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	extern const u8 IRE_TILE[] __attribute__((aligned(16)));
-	vu16 *cram16 = &MARS_CRAM;
+	extern const uint8_t IRE_TILE[] __attribute__((aligned(16)));
+	volatile unsigned short *cram16 = &MARS_CRAM;
 
 	cram16[0] = COLOR(0, 0, 0);
 
@@ -1010,14 +1010,14 @@ void tp_100_ire()
 
 void tp_sharpness()
 {
-	u16 done = 0;
+	int done = 0;
 	int frameDelay = 5;
 	int pattern = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 SHARPNESS_PAL[];
 	extern const u16 SHARPNESS_BRICK_PAL[];
-	extern const u8 SHARPNESS_TILE[] __attribute__((aligned(16)));
-	extern const u8 SHARPNESS_BRICK_TILE[] __attribute__((aligned(16)));
+	extern const uint8_t SHARPNESS_TILE[] __attribute__((aligned(16)));
+	extern const uint8_t SHARPNESS_BRICK_TILE[] __attribute__((aligned(16)));
 
 	loadPalette(&SHARPNESS_PAL[0], &SHARPNESS_PAL[255],0);
 
@@ -1095,7 +1095,7 @@ void tp_overscan()
 	// u32 _tile_l[8], _tile_r[8], _tile_t[8], _tile_b[8];
 	// u32 _tile_lb[8], _tile_lt[8], _tile_rt[8], _tile_rb[8];
 	// u16 vram = TILE_USERINDEX;
-	u16 type = 0, ntype = 0;
+	int type = 0, ntype = 0;
 	int left = 0, right = 0, top = 320, bottom = 224, done = 0;
 	u16 button = 0, pressedButton = 0, oldButton = 0xFFFF;
 	int redraw = 1;
@@ -1109,7 +1109,6 @@ void tp_overscan()
 	//vu16 *cram16 = &MARS_CRAM;
 	
 	//vu8 gray = COLOR(15, 15, 15);
-
 
 	/* tile_l = _tile_l;
 	tile_r = _tile_r;
@@ -1125,7 +1124,6 @@ void tp_overscan()
 	Hw32xSetFGColor(BLOCK_COLOR_1,15,15,15);
 	vu8 blockColor[8] = {BLOCK_COLOR_1,BLOCK_COLOR_1,BLOCK_COLOR_1,BLOCK_COLOR_1,BLOCK_COLOR_1,BLOCK_COLOR_1,BLOCK_COLOR_1,BLOCK_COLOR_1};
 	
-
 	// Set screen priority for the 32X 
 	MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X | MARS_224_LINES | MARS_VDP_MODE_256;
 
@@ -1133,7 +1131,6 @@ void tp_overscan()
 
 	while(!done)
 	{
-
 		Hw32xFlipWait();
 
 		clearScreen_Fill8bit();
@@ -1334,25 +1331,24 @@ void tp_overscan()
 		drawLineTable(4);
 			
 		Hw32xScreenFlip(0);
-
 	}
 }
 
 void tp_convergence()
 {
-	u16 done = 0;
+	int done = 0;
 	int frameDelay = 5;
 	int pattern = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 CONVERGENCE_GRID_PAL[];
 	extern const u16 CONVERGENCE_COLOR_PAL[];
 	extern const u16 CONVERGENCE_COLOR_BORDER_PAL[];
-	extern const u8 CONVERGENCE_GRID_TILE[] __attribute__((aligned(16)));
-	extern const u8 CONVERGENCE_STARS_TILE[] __attribute__((aligned(16)));
-	extern const u8 CONVERGENCE_DOTS_TILE[] __attribute__((aligned(16)));
-	extern const u8 CONVERGENCE_COLOR_TILE[] __attribute__((aligned(16)));
-	extern const u8 CONVERGENCE_COLOR_BORDER_TILE[] __attribute__((aligned(16)));
-	vu16 *cram16 = &MARS_CRAM;
+	extern const uint8_t CONVERGENCE_GRID_TILE[] __attribute__((aligned(16)));
+	extern const uint8_t CONVERGENCE_STARS_TILE[] __attribute__((aligned(16)));
+	extern const uint8_t CONVERGENCE_DOTS_TILE[] __attribute__((aligned(16)));
+	extern const uint8_t CONVERGENCE_COLOR_TILE[] __attribute__((aligned(16)));
+	extern const uint8_t CONVERGENCE_COLOR_BORDER_TILE[] __attribute__((aligned(16)));
+	volatile unsigned short *cram16 = &MARS_CRAM;
 
 	for (int i = 0; i < 255; i++){
 		cram16[i] = CONVERGENCE_GRID_PAL[i] & 0x7FFF;

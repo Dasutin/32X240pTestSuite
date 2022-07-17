@@ -20,8 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef TYPES_H__
-#define TYPES_H__
+#ifndef TYPES_H
+#define TYPES_H
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -54,12 +54,24 @@ typedef struct {
     int16_t x2, y2;
 } rect_t;
 
+// "on-disk" tilemap
+typedef struct {
+    int tilew, tileh;
+    int numtw, numth;
+    int numlayers;
+    int wrapX, wrapY;
+    int *layerplx;
+    uint16_t **layers;
+} dtilemap_t;
+
+// in-memory tilemap
 typedef struct {
     unsigned tw, th;
 
     int numlayers;
     int numtiles;
     uint16_t** layers;
+    uint8_t **reslist;
     int* lplx;
     fixed_t wrapX, wrapY;
 
@@ -127,4 +139,4 @@ typedef s32 fix32;
 
 #define abs(n) ((n)<0?-(n):(n))
 
-#endif /* _TYPES_H_ */
+#endif /* TYPES_H */

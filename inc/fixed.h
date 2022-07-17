@@ -1,5 +1,5 @@
-#ifndef FIXED_H__
-#define FIXED_H__
+#ifndef FIXED_H_
+#define FIXED_H_
 
 #include <stddef.h>
 

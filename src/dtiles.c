@@ -1,25 +1,34 @@
 #include "32x.h"
 #include "types.h"
 #include "draw.h"
-#include "res.h"
 #include "hw_32x.h"
 #include "dtiles.h"
 
-
 drawtilelayerscmd_t slave_drawtilelayerscmd;
 
-void init_tilemap(tilemap_t *tm, int tw, int th, int numh, int numv, 
-    const uint16_t **l, int nl, const int *lplx, fixed_t wrapX, fixed_t wrapY)
+static int draw_tile_layer(tilemap_t *tm, int layer, int fpcamera_x, 
+int fpcamera_y, int numlayers, int *pclipped)
+ATTR_DATA_ALIGNED;
+
+static int draw_drawtile(int x, int y, int w, int h,
+    const uint8_t* data, int flags, void* fb, draw_spritefn_t fn)
+ATTR_DATA_ALIGNED;
+
+void init_tilemap(tilemap_t *tm, const dtilemap_t *dtm, uint8_t **reslist)
 {
+    int tw = dtm->tilew;
+    int th = dtm->tileh;
+
     tm->tw = tw;
     tm->th = th;
 
-    tm->layers = (uint16_t **)l;
-    tm->numlayers = nl;
-    tm->lplx = (int *)lplx;
+    tm->layers = dtm->layers;
+    tm->numlayers = dtm->numlayers;
+    tm->lplx = dtm->layerplx;
+    tm->reslist = reslist;
 
-    tm->tiles_hor = numh;
-    tm->tiles_ver = numv;
+    tm->tiles_hor = dtm->numtw;
+    tm->tiles_ver = dtm->numth;
 
     tm->scroll_tiles_hor = (canvas_pitch - canvas_width) / tw;
     tm->scroll_interval_hor = tm->scroll_tiles_hor * tw;
@@ -30,10 +39,18 @@ void init_tilemap(tilemap_t *tm, int tw, int th, int numh, int numv,
     tm->canvas_tiles_hor = canvas_pitch / tw;
     tm->canvas_tiles_ver = canvas_yaw / th;
 
-    tm->numtiles = numh * numv;
+    tm->numtiles = tm->tiles_hor * tm->tiles_ver;
 
-    tm->wrapX = wrapX;
-    tm->wrapY = wrapY;
+    set_tilemap_wrap(tm, dtm->wrapX, dtm->wrapY);
+
+    Hw32xUpdateLineTable(0, 0, 0);
+}
+
+void set_tilemap_wrap(tilemap_t *tm, fixed_t wrapX, fixed_t wrapY)
+{
+
+    tm->wrapX = wrapX * (1<<16);;
+    tm->wrapY = wrapY * (1<<16);;
 }
 
 // in window coordinates
@@ -49,11 +66,6 @@ void draw_dirtyrect(tilemap_t* tm, int x, int y, int w, int h)
 
     if (x < 0) x = 0;
     if (y < 0) y = 0;
-
-    //start_tile_hor = x / tm->tw;
-    //start_tile_ver = y / tm->th;
-    //end_tile_hor = (x + w - 1) / tm->tw;
-    //end_tile_ver = (y + h - 1) / tm->th;
 
     switch (tm->tw) {
     case 8:
@@ -104,28 +116,9 @@ static int draw_drawtile(int x, int y, int w, int h,
     const uint8_t* data, int flags, void *fb, draw_spritefn_t fn)
 {
     drawsprcmd_t cmd;
-    //int sx = 0, sy = 0;
 
     x += window_canvas_x;
     y += window_canvas_y;
-
-    /* if (flags & DRAWSPR_PRECISE) {
-        if (!(x & 1) && !(w & 1) && !(flags & DRAWSPR_SCALE)) {
-            flags &= ~DRAWSPR_PRECISE;
-        }
-    }
-    else {
-        // snap to even coordinate
-        x &= ~1;
-        w &= ~1;
-    }
-
-    switch (flags & (DRAWSPR_HFLIP | DRAWSPR_VFLIP)) {
-    case DRAWSPR_HFLIP:
-    case DRAWSPR_VFLIP:
-        sx = w;
-        break;
-    } */
 
     cmd.flags = flags;
     cmd.x = x, cmd.y = y;
@@ -153,6 +146,7 @@ void draw_handle_layercmd(drawtilelayerscmd_t *cmd)
     const int start_tile = cmd->start_tile, end_tile = cmd->end_tile;
     const int scroll_tile_id = cmd->scroll_tile_id;
     const int num_tiles_x = cmd->num_tiles_x;
+    const uint8_t **reslist = (const uint8_t **)tm->reslist;
     int curdrawmode = cmd->drawmode;
     draw_spritefn_t fn = draw_spritefn(curdrawmode);
     int drawcnt = 0;
@@ -180,7 +174,7 @@ void draw_handle_layercmd(drawtilelayerscmd_t *cmd)
                 uint16_t idx = layer[tile];
                 if (idx != 0)
                 {
-                    uint8_t* res = reslist[(idx >> 2) - 1];
+                    const uint8_t* res = reslist[(idx >> 2) - 1];
                     //if (debug) res = reslist[0];
                     draw_sprite(x, y, w, h, res, drawmode | (idx & 3), 1);
                     drawcnt++;
@@ -230,7 +224,7 @@ void draw_handle_layercmd(drawtilelayerscmd_t *cmd)
                     if (idx != 0)
                     {
                         int tiledrawmode;
-                        uint8_t* res = reslist[(idx >> 2) - 1];
+                        const uint8_t* res = reslist[(idx >> 2) - 1];
 
                         tiledrawmode = drawmode | (idx & 3);
                         fn = draw_spritefn(tiledrawmode);

@@ -5,11 +5,13 @@
             "includePath": [
                 "${workspaceRoot}/inc_md",
                 "${workspaceRoot}/res_md",
+                "${workspaceRoot}/res",
+                "${workspaceRoot}/inc",
                 "C:/msys64/home/dasut/mars/include",
                 "C:/msys64/home/dasut/mars/m68k-elf/include"
             ],
             "defines": [],
-            "intelliSenseMode": "clang-x64",
+            "intelliSenseMode": "windows-gcc-x64",
             "browse": {
                 "path": [
                     "${workspaceRoot}/inc_md",
@@ -30,7 +32,7 @@
                 "C:/msys64/home/dasut/mars/sh-elf/include"
             ],
             "defines": [],
-            "intelliSenseMode": "clang-x64",
+            "intelliSenseMode": "windows-gcc-x64",
             "browse": {
                 "path": [
                     "${workspaceRoot}/inc",
@@ -41,8 +43,7 @@
                 "databaseFilename": ""
             },
             "cStandard": "c99",
-            "cppStandard": "c++11",
-            "configurationProvider": "ms-vscode.makefile-tools"
+            "cppStandard": "c++11"
         }
     ],
     "version": 4

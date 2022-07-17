@@ -20,8 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _TESTS_H
-#define _TESTS_H
+#ifndef TESTS_H
+#define TESTS_H
 
 #define MEMORY_OK 0xFFFFFFFF
 
@@ -35,6 +35,7 @@ void vt_striped_sprite_test(void);
 void vt_reflex_test(void);
 void vt_scroll_test(void);
 void vt_vert_scroll_test(void);
+void vt_gridscroll_test(void);
 void vt_horizontal_stripes(void);
 void vt_vertical_stripes(void);
 void vt_checkerboard(void);

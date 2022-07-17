@@ -5,12 +5,13 @@ make.exe all --print-data-base --no-builtin-variables --no-builtin-rules --quest
 # License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
- 
 
-# Make data base, printed on Wed Jul 13 14:19:45 2022
+# Make data base, printed on Sat Jul 16 19:13:03 2022
 
 # Variables
 
+# environment
+FPS_BROWSER_APP_PROFILE_STRING = Internet Explorer
 # environment
 SYSTEMDRIVE = C:
 # environment
@@ -30,7 +31,7 @@ LOCALAPPDATA = C:\Users\dasut\AppData\Local
 # environment
 NDI_RUNTIME_DIR_V2 = C:\Program Files\NewTek\NDI 4 Runtime\v4
 # environment
-VSCODE_CWD = C:\msys64\home\dasut\marsdev\yatssdsonic2
+VSCODE_CWD = C:\Users\dasut\AppData\Local\Programs\Microsoft VS Code
 # makefile (from 'Makefile', line 3)
 LDSCRIPTSDIR = $(ROOTDIR)/ldscripts
 # environment
@@ -50,9 +51,11 @@ DD = dd
 # automatic
 @D = $(patsubst %/,%,$(dir $@))
 # environment
-CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_39740_FVOZXCEZNOPPTYQW
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_31380_PJVWPCMVUBIABJOP
 # environment
 ONEDRIVECOMMERCIAL = C:\Users\dasut\OneDrive - Zones
+# environment
+FPS_BROWSER_USER_PROFILE_STRING = Default
 # environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # default
@@ -66,11 +69,10 @@ BIZHAWK = C:\Tools\Emulation\BizHawk-2.7\EmuHawk.exe
 # automatic
 %F = $(notdir $%)
 # environment
-VSCODE_CODE_CACHE_PATH = C:\Users\dasut\AppData\Roaming\Code\CachedData\92d25e35d9bf1a6b16f7d0758f25d48ace11e5b9
+VSCODE_CODE_CACHE_PATH = C:\Users\dasut\AppData\Roaming\Code\CachedData\b06ae3b2d2dbfe28bca3134cc6be65935cdfea6a
 # environment
 LANG = C
 # environment
- 
 MARSPROJECTS = C:\msys64\home\dasut\marsdev\
 # default
 .LOADED := 
@@ -113,7 +115,7 @@ ASFLAGS = --big
 # automatic
 @F = $(notdir $@)
 # environment
-VSCODE_PID = 39740
+VSCODE_PID = 31380
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # makefile (from 'Makefile', line 16)
@@ -151,7 +153,7 @@ MAKELEVEL := 0
 # default
 MAKE = $(MAKE_COMMAND)
 # environment
-PATH = /usr/bin:/c/msys32/usr/local/bin:/c/Tools/Genesis32X/megalink:/c/program files (x86)/common files/oracle/java/javapath:/c/windows/system32:/c/windows:/c/windows/system32/wbem:/c/windows/system32/windowspowershell/v1.0:/c/windows/system32/openssh:/c/program files/nvidia corporation/nvidia nvdlisr:/c/program files/git/cmd:/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/c/Program Files (x86)/dotnet:/c/Program Files/dotnet:/c/Program Files/Docker/Docker/resources/bin:/d/GAMADV-XTD3:/c/Users/dasut/AppData/Local/Programs/Python/Python39/Scripts:/c/Users/dasut/AppData/Local/Programs/Python/Python39:/c/Users/dasut/AppData/Local/Programs/Python/Python310/Scripts:/c/Users/dasut/AppData/Local/Programs/Python/Python310:/c/Users/dasut/AppData/Local/Microsoft/WindowsApps:/c/Users/dasut/AppData/Local/Programs/Microsoft VS Code/bin:/mingw64/bin:/usr/bin:/c/SysGCC/m68k-elf/bin:/c/Users/dasut/AppData/Local/GitHubDesktop/bin:/home/dasut/cc65/bin
+PATH = /usr/bin:/c/msys32/usr/local/bin:/c/Tools/Genesis32X/megalink:/c/program files (x86)/common files/oracle/java/javapath:/c/windows/system32:/c/windows:/c/windows/system32/wbem:/c/windows/system32/windowspowershell/v1.0:/c/windows/system32/openssh:/c/program files/nvidia corporation/nvidia nvdlisr:/c/program files/git/cmd:/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/c/Program Files/dotnet:/c/Program Files/Docker/Docker/resources/bin:/d/GAMADV-XTD3:/c/Users/dasut/AppData/Local/Programs/Python/Python39/Scripts:/c/Users/dasut/AppData/Local/Programs/Python/Python39:/c/Users/dasut/AppData/Local/Programs/Python/Python310/Scripts:/c/Users/dasut/AppData/Local/Programs/Python/Python310:/c/Users/dasut/AppData/Local/Microsoft/WindowsApps:/c/Users/dasut/AppData/Local/Programs/Microsoft VS Code/bin:/mingw64/bin:/usr/bin:/c/SysGCC/m68k-elf/bin:/home/dasut/mars/sh-elf/bin:/c/Users/dasut/AppData/Local/GitHubDesktop/bin:/home/dasut/cc65/bin
 # environment
 COMPUTERNAME = DASUTINPC22
 # default
@@ -185,7 +187,7 @@ USERDOMAIN = DASUTINPC22
 # 'override' directive
 GNUMAKEFLAGS := 
 # makefile (from 'Makefile', line 13)
-HWFLAGS := -m2 -mb -Wall -c -fomit-frame-pointer -fno-builtin  -ffunction-sections -fdata-sections  -fno-align-loops -fno-align-functions -fno-align-jumps -fno-align-labels -D__32X__ -DMARS -Os -fno-lto
+HWFLAGS := -m2 -mb -Wall -c -fomit-frame-pointer -fno-builtin  -ffunction-sections -fdata-sections  -fno-align-loops -fno-align-functions -fno-align-jumps -fno-align-labels -D__32X__ -DMARS -O1 -fno-lto
 # environment
 OS = Windows_NT
 # environment
@@ -196,11 +198,10 @@ NDI_RUNTIME_DIR_V3 = C:\Program Files\NewTek\NDI 4 Runtime\v4
 SHSS = $(wildcard src/*.s)
 # makefile (from 'Makefile', line 31)
 RM = rm -f
- 
 # default
 MAKE_VERSION := 4.3
 # makefile (from 'Makefile', line 6)
-INCPATH = -Isrc -Iinc -I$(ROOTDIR)/sh-elf/include -I$(ROOTDIR)/sh-elf/sh-elf/include
+INCPATH = -Isrc -Iinc -Ires -I$(ROOTDIR)/sh-elf/include -I$(ROOTDIR)/sh-elf/sh-elf/include
 # environment
 PROGRAMFILES(X86) = C:\Program Files (x86)
 # makefile (from 'Makefile', line 22)
@@ -238,7 +239,7 @@ ELECTRON_RUN_AS_NODE = 1
 # environment
 TEMP = /c/Users/dasut/AppData/Local/Temp
 # environment
-VSCODE_IPC_HOOK = \\.\pipe\b7af5bf54e9b212c3fd12aaebaea1b11-1.69.0-main-sock
+VSCODE_IPC_HOOK = \\.\pipe\b7af5bf54e9b212c3fd12aaebaea1b11-1.69.1-main-sock
 # environment
 TERM = xterm-256color
 # default
@@ -268,7 +269,8 @@ ROOTDIR = $(MARSDEV)
 # environment
 PROCESSOR_IDENTIFIER = Intel64 Family 6 Model 151 Stepping 2, GenuineIntel
 # variable set hash-table stats:
-# Load=127/1024=12%, Rehash=0, Collisions=20/177=11%
+ 
+# Load=129/1024=13%, Rehash=0, Collisions=21/179=12%
 
 # Pattern-specific Variable Values
 
@@ -276,10 +278,10 @@ PROCESSOR_IDENTIFIER = Intel64 Family 6 Model 151 Stepping 2, GenuineIntel
 
 # Directories
 
-# src (device 572360812, inode 281474977994544): 36 files, no impossibilities.
+# src (device 572360812, inode 281474977994544): 34 files, no impossibilities.
 # . (device 572360812, inode 22517998136876355): 23 files, no impossibilities.
 
-# 59 files, no impossibilities in 2 directories.
+# 57 files, no impossibilities in 2 directories.
 
 # Implicit Rules
 
@@ -331,7 +333,7 @@ sh2_fixed.o:
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-07-13 14:14:48.6002262
+#  Last modified 2022-07-15 11:40:11.8944863
 #  File has been updated.
 #  Successfully updated.
 
@@ -342,18 +344,11 @@ src/string.o:
 #  File has not been updated.
 
 # Not a target:
-src/pal.o:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-
-# Not a target:
 src/tests.o:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
 
- 
 clean:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
@@ -420,7 +415,7 @@ m68k.bin:
 #  recipe to execute (from 'Makefile', line 53):
 	make -C src_md
 
-build/240pMars.elf: crt0.o sh2_fixed.o src/32x_images.o src/draw.o src/dsprite.o src/dtiles.o src/font.o src/graphics.o src/help.o src/hw_32x.o src/main.o src/pal.o src/patterns.o src/shared_objects.o src/sound.o src/string.o src/tests.o src/lzss_decode.o src/resources.o
+build/240pMars.elf: crt0.o sh2_fixed.o src/32x_images.o src/draw.o src/dsprite.o src/dtiles.o src/font.o src/graphics.o src/help.o src/hw_32x.o src/main.o src/patterns.o src/shared_objects.o src/sound.o src/string.o src/tests.o src/lzss_decode.o src/resources.o
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -494,19 +489,20 @@ src/sound.o:
 #  File has not been updated.
 
 # files hash-table stats:
-# Load=31/1024=3%, Rehash=0, Collisions=0/79=0%
+ 
+# Load=30/1024=3%, Rehash=0, Collisions=0/77=0%
 # VPATH Search Paths
 
 # No 'vpath' search paths.
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 89 / storage = 903 B / avg = 10 B
-# current buf: size = 8162 B / used = 903 B / count = 89 / avg = 10 B
+# strcache buffers: 1 (0) / strings = 86 / storage = 881 B / avg = 10 B
+# current buf: size = 8162 B / used = 881 B / count = 86 / avg = 10 B
 
-# strcache performance: lookups = 121 / hit rate = 26%
+# strcache performance: lookups = 118 / hit rate = 27%
 # hash-table stats:
-# Load=89/8192=1%, Rehash=0, Collisions=2/121=2%
-# Finished Make data base on Wed Jul 13 14:19:45 2022
+# Load=86/8192=1%, Rehash=0, Collisions=2/118=2%
+# Finished Make data base on Sat Jul 16 19:13:03 2022
 
  
