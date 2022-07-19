@@ -47,22 +47,6 @@
 #define PSG_NOISE_FREQ_CLOCK8   2
 #define PSG_NOISE_FREQ_TONE3    3
 
-// Audio section
-typedef struct {
-  unsigned char *buf;
-  unsigned long len;
-  unsigned char valid;
-} sound_t;
-
-typedef struct {
-	sound_t *snd;
-	unsigned char *buf;
-	unsigned long len;
-	char loop;
-    char pan;       // When get around to making stereo sfx
-    unsigned char pad[2]; // Pad to one cache line
-} channel_t;
-
 #define HW32X_ATTR_DATA_ALIGNED __attribute__((section(".data"), aligned(16)))
 
 extern int Hw32xDetectPAL();
@@ -109,20 +93,6 @@ extern void HwMdPSGSetTone(u8 channel, u16 value);
 extern void HwMdPSGSetNoise(u8 type, u8 frequency);
 extern void HwMdPSGSetEnvelope(u8 channel, u8 value);
 
-extern void Hw32xAudioCallback(unsigned long buffer);
-extern void Hw32xAudioInit(void);
-extern void Hw32xAudioShutdown(void);
-extern void Hw32xAudioToggleMute(void);
-extern void Hw32xAudioVolume(char d);
-extern char Hw32xAudioPlay(sound_t *sound, char loop, char selectch);
-extern void Hw32xAudioPause(char pause);
-extern void Hw32xAudioStopChannel(unsigned char chan);
-extern void Hw32xAudioStopAudio(sound_t *sound);
-extern int Hw32xAudioIsPlaying(sound_t *sound);
-extern void Hw32xAudioStopAllChannels(void);
-extern void Hw32xAudioLoad(sound_t *snd, char *name);
-extern void Hw32xAudioFree(sound_t *s);
-
 extern void Hw32xSecWait(void);
 
 extern int Hw32xInitSoundDMA(void);
@@ -135,35 +105,5 @@ unsigned Hw32xGetTicks(void) HW32X_ATTR_DATA_ALIGNED;
 
 int secondary_task(int cmd) HW32X_ATTR_DATA_ALIGNED;
 void secondary(void) HW32X_ATTR_DATA_ALIGNED;
-
-extern unsigned short sndbuf[];
-extern int sysarg_args_nosound;
-extern int sysarg_args_vol;
-
-#define NUM_AUDIO_FILES 2
-
-extern char *audioFileName[NUM_AUDIO_FILES];
-extern int audioFileSize[NUM_AUDIO_FILES];
-extern int audioFilePtr[NUM_AUDIO_FILES];
-
-typedef void *audio_file_t;
-
-extern audio_file_t *audio_file_open(char *name);
-extern int audio_file_seek(audio_file_t *file, long offset, int origin);
-extern int audio_file_read(audio_file_t *file, void *buf, size_t size, size_t count);
-extern void *audio_file_mmap(audio_file_t *file, long offset);
-
-extern void sysarg_init(int, char **);
-
-#define FREQ 22050
-#define CHANNELS 1
-#define MAXVOL 16
-#define MIXCHANNELS 8
-#define MIXSAMPLES 1024
-#define SAMPLE_RATE 22050
-#define SAMPLE_CENTER 516
-#define MAX_NUM_SAMPLES 1024
-#define NUM_SAMPLES 1024
-#define SAMPLE_MIN 2
 
 #endif

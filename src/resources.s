@@ -92,32 +92,6 @@ _CONVERGENCE_GRID_PAL:
 
 			.align 2
 
-			.global _DONNA_PAL
-_DONNA_PAL:
-			.incbin "res/donna_pal.bin"
-
-			.align 2
-
-			.global _BUZZ_PAL
-_BUZZ_PAL:
-			.incbin "res/buzz_pal.bin"
-
-			.align 2
-
-			.global _TEST_PAL
-_TEST_PAL:
-			.incbin "res/donna_pal.bin"
-			.incbin "res/buzz_pal.bin"
-
-			.align 2
-
-			.global _SCREENSCROLL_COMBO_PAL
-_SCREENSCROLL_COMBO_PAL:
-			.incbin "res/screenscroll_pal.bin"
-			.incbin "res/screenscroll_background_1_pal.bin"
-
-			.align 2
-
 			.global _BACKGROUND_W_GILLIAN_PAL
 _BACKGROUND_W_GILLIAN_PAL:
 			.incbin "res/background_w_gillian_pal.bin"
@@ -145,24 +119,6 @@ _CONVERGENCE_COLOR_PAL:
 			.global _CONVERGENCE_COLOR_BORDER_PAL
 _CONVERGENCE_COLOR_BORDER_PAL:
 			.incbin "res/convergence_color_border_pal.bin"
-
-			.align 2
-
-			.global _SCREENSCROLL_PAL
-_SCREENSCROLL_PAL:
-			.incbin "res/screenscroll_pal.bin"
-
-			.align 2
-
-			.global _SCREENSCROLL_TREES_TEST_PAL
-_SCREENSCROLL_TREES_TEST_PAL:
-			.incbin "res/screenscroll_trees_test_pal.bin"
-
-			.align 2
-
-			.global _SCREENSCROLL_BACKGROUND_PAL
-_SCREENSCROLL_BACKGROUND_PAL:
-			.incbin "res/screenscroll_background_1_pal.bin"
 
 			.align 2
 
@@ -282,18 +238,6 @@ _CONVERGENCE_DOTS_TILE:
 
 			.align 2
 
-			.global _DONNA_TILE
-_DONNA_TILE:
-			.incbin "res/donna_tile.bin"
-
-			.align 2
-
-			.global _BUZZ_TILE
-_BUZZ_TILE:
-			.incbin "res/buzz_tile.bin"
-
-			.align 2
-
 			.global _BACKGROUND_W_GILLIAN_TILE
 _BACKGROUND_W_GILLIAN_TILE:
 			.incbin "res/background_w_gillian_tile.bin"
@@ -321,12 +265,6 @@ _MARKER_TILE2:
 			.global _MARKER_STRIPED_TILE
 _MARKER_STRIPED_TILE:
 			.incbin "res/marker_striped_tile.bin"
-
-			.align 2
-
-			.global _BUZZ_SHADOW_TILE
-_BUZZ_SHADOW_TILE:
-			.incbin "res/buzz_shadow_tile.bin"
 
 			.align 2
 
@@ -360,24 +298,6 @@ _CONVERGENCE_COLOR_BORDER_TILE:
 
 			.align 2
 
-			.global _SCREENSCROLL_TILE
-_SCREENSCROLL_TILE:
-			.incbin "res/screenscroll_tile.bin"
-
-			.align 2
-
-			.global _SCREENSCROLL_TREES_TEST_TILE
-_SCREENSCROLL_TREES_TEST_TILE:
-			.incbin "res/screenscroll_trees_test_tile.bin"
-
-			.align 2
-
-			.global _SCREENSCROLL_BACKGROUND_TILE
-_SCREENSCROLL_BACKGROUND_TILE:
-			.incbin "res/screenscroll_background_1_tile.bin"
-
-			.align 2
-
 			.global _IRE_TILE
 _IRE_TILE:
 			.incbin "res/ire.bin"
@@ -408,36 +328,36 @@ _EBU_COLORBARS_TILE:
 
 			.align 2
 
-audioFileName1:
+soundFileName1:
 			.asciz  "jump"
-audioFileName2:
+soundFileName2:
 			.asciz  "beep"
 
 			.align  4
 
-audioFile1:
+soundFile1:
 			.incbin "res/jump.wav"
-audioFileEnd1:
+soundFileEnd1:
 			.align  4
-# audioFile2:
+# soundFile2:
 # 			.incbin "res/beep.wav"
-# audioFileEnd2:
+# soundFileEnd2:
 
 # 			.align  4
 
-			.global _audioFileName
-_audioFileName:
-			.long   audioFileName1
-			# .long   audioFileName2
+			.global _soundFileName
+_soundFileName:
+			.long   soundFileName1
+			# .long   soundFileName2
 
-			.global _audioFileSize
-_audioFileSize:
-			.long   audioFileEnd1 - audioFile1
-			# .long   audioFileEnd2 - audioFile2
+			.global _soundFileSize
+_soundFileSize:
+			.long   soundFileEnd1 - soundFile1
+			# .long   soundFileEnd2 - soundFile2
 
-			.global _audioFilePtr
-_audioFilePtr:        
-			.long   audioFile1
-			# .long   audioFile2
+			.global _soundFilePtr
+_soundFilePtr:        
+			.long   soundFile1
+			# .long   soundFile2
 
 			.align  4
