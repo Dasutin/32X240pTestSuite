@@ -38,8 +38,8 @@ static volatile const char *new_palette;
 void tp_pluge()
 {
 	int done = 0;
-	int frameDelay = 1;
-	int pattern = 1;
+	int draw = 1;
+	int IsRGB = 0, text = 0;
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 PLUGE_NTSC_PAL[];
 	extern const u16 PLUGE_RGB_PAL[];
@@ -63,34 +63,54 @@ void tp_pluge()
 		pressedButton = button & ~oldButton;
     	oldButton = button;
 
-    	 switch (pattern) {
-			case 1:
+		if(draw)
+		{
+			if(!IsRGB)
 				loadPalette(&PLUGE_NTSC_PAL[0], &PLUGE_NTSC_PAL[255],0);
-			break;
-			case 2:
+			else
 				loadPalette(&PLUGE_RGB_PAL[0], &PLUGE_RGB_PAL[255],0);
-			break;
+
+			draw = 0;
+		}
+
+		if(text)
+		{
+			text--;
+			if(!text)
+			{
+				HwMdClearScreen();
+			}
 		}
 
 		if (pressedButton & SEGA_CTRL_A)
 		{
-			pattern++;
-	
-			if(pattern > 2){
-		 		pattern = 1;
+			IsRGB = !IsRGB;
+
+			if(!IsRGB)
+			{
+				loadPalette(&PLUGE_NTSC_PAL[0], &PLUGE_NTSC_PAL[255],0);
+				HwMdPuts("NTSC 7.5 IRE  ", 0x2000, 24, 2);
 			}
+			else
+			{
+				loadPalette(&PLUGE_RGB_PAL[0], &PLUGE_RGB_PAL[255],0);
+				HwMdPuts("RGB FULL RANGE", 0x2000, 24, 2);
+			}
+			text = 30;
 		}
 
     	if (pressedButton & SEGA_CTRL_START)
 		{
+			HwMdClearScreen();
 			screenFadeOut(1);
 			done = 1;
 		}
 
 		if (pressedButton & SEGA_CTRL_Z)
 		{
+			HwMdClearScreen();
 			DrawHelp(HELP_PLUGE);
-			loadPalette(&PLUGE_NTSC_PAL[0], &PLUGE_NTSC_PAL[255],0);
+			draw = 1;
 		}
 
 		drawBG(PLUGE_TILE);
@@ -98,8 +118,6 @@ void tp_pluge()
 		drawLineTable(4);
 
 		Hw32xScreenFlip(0);
-
-		Hw32xDelay(frameDelay);
 	}
 	return;
 }
@@ -107,7 +125,6 @@ void tp_pluge()
 void tp_colorchart()
 {
 	int done = 0;
-	int frameDelay = 5;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	//extern const uint8_t COLORCHART_PAL[] __attribute__((aligned(16))) ; 
 	extern const uint8_t COLORCHART_TILE[] __attribute__((aligned(16)));
@@ -141,6 +158,7 @@ void tp_colorchart()
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			DrawHelp(HELP_COLORS);
+			Hw32xSetPalette((const char *)colorchart_palette);
 			//loadPalette(&COLORCHART_PAL[0], &COLORCHART_PAL[255],0);
 		}
 
@@ -149,8 +167,6 @@ void tp_colorchart()
 		drawLineTable(4);
 
 		Hw32xScreenFlip(0);
-
-		Hw32xDelay(frameDelay);
 	}
 	return;
 }
@@ -158,7 +174,7 @@ void tp_colorchart()
 void tp_colorbars()
 {
 	int done = 0;
-	int frameDelay = 1, draw = 1;
+	int draw = 1;
 	int Is75 = 0, text = 0;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 EBU_COLORBARS_100_PAL[];
@@ -224,13 +240,6 @@ void tp_colorbars()
 			text = 30;
 		}
 
-    	if (pressedButton & SEGA_CTRL_START)
-		{
-			HwMdClearScreen();
-			screenFadeOut(1);
-			done = 1;
-		}
-
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			HwMdClearScreen();
@@ -244,8 +253,6 @@ void tp_colorbars()
 		drawLineTable(4);
 
 		Hw32xScreenFlip(0);
-
-		Hw32xDelay(frameDelay);
 	}
 	return;
 }
@@ -253,7 +260,7 @@ void tp_colorbars()
 void tp_smpte_color_bars()
 {
 	int done = 0;
-	int frameDelay = 1, draw = 1;
+	int draw = 1;
 	int Is75 = 0, text = 0;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 SMPTE75IRE_PAL[];
@@ -332,8 +339,6 @@ void tp_smpte_color_bars()
 		drawLineTable(4);
 
 		Hw32xScreenFlip(0);
-
-		Hw32xDelay(frameDelay);
 	}
 	return;
 }
@@ -719,8 +724,8 @@ void tp_white_rgb()
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			HwMdClearScreen();
-			DrawHelp(HELP_GENERAL);
-			draw = 1;
+			DrawHelp(HELP_WHITE);
+			tp_white_rgb();
 		}
 
 		if (pressedButton & SEGA_CTRL_C)

@@ -73,10 +73,16 @@ int main()
 		mars_drawTextwShadow("Credits", 50, 155, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorBlack : fontColorGray);
 		
 		if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT)
-		mars_drawTextwShadow("NTSC VDP 320x224p", 155, 193, fontColorWhite, fontColorGray);
-		else
-		mars_drawTextwShadow("PAL VDP 320x224p", 163, 193, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("Sega 32X", 235, 208, fontColorWhite, fontColorGray);
+		{
+			mars_drawTextwShadow("NTSC VDP 320x224p", 152, 192, fontColorWhite, fontColorGray);
+			mars_drawTextwShadow("Genesis 32X", 208, 208, fontColorWhite, fontColorGray);
+		}
+		else 
+		{
+			mars_drawTextwShadow("PAL VDP 320x224p", 160, 192, fontColorWhite, fontColorGray);
+			mars_drawTextwShadow("Mega Drive 32X", 184, 208, fontColorWhite, fontColorGray);
+		}
+		
 
 		button = MARS_SYS_COMM8;
 
@@ -162,29 +168,34 @@ void menu_tp()
 		DrawMainBGwGillian();
 		loadTextPalette();
 
-		mars_drawTextwShadow("Pluge", 41, 48, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Color Bars", 41, 56, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("EBU Color Bars", 41, 64, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("SMPTE Color Bars", 41, 72, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Referenced Color Bars", 41, 80, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Color Bleed Check", 41, 88, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Grid", 41, 96, curse == 7 ? fontColorRed : fontColorWhite, curse == 7 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Monoscope", 41, 104, curse == 8 ? fontColorRed : fontColorWhite, curse == 8 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Gray Ramp", 41, 112, curse == 9 ? fontColorRed : fontColorWhite, curse == 9 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("White & RGB Screens", 41, 120, curse == 10 ? fontColorRed : fontColorWhite, curse == 10 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("100 IRE", 41, 128, curse == 11 ? fontColorRed : fontColorWhite, curse == 11 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Sharpness", 41, 136, curse == 12 ? fontColorRed : fontColorWhite, curse == 12 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Overscan", 41, 144, curse == 13 ? fontColorRed : fontColorWhite, curse == 13 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Convergence", 41, 152, curse == 14 ? fontColorRed : fontColorWhite, curse == 14 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Pluge", 40, 48, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Color Bars", 40, 56, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("EBU Color Bars", 40, 64, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("SMPTE Color Bars", 40, 72, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Referenced Color Bars", 40, 80, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Color Bleed Check", 40, 88, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Monoscope", 40, 96, curse == 7 ? fontColorRed : fontColorWhite, curse == 7 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Grid", 40, 104, curse == 8 ? fontColorRed : fontColorWhite, curse == 8 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Gray Ramp", 40, 112, curse == 9 ? fontColorRed : fontColorWhite, curse == 9 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("White & RGB Screens", 40, 120, curse == 10 ? fontColorRed : fontColorWhite, curse == 10 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("100 IRE", 40, 128, curse == 11 ? fontColorRed : fontColorWhite, curse == 11 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Sharpness", 40, 136, curse == 12 ? fontColorRed : fontColorWhite, curse == 12 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Overscan", 40, 144, curse == 13 ? fontColorRed : fontColorWhite, curse == 13 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Convergence", 40, 152, curse == 14 ? fontColorRed : fontColorWhite, curse == 14 ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("Help", 41, 162, curse == 15 ? fontColorRed : fontColorWhite, curse == 15 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Back to Main Menu", 41, 178, curse == 16 ? fontColorRed : fontColorWhite, curse == 16 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Help", 40, 170, curse == 15 ? fontColorRed : fontColorWhite, curse == 15 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Back to Main Menu", 40, 178, curse == 16 ? fontColorRed : fontColorWhite, curse == 16 ? fontColorBlack : fontColorGray);
 
 		if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT)
-		mars_drawTextwShadow("NTSC VDP 320x224p", 155, 193, fontColorWhite, fontColorGray);
-		else
-		mars_drawTextwShadow("PAL VDP 320x224p", 163, 193, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("Sega 32X", 235, 208, fontColorWhite, fontColorGray);
+		{
+			mars_drawTextwShadow("NTSC VDP 320x224p", 152, 192, fontColorWhite, fontColorGray);
+			mars_drawTextwShadow("Genesis 32X", 208, 208, fontColorWhite, fontColorGray);
+		}
+		else 
+		{
+			mars_drawTextwShadow("PAL VDP 320x224p", 160, 192, fontColorWhite, fontColorGray);
+			mars_drawTextwShadow("Mega Drive 32X", 184, 208, fontColorWhite, fontColorGray);
+		}
 
 		button = MARS_SYS_COMM8;
 
@@ -276,14 +287,14 @@ void menu_tp()
 
 				case 7:
 					screenFadeOut(1);
-					tp_grid();
+					tp_monoscope();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 8:
 					screenFadeOut(1);
-					tp_monoscope();
+					tp_grid();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
@@ -376,24 +387,29 @@ void menu_vt()
 		DrawMainBGwGillian();
 		loadTextPalette();
 
-		mars_drawTextwShadow("Drop Shadow Test", 41, 64, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);		
-		mars_drawTextwShadow("Striped Sprite Test", 41, 72, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Timing & Reflex Test", 41, 80, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Scroll Test", 41, 88, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Grid Scroll Test", 41, 96, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Horizontal Stripes", 41, 104, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Vertical Stripes", 41, 112, curse == 7 ? fontColorRed : fontColorWhite, curse == 7 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Checkerboard", 41, 120, curse == 8 ? fontColorRed : fontColorWhite, curse == 8 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Backlit Zone Test", 41, 128, curse == 9 ? fontColorRed : fontColorWhite, curse == 9 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Drop Shadow Test", 40, 64, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);		
+		mars_drawTextwShadow("Striped Sprite Test", 40, 72, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Lag Test", 40, 80, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Timing & Reflex Test", 40, 88, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Scroll Test", 40, 96, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Grid Scroll Test", 40, 104, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Horiz/Vert Stripes", 40, 112, curse == 7 ? fontColorRed : fontColorWhite, curse == 7 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Checkerboard", 40, 120, curse == 8 ? fontColorRed : fontColorWhite, curse == 8 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Backlit Zone Test", 40, 128, curse == 9 ? fontColorRed : fontColorWhite, curse == 9 ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("Help", 41, 150, curse == 10 ? fontColorRed : fontColorWhite, curse == 10 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Back to Main Menu", 41, 166, curse == 11 ? fontColorRed : fontColorWhite, curse == 11 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Help", 40, 154, curse == 10 ? fontColorRed : fontColorWhite, curse == 10 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Back to Main Menu", 40, 162, curse == 11 ? fontColorRed : fontColorWhite, curse == 11 ? fontColorBlack : fontColorGray);
 
 		if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT)
-		mars_drawTextwShadow("NTSC VDP 320x224p", 155, 193, fontColorWhite, fontColorGray);
-		else
-		mars_drawTextwShadow("PAL VDP 320x224p", 163, 193, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("Sega 32X", 235, 208, fontColorWhite, fontColorGray);
+		{
+			mars_drawTextwShadow("NTSC VDP 320x224p", 152, 192, fontColorWhite, fontColorGray);
+			mars_drawTextwShadow("Genesis 32X", 208, 208, fontColorWhite, fontColorGray);
+		}
+		else 
+		{
+			mars_drawTextwShadow("PAL VDP 320x224p", 160, 192, fontColorWhite, fontColorGray);
+			mars_drawTextwShadow("Mega Drive 32X", 184, 208, fontColorWhite, fontColorGray);
+		}
 
 		button = MARS_SYS_COMM8;
 
@@ -457,13 +473,20 @@ void menu_vt()
 
 				case 3:
 					screenFadeOut(1);
+					vt_striped_sprite_test();
+					marsVDP256Start();
+					DrawMainBGwGillian();
+				break;
+
+				case 4:
+					screenFadeOut(1);
 					vt_reflex_test();
 					HwMdClearScreen();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
-				case 4:
+				case 5:
 					screenFadeOut(1);
 					vt_scroll_test();
 					HwMdClearScreen();
@@ -474,7 +497,7 @@ void menu_vt()
 					DrawMainBGwGillian();
 				break;
 
-				case 5:
+				case 6:
 					screenFadeOut(1);
 					vt_gridscroll_test();
 					HwMdClearScreen();
@@ -485,16 +508,9 @@ void menu_vt()
 					DrawMainBGwGillian();
 				break;
 
-				case 6:
-					screenFadeOut(1);
-					vt_horizontal_stripes();
-					marsVDP256Start();
-					DrawMainBGwGillian();
-				break;
-
 				case 7:
 					screenFadeOut(1);
-					vt_vertical_stripes();
+					vt_horizontal_stripes();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
@@ -559,17 +575,22 @@ void menu_at()
 		DrawMainBGwGillian();
 		loadTextPalette();
 
-		mars_drawTextwShadow("Sound Test", 50, 80, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Audio Sync Test", 50, 88, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Sound Test", 40, 88, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Audio Sync Test", 40, 96, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("Help", 50, 146, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Back to Main Menu", 50, 161, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Help", 40, 122, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Back to Main Menu", 40, 130, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorBlack : fontColorGray);
 
 		if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT)
-		mars_drawTextwShadow("NTSC VDP 320x224p", 155, 193, fontColorWhite, fontColorGray);
-		else
-		mars_drawTextwShadow("PAL VDP 320x224p", 163, 193, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("Sega 32X", 235, 208, fontColorWhite, fontColorGray);
+		{
+			mars_drawTextwShadow("NTSC VDP 320x224p", 152, 192, fontColorWhite, fontColorGray);
+			mars_drawTextwShadow("Genesis 32X", 208, 208, fontColorWhite, fontColorGray);
+		}
+		else 
+		{
+			mars_drawTextwShadow("PAL VDP 320x224p", 160, 192, fontColorWhite, fontColorGray);
+			mars_drawTextwShadow("Mega Drive 32X", 184, 208, fontColorWhite, fontColorGray);
+		}
 
 		button = MARS_SYS_COMM8;
 
@@ -667,18 +688,23 @@ void menu_ht()
 		DrawMainBGwGillian();
 		loadTextPalette();
 
-		mars_drawTextwShadow("Controller Test", 50, 80, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Memory Viewer", 50, 88, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Test 32X SDRAM", 50, 96, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("32X BIOS Info", 50, 104, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Help", 50, 146, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Back to Main Menu", 50, 161, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Controller Test", 40, 80, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("SDRAM Check", 40, 88, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Memory Viewer", 40, 96, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("BIOS Info", 40, 104, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Help", 40, 128, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Back to Main Menu", 40, 136, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorBlack : fontColorGray);
 
 		if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT)
-		mars_drawTextwShadow("NTSC VDP 320x224p", 155, 193, fontColorWhite, fontColorGray);
-		else
-		mars_drawTextwShadow("PAL VDP 320x224p", 163, 193, fontColorWhite, fontColorGray);
-		mars_drawTextwShadow("Sega 32X", 235, 208, fontColorWhite, fontColorGray);
+		{
+			mars_drawTextwShadow("NTSC VDP 320x224p", 152, 192, fontColorWhite, fontColorGray);
+			mars_drawTextwShadow("Genesis 32X", 208, 208, fontColorWhite, fontColorGray);
+		}
+		else 
+		{
+			mars_drawTextwShadow("PAL VDP 320x224p", 160, 192, fontColorWhite, fontColorGray);
+			mars_drawTextwShadow("Mega Drive 32X", 184, 208, fontColorWhite, fontColorGray);
+		}
 
 		button = MARS_SYS_COMM8;
 
@@ -734,7 +760,7 @@ void menu_ht()
 				break;
 					
 				case 2:
-					ht_memory_viewer(0);
+					ht_test_32x_sdram();
 					HwMdClearScreen();
 					marsVDP256Start();
 					DrawMainBGwGillian();
@@ -742,7 +768,7 @@ void menu_ht()
 
 				case 3:
 					screenFadeOut(1);
-					ht_test_32x_sdram();
+					ht_memory_viewer(0);
 					HwMdClearScreen();
 					marsVDP256Start();
 					DrawMainBGwGillian();
