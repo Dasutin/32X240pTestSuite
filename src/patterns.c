@@ -35,7 +35,6 @@
 #include "colorbars.h"
 #include "colorbars_map.h"
 
-
 #define BLOCK_COLOR_1 32
 
 static volatile const char *new_palette;
@@ -887,11 +886,8 @@ void tp_white_rgb()
 void tp_100_ire()
 {
 	int done = 0;
-	char str[10];
-	int frameDelay = 1;
-	int pattern = 1;
 	int text = 0;
-	u16 irevals[] = { 13, 25, 41, 53, 66, 82, 94 };
+	u16 irevals[] = {13,25,41,53,66,82,94};
 	int draw = 1;
 	u16 ire = 6;
 	u16 button, pressedButton, oldButton = 0xFFFF;
@@ -944,7 +940,6 @@ void tp_100_ire()
 
 		if (pressedButton & SEGA_CTRL_Z)
 		{
-			//HwMdClearScreen();
 			HwMdPuts("       ", 0x0000, 32, 25);
 			DrawHelp(HELP_IRE);
 			MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X | MARS_224_LINES | MARS_VDP_MODE_256;
@@ -955,11 +950,11 @@ void tp_100_ire()
 
     	switch (ire) {
 			case 0:
-				cram16[1] = COLOR(4, 4, 4);    // 13
+				cram16[1] = COLOR(4, 4, 4);     // 13
 			break;
 				
 			case 1:
-				cram16[1] = COLOR(8, 8, 8);    // 25
+				cram16[1] = COLOR(8, 8, 8);     // 25
 			break;
 
 			case 2:
@@ -1009,7 +1004,6 @@ void tp_100_ire()
 void tp_sharpness()
 {
 	int done = 0;
-	int frameDelay = 5;
 	int pattern = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 SHARPNESS_PAL[];
@@ -1082,8 +1076,6 @@ void tp_sharpness()
 		drawLineTable(4);
 
 		Hw32xScreenFlip(0);
-
-		Hw32xDelay(frameDelay);
 	}
 	return;
 }
@@ -1335,7 +1327,6 @@ void tp_overscan()
 void tp_convergence()
 {
 	int done = 0;
-	int frameDelay = 5;
 	int pattern = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 CONVERGENCE_GRID_PAL[];
@@ -1446,8 +1437,6 @@ void tp_convergence()
 		drawLineTable(4);
 
 		Hw32xScreenFlip(0);
-
-		Hw32xDelay(frameDelay);
 	}
 	return;
 }
