@@ -1114,7 +1114,7 @@ void vt_vert_scroll_test()
 	int done = 0;
     char NTSC;
 	unsigned short button = 0, pressedButton = 0, oldButton = 0xFFFF;
-	canvas_yaw = 288;
+	canvas_yaw = 256;
 
 	SetSH2SR(1);
 
@@ -1194,9 +1194,10 @@ void vt_gridscroll_test()
 	int done = 0;
     char NTSC;
 	unsigned short button = 0, pressedButton = 0, oldButton = 0xFFFF;
+	int pos = 0, speed = 1, acc = -1, pause = 0, direction = 0;
 
 	canvas_pitch = 384; // canvas_width + scrollwidth
-	canvas_yaw = 288; // canvas_height + scrollheight
+	canvas_yaw = 256; // canvas_height + scrollheight
 
 	SetSH2SR(1);
 
@@ -1262,8 +1263,11 @@ void vt_gridscroll_test()
             DrawHelp(HELP_VSCROLL);
 			Hw32xSetPalette(grid_palette);
 			canvas_pitch = 384;
-			canvas_yaw = 288;
+			canvas_yaw = 256;
         }
+
+		if(!pause)
+			
 
 		if (fpcamera_x < 0) fpcamera_x = grid_tmx.wrapX*(1<<16);
 		if (fpcamera_y < 0) fpcamera_y = grid_tmx.wrapY*(1<<16);
@@ -1280,7 +1284,7 @@ void vt_gridscroll_test()
 		draw_setScissor(0, 0, 320, 224);
 
         Hw32xScreenFlip(0);
-		Hw32xDelay(1);
+		Hw32xDelay(2);
 	}
 	return;
 }
@@ -1291,6 +1295,7 @@ void vt_horizontal_stripes()
 	int test = 1;
 	int manualtest = 1;
 	int pal = 1;
+	int pattern = 1;
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
 	volatile unsigned short *cram16 = &MARS_CRAM;
 
@@ -1305,6 +1310,17 @@ void vt_horizontal_stripes()
 		0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01
 	};
 
+	uint8_t v_bars_tile_8[] __attribute__((aligned(16))) = {
+		0x00,0x01,0x00,0x01,0x00,0x01,0x00,0x01,
+		0x00,0x01,0x00,0x01,0x00,0x01,0x00,0x01,
+		0x00,0x01,0x00,0x01,0x00,0x01,0x00,0x01,
+		0x00,0x01,0x00,0x01,0x00,0x01,0x00,0x01,
+		0x00,0x01,0x00,0x01,0x00,0x01,0x00,0x01,
+		0x00,0x01,0x00,0x01,0x00,0x01,0x00,0x01,
+		0x00,0x01,0x00,0x01,0x00,0x01,0x00,0x01,
+		0x00,0x01,0x00,0x01,0x00,0x01,0x00,0x01
+	};
+
 	marsVDP256Start();
 
 	cram16[0] = 0x7FFF;
@@ -1315,6 +1331,8 @@ void vt_horizontal_stripes()
 	while (!done)
 	{
 		Hw32xFlipWait();
+
+		//clearScreen_Fill8bit();
 
 		button = MARS_SYS_COMM8;
 
@@ -1327,15 +1345,6 @@ void vt_horizontal_stripes()
     	oldButton = button;
 
 		switch (test) {
-			case 1:
-				for (int i=0; i<=224; i=i+8){
-					for (int a=0; a<=320; a=a+8){
-						drawSprite(h_bars_tile_8,a,i,8,8,0,0);
-					}
-				}	
-			break;
-				
-			case 2:
 				switch (pal) {
 					case 1:
 						cram16[0] = 0x0000;
@@ -1367,7 +1376,60 @@ void vt_horizontal_stripes()
 			}
 		}
 
+		switch (pattern) {
+				case 1:
+				for (int i=0; i<=224; i=i+8){
+					for (int a=0; a<=320; a=a+8){
+						drawSprite(v_bars_tile_8,a,i,8,8,0,0);
+					}
+				}	
+				break;
+				
+				case 2:
+				for (int i=0; i<=224; i=i+8){
+					for (int a=0; a<=320; a=a+8){
+						drawSprite(h_bars_tile_8,a,i,8,8,0,0);
+					}
+				break;
+				}
+				}
+
+		if (pressedButton & SEGA_CTRL_LEFT)
+		{
+			Hw32xScreenClear();
+			if (pattern == 1)
+			{
+				pattern = 2;
+			}		
+			else {
+				pattern = 1;
+			}
+
+/* 			Hw32xScreenClear();
+			pattern++;
+			if(pattern > 2){
+		 		pattern = 1;
+			} */
+		}
+
 		if (pressedButton & SEGA_CTRL_RIGHT)
+		{
+			Hw32xScreenClear();
+			if (pattern == 1)
+			{
+				pattern = 2;
+			}		
+			else {
+				pattern = 1;
+			}
+			/* Hw32xScreenClear();
+			pattern++;
+			if(pattern > 2){
+		 		pattern = 1;
+			} */
+		}
+
+		if (pressedButton & SEGA_CTRL_UP)
 		{
 			manualtest++;
 	
@@ -1390,7 +1452,7 @@ void vt_horizontal_stripes()
 			}
 		}
 
-		if (pressedButton & SEGA_CTRL_LEFT)
+		if (pressedButton & SEGA_CTRL_DOWN)
 		{
 			manualtest++;
 	
@@ -1425,6 +1487,7 @@ void vt_horizontal_stripes()
 		if(pal > 2){
 			pal = 1;
 		}
+		//draw_setScissor(0, 0, 320, 224);
 
 		drawLineTable(4);
 
@@ -1579,9 +1642,10 @@ void vt_checkerboard()
 	int done = 0;
     char NTSC;
 	unsigned short button = 0, pressedButton = 0, oldButton = 0xFFFF;
-	int frameCount = 0;
+	int count = 0;
 	int test = 1;
 	int pal = 1;
+	int docounter = 0;
 	int manualtest = 1;
 	volatile unsigned short *cram16 = &MARS_CRAM;
 
@@ -1621,6 +1685,24 @@ void vt_checkerboard()
 			button = MARS_SYS_COMM10;
 		}
 
+
+		if(docounter)
+		{
+			count++;
+
+			//if(IsPALVDP)
+			//{
+			//	if(count > 49)
+			//		count = 0;
+			//}
+			//else
+			//{
+				if(count > 59)
+					count = 0;
+			//}
+			HwMdScreenPrintf(0x2000, 2, 25, "Frame:%02d", count);
+		}
+
 		pressedButton = button & ~oldButton;
     	oldButton = button;
 
@@ -1633,6 +1715,11 @@ void vt_checkerboard()
 			else {
 				test = 1;
 			}
+		}
+
+		if (pressedButton & SEGA_CTRL_B)
+		{	
+			docounter = ~docounter;
 		}
 
 		if (pressedButton & SEGA_CTRL_UP)
@@ -1718,6 +1805,8 @@ void vt_checkerboard()
 		if(pal > 2){
 			pal = 1;
 		}
+
+		count++;
 
         Hw32xScreenFlip(0);
 	}

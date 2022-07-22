@@ -122,12 +122,6 @@ _CONVERGENCE_COLOR_BORDER_PAL:
 
 			.align 2
 
-			.global _COLORCHART_PAL
-_COLORCHART_PAL:
-			.incbin "res/colorchart_pal.bin"
-
-			.align 2
-
 			.global _EBU_COLORBARS_100_PAL
 _EBU_COLORBARS_100_PAL:
 			.incbin "res/ebu_colorbars_100_pal.bin"
@@ -301,18 +295,6 @@ _CONVERGENCE_COLOR_BORDER_TILE:
 			.global _IRE_TILE
 _IRE_TILE:
 			.incbin "res/ire.bin"
-
-			.align 2
-
-			.global _TEST_SMTPE_TILE
-_TEST_SMTPE_TILE:
-			.incbin "res/test.bin"
-
-			.align 2
-
-			.global _COLORCHART_TILE
-_COLORCHART_TILE:
-			.incbin "res/colorchart_tile.bin"
 
 			.align 2
 

@@ -25,10 +25,15 @@
 #include "32x.h"
 #include "hw_32x.h"
 #include "32x_images.h"
+#include "draw.h"
+#include "dtiles.h"
 #include "patterns.h"
 #include "shared_objects.h"
 #include "help.h"
 #include "colorchart_pal.h"
+#include "colorbars_palette.h"
+#include "colorbars.h"
+#include "colorbars_map.h"
 
 
 #define BLOCK_COLOR_1 32
@@ -125,20 +130,23 @@ void tp_pluge()
 void tp_colorchart()
 {
 	int done = 0;
+	int fpcamera_x, fpcamera_y;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	//extern const uint8_t COLORCHART_PAL[] __attribute__((aligned(16))) ; 
-	extern const uint8_t COLORCHART_TILE[] __attribute__((aligned(16)));
+	
+	SetSH2SR(1);
 
-	Hw32xSetPalette((const char *)colorchart_palette);
+	while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
 
-	//loadPalette(&COLORCHART_PAL[0], &COLORCHART_PAL[255],0);
+	Hw32xSetPalette(colorbars_Palette);
+
+	init_tilemap(&tm, &colorbars_Map, (uint8_t **)colorbars_Reslist);
+
+	fpcamera_x = fpcamera_y = 0;
 
 	Hw32xScreenFlip(0);
 
 	while (!done)
 	{
-		Hw32xFlipWait();
-
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
@@ -149,22 +157,22 @@ void tp_colorchart()
 		pressedButton = button & ~oldButton;
     	oldButton = button;
 
-    	if (pressedButton & SEGA_CTRL_START)
+		if (pressedButton & SEGA_CTRL_Z)
+		{
+			DrawHelp(HELP_COLORS);
+			Hw32xSetPalette(colorbars_Palette);
+		}
+
+		Hw32xFlipWait();
+
+		if (pressedButton & SEGA_CTRL_START)
 		{
 			screenFadeOut(1);
 			done = 1;
 		}
 
-		if (pressedButton & SEGA_CTRL_Z)
-		{
-			DrawHelp(HELP_COLORS);
-			Hw32xSetPalette((const char *)colorchart_palette);
-			//loadPalette(&COLORCHART_PAL[0], &COLORCHART_PAL[255],0);
-		}
-
-		drawBG(COLORCHART_TILE);
-
-		drawLineTable(4);
+		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+		draw_setScissor(0, 0, 320, 224);
 
 		Hw32xScreenFlip(0);
 	}
@@ -883,10 +891,9 @@ void tp_100_ire()
 	int frameDelay = 1;
 	int pattern = 1;
 	int text = 0;
-	//u16 irevals[] = { 13, 25, 41, 53, 66, 82, 94 };
-	u16 irevals[] = { 94, 82, 66, 53, 41, 25, 13 };
+	u16 irevals[] = { 13, 25, 41, 53, 66, 82, 94 };
 	int draw = 1;
-	int ire = 6;
+	u16 ire = 6;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const uint8_t IRE_TILE[] __attribute__((aligned(16)));
 	volatile unsigned short *cram16 = &MARS_CRAM;
@@ -923,68 +930,56 @@ void tp_100_ire()
 		{
 			if(ire != 0)
 				ire--;
-
-			intToStr(irevals[ire], str, 2);
-			HwMdPuts(str, 0x0000, 32, 26);
-			HwMdPuts("IRE", 0x0000, 35, 26);
-
+			HwMdScreenPrintf(0x0000, 32, 25, "IRE:%2d", irevals[ire]);
 			text = 60;
-			//pattern--;
-			//if(pattern < 1)
-			//	pattern = 1;
 		}
 
 		if (pressedButton & SEGA_CTRL_B)
 		{
 			if(ire != 6)
 				ire++;
-
-			intToStr(irevals[ire], str, 2);
-			HwMdPuts(str, 0x0000, 32, 26);
-			HwMdPuts("IRE", 0x0000, 35, 26);
-
+			HwMdScreenPrintf(0x0000, 32, 25, "IRE:%2d", irevals[ire]);
 			text = 60;
-			//pattern++;
-			//if(pattern > 7)
-			//	pattern = 7;
 		}
 
 		if (pressedButton & SEGA_CTRL_Z)
 		{
-			HwMdClearScreen();
+			//HwMdClearScreen();
+			HwMdPuts("       ", 0x0000, 32, 25);
 			DrawHelp(HELP_IRE);
+			MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X | MARS_224_LINES | MARS_VDP_MODE_256;
 			cram16[0] = COLOR(0, 0, 0);
 		}
 
 		drawBG(IRE_TILE);
 
     	switch (ire) {
-			case 1:
-				cram16[1] = COLOR(30, 30, 30);
-			break;
-				
-			case 2:
-				cram16[1] = COLOR(26, 26, 26);
-			break;
-
-			case 3:
-				cram16[1] = COLOR(21, 21, 21);
-			break;
-				
-			case 4:
-				cram16[1] = COLOR(17, 17, 17);
-			break;
-
-			case 5:
-				cram16[1] = COLOR(13, 13, 13);
-			break;
-				
-			case 6:
-				cram16[1] = COLOR(8, 8, 8);
-			break;
-
-			case 7:
+			case 0:
 				cram16[1] = COLOR(4, 4, 4);    // 13
+			break;
+				
+			case 1:
+				cram16[1] = COLOR(8, 8, 8);    // 25
+			break;
+
+			case 2:
+				cram16[1] = COLOR(13, 13, 13);  // 41
+			break;
+				
+			case 3:
+				cram16[1] = COLOR(17, 17, 17);  // 53
+			break;
+
+			case 4:
+				cram16[1] = COLOR(21, 21, 21);  // 66
+			break;
+				
+			case 5:
+				cram16[1] = COLOR(26, 26, 26);  // 82
+			break;
+
+			case 6:
+				cram16[1] = COLOR(30, 30, 30);  // 94
 			break;
 		}
 
@@ -1007,8 +1002,6 @@ void tp_100_ire()
 		drawLineTable(4);
 
 		Hw32xScreenFlip(0);
-
-		Hw32xDelay(frameDelay);
 	}
 	return;
 }

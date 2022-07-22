@@ -39,7 +39,7 @@ int sysarg_args_vol = 0;
 
 int nodraw = 0;
 
-int32_t canvas_width = 320+4; // +4 to avoid hitting that 0xXXFF bug in the shift register
+int32_t canvas_width = 320; // +4 to avoid hitting that 0xXXFF bug in the shift register
 int32_t canvas_height = 224;
 
 extern drawsprcmd_t slave_drawsprcmd;
