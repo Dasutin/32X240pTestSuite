@@ -541,6 +541,7 @@ void tp_monoscope()
 	int done = 0;
 	int frameDelay = 5;
 	int pattern = 1;
+	int gray = 0;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	extern const uint8_t MONOSCOPE_TILE[] __attribute__((aligned(16)));
 	volatile unsigned short *cram16 = &MARS_CRAM;
@@ -565,18 +566,24 @@ void tp_monoscope()
 		pressedButton = button & ~oldButton;
     	oldButton = button;
 
+		if(!gray) {
+			cram16[1] = COLOR(0, 0, 0);
+		}
+		else {
+			cram16[1] = COLOR(13, 13, 13);
+		}
+		
+
     	if (pressedButton & SEGA_CTRL_A)
 		{
-			pattern--;
-			if(pattern < 1)
+			pattern++;
+			if(pattern > 7)
 				pattern = 1;
 		}
 
 		if (pressedButton & SEGA_CTRL_B)
 		{
-			pattern++;
-			if(pattern > 7)
-				pattern = 7;
+			gray = !gray;
 		}
 
 		if (pressedButton & SEGA_CTRL_Z)

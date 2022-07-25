@@ -460,6 +460,8 @@ void menu_vt()
 				case 1:
 					screenFadeOut(1);
 					vt_drop_shadow_test();
+					canvas_pitch = 320;
+					canvas_yaw = 224;
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
@@ -467,6 +469,8 @@ void menu_vt()
 				case 2:
 					screenFadeOut(1);
 					vt_striped_sprite_test();
+					canvas_pitch = 320;
+					canvas_yaw = 224;
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;

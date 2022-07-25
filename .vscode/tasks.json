@@ -27,7 +27,7 @@
             "dependsOrder": "sequence",
             "dependsOn": [
                 "Build 32X ROM",
-                "Run in Gens"
+                "Run in Emulator"
             ],
             "problemMatcher": [],
             "group": {
