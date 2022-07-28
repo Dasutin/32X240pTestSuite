@@ -1086,34 +1086,9 @@ void tp_sharpness()
 
 void tp_overscan()
 {
-	// u32 _tile_l[8], _tile_r[8], _tile_t[8], _tile_b[8];
-	// u32 _tile_lb[8], _tile_lt[8], _tile_rt[8], _tile_rb[8];
-	// u16 vram = TILE_USERINDEX;
-	//int type = 0, ntype = 0;
-	int left = 0, right = 0, top = 320, bottom = 224, done = 0;
+	int left = 0, right = 320, top = 0, bottom = 224, done = 0;
 	u16 button = 0, pressedButton = 0, oldButton = 0xFFFF;
-	//int redraw = 1;
-	int sel = 0; 
-	//int maxTileVert = 0, maxTileHor = 0;
-	//int loadvram = 1;
-	//const u32 back[8] = { 0x44444444, 0x44444444, 0x44444444, 0x44444444,
-	//	0x44444444, 0x44444444, 0x44444444, 0x44444444
-	//};
-	//const u32 white[8] = { 0x77777777, 0x77777777, 0x77777777, 0x77777777,
-	//	0x77777777, 0x77777777, 0x77777777, 0x77777777
-	//};
-	//vu16 *cram16 = &MARS_CRAM;
-	
-	//vu8 gray = COLOR(15, 15, 15);
-
-	/* tile_l = _tile_l;
-	tile_r = _tile_r;
-	tile_t = _tile_t;
-	tile_b = _tile_b;
-	tile_lb = _tile_lb;
-	tile_lt = _tile_lt;
-	tile_rt = _tile_rt;
-	tile_rb = _tile_rb; */
+	int sel = 0;
 
 	Hw32xSetBGColor(0,31,31,31);
 
@@ -1129,102 +1104,41 @@ void tp_overscan()
 	{
 		Hw32xFlipWait();
 
-		clearScreen_Fill8bit();
-		
-		/* if(loadvram)
+		clearScreen_Fill16bit();
+
+		char data[10];
+		int l, r, t, b;
+
+		l = left;
+		r = right;
+		t = top;
+		b = bottom;
+
+		for(int i= t; i <= b; i++)
 		{
-			VDP_Start();
-			if(type == RES_256)
-				VDP_setScreenWidth256();
-			else
-				VDP_setScreenWidth320();
-					
-			VDP_loadTileData(back, vram, 1, USE_DMA);
-			VDP_loadTileData(white, vram + 9, 1, USE_DMA);
+			drawRect(l,i,r,1,(vu8*)&blockColor);
+		}
 
-			VDP_setPalette(PAL3, palette_grey);
-			VDP_fillTileMapRect(BPLAN, TILE_ATTR(PAL3, 0, 0, 0) + vram, 0, 0, (type == RES_256 ? 256 : 320) / 8, getVerticalRes() / 8);
-			VDP_End();
-			loadvram = 0;
-			redraw = 1;
-		} */
+		// Text
+		intToStr(top, data, 1);
+		HwMdPuts("Top:", sel == 0 ? 0x2000 : 0x0000, 12, 12);
+		HwMdPuts("   pixels", sel == 0 ? 0x2000 : 0x0000, 20, 12);
+		HwMdPuts(data, sel == 0 ? 0x2000 : 0x0000, 20, 12);
 
-			char data[10];
-			int l, r, t, b;
+		intToStr(bottom, data, 1);
+		HwMdPuts("Bottom:", sel == 1 ? 0x2000 : 0x0000, 12, 13);
+		HwMdPuts("   pixels", sel == 1 ? 0x2000 : 0x0000, 20, 13);
+		HwMdPuts(data, sel == 1 ? 0x2000 : 0x0000, 20, 13);
 
-			l = left;
-			r = right;
-			t = top;
-			b = bottom;
+		intToStr(left, data, 1);
+		HwMdPuts("Left:", sel == 2 ? 0x2000 : 0x0000, 12, 14);
+		HwMdPuts("   pixels", sel == 2 ? 0x2000 : 0x0000, 20, 14);
+		HwMdPuts(data, sel == 2 ? 0x2000 : 0x0000, 20, 14);
 
-			//maxTileVert = 224;
-			//maxTileHor = 320;
-
-			 // Clean center
-			//VDP_fillTileMapRect(BPLAN, TILE_ATTR(PAL0, 0, 0, 0) + vram, l + 1, t + 1, maxTileHor - (r + l) - 2, maxTileVert - (t + b) - 2);
-
-			//FillTiles(vram, left, right, top, bottom);
-
-			 // Left
-			//drawFillRect(l, t + 1, 1, (maxTileVert - 2) - b - t, (vu8*)&blockColor);
-
-			//drawFillRect(l, t + 1, 1, (maxTileVert - 2) - b - t, (vu8*)&blockColor);
-
-			drawFillRect(l, r, t, b, (vu8*)&blockColor);
-			
-			// Right
-			//drawFillRect((maxTileHor - 1) - r, t + 1, 1, (maxTileVert - 2) - b - t, (vu8*)&blockColor);
-			// Top
-			//drawFillRect(l + 1, t, (maxTileHor - 2) - r - l, 1, (vu8*)&blockColor);
-			// Bottom
-			//drawFillRect(l + 1, (maxTileVert - 1) - b, (maxTileHor - 2) - r - l, 1, (vu8*)&blockColor);
-
-			// Corners
-
-			// left top
-			//VDP_setTileMapXY(BPLAN, TILE_ATTR(PAL0, 0, 0, 0) + vram + 5, l, t);
-			// left bottom
-			//VDP_setTileMapXY(BPLAN, TILE_ATTR(PAL0, 0, 0, 0) + vram + 6, l, (maxTileVert - 1) - b);
-			// right top
-			//VDP_setTileMapXY(BPLAN, TILE_ATTR(PAL0, 0, 0, 0) + vram + 7, (maxTileHor - 1) - r, t);
-			// right bottom
-			//VDP_setTileMapXY(BPLAN, TILE_ATTR(PAL0, 0, 0, 0) + vram + 8, (maxTileHor - 1) - r, (maxTileVert - 1) - b);
-
-			// Whites
-			//if(l)
-			//	drawFillRect(0, t, l, maxTileVert - b - t, (vu8*)&blockColor);
-			// Right
-			//if(r)
-			//	drawFillRect(maxTileHor - r, t, r, maxTileVert - b - t, (vu8*)&blockColor);
-			// Top
-			//if(t)
-			//	drawFillRect(0, 0, maxTileHor, t, (vu8*)&blockColor);
-			// Bottom
-			//if(b)
-			//	drawFillRect(0, maxTileVert - b, maxTileHor, b, (vu8*)&blockColor);
-
-			// text
-			intToStr(top, data, 1);
-			HwMdPuts("Top:", sel == 0 ? 0x2000 : 0x0000, 12, 12);
-			HwMdPuts("   pixels", sel == 0 ? 0x2000 : 0x0000, 20, 12);
-			HwMdPuts(data, sel == 0 ? 0x2000 : 0x0000, 20, 12);
-
-			intToStr(bottom, data, 1);
-			HwMdPuts("Bottom:", sel == 1 ? 0x2000 : 0x0000, 12, 13);
-			HwMdPuts("   pixels", sel == 1 ? 0x2000 : 0x0000, 20, 13);
-			HwMdPuts(data, sel == 1 ? 0x2000 : 0x0000, 20, 13);
-
-			intToStr(left, data, 1);
-			HwMdPuts("Left:", sel == 2 ? 0x2000 : 0x0000, 12, 14);
-			HwMdPuts("   pixels", sel == 2 ? 0x2000 : 0x0000, 20, 14);
-			HwMdPuts(data, sel == 2 ? 0x2000 : 0x0000, 20, 14);
-
-			intToStr(right, data, 1);
-			HwMdPuts("Right:", sel == 3 ? 0x2000 : 0x0000, 12, 15);
-			HwMdPuts("   pixels", sel == 3 ? 0x2000 : 0x0000, 20, 15);
-			HwMdPuts(data, sel == 3 ? 0x2000 : 0x0000, 20, 15);
-
-		//drawFillRect(20, 80, 40, 40, (vu8*)&blockColor);
+		intToStr(right, data, 1);
+		HwMdPuts("Right:", sel == 3 ? 0x2000 : 0x0000, 12, 15);
+		HwMdPuts("   pixels", sel == 3 ? 0x2000 : 0x0000, 20, 15);
+		HwMdPuts(data, sel == 3 ? 0x2000 : 0x0000, 20, 15);
 
 		button = MARS_SYS_COMM8;
 
@@ -1246,13 +1160,12 @@ void tp_overscan()
 		if(pressedButton & SEGA_CTRL_UP)
 		{
 			sel--;
-			//redraw = 1;
+
 		}
 
 		if(pressedButton & SEGA_CTRL_DOWN)
 		{
 			sel++;
-			//redraw = 1;
 		}
 
 		if(sel < 0)
@@ -1286,7 +1199,6 @@ void tp_overscan()
 				if(*data < 0)
 					*data = 0;
 			}
-			//redraw = 1;
 		}
 
 		if(pressedButton & SEGA_CTRL_RIGHT)
@@ -1315,13 +1227,11 @@ void tp_overscan()
 				if(*data > 320)
 					*data = 320;
 			}
-			//redraw = 1;
 		}
 
 		if(pressedButton & SEGA_CTRL_A)
 		{
 			left = right = bottom = top = 0;
-			//redraw = 1;
 		}
 
 		drawLineTable(4);
