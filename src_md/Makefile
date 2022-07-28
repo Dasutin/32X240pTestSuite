@@ -1,13 +1,11 @@
 ROOTDIR = $(MARSDEV)
 
-LDSCRIPTSDIR = $(ROOTDIR)/ldscripts
-
 LIBPATH = -L$(ROOTDIR)/m68k-elf/lib -L$(ROOTDIR)/m68k-elf/lib/gcc/m68k-elf/4.6.2 -L$(ROOTDIR)/m68k-elf/m68k-elf/lib
 INCPATH = -I$. -I$(ROOTDIR)/m68k-elf/include -I$(ROOTDIR)/m68k-elf/m68k-elf/include -I../liblzss
 
 CCFLAGS = -m68000 -Wall -c -fomit-frame-pointer
 ASFLAGS = -m68000 --register-prefix-optional
-LINKFLAGS = -T $(LDSCRIPTSDIR)/mars-md.ld -Wl,-Map=output.map -nostdlib -flto
+LINKFLAGS = -T ./mars-md.ld -Wl,-Map=output.map -nostdlib -Wl,--print-memory-usage
 
 EXTRA = 
 
@@ -26,7 +24,6 @@ OBJS = crt0.o font.o pal.o psg.o main.o kos.o cd.o lzss.o vgm.o vgm_player.o xvp
 
 .PHONY: all release debug
 
-# release: EXTRA = -O1
 release: EXTRA = -Os
 release: $(TARGET).bin
 
