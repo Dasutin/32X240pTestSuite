@@ -7,6 +7,8 @@
  *
  * 32X by Chilly Willy
  */
+
+#include <string.h>
 #include <stdint.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -16,9 +18,13 @@
 #include "string.h"
 #include "shared_objects.h"
 #include "draw.h"
-#include "dtiles.h"
 #include "sound.h"
 #include "mars_ringbuf.h"
+
+int old_camera_x, old_camera_y;
+int main_camera_x, main_camera_y;
+
+int camera_x, camera_y;
 
 extern int fontColorWhite;
 extern int fontColorRed;
@@ -782,16 +788,17 @@ int secondary_task(int cmd)
     case 6: 
         Hw32xAudioCallback((unsigned long)&sndbuf);
         MARS_SYS_COMM4 = 7;
+        secondary_task(7);
         return 1;
     case 7:
         SH2_DMA_SAR1 = ((unsigned long)&sndbuf) | 0x20000000;
         SH2_DMA_TCR1 = NUM_SAMPLES; // number longs
         SH2_DMA_CHCR1 = 0x18E1; // dest fixed, src incr, size long, ext req, dack mem to dev, dack hi, dack edge, dreq rising edge, cycle-steal, dual addr, intr disabled, clear TE, dma enabled
+        secondary_task(8);
         return 1;
     case 8:
         MARS_SYS_COMM4 = 6;
         Hw32xAudioCallback((unsigned long)&sndbuf + MAX_NUM_SAMPLES * 4);
-        MARS_SYS_COMM4 = 7;
         return 1;
     default:
         break;

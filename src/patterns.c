@@ -19,14 +19,13 @@
  * along with 240p Test Suite; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
+#include <string.h>
 #include "types.h"
 #include "string.h"
 #include "32x.h"
 #include "hw_32x.h"
 #include "32x_images.h"
 #include "draw.h"
-#include "dtiles.h"
 #include "patterns.h"
 #include "shared_objects.h"
 #include "help.h"
@@ -36,8 +35,6 @@
 #include "colorbars_map.h"
 
 #define BLOCK_COLOR_1 32
-
-static volatile const char *new_palette;
 
 void tp_pluge()
 {
@@ -694,7 +691,7 @@ void tp_white_rgb()
 {
 	int done = 0;
 	int color = 1;
-	int draw = 1;
+	//int draw = 1;
 	int sel = 1;
 	int l = 320*224;
 	u16 r = 31, g = 31, b = 31;
@@ -745,19 +742,19 @@ void tp_white_rgb()
 		if (pressedButton & SEGA_CTRL_C)
 		{
 			custom = !custom;
-			draw = 1;
+			//draw = 1;
 		}
 
 		if (pressedButton & SEGA_CTRL_A)
 		{
 			color++;
-			draw = 1;
+			//draw = 1;
 		}
 
 		if (pressedButton & SEGA_CTRL_B)
 		{
 			color--;
-			draw = 1;
+			//draw = 1;
 		}
 
 		cram16[0] = COLOR(r, g, b);
@@ -1092,17 +1089,19 @@ void tp_overscan()
 	// u32 _tile_l[8], _tile_r[8], _tile_t[8], _tile_b[8];
 	// u32 _tile_lb[8], _tile_lt[8], _tile_rt[8], _tile_rb[8];
 	// u16 vram = TILE_USERINDEX;
-	int type = 0, ntype = 0;
+	//int type = 0, ntype = 0;
 	int left = 0, right = 0, top = 320, bottom = 224, done = 0;
 	u16 button = 0, pressedButton = 0, oldButton = 0xFFFF;
-	int redraw = 1;
-	int sel = 0, maxTileVert = 0, maxTileHor = 0, loadvram = 1;
-	const u32 back[8] = { 0x44444444, 0x44444444, 0x44444444, 0x44444444,
-		0x44444444, 0x44444444, 0x44444444, 0x44444444
-	};
-	const u32 white[8] = { 0x77777777, 0x77777777, 0x77777777, 0x77777777,
-		0x77777777, 0x77777777, 0x77777777, 0x77777777
-	};
+	//int redraw = 1;
+	int sel = 0; 
+	//int maxTileVert = 0, maxTileHor = 0;
+	//int loadvram = 1;
+	//const u32 back[8] = { 0x44444444, 0x44444444, 0x44444444, 0x44444444,
+	//	0x44444444, 0x44444444, 0x44444444, 0x44444444
+	//};
+	//const u32 white[8] = { 0x77777777, 0x77777777, 0x77777777, 0x77777777,
+	//	0x77777777, 0x77777777, 0x77777777, 0x77777777
+	//};
 	//vu16 *cram16 = &MARS_CRAM;
 	
 	//vu8 gray = COLOR(15, 15, 15);
@@ -1158,8 +1157,8 @@ void tp_overscan()
 			t = top;
 			b = bottom;
 
-			maxTileVert = 224;
-			maxTileHor = 320;
+			//maxTileVert = 224;
+			//maxTileHor = 320;
 
 			 // Clean center
 			//VDP_fillTileMapRect(BPLAN, TILE_ATTR(PAL0, 0, 0, 0) + vram, l + 1, t + 1, maxTileHor - (r + l) - 2, maxTileVert - (t + b) - 2);
@@ -1247,13 +1246,13 @@ void tp_overscan()
 		if(pressedButton & SEGA_CTRL_UP)
 		{
 			sel--;
-			redraw = 1;
+			//redraw = 1;
 		}
 
 		if(pressedButton & SEGA_CTRL_DOWN)
 		{
 			sel++;
-			redraw = 1;
+			//redraw = 1;
 		}
 
 		if(sel < 0)
@@ -1287,7 +1286,7 @@ void tp_overscan()
 				if(*data < 0)
 					*data = 0;
 			}
-			redraw = 1;
+			//redraw = 1;
 		}
 
 		if(pressedButton & SEGA_CTRL_RIGHT)
@@ -1316,13 +1315,13 @@ void tp_overscan()
 				if(*data > 320)
 					*data = 320;
 			}
-			redraw = 1;
+			//redraw = 1;
 		}
 
 		if(pressedButton & SEGA_CTRL_A)
 		{
 			left = right = bottom = top = 0;
-			redraw = 1;
+			//redraw = 1;
 		}
 
 		drawLineTable(4);

@@ -20,8 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _HELP_H
-#define _HELP_H
+#ifndef _HELP_H_
+#define _HELP_H_
 
 #define	HELP_GENERAL		1
 #define	HELP_PLUGE			2
@@ -57,4 +57,4 @@
 
 void DrawHelp(int option);
 
-#endif
+#endif /* _HELP_H_ */

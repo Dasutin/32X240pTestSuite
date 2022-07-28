@@ -20,8 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _GRAPHICS_
-#define _GRAPHICS_
+#ifndef _GRAPHICS_H_
+#define _GRAPHICS_H_
 
 #include "types.h"
 #include "32x.h"
@@ -37,4 +37,4 @@ double ySinTable(const int details);
 // Draws an elipse
 void circle2(const s16 height, const s16 width, const s16 rx, const s16 ry, const s16 r, vu8 *spriteBuffer, s16 colorIndex);
 
-#endif
+#endif /* _GRAPHICS_H_ */

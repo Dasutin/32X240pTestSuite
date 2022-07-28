@@ -24,8 +24,8 @@
   SOFTWARE.
 */
 
-#ifndef _MARS_RB_H
-#define _MARS_RB_H
+#ifndef _MARS_RINGBUF_H_
+#define _MARS_RINGBUF_H_
 
 #include <stdint.h>
 #include <stddef.h>
@@ -191,4 +191,4 @@ static inline short* Mars_RB_GetWriteBuf(marsrb_t* wb, unsigned wcnt)
     return (short*)((intptr_t)buf | 0x20000000);
 }
 
-#endif // _MARS_RB_H
+#endif /* _MARS_RINGBUF_H_ */

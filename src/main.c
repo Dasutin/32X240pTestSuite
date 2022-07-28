@@ -41,20 +41,20 @@ uint32_t  canvas_yaw = 224; // canvas_height + scrollheight
 
 int main()
 {
-	int frameDelay = 0;
+	//int frameDelay = 0;
 	int curse = 1;
-	char NTSC;
+	//char NTSC;
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
 	
 	marsVDP256Start();
 
-	Hw32xUpdateLineTable(0, 0, 0);
+	//Hw32xUpdateLineTable(0, 0, 0);
 
 	SetSH2SR(1);
 
 	while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
 
-    NTSC = (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT) != 0;
+    //NTSC = (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT) != 0;
 
 	Hw32xScreenFlip(0);
 
@@ -477,7 +477,7 @@ void menu_vt()
 
 				case 3:
 					screenFadeOut(1);
-					vt_striped_sprite_test();
+					vt_lag_test();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
@@ -496,7 +496,7 @@ void menu_vt()
 					HwMdClearScreen();
 					canvas_pitch = 320;
 					canvas_yaw = 224;
-					Hw32xUpdateLineTable(0, 0, 0);
+					//Hw32xUpdateLineTable(0, 0, 0);
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
@@ -507,7 +507,7 @@ void menu_vt()
 					HwMdClearScreen();
 					canvas_pitch = 320;
 					canvas_yaw = 224;
-					Hw32xUpdateLineTable(0, 0, 0);
+					//Hw32xUpdateLineTable(0, 0, 0);
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;

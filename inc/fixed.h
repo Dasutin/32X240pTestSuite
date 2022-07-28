@@ -1,5 +1,5 @@
-#ifndef FIXED_H_
-#define FIXED_H_
+#ifndef _FIXED_H_
+#define _FIXED_H_
 
 #include <stddef.h>
 
@@ -22,4 +22,4 @@ fixed_t	FixedDiv(fixed_t a, fixed_t b);
             : "r0", "r1", "mach", "macl")
 fixed_t IDiv(fixed_t a, fixed_t b);
 
-#endif
+#endif /* _FIXED_H_ */

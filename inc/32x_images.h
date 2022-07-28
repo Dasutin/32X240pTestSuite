@@ -20,8 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _32X_IMAGES_H
-#define _32X_IMAGES_H
+#ifndef _32X_IMAGES_H_
+#define _32X_IMAGES_H_
 
 #define MARS_SDRAM_CACHE          (*(volatile unsigned short *)0x06000000)
 #define MARS_CACHE_OFFSET         0x20000000
@@ -41,16 +41,16 @@ void loadPalette(const u16 *paletteStart, const u16 *paletteEnd, const int palet
 * @param imageEnd - in: pointer to end position of image data
 * @param targetMem - out: pointer to memory buffer to write uncompressed image data
 */
-void loadLzssToRam(const char *imageStart, const char *imageEnd, vu8 *targetMem);
+//void loadLzssToRam(const char *imageStart, const char *imageEnd, vu8 *targetMem);
 
-void drawLzssBG2(const char *imageStart, const char *imageEnd, int fbOffset);
+//void drawLzssBG2(const char *imageStart, const char *imageEnd, int fbOffset);
 
 /*
 * Writes the lzss encoded image to the framebuffer, assuming the image will be fullscreen (320 x 224)
 * @param imageStart - pointer to starting position of image data
 * @param imageEnd - pointer to end position of image data
 */
-void drawLzssBG(const char *imageStart, const char *imageEnd);
+//void drawLzssBG(const char *imageStart, const char *imageEnd);
 
 /*
 * Draws a compressed image to position on MARS framebuffer
@@ -61,7 +61,7 @@ void drawLzssBG(const char *imageStart, const char *imageEnd);
 * @param xWidth - vertical size of image to be drawn in pixels
 * @param yWidth - horizontal size of image to be drawn in pixels 
 */
-void drawLzssSprite(char *spriteStart, char *spriteEnd, vu16 x, vu16 y, int xWidth, int yWidth);
+//void drawLzssSprite(char *spriteStart, char *spriteEnd, vu16 x, vu16 y, int xWidth, int yWidth);
 
 /*
 * Draws a compressed image to position on MARS framebuffer
@@ -73,7 +73,7 @@ void drawLzssSprite(char *spriteStart, char *spriteEnd, vu16 x, vu16 y, int xWid
 * @param yWidth - horizontal size of image to be drawn in pixels
 * @param mirror - 0 for normal 1 for flipped along y-axis 
 */
-void drawLzssSprite2(char *spriteStart, char *spriteEnd, vu16 x, vu16 y, int xWidth, int yWidth, int mirror);
+//void drawLzssSprite2(char *spriteStart, char *spriteEnd, vu16 x, vu16 y, int xWidth, int yWidth, int mirror);
 
 /*
 * Draws an image to position on MARS framebuffer allowing you to flip the image using mirror param.
@@ -128,4 +128,4 @@ void mars_drawTextwShadow(const char *str, int x, int y, int textpalOffs, int sh
 void screenFadeOut(int fadeSpeed);
 void clearScreen_Fill8bit();
 
-#endif
+#endif /* _32X_IMAGES_H_ */

@@ -20,6 +20,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <string.h>
 #include "32x.h"
 #include "hw_32x.h"
 #include "types.h"
@@ -45,13 +46,17 @@
 #include "kiki_tiles_palette.h"
 #include "marker_striped_res.h"
 #include "background_fill.h"
-#include "dtiles.h"
 #include "mars_ringbuf.h"
 #include "sound.h"
 #include "checkerboard.h"
 #include "checkerboard_donna.h"
 #include "h_stripes.h"
 #include "v_stripes.h"
+#include "numbers_res.h"
+#include "lagtest_res_palette.h"
+#include "lagtest_res.h"
+#include "lagtest.h"
+
 
 // Global Variables
 extern int fontColorWhite;
@@ -124,7 +129,7 @@ char *GetBIOSNamebyCRC(u32 checksum)
 			return bioslist[i].name;
 		i++;
 	}
-	return;
+	return 0;
 }
 
 void doMBIOSID(u32 checksum, u32 address)
@@ -232,7 +237,7 @@ void MDPSG_stop()
 void vt_drop_shadow_test()
 {
 	int done = 0;
-    char NTSC;
+    //char NTSC;
 	unsigned short button = 0, pressedButton = 0, oldButton = 0xFFFF;
 	int frameCount = 0;
     int mode = DRAWSPR_OVERWRITE;
@@ -360,6 +365,7 @@ void vt_drop_shadow_test()
 						canvas_pitch = 320;
 						Hw32xSetPalette(donna_palette);
 						init_tilemap(&tm, &donna_tmx, (uint8_t **)donna_reslist);
+						canvas_rebuild_id++;
 						initTilemap = 0;
 					}
 				break;
@@ -368,6 +374,7 @@ void vt_drop_shadow_test()
 					if (initTilemap == 1)
 					{
 						init_tilemap(&tm, &checkerboard_donna_tmx, (uint8_t **)checkerboard_donna_reslist);
+						canvas_rebuild_id++;
 						initTilemap = 0;
 					}
 				break;
@@ -376,6 +383,7 @@ void vt_drop_shadow_test()
 					if (initTilemap == 1)
 					{
 						init_tilemap(&tm, &h_stripes_tmx, (uint8_t **)h_stripes_reslist);
+						canvas_rebuild_id++;
 						initTilemap = 0;
 					}
 				break;
@@ -386,12 +394,12 @@ void vt_drop_shadow_test()
 						canvas_pitch = 384;
 						Hw32xSetPalette(sonic_palette);
 						init_tilemap(&tm, &sonic_tmx, (uint8_t **)sonic_reslist);
+						canvas_rebuild_id++;
 						initTilemap = 0;
 					}
 				break;
 		}
 
-		canvas_rebuild_id++;
 		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
 		draw_setScissor(0, 0, 320, 224);
 
@@ -534,6 +542,7 @@ void vt_striped_sprite_test()
 					canvas_pitch = 320;
 					Hw32xSetPalette(donna_palette);
 					init_tilemap(&tm, &donna_tmx, (uint8_t **)donna_reslist);
+					canvas_rebuild_id++;
 					initTilemap = 0;
 				}
 			break;
@@ -542,6 +551,7 @@ void vt_striped_sprite_test()
 				if (initTilemap == 1)
 				{
 					init_tilemap(&tm, &checkerboard_donna_tmx, (uint8_t **)checkerboard_donna_reslist);
+					canvas_rebuild_id++;
 					initTilemap = 0;
 				}
 			break;
@@ -552,6 +562,7 @@ void vt_striped_sprite_test()
 					canvas_pitch = 320;
 					Hw32xSetPalette(donna_palette);
 					init_tilemap(&tm, &h_stripes_tmx, (uint8_t **)h_stripes_reslist);
+					canvas_rebuild_id++;
 					initTilemap = 0;
 				}
 			break;
@@ -562,17 +573,244 @@ void vt_striped_sprite_test()
 					canvas_pitch = 384;
 					Hw32xSetPalette(sonic_palette);
 					init_tilemap(&tm, &sonic_tmx, (uint8_t **)sonic_reslist);
+					canvas_rebuild_id++;
 					initTilemap = 0;
 				}
 			break;
 		}
 
-		canvas_rebuild_id++;
 		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
 		draw_setScissor(0, 0, 320, 224);
 		draw_sprite(x, y, 32, 32, marker_striped_tile, DRAWSPR_OVERWRITE | DRAWSPR_PRECISE, 1);
 
         Hw32xScreenFlip(0);
+	}
+	return;
+}
+
+void vt_lag_test()
+{
+	u16 lsd, msd;
+	int frames = 0, seconds = 0, minutes = 0, hours = 0, framecnt = 1;
+	u16 done = 0, color = 1;
+	u16 button, pressedButton, oldButton = 0xFFFF;
+	uint8_t *numbers[10] = {tiles_0, tiles_1, tiles_2, tiles_3, tiles_4, tiles_5, tiles_6, tiles_7, tiles_8, tiles_9};
+	u16 pause = 0, cposx = 32, cposy = 17;
+	volatile unsigned short *cram16 = &MARS_CRAM;
+
+	canvas_pitch = 320;
+	canvas_yaw = 224;
+
+	Hw32xSetPalette(lagtest_res_Palette);
+	loadTextPalette();
+
+	MARS_SYS_COMM4 = 0;
+    MARS_SYS_COMM6 = 0;
+
+    fpcamera_x = fpcamera_y = 0;
+
+	init_tilemap(&tm, &lagtest_Map, (uint8_t **)lagtest_res_Reslist);
+
+	Hw32xScreenFlip(0);
+
+	while (!done)
+	{
+
+		button = MARS_SYS_COMM8;
+
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
+		{
+			button = MARS_SYS_COMM10;
+		}
+
+    	pressedButton = button & ~oldButton;
+    	oldButton = button;
+
+		if(framecnt > 8)
+			framecnt = 1;
+
+		if (framecnt == 1)
+		{
+			cram16[3] = 0x001F;
+		}
+		else 
+		{
+			cram16[3] = 0x7C00;
+		}
+
+		if (framecnt == 2)
+		{
+			cram16[4] = 0x001F;
+		}
+		else 
+		{
+			cram16[4] = 0x7C00;
+		}
+
+		if (framecnt == 3)
+		{
+			cram16[5] = 0x001F;
+		}
+		else 
+		{
+			cram16[5] = 0x7C00;
+		}
+
+		if (framecnt == 4)
+		{
+			cram16[6] = 0x001F;
+		}
+		else 
+		{
+			cram16[6] = 0x7C00;
+		}
+
+		if (framecnt == 5)
+		{
+			cram16[7] = 0x001F;
+		}
+		else 
+		{
+			cram16[7] = 0x7C00;
+		}
+
+		if (framecnt == 6)
+		{
+			cram16[8] = 0x001F;
+		}
+		else 
+		{
+			cram16[8] = 0x7C00;
+		}
+
+		if (framecnt == 7)
+		{
+			cram16[9] = 0x001F;
+		}
+		else 
+		{
+			cram16[9] = 0x7C00;
+		}
+
+		if (framecnt == 8)
+		{
+			cram16[10] = 0x001F;
+		}
+		else 
+		{
+			cram16[10] = 0x7C00;
+		}
+
+		if (framecnt % 2 == 0)
+		{
+			cram16[1] = 0x0000;
+		}
+		else
+		{
+			cram16[1] = 0x7FFF;
+		}
+
+
+		if (framecnt > 4)
+		{
+			cposx = framecnt - 4;
+			cposy = 17;
+		}
+		else
+		{
+			cposx = framecnt;
+			cposy = 9;
+		}
+		cposx = (cposx - 1) * 10 + 2;
+
+		if (pressedButton & SEGA_CTRL_Z)
+		{
+			DrawHelp(HELP_LAG);
+			Hw32xSetPalette(background_fill_palette1);
+		}
+
+		if (pressedButton & SEGA_CTRL_A)
+			pause = !pause;
+
+		if (pressedButton & SEGA_CTRL_B && pause)
+		{
+			frames = hours = minutes = seconds = 0;
+			framecnt = 1;
+		}
+
+		Hw32xFlipWait();
+
+		if (pressedButton & SEGA_CTRL_START)
+		{
+			done = 1;
+		}
+
+		mars_drawText("hours", 32, 8, fontColorBlack);
+		mars_drawText("minutes", 104, 8, fontColorBlack);
+		mars_drawText("seconds", 176, 8, fontColorBlack);
+		mars_drawText("frames", 248, 8, fontColorBlack);
+
+		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+		draw_setScissor(0, 0, 320, 224);
+
+		if(!pause)
+		{
+			frames ++;
+			framecnt ++;
+			if(framecnt > 8)
+				framecnt = 1;
+		}
+
+		if(frames > 59)
+		{
+			frames = 0;
+			seconds ++;
+		}
+		
+		if(seconds > 59)
+		{
+			seconds = 0;
+			minutes ++;
+		}
+
+		if(minutes > 59)
+		{
+			minutes = 0;
+			hours ++;
+		}
+
+		if(hours > 99)
+			hours = 0;
+
+		draw_sprite(80, 19, 32, 32, separator_tile, DRAWSPR_OVERWRITE, 1);
+		draw_sprite(152, 19, 32, 32, separator_tile, DRAWSPR_OVERWRITE, 1);
+		draw_sprite(224, 19, 32, 32, separator_tile, DRAWSPR_OVERWRITE, 1);
+
+		// Draw Hours
+		lsd = hours % 10;
+		msd = hours / 10;
+		draw_sprite(32, 19, 32, 32, numbers[msd], DRAWSPR_OVERWRITE, 1);
+		draw_sprite(56, 19, 32, 32, numbers[lsd], DRAWSPR_OVERWRITE, 1);
+
+		// Draw Minutes
+		lsd = minutes % 10;
+		msd = minutes / 10;
+		draw_sprite(104, 19, 32, 32, numbers[msd], DRAWSPR_OVERWRITE, 1);
+		draw_sprite(128, 19, 32, 32, numbers[lsd], DRAWSPR_OVERWRITE, 1);
+
+		// Draw Seconds
+		lsd = seconds % 10;
+		msd = seconds / 10;
+		draw_sprite(176, 19, 32, 32, numbers[msd], DRAWSPR_OVERWRITE, 1);
+		draw_sprite(200, 19, 32, 32, numbers[lsd], DRAWSPR_OVERWRITE, 1);
+
+		// Draw frames
+		lsd = frames % 10;
+		msd = frames / 10;
+		draw_sprite(248, 19, 32, 32, numbers[msd], DRAWSPR_OVERWRITE, 1);
+		draw_sprite(272, 19, 32, 32, numbers[lsd], DRAWSPR_OVERWRITE, 1);
+
+		Hw32xScreenFlip(0);
 	}
 	return;
 }
@@ -1030,11 +1268,9 @@ void vt_reflex_test()
 
 void vt_scroll_test()
 {
-	int done = 0;
+	int done = 0, pause = 0, direction = 0, acc = 1;
     char NTSC;
-	u16 frame = 1, vertical = 0, type = 0;
-	u16 initTilemap = 0;
-	int pause = 0, direction = 0, acc = 1;
+	u16 frame = 1, vertical = 0, initTilemap = 0;
 	unsigned short button = 0, pressedButton = 0, oldButton = 0xFFFF;
 
 	canvas_pitch = 384; // canvas_width + scrollwidth
@@ -1228,11 +1464,9 @@ void vt_scroll_test()
 
 void vt_gridscroll_test()
 {
-	int done = 0;
+	int done = 0, acc = 1, pause = 0, direction = 0, horizontal = 0;
     char NTSC;
 	unsigned short button = 0, pressedButton = 0, oldButton = 0xFFFF;
-	int pos = 0, speed = 1, acc = 1, pause = 0, direction = 0;
-	int horizontal = 0;
 
 	canvas_pitch = 384; // canvas_width + scrollwidth
 	canvas_yaw = 256; // canvas_height + scrollheight
@@ -1415,7 +1649,7 @@ void vt_horizontal_stripes()
 		pressedButton = button & ~oldButton;
     	oldButton = button;
 
-		switch (test) {
+/* 		switch (test) {
 				switch (pal) {
 					case 1:
 						cram16[0] = 0x0000;
@@ -1429,7 +1663,7 @@ void vt_horizontal_stripes()
 				}
 			break;
 		}
-
+ */
 		if (pressedButton & SEGA_CTRL_START)
 		{
 			screenFadeOut(1);
@@ -1448,22 +1682,22 @@ void vt_horizontal_stripes()
 		}
 
 		switch (pattern) {
-				case 1:
+			case 1:
 				for (int i=0; i<=224; i=i+8){
 					for (int a=0; a<=320; a=a+8){
 						drawSprite(v_bars_tile_8,a,i,8,8,0,0);
 					}
-				}	
-				break;
-				
-				case 2:
+				}
+			break;
+
+			case 2:
 				for (int i=0; i<=224; i=i+8){
 					for (int a=0; a<=320; a=a+8){
 						drawSprite(h_bars_tile_8,a,i,8,8,0,0);
 					}
-				break;
 				}
-				}
+			break;
+		}
 
 		if (pressedButton & SEGA_CTRL_LEFT)
 		{
@@ -1476,11 +1710,11 @@ void vt_horizontal_stripes()
 				pattern = 1;
 			}
 
-/* 			Hw32xScreenClear();
-			pattern++;
-			if(pattern > 2){
-		 		pattern = 1;
-			} */
+ 			//Hw32xScreenClear();
+			//pattern++;
+			//if(pattern > 2){
+		 	//	pattern = 1;
+			//} 
 		}
 
 		if (pressedButton & SEGA_CTRL_RIGHT)
@@ -1493,11 +1727,11 @@ void vt_horizontal_stripes()
 			else {
 				pattern = 1;
 			}
-			/* Hw32xScreenClear();
-			pattern++;
-			if(pattern > 2){
-		 		pattern = 1;
-			} */
+			// Hw32xScreenClear();
+			//pattern++;
+			//if(pattern > 2){
+		 	//	pattern = 1;
+			//}
 		}
 
 		if (pressedButton & SEGA_CTRL_UP)
@@ -2092,7 +2326,7 @@ void at_sound_test()
 	extern const u8 BACKGROUND_TILE[] __attribute__((aligned(16)));
 	volatile unsigned short *cram16 = &MARS_CRAM;
 	volatile unsigned short *frameBuffer16 = &MARS_FRAMEBUFFER;
-	static sound_t *JUMP;
+	sound_t JUMP;
 	//sound_t BEEP;
 
 	//Hw32xAudioInit();
@@ -2285,14 +2519,11 @@ void at_sound_test()
 
 void at_audiosync_test()
 {
-	int loadvram = 1, done = 0, cycle = 0;
-	int size, tiles, i, sprite = 0, x = 160, y = 160;
-	unsigned short button, pressedButton, oldButton = 0xFFFF;
-	unsigned short black_pal[16];
+	int done = 0, cycle = 0, x = 160, y = 160;
 	s16 acc = 1, status = -1;
-	int psgoff = 0;
+	unsigned short button, pressedButton, oldButton = 0xFFFF;
 	volatile unsigned short *cram16 = &MARS_CRAM;
-
+	
 	uint8_t block_2x2_tile[] __attribute__((aligned(16))) = {
 		0x01,0x01,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x01,0x01,0x00,0x00,0x00,0x00,0x00,0x00,

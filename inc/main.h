@@ -20,8 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _MAIN_H
-#define _MAIN_H
+#ifndef _MAIN_H_
+#define _MAIN_H_
 
 extern void menu_tp(void);
 extern void menu_vt(void);
@@ -30,4 +30,4 @@ extern void menu_ht(void);
 extern void options(void);
 extern void credits(void);
 
-#endif
+#endif /* _MAIN_H_ */

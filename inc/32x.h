@@ -1,5 +1,5 @@
-#ifndef __32X_H__
-#define __32X_H__
+#ifndef _32X_H_
+#define _32X_H_
 
 #include "types.h"
 

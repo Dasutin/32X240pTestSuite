@@ -64,7 +64,7 @@ void DrawMainBG()
 	extern const u16 BACKGROUND_PAL[];
 	extern const u8 BACKGROUND_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
-	u16 *frameBuffer16 = &MARS_FRAMEBUFFER;
+	volatile unsigned short *frameBuffer16 = &MARS_FRAMEBUFFER;
 
 	for (int i = 0; i < 27; i++){
 		cram16[i] = BACKGROUND_PAL[i] & 0x7FFF;
@@ -78,7 +78,7 @@ void DrawMainBGwGillian()
 	extern const u16 BACKGROUND_W_GILLIAN_PAL[];
 	extern const u8 BACKGROUND_W_GILLIAN_TILE[] __attribute__((aligned(16)));
 	vu16 *cram16 = &MARS_CRAM;
-	u16 *frameBuffer16 = &MARS_FRAMEBUFFER;
+	volatile unsigned short *frameBuffer16 = &MARS_FRAMEBUFFER;
 
 	for (int i = 0; i < 27; i++){
 		cram16[i] = BACKGROUND_W_GILLIAN_PAL[i] & 0x7FFF;

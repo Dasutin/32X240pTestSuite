@@ -20,8 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _PATTERNS_H
-#define _PATTERNS_H
+#ifndef _PATTERNS_H_
+#define _PATTERNS_H_
 
 void tp_pluge(void);
 void tp_colorchart(void);
@@ -38,4 +38,4 @@ void tp_sharpness(void);
 void tp_overscan(void);
 void tp_convergence(void);
 
-#endif
+#endif /* _PATTERNS_H_ */

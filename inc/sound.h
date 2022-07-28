@@ -107,4 +107,4 @@ extern void *sound_file_mmap(sound_file_t *file, long offset);
 
 extern void sysarg_init(int, char **);
 
-#endif
+#endif /* _SOUND_H_ */

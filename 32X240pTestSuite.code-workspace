@@ -9,7 +9,8 @@
         "files.associations": {
             "*.s": "asm-collection",
             "types.h": "c",
-            "draw.h": "c"
+            "draw.h": "c",
+            "colorbars_map.h": "c"
         }
     }
 }

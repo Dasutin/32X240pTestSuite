@@ -20,12 +20,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <string.h>
 #include "types.h"
 #include "string.h"
 #include "32x.h"
 #include "hw_32x.h"
-#include "lzss_decode.h"
+//#include "lzss_decode.h"
 #include "shared_objects.h"
+
 
 #define PIXEL_WRITE_BUFFER_SIZE_B 8
 #define FRAMEBUFFER_ROW_EXTENSION 16
@@ -41,13 +43,13 @@
 static const int TRANSPARENT_PIXEL_COLOR = 0;
 static const vu8 pixelWords[PIXEL_WRITE_BUFFER_SIZE_B] = {0,0,0,0,0,0,0,0};
 
-/*
-* Loads all colors from region in ROM defined by paletteStart to paletteEnd
-* into the CRAM
-* @param paletteStart - pointer to starting position of palette data
-* @param paletteEnd - pointer to end position of palette data
-* @param paletteOffset - offset in the CRAM to start writing the palette data to. Normally is 0.
-*/
+  
+// * Loads all colors from region in ROM defined by paletteStart to paletteEnd
+// * into the CRAM
+// * @param paletteStart - pointer to starting position of palette data
+// * @param paletteEnd - pointer to end position of palette data
+// * @param paletteOffset - offset in the CRAM to start writing the palette data to. Normally is 0.
+
 
 void loadPalette(const u16 *paletteStart[], const u16 *paletteEnd[], const int paletteOffset)
 {
@@ -64,11 +66,10 @@ void loadPalette(const u16 *paletteStart[], const u16 *paletteEnd[], const int p
 }
 
 /*
-* Writes the lzss encoded image to the target buffer in memory
-* @param imageStart - in: pointer to starting position of image data
-* @param imageEnd - in: pointer to end position of image data
-* @param targetMem - out: pointer to memory buffer to write uncompressed image data
-*/
+// * Writes the lzss encoded image to the target buffer in memory
+// * @param imageStart - in: pointer to starting position of image data
+// * @param imageEnd - in: pointer to end position of image data
+// * @param targetMem - out: pointer to memory buffer to write uncompressed image data
 
 void loadLzssToRam(const char *imageStart, const char *imageEnd, vu8 *targetMem)
 {
@@ -85,11 +86,9 @@ void drawLzssBG2(const char *imageStart, const char *imageEnd, int fbOffset)
 	lzss_decode(imageStart, (int)((imageEnd)-(imageStart)), frameBuffer16  + lineTableEnd + fbOffset);
 }
 
-/*
-* Writes the lzss encoded image to the framebuffer, assuming the image will be fullscreen (320 x 224)
-* @param imageStart - pointer to starting position of image data
-* @param imageEnd - pointer to end position of image data
-*/
+// * Writes the lzss encoded image to the framebuffer, assuming the image will be fullscreen (320 x 224)
+// * @param imageStart - pointer to starting position of image data
+// * @param imageEnd - pointer to end position of image data
 
 void drawLzssBG(const char *imageStart, const char *imageEnd)
 {
@@ -110,15 +109,13 @@ void drawLzssBG(const char *imageStart, const char *imageEnd)
 	}
 }
 
-/*
-* Draws a compressed image to position on MARS framebuffer
-* @param spriteStart - pointer to starting position of image data
-* @param spriteEnd - pointer to end position of image data
-* @param x - x pixel coordinate of top-left corner of the image 
-* @param y - y pixel coordinate of top-left corner of the image
-* @param xWidth - vertical size of image to be drawn in pixels
-* @param yWidth - horizontal size of image to be drawn in pixels 
-*/
+// * Draws a compressed image to position on MARS framebuffer
+// * @param spriteStart - pointer to starting position of image data
+// * @param spriteEnd - pointer to end position of image data
+// * @param x - x pixel coordinate of top-left corner of the image 
+// * @param y - y pixel coordinate of top-left corner of the image
+// * @param xWidth - vertical size of image to be drawn in pixels
+// * @param yWidth - horizontal size of image to be drawn in pixels 
 
 void drawLzssSprite(char *spriteStart, char *spriteEnd, vu16 x, vu16 y, int xWidth, int yWidth)
 {
@@ -183,17 +180,15 @@ void drawLzssSprite(char *spriteStart, char *spriteEnd, vu16 x, vu16 y, int xWid
 	}
 }
 
-/*
-* Draws a compressed image to position on MARS framebuffer allowing you to flip the image using mirror param.
-* 
-* @param spriteStart - pointer to starting position of image data
-* @param spriteEnd - pointer to end position of image data
-* @param x - x pixel coordinate of top-left corner of the image 
-* @param y - y pixel coordinate of top-left corner of the image
-* @param xWidth - vertical size of image to be drawn in pixels
-* @param yWidth - horizontal size of image to be drawn in pixels
-* @param mirror - 0 for normal 1 for flipped along y-axis  
-*/
+// * Draws a compressed image to position on MARS framebuffer allowing you to flip the image using mirror param.
+
+// * @param spriteStart - pointer to starting position of image data
+// * @param spriteEnd - pointer to end position of image data
+// * @param x - x pixel coordinate of top-left corner of the image 
+// * @param y - y pixel coordinate of top-left corner of the image
+// * @param xWidth - vertical size of image to be drawn in pixels
+// * @param yWidth - horizontal size of image to be drawn in pixels
+// * @param mirror - 0 for normal 1 for flipped along y-axis
 
 void drawLzssSprite2(char *spriteStart, char *spriteEnd, vu16 x, vu16 y, int xWidth, int yWidth, int mirror)
 {
@@ -259,11 +254,9 @@ void drawLzssSprite2(char *spriteStart, char *spriteEnd, vu16 x, vu16 y, int xWi
 	{
 		spriteBuffer2[i] = 0;
 	}
-}
+} */
 
-/* 
-* Draws blank pixels to rectangle specified by x, y, xWidth and yWidth (height)
-*/
+// * Draws blank pixels to rectangle specified by x, y, xWidth and yWidth (height)
 
 void clearArea(vu16 x, vu16 y, int xWidth, int yWidth)
 {
@@ -300,18 +293,16 @@ void clearArea(vu16 x, vu16 y, int xWidth, int yWidth)
 	}
 }
 
-/*
-* Draws an image to position on MARS framebuffer allowing you to flip the image using mirror param.
-* 
-* @param spriteBuffer - pointer to starting position of image data
-* @param x - x pixel coordinate of top-left corner of the image 
-* @param y - y pixel coordinate of top-left corner of the image
-* @param xWidth - vertical size of image to be drawn in pixels
-* @param yWidth - horizontal size of image to be drawn in pixels
-* @param mirror - 0 for normal 1 for flipped along y-axis
-* @param checkTransparency - 0 for not checked ie overwrite every pixel, including with zero, 1 for checking
-* @param screenWrap - 0 for no screenWrap, 1 for screen wrapping  
-*/
+// * Draws an image to position on MARS framebuffer allowing you to flip the image using mirror param.
+ 
+// * @param spriteBuffer - pointer to starting position of image data
+// * @param x - x pixel coordinate of top-left corner of the image 
+// * @param y - y pixel coordinate of top-left corner of the image
+// * @param xWidth - vertical size of image to be drawn in pixels
+// * @param yWidth - horizontal size of image to be drawn in pixels
+// * @param mirror - 0 for normal 1 for flipped along y-axis
+// * @param checkTransparency - 0 for not checked ie overwrite every pixel, including with zero, 1 for checking
+// * @param screenWrap - 0 for no screenWrap, 1 for screen wrapping  
 
 int drawSpriteMaster(const vu8 *spriteBuffer, const s16 x, const s16 y, const int xWidth, const int yWidth, const int mirror, const int checkTransparency, const int screenWrap)
 {
@@ -443,21 +434,19 @@ int drawSpriteMaster(const vu8 *spriteBuffer, const s16 x, const s16 y, const in
 	return 0;
 }
 
-/*
-* Draws an image to position on MARS framebuffer allowing you to flip the image using mirror param.
-* 
-* @param spriteBuffer - pointer to starting position of image data to read
-* @param x - x pixel coordinate of top-left corner of the image 
-* @param y - y pixel coordinate of top-left corner of the image
-* @param xWidth - vertical size of image to be drawn in pixels
-* @param yWidth - horizontal size of image to be drawn in pixels
-* @param mirror - 0 for normal 1 for flipped along y-axis
-* @param screenWrap - 0 for no screenWrap, 1 for screen wrapping    
-*/
+// * Draws an image to position on MARS framebuffer allowing you to flip the image using mirror param.
+ 
+// * @param spriteBuffer - pointer to starting position of image data to read
+// * @param x - x pixel coordinate of top-left corner of the image
+// * @param y - y pixel coordinate of top-left corner of the image
+// * @param xWidth - vertical size of image to be drawn in pixels
+// * @param yWidth - horizontal size of image to be drawn in pixels
+// * @param mirror - 0 for normal 1 for flipped along y-axis
+// * @param screenWrap - 0 for no screenWrap, 1 for screen wrapping
 
 int drawSprite(const vu8 *spriteBuffer, const s16 x, const s16 y, const int xWidth, const int yWidth, const int mirror, const int screenWrap)
 {
-	//call drawSprite with transparency enabled
+	// Call drawSprite with transparency enabled
 	return drawSpriteMaster(spriteBuffer,  x, y, xWidth, yWidth, mirror, 1, screenWrap);
 }
 
@@ -484,22 +473,18 @@ void drawS(vu8* spriteBuffer, u16 x, u16 y, u16 xWidth, u16 yWidth)
    }
 }
 
-/*
-* Draws a background image on MARS framebuffer allowing you to flip the image using mirror param, no transparency
-* 
-* @param spriteBuffer - pointer to starting position of image data
-*/
+// * Draws a background image on MARS framebuffer allowing you to flip the image using mirror param, no transparency
+
+// * @param spriteBuffer - pointer to starting position of image data
 
 int drawBG(const vu8 *spriteBuffer)
 {
 	// Draw full screen background image with no transparency
 	return drawSpriteMaster(spriteBuffer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0);
 }
-
-/* 
-* Draws pixels to fill rectangle specified by x, y, xWidth and yWidth (height). Must be on screen.
-* xWidth must be sized in multiples of 8 wide (8 pixels, 16 pixels, etc..)
-*/
+ 
+// * Draws pixels to fill rectangle specified by x, y, xWidth and yWidth (height). Must be on screen.
+// * xWidth must be sized in multiples of 8 wide (8 pixels, 16 pixels, etc..)
 
 void drawFillRect(const s16 x, const s16 y, const int xWidth, const int yWidth, vu8* color)
 {
@@ -538,10 +523,8 @@ void drawFillRect(const s16 x, const s16 y, const int xWidth, const int yWidth, 
 	}
 }
 
-/* 
-* Draws pixels to outline a rectangle specified by x, y, xWidth and yWidth (height). Must be on screen.
-* xWidth must be sized in multiples of 8 wide (8 pixels, 16 pixels, etc..)
-*/
+// * Draws pixels to outline a rectangle specified by x, y, xWidth and yWidth (height). Must be on screen.
+// * xWidth must be sized in multiples of 8 wide (8 pixels, 16 pixels, etc..)
 
 void drawRect(const s16 x, const s16 y, const int xWidth, const int yWidth, vu8* color)
 {
@@ -619,7 +602,8 @@ void my_debug_put_char_8(const int x,const int y,const unsigned char ch, const v
     }
 }
 
-/* Print non-nul terminated strings */
+// * Print non-nul terminated strings
+
 int myScreenPrintData(const char *buff, const int x, const int y, const vu8* fgColor, const vu8* bgColor )
 {
     int i;
@@ -640,10 +624,9 @@ int myScreenPrintData(const char *buff, const int x, const int y, const vu8* fgC
     return i;
 }
 
-/*
-* Draw line table to framebuffer
-* @param xOff - the x offset in words for each line in the line table
-*/
+// * Draw line table to framebuffer
+// * @param xOff - the x offset in words for each line in the line table
+
 void drawLineTable(const int xOff)
 {
 	int i;
@@ -669,7 +652,7 @@ void mars_drawText(const char *str, int x, int y, int palOffs)
 	unsigned char *font;
 	int screenOffs;
 	int fontOffs;
-	extern const uint8_t FONT_HIGHLIGHT_TILE[]; __attribute__((aligned(16)));
+	extern const uint8_t FONT_HIGHLIGHT_TILE[] __attribute__((aligned(16)));
 
 	for (int i = 0; i < 40; i++) {
 		c = str[i];

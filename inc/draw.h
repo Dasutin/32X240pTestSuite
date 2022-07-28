@@ -1,5 +1,5 @@
-#ifndef DRAW_H_
-#define DRAW_H_
+#ifndef _DRAW_H_
+#define _DRAW_H_
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -55,4 +55,4 @@ extern uint32_t canvas_pitch, canvas_yaw;
 extern drawtilelayerscmd_t slave_drawtilelayerscmd
 ATTR_CACHE_ALIGNED;
 
-#endif
+#endif /* _DRAW_H_ */

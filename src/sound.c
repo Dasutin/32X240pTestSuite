@@ -21,6 +21,8 @@
  */
 
 #include <stdint.h>
+#include <strings.h>
+#include "string.h"
 #include "32x.h"
 #include "sound.h"
 #include "mars_ringbuf.h"
@@ -138,14 +140,14 @@ void snddma_secondary_init(int sample_rate)
     SH2_DMA_CHCR0 = 0;
     SH2_DMA_DRCR0 = 0;
     SH2_DMA_SAR1 = 0;
-    SH2_DMA_DAR1 = 0x20004038; // storing a word here will the MONO channel
+    SH2_DMA_DAR1 = 0x20004034; // storing a word here will the MONO channel
     SH2_DMA_TCR1 = 0;
     SH2_DMA_CHCR1 = 0;
     SH2_DMA_DRCR1 = 0;
     SH2_DMA_DMAOR = 1; // enable DMA
 
-    SH2_DMA_VCR1 = 72; // set exception vector for DMA channel 1
-    SH2_INT_IPRA = (SH2_INT_IPRA & 0xF0FF) | 0x0F00; // set DMA INT to priority 15
+    //SH2_DMA_VCR1 = 72; // set exception vector for DMA channel 1
+    //SH2_INT_IPRA = (SH2_INT_IPRA & 0xF0FF) | 0x0F00; // set DMA INT to priority 15
     
     // init the sound hardware
     MARS_PWM_MONO = 1;
@@ -170,9 +172,9 @@ void snddma_secondary_init(int sample_rate)
         sample++;
     }
 
-    secondary_dma_kickstart();
+    //secondary_dma_kickstart();
 
-    SetSH2SR(2);
+    //SetSH2SR(2);
 }
 
 void snddma_init(int sample_rate)

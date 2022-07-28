@@ -20,8 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef HW_32X_H
-#define HW_32X_H
+#ifndef _HW_32X_H_
+#define _HW_32X_H_
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -79,6 +79,7 @@ extern void HwMdSetNTable(unsigned short word);
 extern void HwMdSetVram(unsigned short word);
 extern void HwMdPuts(char *str, int color, int x, int y);
 extern void HwMdPutc(char chr, int color, int x, int y);
+extern void HwMdScreenPrintf(int color, int x, int y, const char *format, ...);
 extern void HwMdSetPal(unsigned short pal);
 extern void HwMdSetColor(unsigned short color);
 extern void HwMdSetColorPal(unsigned short pal, unsigned short color);
@@ -93,6 +94,8 @@ extern void HwMdPSGSetTone(u8 channel, u16 value);
 extern void HwMdPSGSetNoise(u8 type, u8 frequency);
 extern void HwMdPSGSetEnvelope(u8 channel, u8 value);
 
+void Hw32xUpdateLineTable(int hscroll, int vscroll, int lineskip) HW32X_ATTR_DATA_ALIGNED;
+
 extern void Hw32xSecWait(void);
 
 extern int Hw32xInitSoundDMA(void);
@@ -106,4 +109,4 @@ unsigned Hw32xGetTicks(void) HW32X_ATTR_DATA_ALIGNED;
 int secondary_task(int cmd) HW32X_ATTR_DATA_ALIGNED;
 void secondary(void) HW32X_ATTR_DATA_ALIGNED;
 
-#endif
+#endif /* _HW_32X_H_ */

@@ -20,8 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef _TYPES_H_
+#define _TYPES_H_
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -139,4 +139,4 @@ typedef s32 fix32;
 
 #define abs(n) ((n)<0?-(n):(n))
 
-#endif /* TYPES_H */
+#endif /* _TYPES_H_ */

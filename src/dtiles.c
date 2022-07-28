@@ -2,9 +2,13 @@
 #include "types.h"
 #include "draw.h"
 #include "hw_32x.h"
-#include "dtiles.h"
 
 drawtilelayerscmd_t slave_drawtilelayerscmd;
+
+static int old_camera_x, old_camera_y;
+static int main_camera_x, main_camera_y;
+
+static int camera_x, camera_y;
 
 static int draw_tile_layer(tilemap_t *tm, int layer, int fpcamera_x, 
 int fpcamera_y, int numlayers, int *pclipped)
