@@ -127,5 +127,6 @@ void mars_drawText(const char *str, int x, int y, int palOffs);
 void mars_drawTextwShadow(const char *str, int x, int y, int textpalOffs, int shadowpalOffs);
 void screenFadeOut(int fadeSpeed);
 void clearScreen_Fill8bit();
+void clearScreen_Fill16bit();
 
 #endif /* _32X_IMAGES_H_ */

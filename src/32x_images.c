@@ -648,7 +648,7 @@ void drawLineTable(const int xOff)
 void mars_drawText(const char *str, int x, int y, int palOffs)
 {
 	int c;
-	volatile unsigned char *frameBuffer16 = &MARS_FRAMEBUFFER + 0x100;
+	volatile unsigned char *frameBuffer8 = &MARS_FRAMEBUFFER + 0x100;
 	unsigned char *font;
 	int screenOffs;
 	int fontOffs;
@@ -667,7 +667,7 @@ void mars_drawText(const char *str, int x, int y, int palOffs)
 				font = FONT_HIGHLIGHT_TILE[fontOffs + s];
 				if (font) font += palOffs;
 				if (FONT_HIGHLIGHT_TILE[fontOffs + s])
-					frameBuffer16[screenOffs + s] = FONT_HIGHLIGHT_TILE[fontOffs + s] + palOffs;
+					frameBuffer8[screenOffs + s] = FONT_HIGHLIGHT_TILE[fontOffs + s] + palOffs;
 			}
 			screenOffs += 320;
 			fontOffs += 128;
