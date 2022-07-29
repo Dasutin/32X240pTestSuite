@@ -452,9 +452,9 @@ int drawSprite(const vu8 *spriteBuffer, const s16 x, const s16 y, const int xWid
 
 void drawS(vu8* spriteBuffer, u16 x, u16 y, u16 xWidth, u16 yWidth)
 {
-   vu8 *frameBuffer = (vu8*) &MARS_OVERWRITE_IMG;
+   vu8 *frameBuffer8 = (vu8* )&MARS_OVERWRITE_IMG;
    // dst frame buffer pointer (X + Y offseted)
-   vu8* dst = &frameBuffer[0x100 + (y * 320) + (x + 256)];
+   vu8* dst = &frameBuffer8[0x100 + (y * 320) + (x + 256)];
    // src sprite pointer
    vu8* src = spriteBuffer;
 
@@ -468,6 +468,27 @@ void drawS(vu8* spriteBuffer, u16 x, u16 y, u16 xWidth, u16 yWidth)
       u16 col = xw;
      
       while(col--) *dst++ = *src++;
+     
+      dst += dstStep;
+   }
+}
+
+void drawLine(u16 x, u16 y, u16 xWidth, u16 yWidth)
+{
+   vu8 *frameBuffer8 = (vu8* )&MARS_OVERWRITE_IMG;
+   vu8* dst = &frameBuffer8[0x100 + (y * 320) + (x + 256)];  // Destination frame buffer pointer (X + Y offseted)
+   vu8* src = 0x01;  // Just write one on screen
+
+   u16 xw = xWidth;
+   int dstStep = 320 - xw;
+   
+   u16 row = yWidth;
+   
+   while (row--)
+   {
+      u16 col = xw;
+     
+      while(col--) *dst++ = src;
      
       dst += dstStep;
    }
@@ -665,7 +686,7 @@ void mars_drawText(const char *str, int x, int y, int palOffs)
 		for (int t = 0; t < 8; t++) {
 			for (int s = 0; s < 8; s++) {
 				font = FONT_HIGHLIGHT_TILE[fontOffs + s];
-				if (font) font += palOffs;
+				//if (font) font += palOffs;
 				if (FONT_HIGHLIGHT_TILE[fontOffs + s])
 					frameBuffer8[screenOffs + s] = FONT_HIGHLIGHT_TILE[fontOffs + s] + palOffs;
 			}

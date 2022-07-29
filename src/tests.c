@@ -1637,7 +1637,7 @@ void vt_horizontal_stripes()
 	{
 		Hw32xFlipWait();
 
-		//clearScreen_Fill8bit();
+		clearScreen_Fill16bit();
 
 		button = MARS_SYS_COMM8;
 
@@ -1945,7 +1945,6 @@ void vt_vertical_stripes()
 void vt_checkerboard()
 {
 	int done = 0;
-    char NTSC;
 	unsigned short button = 0, pressedButton = 0, oldButton = 0xFFFF;
 	int count = 0;
 	int test = 1;
@@ -1954,26 +1953,9 @@ void vt_checkerboard()
 	int manualtest = 1;
 	volatile unsigned short *cram16 = &MARS_CRAM;
 
-	SetSH2SR(1);
-
 	while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
 
-	NTSC = (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT) != 0;
-
-	SH2_WDT_WTCSR_TCNT = 0x5A00; /* WDT TCNT = 0 */
-    SH2_WDT_WTCSR_TCNT = 0xA53E; /* WDT TCSR = clr OVF, IT mode, timer on, clksel = Fs/4096 */
-
-	/* init hires timer system */
-    SH2_WDT_VCR = (65 << 8) | (SH2_WDT_VCR & 0x00FF); // set exception vector for WDT
-    SH2_INT_IPRA = (SH2_INT_IPRA & 0xFF0F) | 0x0020; // set WDT INT to priority 2
-
-	// change 4096.0f to something else if WDT TCSR is changed!
-    mars_frtc2msec_frac = 4096.0f * 1000.0f / (NTSC ? NTSC_CLOCK_SPEED : PAL_CLOCK_SPEED) * 65536.0f;
-
 	Hw32xSetPalette(checkerboard_bw_palette);
-
-	MARS_SYS_COMM4 = 0;
-    MARS_SYS_COMM6 = 0;
 
     fpcamera_x = fpcamera_y = 0;
 
@@ -2125,23 +2107,8 @@ void vt_backlitzone_test()
 	int x = 160;
 	int y = 112;
 	int block = 2;
-	char NTSC;
-
-	SetSH2SR(1);
 
 	while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
-
-	NTSC = (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT) != 0;
-
-	SH2_WDT_WTCSR_TCNT = 0x5A00; /* WDT TCNT = 0 */
-    SH2_WDT_WTCSR_TCNT = 0xA53E; /* WDT TCSR = clr OVF, IT mode, timer on, clksel = Fs/4096 */
-
-	/* init hires timer system */
-    SH2_WDT_VCR = (65 << 8) | (SH2_WDT_VCR & 0x00FF); // set exception vector for WDT
-    SH2_INT_IPRA = (SH2_INT_IPRA & 0xFF0F) | 0x0020; // set WDT INT to priority 2
-
-	// change 4096.0f to something else if WDT TCSR is changed!
-    mars_frtc2msec_frac = 4096.0f * 1000.0f / (NTSC ? NTSC_CLOCK_SPEED : PAL_CLOCK_SPEED) * 65536.0f;
 
 	uint8_t block_0x0_tile[] __attribute__((aligned(16))) = {
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -2210,9 +2177,6 @@ void vt_backlitzone_test()
 	};
 
 	Hw32xSetPalette(background_fill_palette);
-
-	MARS_SYS_COMM4 = 0;
-    MARS_SYS_COMM6 = 0;
 
 	Hw32xScreenFlip(0);
 

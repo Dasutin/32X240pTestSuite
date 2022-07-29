@@ -88,7 +88,9 @@ void loadPalette(const u16 *paletteStart, const u16 *paletteEnd, const int palet
 */
 int drawSprite(const vu8 *spriteBuffer, const s16 x, const s16 y, const int xWidth, const int yWidth, const int mirror,const int screenWrap);
 
-void drawS(vu8* spriteBuffer, u16 x, u16 y, u16 xWidth, u16 yWidth);
+void drawS(u16 x, u16 y, u16 xWidth, u16 yWidth);
+
+void drawLine(u16 x, u16 y, u16 xWidth, u16 yWidth);
 
 /*
 * Draws a background image on MARS framebuffer allowing you to flip the image using mirror param, no transparency

@@ -1086,15 +1086,14 @@ void tp_sharpness()
 
 void tp_overscan()
 {
-	int left = 0, right = 320, top = 0, bottom = 224, done = 0;
+	int left = 0, right = 320, top = 0, bottom = 223, done = 0;
 	u16 button = 0, pressedButton = 0, oldButton = 0xFFFF;
 	int sel = 0;
+	int displayBottom, displayRight;
 
 	Hw32xSetBGColor(0,31,31,31);
+	Hw32xSetFGColor(1,15,15,15);
 
-	Hw32xSetFGColor(BLOCK_COLOR_1,15,15,15);
-	vu8 blockColor[8] = {BLOCK_COLOR_1,BLOCK_COLOR_1,BLOCK_COLOR_1,BLOCK_COLOR_1,BLOCK_COLOR_1,BLOCK_COLOR_1,BLOCK_COLOR_1,BLOCK_COLOR_1};
-	
 	// Set screen priority for the 32X 
 	MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X | MARS_224_LINES | MARS_VDP_MODE_256;
 
@@ -1106,7 +1105,10 @@ void tp_overscan()
 
 		clearScreen_Fill16bit();
 
-		char data[10];
+		char datat[10];
+		char datal[10];
+		char datab[10];
+		char datar[10];
 		int l, r, t, b;
 
 		l = left;
@@ -1114,31 +1116,31 @@ void tp_overscan()
 		t = top;
 		b = bottom;
 
-		for(int i= t; i <= b; i++)
+ 		for(int i= t; i <= b; i++)
 		{
-			drawRect(l,i,r,1,(vu8*)&blockColor);
+			drawLine(l,i,r,1);
 		}
 
 		// Text
-		intToStr(top, data, 1);
+		intToStr(top, datat, 1);
 		HwMdPuts("Top:", sel == 0 ? 0x2000 : 0x0000, 12, 12);
 		HwMdPuts("   pixels", sel == 0 ? 0x2000 : 0x0000, 20, 12);
-		HwMdPuts(data, sel == 0 ? 0x2000 : 0x0000, 20, 12);
+		HwMdPuts(datat, sel == 0 ? 0x2000 : 0x0000, 20, 12);
 
-		intToStr(bottom, data, 1);
+		intToStr(abs(bottom-223), datab, 1);
 		HwMdPuts("Bottom:", sel == 1 ? 0x2000 : 0x0000, 12, 13);
 		HwMdPuts("   pixels", sel == 1 ? 0x2000 : 0x0000, 20, 13);
-		HwMdPuts(data, sel == 1 ? 0x2000 : 0x0000, 20, 13);
+		HwMdPuts(datab, sel == 1 ? 0x2000 : 0x0000, 20, 13);
 
-		intToStr(left, data, 1);
+		intToStr(left, datal, 1);
 		HwMdPuts("Left:", sel == 2 ? 0x2000 : 0x0000, 12, 14);
 		HwMdPuts("   pixels", sel == 2 ? 0x2000 : 0x0000, 20, 14);
-		HwMdPuts(data, sel == 2 ? 0x2000 : 0x0000, 20, 14);
+		HwMdPuts(datal, sel == 2 ? 0x2000 : 0x0000, 20, 14);
 
-		intToStr(right, data, 1);
+		intToStr(abs(right-320), datar, 1);
 		HwMdPuts("Right:", sel == 3 ? 0x2000 : 0x0000, 12, 15);
 		HwMdPuts("   pixels", sel == 3 ? 0x2000 : 0x0000, 20, 15);
-		HwMdPuts(data, sel == 3 ? 0x2000 : 0x0000, 20, 15);
+		HwMdPuts(datar, sel == 3 ? 0x2000 : 0x0000, 20, 15);
 
 		button = MARS_SYS_COMM8;
 
@@ -1152,6 +1154,8 @@ void tp_overscan()
 		if(pressedButton & SEGA_CTRL_Z)
 		{
 			DrawHelp(HELP_OVERSCAN);
+			Hw32xSetBGColor(0,31,31,31);
+			Hw32xSetFGColor(1,15,15,15);
 		}
 
 		if(pressedButton & SEGA_CTRL_START)
@@ -1160,7 +1164,6 @@ void tp_overscan()
 		if(pressedButton & SEGA_CTRL_UP)
 		{
 			sel--;
-
 		}
 
 		if(pressedButton & SEGA_CTRL_DOWN)
@@ -1175,66 +1178,82 @@ void tp_overscan()
 
 		if(pressedButton & SEGA_CTRL_LEFT)
 		{
-			int *data = NULL;
+			int *datat = NULL;
+			int *datal = NULL;
+			int *datab = NULL;
+			int *datar = NULL;
 
 			switch (sel)
 			{
 			case 0:
-				data = &top;
+				datat = &top;
+				(*datat)--;
+				if(*datat < 0)
+					*datat = 0;
 				break;
 			case 1:
-				data = &bottom;
+				datab = &bottom;
+				(*datab)++;
+				if(*datab > 223)
+					*datab = 223;
 				break;
 			case 2:
-				data = &left;
+				datal = &left;
+				(*datal)--; right++;
+				if(*datal < 0)
+					*datal = 0;
 				break;
 			case 3:
-				data = &right;
+				datar = &right;
+				(*datar)++;
+				if(*datar > 320)
+					*datar = 320;
 				break;
-			}
-
-			if(data)
-			{
-				(*data)--;
-				if(*data < 0)
-					*data = 0;
 			}
 		}
 
 		if(pressedButton & SEGA_CTRL_RIGHT)
 		{
-			int *data = NULL;
+			int *datat = NULL;
+			int *datal = NULL;
+			int *datab = NULL;
+			int *datar = NULL;
 
 			switch (sel)
 			{
 			case 0:
-				data = &top;
+				datat = &top;
+				(*datat)++;
+				if(*datat < 0)
+					*datat = 0;
 				break;
 			case 1:
-				data = &bottom;
+				datab = &bottom;
+				(*datab)--;
+				if(*datab < 124)
+					*datab = 124;
 				break;
 			case 2:
-				data = &left;
+				datal = &left;
+				(*datal)++; right--;
+				if(*datal < 0)
+					*datal = 0;
 				break;
 			case 3:
-				data = &right;
+				datar = &right;
+				(*datar)--;
+				if(*datar < 221)
+					*datar = 221;
 				break;
-			}
-
-			if(data)
-			{
-				(*data)++;
-				if(*data > 320)
-					*data = 320;
 			}
 		}
 
 		if(pressedButton & SEGA_CTRL_A)
 		{
-			left = right = bottom = top = 0;
+			left = top = 0;
+			right = 320;
+			bottom = 223;
 		}
-
-		drawLineTable(4);
 			
 		Hw32xScreenFlip(0);
 	}
