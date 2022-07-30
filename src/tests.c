@@ -33,9 +33,6 @@
 #include "donna_tiles.h"
 #include "donna_res.h"
 #include "donna_pal.h"
-#include "sonic_tiles.h"
-#include "sonic_res.h"
-#include "sonic_pal.h"
 #include "buzz_res.h"
 #include "buzz_pal.h"
 #include "grid_tiles.h"
@@ -56,7 +53,9 @@
 #include "lagtest_res_palette.h"
 #include "lagtest_res.h"
 #include "lagtest.h"
-
+#include "sonic_tileset_palette.h"
+#include "sonic_tileset.h"
+#include "sonic_tilemap.h"
 
 // Global Variables
 extern int fontColorWhite;
@@ -392,8 +391,8 @@ void vt_drop_shadow_test()
 					if (initTilemap == 1)
 					{
 						canvas_pitch = 384;
-						Hw32xSetPalette(sonic_palette);
-						init_tilemap(&tm, &sonic_tmx, (uint8_t **)sonic_reslist);
+						Hw32xSetPalette(sonic_tileset_Palette);
+						init_tilemap(&tm, &sonic_tilemap_Map, (uint8_t **)sonic_tileset_Reslist);
 						canvas_rebuild_id++;
 						initTilemap = 0;
 					}
@@ -432,21 +431,21 @@ void vt_striped_sprite_test()
 	int background = 1;
 	int initTilemap = 1;
 
-	SetSH2SR(1);
+	//SetSH2SR(1);
 
 	while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
 
-	NTSC = (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT) != 0;
+	//NTSC = (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT) != 0;
 
-	SH2_WDT_WTCSR_TCNT = 0x5A00; /* WDT TCNT = 0 */
-    SH2_WDT_WTCSR_TCNT = 0xA53E; /* WDT TCSR = clr OVF, IT mode, timer on, clksel = Fs/4096 */
+	//SH2_WDT_WTCSR_TCNT = 0x5A00; /* WDT TCNT = 0 */
+    //SH2_WDT_WTCSR_TCNT = 0xA53E; /* WDT TCSR = clr OVF, IT mode, timer on, clksel = Fs/4096 */
 
 	/* init hires timer system */
-    SH2_WDT_VCR = (65 << 8) | (SH2_WDT_VCR & 0x00FF); // set exception vector for WDT
-    SH2_INT_IPRA = (SH2_INT_IPRA & 0xFF0F) | 0x0020; // set WDT INT to priority 2
+    //SH2_WDT_VCR = (65 << 8) | (SH2_WDT_VCR & 0x00FF); // set exception vector for WDT
+    //SH2_INT_IPRA = (SH2_INT_IPRA & 0xFF0F) | 0x0020; // set WDT INT to priority 2
 
 	// change 4096.0f to something else if WDT TCSR is changed!
-    mars_frtc2msec_frac = 4096.0f * 1000.0f / (NTSC ? NTSC_CLOCK_SPEED : PAL_CLOCK_SPEED) * 65536.0f;
+    //mars_frtc2msec_frac = 4096.0f * 1000.0f / (NTSC ? NTSC_CLOCK_SPEED : PAL_CLOCK_SPEED) * 65536.0f;
 
 	Hw32xSetPalette(donna_palette);
 
@@ -571,8 +570,8 @@ void vt_striped_sprite_test()
 				if (initTilemap == 1)
 				{
 					canvas_pitch = 384;
-					Hw32xSetPalette(sonic_palette);
-					init_tilemap(&tm, &sonic_tmx, (uint8_t **)sonic_reslist);
+					Hw32xSetPalette(sonic_tileset_Palette);
+					init_tilemap(&tm, &sonic_tilemap_Map, (uint8_t **)sonic_tileset_Reslist);
 					canvas_rebuild_id++;
 					initTilemap = 0;
 				}
@@ -1269,42 +1268,18 @@ void vt_reflex_test()
 void vt_scroll_test()
 {
 	int done = 0, pause = 0, direction = 0, acc = 1;
-    char NTSC;
 	u16 frame = 1, vertical = 0, initTilemap = 0;
 	unsigned short button = 0, pressedButton = 0, oldButton = 0xFFFF;
 
 	canvas_pitch = 384; // canvas_width + scrollwidth
 
-	SetSH2SR(1);
-
-	// Set screen priority for the 32X 
-	MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X | MARS_224_LINES | MARS_VDP_MODE_256;
-
-	while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
-
-	NTSC = (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT) != 0;
-
-	SH2_WDT_WTCSR_TCNT = 0x5A00; /* WDT TCNT = 0 */
-    SH2_WDT_WTCSR_TCNT = 0xA53E; /* WDT TCSR = clr OVF, IT mode, timer on, clksel = Fs/4096 */
-
-	/* init hires timer system */
-    SH2_WDT_VCR = (65 << 8) | (SH2_WDT_VCR & 0x00FF); // set exception vector for WDT
-    SH2_INT_IPRA = (SH2_INT_IPRA & 0xFF0F) | 0x0020; // set WDT INT to priority 2
-
-	// change 4096.0f to something else if WDT TCSR is changed!
-    mars_frtc2msec_frac = 4096.0f * 1000.0f / (NTSC ? NTSC_CLOCK_SPEED : PAL_CLOCK_SPEED) * 65536.0f;
-
-	Hw32xSetPalette(sonic_palette);
-
-	MARS_SYS_COMM4 = 0;
-    MARS_SYS_COMM6 = 0;
+	Hw32xSetPalette(sonic_tileset_Palette);
  
     fpcamera_x = fpcamera_y = 0;
-	int fpmoveinc_x = 1<<16, fpmoveinc_y = 1<<16; // in 16.16 fixed point
 
     Hw32xScreenFlip(0);
 
-	init_tilemap(&tm, &sonic_tmx, (uint8_t **)sonic_reslist);
+	init_tilemap(&tm, &sonic_tilemap_Map, (uint8_t **)sonic_tileset_Reslist);
 
     while (!done) 
 	{
@@ -1322,11 +1297,14 @@ void vt_scroll_test()
 		{
 			switch (frame)
 			{
-        	case 60:
-            Hw32xSetPalette(sonic_paletteswap);
+        	case 30:
+            Hw32xSetPalette(sonic_tileset_Palette2);
 				break;
-       		case 90:
-            Hw32xSetPalette(sonic_palette);
+       		case 60:
+            Hw32xSetPalette(sonic_tileset_Palette3);
+				break;
+			case 90:
+            Hw32xSetPalette(sonic_tileset_Palette);
 				break;
 			}
 		}
@@ -1414,7 +1392,7 @@ void vt_scroll_test()
 
 		if(!vertical)
 		{
-			if (fpcamera_x < 0) fpcamera_x = sonic_tmx.wrapX*(1<<16);
+			if (fpcamera_x < 0) fpcamera_x = sonic_tilemap_Map.wrapX*(1<<16);
 		}
 		else
 		{
@@ -1433,8 +1411,8 @@ void vt_scroll_test()
 		{
 			if (initTilemap == 1)
 				{
-					Hw32xSetPalette(sonic_palette);
-					init_tilemap(&tm, &sonic_tmx, (uint8_t **)sonic_reslist);
+					Hw32xSetPalette(sonic_tileset_Palette);
+					init_tilemap(&tm, &sonic_tilemap_Map, (uint8_t **)sonic_tileset_Reslist);
 					canvas_rebuild_id++;
 					initTilemap = 0;
 				}
@@ -1465,35 +1443,14 @@ void vt_scroll_test()
 void vt_gridscroll_test()
 {
 	int done = 0, acc = 1, pause = 0, direction = 0, horizontal = 0;
-    char NTSC;
 	unsigned short button = 0, pressedButton = 0, oldButton = 0xFFFF;
 
 	canvas_pitch = 384; // canvas_width + scrollwidth
 	canvas_yaw = 256; // canvas_height + scrollheight
 
-	SetSH2SR(1);
-
-	while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
-
-	NTSC = (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT) != 0;
-
-	SH2_WDT_WTCSR_TCNT = 0x5A00; /* WDT TCNT = 0 */
-    SH2_WDT_WTCSR_TCNT = 0xA53E; /* WDT TCSR = clr OVF, IT mode, timer on, clksel = Fs/4096 */
-
-	/* init hires timer system */
-    SH2_WDT_VCR = (65 << 8) | (SH2_WDT_VCR & 0x00FF); // set exception vector for WDT
-    SH2_INT_IPRA = (SH2_INT_IPRA & 0xFF0F) | 0x0020; // set WDT INT to priority 2
-
-	// change 4096.0f to something else if WDT TCSR is changed!
-    mars_frtc2msec_frac = 4096.0f * 1000.0f / (NTSC ? NTSC_CLOCK_SPEED : PAL_CLOCK_SPEED) * 65536.0f;
-
 	Hw32xSetPalette(grid_palette);
 
-	MARS_SYS_COMM4 = 0;
-    MARS_SYS_COMM6 = 0;
-
     fpcamera_x = fpcamera_y = 0;
-	int fpmoveinc_x = 1<<16, fpmoveinc_y = 1<<16; // in 16.16 fixed point
 
     Hw32xScreenFlip(0);
 
@@ -1510,7 +1467,6 @@ void vt_gridscroll_test()
 
 		pressedButton = button & ~oldButton;
     	oldButton = button;
-
 
 		if(!horizontal)
 		{	
@@ -1572,7 +1528,6 @@ void vt_gridscroll_test()
         }
 
 		if(!pause)
-			
 
 		if (fpcamera_x < 0) fpcamera_x = grid_tmx.wrapX*(1<<16);
 		if (fpcamera_y < 0) fpcamera_y = grid_tmx.wrapY*(1<<16);
@@ -1953,7 +1908,7 @@ void vt_checkerboard()
 	int manualtest = 1;
 	volatile unsigned short *cram16 = &MARS_CRAM;
 
-	while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
+	//while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
 
 	Hw32xSetPalette(checkerboard_bw_palette);
 

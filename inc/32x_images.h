@@ -36,46 +36,6 @@
 void loadPalette(const u16 *paletteStart, const u16 *paletteEnd, const int paletteOffset);
 
 /*
-* Writes the lzss encoded image to the target buffer in memory
-* @param imageStart - in: pointer to starting position of image data
-* @param imageEnd - in: pointer to end position of image data
-* @param targetMem - out: pointer to memory buffer to write uncompressed image data
-*/
-//void loadLzssToRam(const char *imageStart, const char *imageEnd, vu8 *targetMem);
-
-//void drawLzssBG2(const char *imageStart, const char *imageEnd, int fbOffset);
-
-/*
-* Writes the lzss encoded image to the framebuffer, assuming the image will be fullscreen (320 x 224)
-* @param imageStart - pointer to starting position of image data
-* @param imageEnd - pointer to end position of image data
-*/
-//void drawLzssBG(const char *imageStart, const char *imageEnd);
-
-/*
-* Draws a compressed image to position on MARS framebuffer
-* @param spriteStart - pointer to starting position of image data
-* @param spriteEnd - pointer to end position of image data
-* @param x - x pixel coordinate of top-left corner of the image 
-* @param y - y pixel coordinate of top-left corner of the image
-* @param xWidth - vertical size of image to be drawn in pixels
-* @param yWidth - horizontal size of image to be drawn in pixels 
-*/
-//void drawLzssSprite(char *spriteStart, char *spriteEnd, vu16 x, vu16 y, int xWidth, int yWidth);
-
-/*
-* Draws a compressed image to position on MARS framebuffer
-* @param spriteStart - pointer to starting position of image data
-* @param spriteEnd - pointer to end position of image data
-* @param x - x pixel coordinate of top-left corner of the image 
-* @param y - y pixel coordinate of top-left corner of the image
-* @param xWidth - vertical size of image to be drawn in pixels
-* @param yWidth - horizontal size of image to be drawn in pixels
-* @param mirror - 0 for normal 1 for flipped along y-axis 
-*/
-//void drawLzssSprite2(char *spriteStart, char *spriteEnd, vu16 x, vu16 y, int xWidth, int yWidth, int mirror);
-
-/*
 * Draws an image to position on MARS framebuffer allowing you to flip the image using mirror param.
 * 
 * @param spriteBuffer - pointer to starting position of image data to read
@@ -123,6 +83,7 @@ void drawFillRect(const s16 x, const s16 y, const int xWidth, const int yWidth, 
 *
 */
 void drawRect(const s16 x, const s16 y, const int xWidth, const int yWidth, vu8* color);
+
 void my_debug_put_char_8(int x, int y, unsigned char ch, vu8* fgColor, vu8* bgColor);
 int myScreenPrintData(const char *buff, const int x, const int y, const vu8* fgColor, const vu8* bgColor );
 void mars_drawText(const char *str, int x, int y, int palOffs);

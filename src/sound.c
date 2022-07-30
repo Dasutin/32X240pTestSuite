@@ -27,7 +27,6 @@
 #include "sound.h"
 #include "mars_ringbuf.h"
 
-
 unsigned short __attribute__((aligned(16))) sndbuf[MIXSAMPLES*2*2]; // two buffers of MIXSAMPLES words of stereo pwm audio
 static channel_t __attribute__((aligned(16))) channel[MIXCHANNELS];
 
@@ -38,7 +37,7 @@ static short sndUVol = MAXVOL;  // User-selected volume
 
 static void end_channel(unsigned char);
 
-//extern unsigned short sndbuf[];
+extern unsigned short sndbuf[];
 
 marsrb_t soundbuf;
 
@@ -79,7 +78,7 @@ unsigned snddma_length(void)
     return Mars_RB_Len(&soundbuf);
 }
 
-void secondary_dma_kickstart(void)
+ void secondary_dma_kickstart(void)
 {
     static short kickstart_samples[16] __attribute__((aligned(16))) = {
         SAMPLE_CENTER, SAMPLE_CENTER, SAMPLE_CENTER, SAMPLE_CENTER, SAMPLE_CENTER, SAMPLE_CENTER, SAMPLE_CENTER, SAMPLE_CENTER,
@@ -90,41 +89,59 @@ void secondary_dma_kickstart(void)
     SH2_DMA_TCR1 = sizeof(kickstart_samples) / sizeof(kickstart_samples[0]);
     SH2_DMA_DAR1 = 0x20004038; // storing a word here will the MONO channel
     SH2_DMA_CHCR1 = 0x14e5; // dest fixed, src incr, size word, ext req, dack mem to dev, dack hi, dack edge, dreq rising edge, cycle-steal, dual addr, intr enabled, clear TE, dma enabled
-}
+} 
 
 void sec_dma1_handler(void)
 {
-    Mars_RB_CommitRead(&soundbuf);
+    //Mars_RB_CommitRead(&sndbuf);
 
-    SH2_DMA_CHCR1; // read TE
-    SH2_DMA_CHCR1 = 0; // clear TE
+    //SH2_DMA_CHCR1; // read TE
+    //SH2_DMA_CHCR1 = 0; // clear TE
 
-    if (Mars_RB_Len(&soundbuf) == 0)
-    {
+    //if (Mars_RB_Len(&sndbuf) == 0)
+    //{
         // sound buffer UNDERRUN
         secondary_dma_kickstart();
-        return;
-    }
+    //    return;
+    //}
 
-    short* p = Mars_RB_GetReadBuf(&soundbuf, 8);
-    int num_channels = *p++;
-    int num_samples = *p++;
-    Mars_RB_CommitRead(&soundbuf);
+    Hw32xAudioCallback((unsigned long)&sndbuf);
 
-    p = Mars_RB_GetReadBuf(&soundbuf, num_samples * num_channels);
+    //static short kickstart_samples[16] __attribute__((aligned(16))) = {
+    //    SAMPLE_CENTER, SAMPLE_CENTER, SAMPLE_CENTER, SAMPLE_CENTER, SAMPLE_CENTER, SAMPLE_CENTER, SAMPLE_CENTER, SAMPLE_CENTER,
+    //    SAMPLE_CENTER, SAMPLE_CENTER, SAMPLE_CENTER, SAMPLE_CENTER, SAMPLE_CENTER, SAMPLE_CENTER, SAMPLE_CENTER, SAMPLE_CENTER
+    //};
 
-    SH2_DMA_SAR1 = (intptr_t)p | 0x20000000;
-    SH2_DMA_TCR1 = num_samples;
-    if (num_channels == 2)
-    {
-        SH2_DMA_DAR1 = 0x20004034; // storing a long here will set left and right
-        SH2_DMA_CHCR1 = 0x18e5; // dest fixed, src incr, size long, ext req, dack mem to dev, dack hi, dack edge, dreq rising edge, cycle-steal, dual addr, intr enabled, clear TE, dma enabled
-    }
-    else
-    {
-        SH2_DMA_DAR1 = 0x20004038; // storing a word here will set the MONO channel
-        SH2_DMA_CHCR1 = 0x14e5; // dest fixed, src incr, size word, ext req, dack mem to dev, dack hi, dack edge, dreq rising edge, cycle-steal, dual addr, intr enabled, clear TE, dma enabled
-    }
+    //SH2_DMA_SAR1 = (intptr_t)kickstart_samples;
+    //SH2_DMA_TCR1 = sizeof(kickstart_samples) / sizeof(kickstart_samples[0]);
+    //SH2_DMA_DAR1 = 0x20004038; // storing a word here will the MONO channel
+    //SH2_DMA_CHCR1 = 0x14e5; // dest fixed, src incr, size word, ext req, dack mem to dev, dack hi, dack edge, dreq rising edge, cycle-steal, dual addr, intr enabled, clear TE, dma enabled
+
+    //short* p = Mars_RB_GetReadBuf(&sndbuf, 8);
+    //int num_channels = *p++;
+    //int num_samples = *p++;
+    //Mars_RB_CommitRead(&sndbuf);
+
+    //p = Mars_RB_GetReadBuf(&sndbuf, num_samples * num_channels);
+
+    SH2_DMA_SAR1 = ((unsigned long)&sndbuf) | 0x20000000;
+    SH2_DMA_TCR1 = NUM_SAMPLES;
+    SH2_DMA_CHCR1 = 0x18E1; // dest fixed, src incr, size long, ext req, dack mem to dev, dack hi, dack edge, dreq rising edge, cycle-steal, dual addr, intr disabled, clear TE, dma enabled
+    //if (num_channels == 2)
+    //{
+
+    Hw32xAudioCallback((unsigned long)&sndbuf + MAX_NUM_SAMPLES * 4);
+
+    SH2_DMA_DAR1 = 0x20004034; // storing a long here will set left and right
+    SH2_DMA_CHCR1 = 0x18e5; // dest fixed, src incr, size long, ext req, dack mem to dev, dack hi, dack edge, dreq rising edge, cycle-steal, dual addr, intr enabled, clear TE, dma enabled
+    //}
+   // else
+    //{
+    //    SH2_DMA_DAR1 = 0x20004038; // storing a word here will set the MONO channel
+    //    SH2_DMA_CHCR1 = 0x14e5; // dest fixed, src incr, size word, ext req, dack mem to dev, dack hi, dack edge, dreq rising edge, cycle-steal, dual addr, intr enabled, clear TE, dma enabled
+    //}
+
+    Hw32xAudioCallback((unsigned long)&sndbuf);
 }
 
 void snddma_secondary_init(int sample_rate)
@@ -146,8 +163,8 @@ void snddma_secondary_init(int sample_rate)
     SH2_DMA_DRCR1 = 0;
     SH2_DMA_DMAOR = 1; // enable DMA
 
-    //SH2_DMA_VCR1 = 72; // set exception vector for DMA channel 1
-    //SH2_INT_IPRA = (SH2_INT_IPRA & 0xF0FF) | 0x0F00; // set DMA INT to priority 15
+    SH2_DMA_VCR1 = 72; // set exception vector for DMA channel 1
+    SH2_INT_IPRA = (SH2_INT_IPRA & 0xF0FF) | 0x0F00; // set DMA INT to priority 15
     
     // init the sound hardware
     MARS_PWM_MONO = 1;
@@ -172,14 +189,14 @@ void snddma_secondary_init(int sample_rate)
         sample++;
     }
 
-    //secondary_dma_kickstart();
+    secondary_dma_kickstart();
 
-    //SetSH2SR(2);
+    SetSH2SR(2);
 }
 
 void snddma_init(int sample_rate)
 {
-    Mars_RB_ResetAll(&soundbuf);
+    Mars_RB_ResetAll(&sndbuf);
 }
 
 // Audio Data Loading Code -----------------------------------------------------------------------------------------
@@ -326,8 +343,8 @@ char Hw32xAudioPlay(sound_t *sound, char loop, char selectch)
     if (!isAudioActive) return -1;
     if (sound == NULL) return -1;
 
-    while (MARS_SYS_COMM4 == 6);
-    MARS_SYS_COMM4 = 8;
+    while (MARS_SYS_COMM6 == 3);
+    MARS_SYS_COMM6 = 2;
 
     c = 0;
     CacheClearLine(&channel[0]);
@@ -349,7 +366,7 @@ char Hw32xAudioPlay(sound_t *sound, char loop, char selectch)
         channel[c].len = sound->len;
     }
 
-    MARS_SYS_COMM4 = 7;
+    MARS_SYS_COMM6 = 1;
 
     return c;
 }
@@ -369,13 +386,13 @@ void Hw32xAudioStopChannel(unsigned char chan)
     if (chan < 0 || chan > MIXCHANNELS)
         return;
 
-    while (MARS_SYS_COMM4 == 6);
-    MARS_SYS_COMM4 = 8;
+    while (MARS_SYS_COMM6 == 3);
+    MARS_SYS_COMM6 = 2;
 
     CacheClearLine(&channel[chan]);
     if (channel[chan].snd) end_channel(chan);
 
-    MARS_SYS_COMM4 = 7;
+    MARS_SYS_COMM6 = 1;
 }
 
 // Stop a sound
@@ -385,8 +402,8 @@ void Hw32xAudioStopAudio(sound_t *sound)
 
     if (!sound) return;
 
-    while (MARS_SYS_COMM4 == 6);
-    MARS_SYS_COMM4 = 8;
+    while (MARS_SYS_COMM6 == 3);
+    MARS_SYS_COMM6 = 2;
 
     for (i = 0; i < MIXCHANNELS; i++)
     {
@@ -394,7 +411,7 @@ void Hw32xAudioStopAudio(sound_t *sound)
         if (channel[i].snd == sound) end_channel(i);
     }
 
-    MARS_SYS_COMM4 = 7;
+    MARS_SYS_COMM6 = 1;
 }
 
 // See if a sound is playing
@@ -402,8 +419,8 @@ int Hw32xAudioIsPlaying(sound_t *sound)
 {
     unsigned char i, playing;
 
-    while (MARS_SYS_COMM4 == 6) ;
-    MARS_SYS_COMM4 = 8;
+    while (MARS_SYS_COMM6 == 3) ;
+    MARS_SYS_COMM6 = 2;
 
     playing = 0;
     for (i = 0; i < MIXCHANNELS; i++)
@@ -412,19 +429,18 @@ int Hw32xAudioIsPlaying(sound_t *sound)
         if (channel[i].snd == sound) playing = 1;
     }
 
-    MARS_SYS_COMM4 = 7;
+    MARS_SYS_COMM6 = 1;
 
     return playing;
 }
-
 
 // Stops all channels
 void Hw32xAudioStopAllChannels(void)
 {
     unsigned char i;
 
-    while (MARS_SYS_COMM4 == 6) ;
-    MARS_SYS_COMM4 = 8;
+    while (MARS_SYS_COMM6 == 3) ;
+    MARS_SYS_COMM6 = 2;
 
     for (i = 0; i < MIXCHANNELS; i++)
     {
@@ -432,7 +448,7 @@ void Hw32xAudioStopAllChannels(void)
         if (channel[i].snd) end_channel(i);
     }
 
-    MARS_SYS_COMM4 = 7;
+    MARS_SYS_COMM6 = 1;
 }
 
 // Load a sound

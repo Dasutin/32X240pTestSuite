@@ -786,19 +786,10 @@ int secondary_task(int cmd)
         draw_handle_layercmd(&slave_drawtilelayerscmd);
         return 1;
     case 6: 
-        Hw32xAudioCallback((unsigned long)&sndbuf);
-        MARS_SYS_COMM4 = 7;
-        secondary_task(7);
         return 1;
     case 7:
-        SH2_DMA_SAR1 = ((unsigned long)&sndbuf) | 0x20000000;
-        SH2_DMA_TCR1 = NUM_SAMPLES; // number longs
-        SH2_DMA_CHCR1 = 0x18E1; // dest fixed, src incr, size long, ext req, dack mem to dev, dack hi, dack edge, dreq rising edge, cycle-steal, dual addr, intr disabled, clear TE, dma enabled
-        secondary_task(8);
         return 1;
     case 8:
-        MARS_SYS_COMM4 = 6;
-        Hw32xAudioCallback((unsigned long)&sndbuf + MAX_NUM_SAMPLES * 4);
         return 1;
     default:
         break;

@@ -1,7 +1,6 @@
 #include "../inc_md/types.h"
 #include "../inc_md/psg.h"
 
-
 void PSG_init()
 {
     vu8 *pb;
@@ -20,7 +19,6 @@ void PSG_init()
     }
 }
 
-
 void PSG_write(u8 data)
 {
     vu8 *pb;
@@ -28,7 +26,6 @@ void PSG_write(u8 data)
     pb = (u8*) PSG_PORT;
     *pb = data;
 }
-
 
 void PSG_setEnvelope(u8 channel, u8 value)
 {

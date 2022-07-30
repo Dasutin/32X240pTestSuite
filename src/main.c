@@ -41,7 +41,7 @@ uint32_t  canvas_yaw = 224; // canvas_height + scrollheight
 
 int main()
 {
-	//int frameDelay = 0;
+	int frameDelay = 1;
 	int curse = 1;
 	//char NTSC;
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
@@ -146,6 +146,7 @@ int main()
 		}
 
 		//HwMdScreenPrintf(0x4000, 0, 5, "clip: %02d", canvas_pitch);
+		Hw32xDelay(frameDelay);
 
 		Hw32xScreenFlip(0);
 	}

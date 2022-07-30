@@ -98,15 +98,6 @@ void loadTextPalette()
 	cram16[209] = COLOR(0,0,0);    // 208 is Black
 }
 
-// Converts an integer to the relevant ascii char where 0 = ascii 65 ('A')
-char ascii(int letterIndex)
-{
-	int asciiOffset = 65;
-	char newChar;
-	newChar = (char)(asciiOffset + letterIndex);
-	return newChar;
-}
-
 void cleanup()
 {
 	Hw32xScreenClear();
@@ -130,66 +121,8 @@ void swapBuffers()
 	currentFB ^= 1;	
 }
 
-void handle_input()
-{
-	u16 button, pressedButton, oldButton = 0;
-
-	//The type is either 0xF if no controller is present, 1 if a six button pad is present, or 0 if a three button pad is present. The buttons are SET to 1 if the corresponding button is pressed, and consist of:
-	//(0 0 0 1 M X Y Z S A C B R L D U) or (0 0 0 0 0 0 0 0 S A C B R L D U)
-
-	// MARS_SYS_COMM10 holds the current button values: - - - - M X Y Z S A C B R L D U
-	button = MARS_SYS_COMM8;
-
-	if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE){
-		button = MARS_SYS_COMM10; //If controller 1 isn't detected, try using controller 2
-	}
-
-	pressedButton = button & ~oldButton;
-    oldButton = button;
-	
-	while (MARS_SYS_COMM6 == SLAVE_LOCK) ; // wait until slave isn't blocking
-	MARS_SYS_COMM6 = MASTER_LOCK; //tell slave to wait
-	
-	//pause when start is first pressed only
-	if (pressedButton & SEGA_CTRL_START )
-	{
-	}
-	/*else if (pressedButton & SEGA_CTRL_UP )
-	{
-		sprintf(keyPressedText,"Key Pressed: Up");
-	}
-	else if (pressedButton & SEGA_CTRL_DOWN )
-	{
-		sprintf(keyPressedText,"Key Pressed: Down");	
-	}
-	else if (pressedButton & SEGA_CTRL_LEFT )
-	{
-		sprintf(keyPressedText,"Key Pressed: Left");
-	}
-	else if (pressedButton & SEGA_CTRL_RIGHT )
-	{
-		sprintf(keyPressedText,"Key Pressed: Right");
-	}
-	else if (pressedButton & SEGA_CTRL_A)
-	{
-		sprintf(keyPressedText,"Key Pressed: A");
-	}
-	
-	else if (pressedButton & SEGA_CTRL_B)
-	{
-		sprintf(keyPressedText,"Key Pressed: B");
-	}
-	
-	else if (pressedButton & SEGA_CTRL_C)
-	{
-		sprintf(keyPressedText,"Key Pressed: C");
-	}*/
-	
-	MARS_SYS_COMM6 = MASTER_STATUS_OK; //tell slave to resume
-}
-
 /*
-CRC 32 based on work by Christopher Baker <https://christopherbaker.net>
+* CRC 32 based on work by Christopher Baker <https://christopherbaker.net>
 */
 
 void CRC32_reset()
