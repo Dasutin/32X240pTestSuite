@@ -236,37 +236,19 @@ void MDPSG_stop()
 void vt_drop_shadow_test()
 {
 	int done = 0;
-    //char NTSC;
 	unsigned short button = 0, pressedButton = 0, oldButton = 0xFFFF;
 	int frameCount = 0;
     int mode = DRAWSPR_OVERWRITE;
 	int x = 30;
 	int y = 30;
+	u16 frame = 1;
+	int otherTests = 1;
 	int changeSprite = 0;
 	int background = 1;
 	int initTilemap = 1;
 	int evenFrames = 0;
 
-	SetSH2SR(1);
-
-	while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
-
-	//NTSC = (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT) != 0;
-
-	//SH2_WDT_WTCSR_TCNT = 0x5A00; /* WDT TCNT = 0 */
-    //SH2_WDT_WTCSR_TCNT = 0xA53E; /* WDT TCSR = clr OVF, IT mode, timer on, clksel = Fs/4096 */
-
-	/* init hires timer system */
-    //SH2_WDT_VCR = (65 << 8) | (SH2_WDT_VCR & 0x00FF); // set exception vector for WDT
-    //SH2_INT_IPRA = (SH2_INT_IPRA & 0xFF0F) | 0x0020; // set WDT INT to priority 2
-
-	// change 4096.0f to something else if WDT TCSR is changed!
-    //mars_frtc2msec_frac = 4096.0f * 1000.0f / (NTSC ? NTSC_CLOCK_SPEED : PAL_CLOCK_SPEED) * 65536.0f;
-
 	Hw32xSetPalette(donna_palette);
-
-	MARS_SYS_COMM4 = 0;
-    MARS_SYS_COMM6 = 0;
 
     fpcamera_x = fpcamera_y = 0;
 
@@ -283,6 +265,26 @@ void vt_drop_shadow_test()
 
 		pressedButton = button & ~oldButton;
     	oldButton = button;
+
+		if(!otherTests)
+		{
+			switch (frame)
+			{
+        	case 30:
+            Hw32xSetPalette(sonic_tileset_Palette2);
+				break;
+       		case 60:
+            Hw32xSetPalette(sonic_tileset_Palette3);
+				break;
+			case 90:
+            Hw32xSetPalette(sonic_tileset_Palette);
+				break;
+			}
+		}
+
+		frame++;
+		if(frame > 90)
+			frame = 1;
 
         if (button & SEGA_CTRL_UP)
 		{
@@ -361,6 +363,7 @@ void vt_drop_shadow_test()
 				case 1:
 					if (initTilemap == 1)
 					{
+						otherTests = 1;
 						canvas_pitch = 320;
 						Hw32xSetPalette(donna_palette);
 						init_tilemap(&tm, &donna_tmx, (uint8_t **)donna_reslist);
@@ -381,6 +384,7 @@ void vt_drop_shadow_test()
 				case 3:
 					if (initTilemap == 1)
 					{
+						otherTests = 1;
 						init_tilemap(&tm, &h_stripes_tmx, (uint8_t **)h_stripes_reslist);
 						canvas_rebuild_id++;
 						initTilemap = 0;
@@ -390,6 +394,7 @@ void vt_drop_shadow_test()
 				case 4:
 					if (initTilemap == 1)
 					{
+						otherTests = !otherTests;
 						canvas_pitch = 384;
 						Hw32xSetPalette(sonic_tileset_Palette);
 						init_tilemap(&tm, &sonic_tilemap_Map, (uint8_t **)sonic_tileset_Reslist);
@@ -424,33 +429,15 @@ void vt_drop_shadow_test()
 void vt_striped_sprite_test()
 {
 	int done = 0;
-    char NTSC;
 	unsigned short button = 0, pressedButton = 0, oldButton = 0xFFFF;
     int x = 30;
 	int y = 30;
+	int otherTests = 1;
+	u16 frame = 1;
 	int background = 1;
 	int initTilemap = 1;
 
-	//SetSH2SR(1);
-
-	while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
-
-	//NTSC = (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT) != 0;
-
-	//SH2_WDT_WTCSR_TCNT = 0x5A00; /* WDT TCNT = 0 */
-    //SH2_WDT_WTCSR_TCNT = 0xA53E; /* WDT TCSR = clr OVF, IT mode, timer on, clksel = Fs/4096 */
-
-	/* init hires timer system */
-    //SH2_WDT_VCR = (65 << 8) | (SH2_WDT_VCR & 0x00FF); // set exception vector for WDT
-    //SH2_INT_IPRA = (SH2_INT_IPRA & 0xFF0F) | 0x0020; // set WDT INT to priority 2
-
-	// change 4096.0f to something else if WDT TCSR is changed!
-    //mars_frtc2msec_frac = 4096.0f * 1000.0f / (NTSC ? NTSC_CLOCK_SPEED : PAL_CLOCK_SPEED) * 65536.0f;
-
 	Hw32xSetPalette(donna_palette);
-
-	MARS_SYS_COMM4 = 0;
-    MARS_SYS_COMM6 = 0;
 
     fpcamera_x = fpcamera_y = 0;
 
@@ -467,6 +454,26 @@ void vt_striped_sprite_test()
 
 		pressedButton = button & ~oldButton;
     	oldButton = button;
+
+		if(!otherTests)
+		{
+			switch (frame)
+			{
+        	case 30:
+            Hw32xSetPalette(sonic_tileset_Palette2);
+				break;
+       		case 60:
+            Hw32xSetPalette(sonic_tileset_Palette3);
+				break;
+			case 90:
+            Hw32xSetPalette(sonic_tileset_Palette);
+				break;
+			}
+		}
+
+		frame++;
+		if(frame > 90)
+			frame = 1;
 
         if (button & SEGA_CTRL_UP)
 		{
@@ -538,6 +545,7 @@ void vt_striped_sprite_test()
 			case 1:
 				if (initTilemap == 1)
 				{
+					otherTests = 1;
 					canvas_pitch = 320;
 					Hw32xSetPalette(donna_palette);
 					init_tilemap(&tm, &donna_tmx, (uint8_t **)donna_reslist);
@@ -558,6 +566,7 @@ void vt_striped_sprite_test()
 			case 3:
 				if (initTilemap == 1)
 				{
+					otherTests = 1;
 					canvas_pitch = 320;
 					Hw32xSetPalette(donna_palette);
 					init_tilemap(&tm, &h_stripes_tmx, (uint8_t **)h_stripes_reslist);
@@ -569,6 +578,7 @@ void vt_striped_sprite_test()
 			case 4:
 				if (initTilemap == 1)
 				{
+					otherTests = !otherTests;
 					canvas_pitch = 384;
 					Hw32xSetPalette(sonic_tileset_Palette);
 					init_tilemap(&tm, &sonic_tilemap_Map, (uint8_t **)sonic_tileset_Reslist);
@@ -591,7 +601,7 @@ void vt_lag_test()
 {
 	u16 lsd, msd;
 	int frames = 0, seconds = 0, minutes = 0, hours = 0, framecnt = 1;
-	u16 done = 0, color = 1;
+	u16 done = 0;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	uint8_t *numbers[10] = {tiles_0, tiles_1, tiles_2, tiles_3, tiles_4, tiles_5, tiles_6, tiles_7, tiles_8, tiles_9};
 	u16 pause = 0, cposx = 32, cposy = 17;
@@ -2245,7 +2255,7 @@ void at_sound_test()
 	extern const u8 BACKGROUND_TILE[] __attribute__((aligned(16)));
 	volatile unsigned short *cram16 = &MARS_CRAM;
 	volatile unsigned short *frameBuffer16 = &MARS_FRAMEBUFFER;
-	sound_t JUMP;
+	//sound_t JUMP;
 	//sound_t BEEP;
 
 	//Hw32xAudioInit();
@@ -2364,24 +2374,24 @@ void at_sound_test()
 			if (xcurse == 1 && ycurse == 1)
 			{
 				MARS_SYS_COMM4 = 1;
-				Hw32xAudioLoad(&JUMP, "jump");
-				Hw32xAudioPlay(&JUMP, 1, 1);  // Left Channel Only
-				Hw32xAudioFree(&JUMP);
+				//Hw32xAudioLoad(&JUMP, "jump");
+				//Hw32xAudioPlay(&JUMP, 1, 1);  // Left Channel Only
+				//Hw32xAudioFree(&JUMP);
 				//snddma_get_buf_mono(&JUMP);
 			}
 			if (xcurse == 2 && ycurse == 1)
 			{
 				MARS_SYS_COMM4 = 1;
-				Hw32xAudioLoad(&JUMP, "jump");
-				Hw32xAudioPlay(&JUMP, 1, 3);  // Center
-				Hw32xAudioFree(&JUMP);
+				//Hw32xAudioLoad(&JUMP, "jump");
+				//Hw32xAudioPlay(&JUMP, 1, 3);  // Center
+				//Hw32xAudioFree(&JUMP);
 			}
 			if (xcurse == 3 && ycurse == 1)
 			{
 				MARS_SYS_COMM4 = 1;
-				Hw32xAudioLoad(&JUMP, "jump");
-				Hw32xAudioPlay(&JUMP, 1, 2);  // Right Channel Only
-				Hw32xAudioFree(&JUMP);
+				//Hw32xAudioLoad(&JUMP, "jump");
+				//Hw32xAudioPlay(&JUMP, 1, 2);  // Right Channel Only
+				//Hw32xAudioFree(&JUMP);
 			}
 			if (xcurse == 1 && ycurse == 2)
 			{
