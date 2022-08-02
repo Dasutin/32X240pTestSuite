@@ -42,9 +42,6 @@ static short sndUVol = MAXVOL;  // User-selected volume
 
 static void end_channel(unsigned char);
 
-void secondary_dma1_handler(void) SND_ATTR_SDRAM;
-void secondary_dma_kickstart(void) SND_ATTR_SDRAM;
-
 void sec_dma1_handler(void)
 {
     SH2_DMA_CHCR1; // Read TE
@@ -398,9 +395,9 @@ void Hw32xAudioCallback(unsigned long buff)
     short s;
     unsigned int i;
     unsigned int *stream = (unsigned int *)(buff | 0x20000000);
-    unsigned char sisAudioActive = *(unsigned char *)((unsigned int)&isAudioActive | 0x20000000);
+    //unsigned char sisAudioActive = *(unsigned char *)((unsigned int)&isAudioActive | 0x20000000);
     short ssndVol = *(short *)((unsigned int)&sndVol | 0x20000000);
-    unsigned char ssndMute = *(unsigned char *)((unsigned int)&sndMute | 0x20000000);
+    //unsigned char ssndMute = *(unsigned char *)((unsigned int)&sndMute | 0x20000000);
     channel_t *schannel = (channel_t *)((unsigned int)channel | 0x20000000);
 
     if (snd_init) {

@@ -47,17 +47,6 @@ typedef struct {
   unsigned char pad[2]; // Pad to one cache line
 } channel_t;
 
-void snddma_submit(void) SND_ATTR_SDRAM;
-uint16_t* snddma_get_buf(int channels, int num_samples) SND_ATTR_SDRAM;
-uint16_t* snddma_get_buf_mono(int num_samples) SND_ATTR_SDRAM;
-uint16_t* snddma_get_buf_stereo(int num_samples) SND_ATTR_SDRAM;
-
-void snddma_secondary_init(int sample_rate);
-void snddma_init(int sample_rate);
-void secondary_dma_kickstart(void);
-unsigned snddma_length(void)SND_ATTR_SDRAM;
-void snddma_wait(void) SND_ATTR_SDRAM;
-
 extern void Hw32xAudioCallback(unsigned long buffer);
 extern void Hw32xAudioInit(void);
 extern void Hw32xAudioShutdown(void);
@@ -79,6 +68,10 @@ extern int soundFileSize[NUM_SOUND_FILES];
 extern int soundFilePtr[NUM_SOUND_FILES];
 
 typedef void *sound_file_t;
+
+void Mars_Sec_InitSoundDMA(void);
+void Mars_Sec_StopSoundMixer(void);
+void Mars_Sec_StartSoundMixer(void);
 
 extern sound_file_t *sound_file_open(char *name);
 extern int sound_file_seek(sound_file_t *file, long offset, int origin);

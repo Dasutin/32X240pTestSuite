@@ -118,9 +118,9 @@ static inline void Mars_StopSoundMixer(void)
 static inline void Mars_StartSoundMixer(void)
 {
 	Mars_R_SecWait();
-    MARS_SYS_COMM6 = 3;
+    //MARS_SYS_COMM6 = 3;
 	MARS_SYS_COMM4 = 8;
-    MARS_SYS_COMM6 = 1;
+    //MARS_SYS_COMM6 = 1;
 	Mars_R_SecWait();
 }
 

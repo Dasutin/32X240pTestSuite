@@ -2257,6 +2257,7 @@ void at_sound_test()
 	sound_t JUMP;
 
 	Mars_InitSoundDMA();
+	Hw32xAudioLoad(&JUMP, "jump");
 
 	MDPSG_init();
 
@@ -2362,6 +2363,7 @@ void at_sound_test()
 		if (pressedButton & SEGA_CTRL_START)
 		{
 			screenFadeOut(1);
+			Hw32xAudioFree(&JUMP);
 		 	done = 1;
 		}
 
@@ -2369,21 +2371,21 @@ void at_sound_test()
 		{
 			if (xcurse == 1 && ycurse == 1)
 			{
-				Hw32xAudioLoad(&JUMP, "jump");
+				//Hw32xAudioLoad(&JUMP, "jump");
 				Hw32xAudioPlay(&JUMP, 1, 1);  // Left Channel Only
-				Hw32xAudioFree(&JUMP);
+				//Hw32xAudioFree(&JUMP);
 			}
 			if (xcurse == 2 && ycurse == 1)
 			{
-				Hw32xAudioLoad(&JUMP, "jump");
+				//Hw32xAudioLoad(&JUMP, "jump");
 				Hw32xAudioPlay(&JUMP, 1, 3);  // Center
-				Hw32xAudioFree(&JUMP);
+				//Hw32xAudioFree(&JUMP);
 			}
 			if (xcurse == 3 && ycurse == 1)
 			{
-				Hw32xAudioLoad(&JUMP, "jump");
+				//Hw32xAudioLoad(&JUMP, "jump");
 				Hw32xAudioPlay(&JUMP, 1, 2);  // Right Channel Only
-				Hw32xAudioFree(&JUMP);
+				//Hw32xAudioFree(&JUMP);
 			}
 			if (xcurse == 1 && ycurse == 2)
 			{
