@@ -43,18 +43,13 @@ int main()
 {
 	int frameDelay = 1;
 	int curse = 1;
-	//char NTSC;
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
 	
 	marsVDP256Start();
 
-	//Hw32xUpdateLineTable(0, 0, 0);
-
 	SetSH2SR(1);
 
 	while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
-
-    //NTSC = (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT) != 0;
 
 	Hw32xScreenFlip(0);
 

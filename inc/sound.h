@@ -24,24 +24,13 @@
 #define _SOUND_H_
 
 #include <stdint.h>
+#include <stdio.h>
 
-#define SAMPLE_MIN         2
-#define SAMPLE_CENTER    517
-#define SAMPLE_MAX      1032
-#define FREQ 22050
-#define CHANNELS 1
-#define MAXVOL 16
-#define MIXCHANNELS 8
-#define MIXSAMPLES 1024
-#define SAMPLE_RATE 22050
-#define MAX_NUM_SAMPLES 1024
-#define NUM_SAMPLES 1024
+#define NUM_SOUND_FILES 1
 
 #define SND_ATTR_SDRAM  __attribute__((section(".data"), aligned(16)))
 
 #define ADJVOL(S) ((S)*ssndVol)
-
-extern unsigned short sndbuf[];
 
 typedef struct {
   unsigned char *buf;
@@ -50,23 +39,18 @@ typedef struct {
 } sound_t;
 
 typedef struct {
-	sound_t *snd;
+  sound_t *snd;
 	unsigned char *buf;
 	unsigned long len;
 	char loop;
-    char pan;       // When get around to making stereo sfx
-    unsigned char pad[2]; // Pad to one cache line
+  char pan;       // When get around to making stereo sfx
+  unsigned char pad[2]; // Pad to one cache line
 } channel_t;
 
 void snddma_submit(void) SND_ATTR_SDRAM;
 uint16_t* snddma_get_buf(int channels, int num_samples) SND_ATTR_SDRAM;
 uint16_t* snddma_get_buf_mono(int num_samples) SND_ATTR_SDRAM;
 uint16_t* snddma_get_buf_stereo(int num_samples) SND_ATTR_SDRAM;
-
-static inline uint16_t s16pcm_to_u16pwm(int16_t s) {
-    s = (s >> 5) + SAMPLE_CENTER;
-    return (s < 0) ? SAMPLE_MIN : (s > SAMPLE_MAX) ? SAMPLE_MAX : s;
-}
 
 void snddma_secondary_init(int sample_rate);
 void snddma_init(int sample_rate);
@@ -88,11 +72,7 @@ extern void Hw32xAudioStopAllChannels(void);
 extern void Hw32xAudioLoad(sound_t *snd, char *name);
 extern void Hw32xAudioFree(sound_t *s);
 
-
-extern int sysarg_args_nosound;
-extern int sysarg_args_vol;
-
-#define NUM_SOUND_FILES 2
+extern unsigned short sndbuf[];
 
 extern char *soundFileName[NUM_SOUND_FILES];
 extern int soundFileSize[NUM_SOUND_FILES];
@@ -106,5 +86,17 @@ extern int sound_file_read(sound_file_t *file, void *buf, size_t size, size_t co
 extern void *sound_file_mmap(sound_file_t *file, long offset);
 
 extern void sysarg_init(int, char **);
+
+#define SAMPLE_MIN         2
+#define SAMPLE_CENTER    517
+#define SAMPLE_MAX      1032
+#define FREQ 22050
+#define CHANNELS 1
+#define MAXVOL 16
+#define MIXCHANNELS 8
+#define MIXSAMPLES 1024
+#define SAMPLE_RATE 22050
+#define MAX_NUM_SAMPLES 1024
+#define NUM_SAMPLES 1024
 
 #endif /* _SOUND_H_ */

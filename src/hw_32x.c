@@ -19,7 +19,6 @@
 #include "shared_objects.h"
 #include "draw.h"
 #include "sound.h"
-#include "mars_ringbuf.h"
 
 int old_camera_x, old_camera_y;
 int main_camera_x, main_camera_y;
@@ -40,8 +39,8 @@ static unsigned char fgs = 0, bgs = 0;
 
 static volatile const uint8_t *new_palette;
 
-int sysarg_args_nosound = 0;
-int sysarg_args_vol = 0;
+//int sysarg_args_nosound = 0;
+//int sysarg_args_vol = 0;
 
 int nodraw = 0;
 
@@ -759,7 +758,6 @@ int secondary_task(int cmd)
 {
     switch (cmd) {
     case 1:
-        snddma_secondary_init(22050);
         return 1;
     case 2:
         return 1;
@@ -786,10 +784,13 @@ int secondary_task(int cmd)
         draw_handle_layercmd(&slave_drawtilelayerscmd);
         return 1;
     case 6: 
+        Mars_Sec_InitSoundDMA();
         return 1;
     case 7:
+        Mars_Sec_StopSoundMixer();
         return 1;
     case 8:
+        Mars_Sec_StartSoundMixer();
         return 1;
     default:
         break;

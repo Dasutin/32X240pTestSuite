@@ -96,6 +96,34 @@ extern void HwMdPSGSetEnvelope(u8 channel, u8 value);
 
 void Hw32xUpdateLineTable(int hscroll, int vscroll, int lineskip) HW32X_ATTR_DATA_ALIGNED;
 
+static inline void Mars_R_SecWait(void)
+{
+	while (MARS_SYS_COMM4 != 0);
+}
+
+static inline void Mars_InitSoundDMA(void)
+{
+	Mars_R_SecWait();
+	MARS_SYS_COMM4 = 6;
+	Mars_R_SecWait();
+}
+
+static inline void Mars_StopSoundMixer(void)
+{
+	Mars_R_SecWait();
+	MARS_SYS_COMM4 = 7;
+	Mars_R_SecWait();
+}
+
+static inline void Mars_StartSoundMixer(void)
+{
+	Mars_R_SecWait();
+    MARS_SYS_COMM6 = 3;
+	MARS_SYS_COMM4 = 8;
+    MARS_SYS_COMM6 = 1;
+	Mars_R_SecWait();
+}
+
 extern void Hw32xSecWait(void);
 
 extern int Hw32xInitSoundDMA(void);

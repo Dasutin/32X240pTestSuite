@@ -43,7 +43,6 @@
 #include "kiki_tiles_palette.h"
 #include "marker_striped_res.h"
 #include "background_fill.h"
-#include "mars_ringbuf.h"
 #include "sound.h"
 #include "checkerboard.h"
 #include "checkerboard_donna.h"
@@ -2255,12 +2254,9 @@ void at_sound_test()
 	extern const u8 BACKGROUND_TILE[] __attribute__((aligned(16)));
 	volatile unsigned short *cram16 = &MARS_CRAM;
 	volatile unsigned short *frameBuffer16 = &MARS_FRAMEBUFFER;
-	//sound_t JUMP;
-	//sound_t BEEP;
+	sound_t JUMP;
 
-	//Hw32xAudioInit();
-
-	//MARS_SYS_COMM4 = 1;
+	Mars_InitSoundDMA();
 
 	MDPSG_init();
 
@@ -2373,25 +2369,21 @@ void at_sound_test()
 		{
 			if (xcurse == 1 && ycurse == 1)
 			{
-				MARS_SYS_COMM4 = 1;
-				//Hw32xAudioLoad(&JUMP, "jump");
-				//Hw32xAudioPlay(&JUMP, 1, 1);  // Left Channel Only
-				//Hw32xAudioFree(&JUMP);
-				//snddma_get_buf_mono(&JUMP);
+				Hw32xAudioLoad(&JUMP, "jump");
+				Hw32xAudioPlay(&JUMP, 1, 1);  // Left Channel Only
+				Hw32xAudioFree(&JUMP);
 			}
 			if (xcurse == 2 && ycurse == 1)
 			{
-				MARS_SYS_COMM4 = 1;
-				//Hw32xAudioLoad(&JUMP, "jump");
-				//Hw32xAudioPlay(&JUMP, 1, 3);  // Center
-				//Hw32xAudioFree(&JUMP);
+				Hw32xAudioLoad(&JUMP, "jump");
+				Hw32xAudioPlay(&JUMP, 1, 3);  // Center
+				Hw32xAudioFree(&JUMP);
 			}
 			if (xcurse == 3 && ycurse == 1)
 			{
-				MARS_SYS_COMM4 = 1;
-				//Hw32xAudioLoad(&JUMP, "jump");
-				//Hw32xAudioPlay(&JUMP, 1, 2);  // Right Channel Only
-				//Hw32xAudioFree(&JUMP);
+				Hw32xAudioLoad(&JUMP, "jump");
+				Hw32xAudioPlay(&JUMP, 1, 2);  // Right Channel Only
+				Hw32xAudioFree(&JUMP);
 			}
 			if (xcurse == 1 && ycurse == 2)
 			{

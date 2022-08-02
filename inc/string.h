@@ -27,6 +27,10 @@
 
 #define isdigit(c)      ((c) >= '0' && (c) <= '9')
 
+#define	SEEK_SET	0
+#define	SEEK_CUR	1	
+#define	SEEK_END	2
+
 /* #ifndef SEEK_SET
 #define	SEEK_SET	0	      // Set file offset to offset
 #endif
