@@ -1,6 +1,6 @@
 /* 
  * 240p Test Suite for the Sega 32X
- * Port by Dasutin
+ * Port by Dasutin(Dustin Dembrosky)
  * Copyright (C)2011-2022 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
@@ -20,16 +20,16 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _HELP_H
-#define _HELP_H
+#ifndef _HELP_H_
+#define _HELP_H_
 
-#define	HELP_GENERAL		1
-#define	HELP_PLUGE			2
-#define	HELP_COLORS			3
-#define	HELP_GRID		    4
-#define	HELP_BLEED			5
-#define	HELP_IRE   			6
-#define HELP_601CB      	7
+#define HELP_GENERAL		1
+#define HELP_PLUGE			2
+#define HELP_COLORS			3
+#define HELP_GRID			4
+#define HELP_BLEED			5
+#define HELP_IRE			6
+#define HELP_601CB			7
 #define HELP_SHARPNESS		8
 #define HELP_OVERSCAN		9
 #define HELP_SMPTE			10
@@ -48,13 +48,13 @@
 #define HELP_LED			23
 #define HELP_LAG			24
 #define HELP_ALTERNATE		25
-#define	HELP_VIDEO			26
+#define HELP_VIDEO			26
 #define HELP_AUDIOSYNC		27
 #define HELP_CONTRAST		28
 #define HELP_MDFOURIER		29
 #define HELP_SEGACD			30
-#define	HELP_MEMVIEW		31
+#define HELP_MEMVIEW		31
 
 void DrawHelp(int option);
 
-#endif
+#endif /* _HELP_H_ */

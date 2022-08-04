@@ -3,14 +3,20 @@
         {
             "name": "MegaDrive",
             "includePath": [
-                "${workspaceRoot}/inc_md",
-                "${workspaceRoot}/res_md",
-                "${workspaceRoot}/res",
-                "${workspaceRoot}/inc",
-                "C:/msys64/home/dasut/mars/include",
-                "C:/msys64/home/dasut/mars/m68k-elf/include"
+                //"${workspaceRoot}/inc_md",
+                //"${workspaceRoot}/res_md",
+                //"${workspaceRoot}/res",
+                //"${workspaceRoot}/inc",
+                //"C:/msys64/home/dasut/mars/include",
+                //"C:/msys64/home/dasut/mars/m68k-elf/include"
+                "${workspaceFolder}/**",
+                "C:/msys64/home/dasut/mars/m68k-elf/include",
+                "C:/msys64/home/dasut/mars/m68k-elf/m68k-elf/include",
+                //"C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/11.2.0/include",
+                "C:/msys64/home/dasut/mars/m68k-elf/lib/gcc/m68k-elf/10.3.0/include"
             ],
             "defines": [],
+            "compilerPath": "C:/msys64/mingw64/bin/gcc.exe",
             "intelliSenseMode": "windows-gcc-x64",
             "browse": {
                 "path": [
@@ -27,11 +33,18 @@
         {
             "name": "Mega32X",
             "includePath": [
-                "${workspaceRoot}/inc",
-                "${workspaceRoot}/res",
-                "C:/msys64/home/dasut/mars/sh-elf/include"
+                //"${workspaceRoot}/inc",
+                //"${workspaceRoot}/res",
+                //"C:/msys64/home/dasut/mars/include",
+                //"C:/msys64/home/dasut/mars/sh-elf/include"
+                "${workspaceFolder}/**",
+                "C:/msys64/home/dasut/mars/sh-elf/include/**",
+                "C:/msys64/home/dasut/mars/sh-elf/sh-elf/include/**",
+                //"C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/11.2.0/include",
+                "C:/msys64/home/dasut/mars/sh-elf/lib/gcc/sh-elf/10.3.0/include"
             ],
             "defines": [],
+            "compilerPath": "C:/msys64/mingw64/bin/gcc.exe",
             "intelliSenseMode": "windows-gcc-x64",
             "browse": {
                 "path": [

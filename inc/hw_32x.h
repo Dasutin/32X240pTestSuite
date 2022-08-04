@@ -1,6 +1,6 @@
 /* 
  * 240p Test Suite for the Sega 32X
- * Port by Dasutin
+ * Port by Dasutin (Dustin Dembrosky)
  * Copyright (C)2011-2022 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
@@ -20,8 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef HW_32X_H
-#define HW_32X_H
+#ifndef _HW_32X_H_
+#define _HW_32X_H_
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -46,22 +46,6 @@
 #define PSG_NOISE_FREQ_CLOCK4   1
 #define PSG_NOISE_FREQ_CLOCK8   2
 #define PSG_NOISE_FREQ_TONE3    3
-
-// Audio section
-typedef struct {
-  unsigned char *buf;
-  unsigned long len;
-  unsigned char valid;
-} sound_t;
-
-typedef struct {
-	sound_t *snd;
-	unsigned char *buf;
-	unsigned long len;
-	char loop;
-    char pan;       // When get around to making stereo sfx
-    unsigned char pad[2]; // Pad to one cache line
-} channel_t;
 
 #define HW32X_ATTR_DATA_ALIGNED __attribute__((section(".data"), aligned(16)))
 
@@ -95,6 +79,7 @@ extern void HwMdSetNTable(unsigned short word);
 extern void HwMdSetVram(unsigned short word);
 extern void HwMdPuts(char *str, int color, int x, int y);
 extern void HwMdPutc(char chr, int color, int x, int y);
+extern void HwMdScreenPrintf(int color, int x, int y, const char *format, ...);
 extern void HwMdSetPal(unsigned short pal);
 extern void HwMdSetColor(unsigned short color);
 extern void HwMdSetColorPal(unsigned short pal, unsigned short color);
@@ -109,19 +94,33 @@ extern void HwMdPSGSetTone(u8 channel, u16 value);
 extern void HwMdPSGSetNoise(u8 type, u8 frequency);
 extern void HwMdPSGSetEnvelope(u8 channel, u8 value);
 
-extern void Hw32xAudioCallback(unsigned long buffer);
-extern void Hw32xAudioInit(void);
-extern void Hw32xAudioShutdown(void);
-extern void Hw32xAudioToggleMute(void);
-extern void Hw32xAudioVolume(char d);
-extern char Hw32xAudioPlay(sound_t *sound, char loop, char selectch);
-extern void Hw32xAudioPause(char pause);
-extern void Hw32xAudioStopChannel(unsigned char chan);
-extern void Hw32xAudioStopAudio(sound_t *sound);
-extern int Hw32xAudioIsPlaying(sound_t *sound);
-extern void Hw32xAudioStopAllChannels(void);
-extern void Hw32xAudioLoad(sound_t *snd, char *name);
-extern void Hw32xAudioFree(sound_t *s);
+void Hw32xUpdateLineTable(int hscroll, int vscroll, int lineskip) HW32X_ATTR_DATA_ALIGNED;
+
+static inline void Mars_R_SecWait(void)
+{
+	while (MARS_SYS_COMM4 != 0);
+}
+
+static inline void Mars_InitSoundDMA(void)
+{
+	Mars_R_SecWait();
+	MARS_SYS_COMM4 = 6;
+	Mars_R_SecWait();
+}
+
+static inline void Mars_StopSoundMixer(void)
+{
+	Mars_R_SecWait();
+	MARS_SYS_COMM4 = 7;
+	Mars_R_SecWait();
+}
+
+static inline void Mars_StartSoundMixer(void)
+{
+	Mars_R_SecWait();
+	MARS_SYS_COMM4 = 8;
+	Mars_R_SecWait();
+}
 
 extern void Hw32xSecWait(void);
 
@@ -136,35 +135,4 @@ unsigned Hw32xGetTicks(void) HW32X_ATTR_DATA_ALIGNED;
 int secondary_task(int cmd) HW32X_ATTR_DATA_ALIGNED;
 void secondary(void) HW32X_ATTR_DATA_ALIGNED;
 
-extern unsigned short sndbuf[];
-
-extern int sysarg_args_nosound;
-extern int sysarg_args_vol;
-
-#define NUM_AUDIO_FILES 2
-
-extern char *audioFileName[NUM_AUDIO_FILES];
-extern int audioFileSize[NUM_AUDIO_FILES];
-extern int audioFilePtr[NUM_AUDIO_FILES];
-
-typedef void *audio_file_t;
-
-extern audio_file_t *audio_file_open(char *name);
-extern int audio_file_seek(audio_file_t *file, long offset, int origin);
-extern int audio_file_read(audio_file_t *file, void *buf, size_t size, size_t count);
-extern void *audio_file_mmap(audio_file_t *file, long offset);
-
-extern void sysarg_init(int, char **);
-
-#define FREQ 22050
-#define CHANNELS 1
-#define MAXVOL 16
-#define MIXCHANNELS 8
-#define MIXSAMPLES 1024
-#define SAMPLE_RATE 22050
-#define SAMPLE_CENTER 516
-#define MAX_NUM_SAMPLES 1024
-#define NUM_SAMPLES 1024
-#define SAMPLE_MIN 2
-
-#endif
+#endif /* _HW_32X_H_ */

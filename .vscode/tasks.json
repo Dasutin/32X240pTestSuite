@@ -16,7 +16,12 @@
         {
             "label": "Run in Emulator",
             "type": "shell",
-            "command": "${env:BIZHAWK} ${env:MARSPROJECTS}${workspaceFolderBasename}\\build\\240pMars.32x",
+            "windows": {
+                "command": "${env:BIZHAWK} ${env:MARSPROJECTS}${workspaceFolderBasename}\\build\\240pMars.32x"
+            },
+            "osx": {
+                "command": "/Applications/OpenEmu.app/Contents/MacOS/OpenEmu /Users/dustin/${workspaceFolderBasename}/build/240pMars.32x"
+            },    
             "presentation": {
                 "reveal": "never"
             },
@@ -27,7 +32,7 @@
             "dependsOrder": "sequence",
             "dependsOn": [
                 "Build 32X ROM",
-                "Run in Gens"
+                "Run in Emulator"
             ],
             "problemMatcher": [],
             "group": {

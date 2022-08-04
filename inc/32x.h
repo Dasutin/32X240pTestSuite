@@ -1,5 +1,5 @@
-#ifndef __32X_H__
-#define __32X_H__
+#ifndef _32X_H_
+#define _32X_H_
 
 #include "types.h"
 
@@ -140,6 +140,12 @@
 
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 224
+
+/* COMM6 - mixer status */
+#define MIXER_INITIALIZE    0
+#define MIXER_UNLOCKED      1
+#define MIXER_LOCK_MSH2     2
+#define MIXER_LOCK_SSH2     3
 
 #define ClearCacheLine(addr) *(volatile int *)((addr) | 0x40000000) = 0
 

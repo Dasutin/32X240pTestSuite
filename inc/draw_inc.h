@@ -1,5 +1,5 @@
-#ifndef DRAW_INC_H_
-#define DRAW_INC_H_
+#ifndef _DRAW_INC_H_
+#define _DRAW_INC_H_
 
 #include "fixed.h"
 

@@ -1,3 +1,25 @@
+/* 
+ * 240p Test Suite for the Sega 32X
+ * Port by Dasutin (Dustin Dembrosky)
+ * Copyright (C)2011-2022 Artemio Urbina
+ *
+ * This file is part of the 240p Test Suite
+ *
+ * The 240p Test Suite is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * The 240p Test Suite is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with 240p Test Suite; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
 /*
  * Licensed under the BSD license
  *
@@ -7,6 +29,8 @@
  *
  * 32X by Chilly Willy
  */
+
+#include <string.h>
 #include <stdint.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -16,7 +40,11 @@
 #include "string.h"
 #include "shared_objects.h"
 #include "draw.h"
-#include "dtiles.h"
+#include "sound.h"
+
+int old_camera_x, old_camera_y;
+int main_camera_x, main_camera_y;
+int camera_x, camera_y;
 
 extern int fontColorWhite;
 extern int fontColorRed;
@@ -32,12 +60,9 @@ static unsigned char fgs = 0, bgs = 0;
 
 static volatile const uint8_t *new_palette;
 
-int sysarg_args_nosound = 0;
-int sysarg_args_vol = 0;
-
 int nodraw = 0;
 
-int32_t canvas_width = 320+4; // +4 to avoid hitting that 0xXXFF bug in the shift register
+int32_t canvas_width = 320;
 int32_t canvas_height = 224;
 
 extern drawsprcmd_t slave_drawsprcmd;
@@ -62,7 +87,7 @@ void pri_vbi_handler(void)
         volatile unsigned short *palette = &MARS_CRAM;
 
         if ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0)
-		    return;
+			return;
 
         for (i = 0; i < 256; i++)
         {
@@ -386,7 +411,7 @@ static void debug_put_char_8(int x, int y, unsigned char ch)
     unsigned char *font;
     int vram, vram_ptr;
 
-    if(!init)
+    if (!init)
     {
         return;
     }
@@ -439,7 +464,7 @@ int Hw32xScreenPrintData(const char *buff, int size)
     int i;
     char c;
 
-    if(!init)
+    if (!init)
     {
         return 0;
     }
@@ -497,16 +522,16 @@ int Hw32xScreenPutsn(const char *str, int len)
 
 void Hw32xScreenPrintf(const char *format, ...)
 {
-   va_list  opt;
-   char     buff[128];
-   int      n;
+	va_list  opt;
+	char     buff[128];
+	int      n;
 
-   va_start(opt, format);
-   n = vsnprintf(buff, (size_t)sizeof(buff), format, opt);
-   va_end(opt);
-   buff[sizeof(buff) - 1] = 0;
+	va_start(opt, format);
+	n = vsnprintf(buff, (size_t)sizeof(buff), format, opt);
+	va_end(opt);
+	buff[sizeof(buff) - 1] = 0;
 
-   Hw32xScreenPutsn(buff, n);
+	Hw32xScreenPutsn(buff, n);
 }
 
 void Hw32xDelay(int ticks)
@@ -532,7 +557,7 @@ void Hw32xFlipWait()
     UNCACHED_CURFB ^= 1;
 }
 
-// Mega Drive Command Support Code ---------------------------------------------
+// Mega Drive Command Support Code
 
 unsigned short HwMdReadPad(int port)
 {
@@ -546,7 +571,7 @@ unsigned short HwMdReadPad(int port)
 
 unsigned char HwMdReadSram(unsigned short offset)
 {
-    while (MARS_SYS_COMM0) ;                    // Wait until 68000 has responded to any earlier requests
+    while (MARS_SYS_COMM0);                    // Wait until 68000 has responded to any earlier requests
     MARS_SYS_COMM2 = offset;
     MARS_SYS_COMM0 = 0x0100;                    // Read SRAM
     while (MARS_SYS_COMM0) ;
@@ -555,7 +580,7 @@ unsigned char HwMdReadSram(unsigned short offset)
 
 void HwMdWriteSram(unsigned char byte, unsigned short offset)
 {
-    while (MARS_SYS_COMM0) ;                    // Wait until 68000 has responded to any earlier requests
+    while (MARS_SYS_COMM0);                    // Wait until 68000 has responded to any earlier requests
     MARS_SYS_COMM2 = offset;
     MARS_SYS_COMM0 = 0x0200 | byte;             // Write SRAM
     while (MARS_SYS_COMM0) ;
@@ -564,9 +589,9 @@ void HwMdWriteSram(unsigned char byte, unsigned short offset)
 int HwMdReadMouse(int port)
 {
     unsigned int mouse1, mouse2;
-    while (MARS_SYS_COMM0) ;                    // Wait until 68000 has responded to any earlier requests
+    while (MARS_SYS_COMM0);                    // Wait until 68000 has responded to any earlier requests
     MARS_SYS_COMM0 = 0x0500|port;               // Tell 68000 to read mouse
-    while (MARS_SYS_COMM0 == (0x0500|port)) ;   // Wait for mouse value
+    while (MARS_SYS_COMM0 == (0x0500|port));   // Wait for mouse value
     mouse1 = MARS_SYS_COMM0;
     mouse2 = MARS_SYS_COMM2;
     MARS_SYS_COMM0 = 0;                         // Tells 68000 we got the mouse value
@@ -617,14 +642,11 @@ void HwMdPutc(char chr, int color, int x, int y)
     HwMdSetNTable(((chr - 0x20) & 0xFF) | color);
 }
 
-void HwMdScreenPrintf(const char *format, ...)
+void HwMdScreenPrintf(int color, int x, int y, const char *format, ...)
 {
    va_list  opt;
    char     buff[128];
    int      n;
-   int      x;
-   int      y;
-   int      color;
 
    va_start(opt, format);
    n = vsnprintf(buff, (size_t)sizeof(buff), format, opt);
@@ -636,18 +658,18 @@ void HwMdScreenPrintf(const char *format, ...)
 
 void HwMdSetPal(unsigned short pal)
 {
-    while (MARS_SYS_COMM0) ;                    // Wait until 68000 has responded to any earlier requests
+    while (MARS_SYS_COMM0);                    // Wait until 68000 has responded to any earlier requests
     MARS_SYS_COMM2 = pal;                    
     MARS_SYS_COMM0 = 0x0A00;                    // Send handle request flag
-    while (MARS_SYS_COMM0) ;
+    while (MARS_SYS_COMM0);
 }
 
 void HwMdSetColor(unsigned short color)
 {
-    while (MARS_SYS_COMM0) ;                    // Wait until 68000 has responded to any earlier requests
+    while (MARS_SYS_COMM0);                    // Wait until 68000 has responded to any earlier requests
     MARS_SYS_COMM2 = color;                    
     MARS_SYS_COMM0 = 0x0B00;                    // Send handle request flag
-    while (MARS_SYS_COMM0) ;
+    while (MARS_SYS_COMM0);
 }
 
 void HwMdSetColorPal(unsigned short pal, unsigned short color)
@@ -661,15 +683,15 @@ void HwMdPSGSetChannel(unsigned short word)
     while (MARS_SYS_COMM0) ;                    // Wait until 68000 has responded to any earlier requests
     MARS_SYS_COMM2 = word;
     MARS_SYS_COMM0 = 0x0C00;                    // Send handle request flag
-    while (MARS_SYS_COMM0) ;
+    while (MARS_SYS_COMM0);
 }
 
 void HwMdPSGSetVolume(unsigned short word)
 {
-    while (MARS_SYS_COMM0) ;                    // Wait until 68000 has responded to any earlier requests
+    while (MARS_SYS_COMM0);                    // Wait until 68000 has responded to any earlier requests
     MARS_SYS_COMM2 = word;
     MARS_SYS_COMM0 = 0x0D00;                    // Send handle request flag
-    while (MARS_SYS_COMM0) ;
+    while (MARS_SYS_COMM0);
 }
 
 void HwMdPSGSetChandVol(unsigned short channel, unsigned short vol)
@@ -681,29 +703,29 @@ void HwMdPSGSetChandVol(unsigned short channel, unsigned short vol)
 void HwMdPSGSendTone(unsigned short value1, unsigned short value2)
 {
 
-    while (MARS_SYS_COMM0) ;
+    while (MARS_SYS_COMM0);
     MARS_SYS_COMM2 = value1;                    // Send first half of data
     MARS_SYS_COMM0 = 0x0E00;                    // Send handle request flag
-    while (MARS_SYS_COMM0) ;
+    while (MARS_SYS_COMM0);
     MARS_SYS_COMM2 = value2;                    // Send second half of data
     MARS_SYS_COMM0 = 0x0F00;                    // Send handle request flag
-    while (MARS_SYS_COMM0) ;
+    while (MARS_SYS_COMM0);
 }
 
 void HwMdPSGSendNoise(unsigned short word)
 {
-    while (MARS_SYS_COMM0) ;                    // Wait until 68000 has responded to any earlier requests
+    while (MARS_SYS_COMM0);                    // Wait until 68000 has responded to any earlier requests
     MARS_SYS_COMM2 = word;
     MARS_SYS_COMM0 = 0x1000;                    // Send handle request flag
-    while (MARS_SYS_COMM0) ;
+    while (MARS_SYS_COMM0);
 }
 
 void HwMdPSGSendEnvelope(unsigned short word)
 {
-    while (MARS_SYS_COMM0) ;                    // Wait until 68000 has responded to any earlier requests
+    while (MARS_SYS_COMM0);                    // Wait until 68000 has responded to any earlier requests
     MARS_SYS_COMM2 = word;
     MARS_SYS_COMM0 = 0x1100;                    // Send handle request flag
-    while (MARS_SYS_COMM0) ;
+    while (MARS_SYS_COMM0);
 }
 
 void HwMdPSGSetFrequency(u8 channel, u16 value)
@@ -723,13 +745,13 @@ void HwMdPSGSetFrequency(u8 channel, u16 value)
 
 void HwMdPSGSetTone(u8 channel, u16 value)
 {
-    vu8 value1;
+	vu8 value1;
 	vu8 value2;
 
-    value1 = 0x80 | ((channel & 3) << 5) | (value & 0xF);
-    value2 = (value >> 4) & 0x3F;
+	value1 = 0x80 | ((channel & 3) << 5) | (value & 0xF);
+	value2 = (value >> 4) & 0x3F;
 
-    HwMdPSGSendTone(value1, value2);
+	HwMdPSGSendTone(value1, value2);
 }
 
 void HwMdPSGSetNoise(u8 type, u8 frequency)
@@ -748,13 +770,12 @@ void HwMdPSGSetEnvelope(u8 channel, u8 value)
     HwMdPSGSendEnvelope(data);
 }
 
-// --------Put Secondary Calls here ---------
+// Put Secondary Calls here
 
 int secondary_task(int cmd)
 {
     switch (cmd) {
     case 1:
-        snddma_secondary_init(22050);
         return 1;
     case 2:
         return 1;
@@ -781,7 +802,13 @@ int secondary_task(int cmd)
         draw_handle_layercmd(&slave_drawtilelayerscmd);
         return 1;
     case 6: 
-
+        Mars_Sec_InitSoundDMA();
+        return 1;
+    case 7:
+        Mars_Sec_StopSoundMixer();
+        return 1;
+    case 8:
+        Mars_Sec_StartSoundMixer();
         return 1;
     default:
         break;
@@ -790,7 +817,9 @@ int secondary_task(int cmd)
     return 0;
 }
 
-void secondary(void)                            // Slave waiting for commands (called by crt0.s)
+// Slave waiting for commands (called by crt0.s)
+
+void secondary(void)
 {
     ClearCache();
 
@@ -800,365 +829,13 @@ void secondary(void)                            // Slave waiting for commands (c
         while ((cmd = MARS_SYS_COMM4) == 0) {}
 
         int res = secondary_task(cmd);
-        if (res > 0) {
+        if (res > 0)
+		{
             MARS_SYS_COMM4 = 0;
         }
     }
 }
 
-// Audio Data Loading Code -----------------------------------------------------------------------------------------
 
-static int foffs[NUM_AUDIO_FILES];
 
-// Open Data File
-audio_file_t *audio_file_open(char *name)
-{
-    int ix;
 
-    for (ix=0; ix<NUM_AUDIO_FILES; ix++)
-        if (!strcasecmp(name, audioFileName[ix]))
-        {
-            foffs[ix] = 0;
-            return (audio_file_t *)(ix + 1);
-        }
-
-    return (audio_file_t *)0;
-}
-
-// Size
-//int data_file_size(data_file_t *file)
-//{
-//  return fileSize[(int)file - 1];
-//}
-
-// Seek
-int audio_file_seek(audio_file_t *file, long offset, int origin)
-{
-    switch (origin)
-    {
-        case SEEK_SET:
-            foffs[(int)file - 1] = offset;
-            break;
-        case SEEK_CUR:
-            foffs[(int)file - 1] += offset;
-            break;
-        case SEEK_END:
-            foffs[(int)file - 1] = audioFileSize[(int)file - 1] + offset;
-            break;
-    }
-
-    return foffs[(int)file - 1];
-}
-
-// Tell
-//int data_file_tell(data_file_t *file)
-//{
-//    return foffs[(int)file - 1];
-//}
-
-// Read
-int audio_file_read(audio_file_t *file, void *buf, size_t size, size_t count)
-{
-    memcpy(buf, (char *)(audioFilePtr[(int)file - 1] + foffs[(int)file - 1]), size * count);
-    return size * count;
-}
-
-// Memory Map
-void *audio_file_mmap(audio_file_t *file, long offset)
-{
-    return (void *)(audioFilePtr[(int)file - 1] + offset);
-}
-
-// Audio Code -----------------------------------------------------------------------------------------
-
-#define ADJVOL(S) ((S)*ssndVol)
-
-unsigned short __attribute__((aligned(16))) sndbuf[MIXSAMPLES*2*2]; // two buffers of MIXSAMPLES words of stereo pwm audio
-
-//short __attribute__((aligned(16))) sndbuf[MIXSAMPLES*2]; // two buffers of MIXSAMPLES words of stereo pwm audio
-
-static channel_t __attribute__((aligned(16))) channel[MIXCHANNELS];
-
-static unsigned char isAudioActive = FALSE;
-static unsigned char sndMute = FALSE;  // Mute flag
-static short sndVol = MAXVOL*2;  // Internal volume
-static short sndUVol = MAXVOL;  // User-selected volume
-
-static void end_channel(unsigned char);
-
-// Callback -- This is also where all sound mixing is done
-
-void Hw32xAudioCallback(unsigned long buff)
-{
-    unsigned char c;
-    short s;
-    unsigned int i;
-    unsigned int *stream = (unsigned int *)(buff | 0x20000000);
-    unsigned char sisAudioActive = *(unsigned char *)((unsigned int)&isAudioActive | 0x20000000);
-    short ssndVol = *(short *)((unsigned int)&sndVol | 0x20000000);
-    unsigned char ssndMute = *(unsigned char *)((unsigned int)&sndMute | 0x20000000);
-    channel_t *schannel = (channel_t *)((unsigned int)channel | 0x20000000);
-
-    if (sisAudioActive) {
-        for (i = 0; i < MIXSAMPLES; i++) 
-        {
-            s = 0;
-            for (c = 0; c < MIXCHANNELS; c++) 
-            {
-                if (schannel[c].loop != 0) // Channel is active
-                {  
-                    if (schannel[c].len > 0) // Not ending
-                    {
-                        s += ADJVOL(*schannel[c].buf - 0x80);
-                        schannel[c].buf++;
-                        schannel[c].len--;
-                    }
-                else 
-                    {  // Ending
-                        if (schannel[c].loop > 0) schannel[c].loop--;
-                        if (schannel[c].loop) 
-                        {  // Just loop
-                            schannel[c].buf = schannel[c].snd->buf;
-                            schannel[c].len = schannel[c].snd->len;
-                            s += ADJVOL(*schannel[c].buf - 0x80);
-                            schannel[c].buf++;
-                            schannel[c].len--;
-                        }
-                    else 
-                        {  
-                        end_channel(c); // End for real
-                        }
-                    }
-                }
-            }
-        if (ssndMute)
-        stream[i] = ((unsigned long)516<<16) | (unsigned long)516;
-        else 
-        {
-            s >>= 4;
-            if (s > 512) s = 512;
-            else if (s < -512) s = -512;
-            s += 516;
-            stream[i] = ((unsigned long)s<<16) | (unsigned long)s;
-        }
-        }
-    } 
-    else 
-    {
-        for (i = 0; i < MIXSAMPLES; i++)
-        stream[i] = ((unsigned long)516<<16) | (unsigned long)516;
-    }
-}
-
-static void end_channel(unsigned char c)
-{
-    channel[c].loop = 0;
-    channel[c].snd = NULL;
-}
-
-void Hw32xAudioInit(void)
-{
-    unsigned char c;
-
-    if (sysarg_args_vol != 0)
-    {
-        sndUVol = sysarg_args_vol;
-        sndVol = sndUVol << 1;
-    }
-
-    for (c = 0; c < MIXCHANNELS; c++)
-        channel[c].loop = 0;  // Deactivate
-
-    isAudioActive = TRUE;
-}
-
-void Hw32xAudioShutdown(void)
-{
-    isAudioActive = FALSE;
-}
-
-//
-// Toggle mute
-//
-// When muted, sounds are still managed but not sent to the dsp, hence
-// it is possible to un-mute at any time.
-//
-
- void Hw32xAudioToggleMute(void)
-{
-    sndMute = !sndMute;
-}
-
-void Hw32xAudioVolume(char d)
-{
-    if ((d < 0 && sndUVol > 0) || (d > 0 && sndUVol < MAXVOL)) 
-    {
-        sndUVol += d;
-        sndVol = sndUVol << 1;
-    }
-}
-
-//
-// Play a sound
-//
-// loop: number of times the sound should be played, -1 to loop forever
-// returns: channel number, or -1 if none was available
-//
-// NOTE if sound is already playing, simply reset it (i.e. can not have
-// twice the same sound playing
-//
-
-char Hw32xAudioPlay(sound_t *sound, char loop, char selectch)
-{
-    unsigned char c;
-
-    switch (selectch)
-    {
-        case 1:
-            MARS_PWM_CTRL = 0x0182;  // Left Channel Only
-        break;
-
-        case 2:
-            MARS_PWM_CTRL = 0x0184;  // Right Channel Only
-        break;
-
-        case 3:
-            MARS_PWM_CTRL = 0x0185;  // Center
-        break;
-    }
-
-    if (!isAudioActive) return -1;
-    if (sound == NULL) return -1;
-
-    while (MARS_SYS_COMM6 == 3);
-    MARS_SYS_COMM6 = 2;
-
-    c = 0;
-    CacheClearLine(&channel[0]);
-
-    while ((channel[c].snd != sound || channel[c].loop == 0) && channel[c].loop != 0 && c < MIXCHANNELS)
-    {
-        c++;
-        CacheClearLine(&channel[c]);
-    }
-
-    if (c == MIXCHANNELS)
-        c = -1;
-
-    if (c >= 0) 
-    {
-        channel[c].loop = loop;
-        channel[c].snd = sound;
-        channel[c].buf = sound->buf;
-        channel[c].len = sound->len;
-    }
-
-    MARS_SYS_COMM6 = 1;
-
-    return c;
-}
-
-// Pause
-void Hw32xAudioPause(char pause)
-{
-    if (pause == TRUE)
-        isAudioActive = FALSE;
-    else
-        isAudioActive = TRUE;
-}
-
-// Stop a channel
-void Hw32xAudioStopChannel(unsigned char chan)
-{
-    if (chan < 0 || chan > MIXCHANNELS)
-        return;
-
-    while (MARS_SYS_COMM6 == 3);
-    MARS_SYS_COMM6 = 2;
-
-    CacheClearLine(&channel[chan]);
-    if (channel[chan].snd) end_channel(chan);
-
-    MARS_SYS_COMM6 = 1;
-}
-
-// Stop a sound
-void Hw32xAudioStopAudio(sound_t *sound)
-{
-    unsigned char i;
-
-    if (!sound) return;
-
-    while (MARS_SYS_COMM6 == 3);
-    MARS_SYS_COMM6 = 2;
-
-    for (i = 0; i < MIXCHANNELS; i++)
-    {
-        CacheClearLine(&channel[i]);
-        if (channel[i].snd == sound) end_channel(i);
-    }
-
-    MARS_SYS_COMM6 = 1;
-}
-
-// See if a sound is playing
-int Hw32xAudioIsPlaying(sound_t *sound)
-{
-    unsigned char i, playing;
-
-    while (MARS_SYS_COMM6 == 3) ;
-    MARS_SYS_COMM6 = 2;
-
-    playing = 0;
-    for (i = 0; i < MIXCHANNELS; i++)
-    {
-        CacheClearLine(&channel[i]);
-        if (channel[i].snd == sound) playing = 1;
-    }
-
-    MARS_SYS_COMM6 = 1;
-
-    return playing;
-}
-
-
-// Stops all channels
-void Hw32xAudioStopAllChannels(void)
-{
-    unsigned char i;
-
-    while (MARS_SYS_COMM6 == 3) ;
-    MARS_SYS_COMM6 = 2;
-
-    for (i = 0; i < MIXCHANNELS; i++)
-    {
-        CacheClearLine(&channel[i]);
-        if (channel[i].snd) end_channel(i);
-    }
-
-    MARS_SYS_COMM6 = 1;
-}
-
-// Load a sound
-void Hw32xAudioLoad(sound_t *snd, char *name)
-{
-    audio_file_t *afd;
-
-    memset(snd, 0, sizeof(sound_t));
-
-    afd = audio_file_open(name);
-    if (afd)
-    {
-        unsigned char p[4];
-        audio_file_seek(afd, 0x28, SEEK_SET);
-        audio_file_read(afd, p, 1, 4);
-        snd->len = (p[3]<<24) | (p[2]<<16) | (p[1]<<8) | p[0];
-        snd->buf = audio_file_mmap(afd, 0x2C);
-        snd->valid = TRUE;
-    }
-}
-
-void Hw32xAudioFree(sound_t *s)
-{
-    s->valid = FALSE;
-}

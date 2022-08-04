@@ -10,3 +10,5 @@ output.map
 src_md/output.map
 src_md/m68k.bin
 src_md/m68k.elf
+.vscode/dryrun.log
+.vscode/targets.log
