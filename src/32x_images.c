@@ -1,6 +1,6 @@
 /* 
  * 240p Test Suite for the Sega 32X
- * Port by Dasutin
+ * Port by Dasutin (Dustin Dembrosky)
  * Copyright (C)2011-2022 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
@@ -283,23 +283,20 @@ void drawS(vu8* spriteBuffer, u16 x, u16 y, u16 xWidth, u16 yWidth)
 
 void drawLine(u16 x, u16 y, u16 xWidth, u16 yWidth)
 {
-   vu8 *frameBuffer8 = (vu8* )&MARS_OVERWRITE_IMG;
-   vu8* dst = &frameBuffer8[0x100 + (y * 320) + (x + 256)];  // Destination frame buffer pointer (X + Y offseted)
-   vu8* src = 0x01;  // Just write one pixel on screen
+	vu8 *frameBuffer8 = (vu8* )&MARS_OVERWRITE_IMG;
+	vu8* dst = &frameBuffer8[0x100 + (y * 320) + (x + 256)];	// Destination frame buffer pointer (X + Y offseted)
+	vu8* src = 0x01;  // Just write one pixel on screen
 
-   u16 xw = xWidth;
-   int dstStep = 320 - xw;
-   
-   u16 row = yWidth;
-   
-   while (row--)
-   {
-      u16 col = xw;
-     
-      while(col--) *dst++ = src;
-     
-      dst += dstStep;
-   }
+	u16 xw = xWidth;
+	int dstStep = 320 - xw;
+	u16 row = yWidth;
+
+	while (row--)
+	{
+		u16 col = xw;
+		while(col--) *dst++ = src;
+		dst += dstStep;
+	}
 }
 
 // * Draws a background image on MARS framebuffer allowing you to flip the image using mirror param, no transparency
@@ -435,22 +432,22 @@ void my_debug_put_char_8(const int x,const int y,const unsigned char ch, const v
 
 int myScreenPrintData(const char *buff, const int x, const int y, const vu8* fgColor, const vu8* bgColor )
 {
-    int i;
-    char c;
+	int i;
+	char c;
 	int size;
 	int xOff;
 	
 	size = strlen(buff);
 	xOff = x;
 
-    for (i = 0; i<size; i++)
-    {
-        c = buff[i];
-        my_debug_put_char_8(xOff,y,c, fgColor, bgColor);
+	for (i = 0; i<size; i++)
+	{
+		c = buff[i];
+		my_debug_put_char_8(xOff,y,c, fgColor, bgColor);
 		// Move 8 bytes
 		xOff+=PIXEL_WRITE_BUFFER_SIZE_B-1;
-    }
-    return i;
+	}
+	return i;
 }
 
 // * Draw line table to framebuffer

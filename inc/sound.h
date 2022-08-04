@@ -1,6 +1,6 @@
 /* 
  * 240p Test Suite for the Sega 32X
- * Port by Dasutin
+ * Port by Dasutin (Dustin Dembrosky)
  * Copyright (C)2011-2022 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
@@ -26,42 +26,52 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#define SAMPLE_MIN          2
+#define SAMPLE_CENTER     517
+#define SAMPLE_MAX       1032
+#define FREQ            22050
+#define CHANNELS            1
+#define MAXVOL             16
+#define MIXCHANNELS         8
+#define MIXSAMPLES       1024
+#define SAMPLE_RATE     22050
+#define MAX_NUM_SAMPLES  1024
+#define NUM_SAMPLES      1024
+
 #define NUM_SOUND_FILES 1
 
 #define SND_ATTR_SDRAM  __attribute__((section(".data"), aligned(16)))
 
 #define ADJVOL(S) ((S)*ssndVol)
 
-typedef struct {
-  unsigned char *buf;
-  unsigned long len;
-  unsigned char valid;
+typedef struct sound_t {
+	unsigned char *buf;
+	unsigned long len;
+	unsigned char valid;
 } sound_t;
 
 typedef struct {
-  sound_t *snd;
+	sound_t *snd;
 	unsigned char *buf;
 	unsigned long len;
 	char loop;
-  char pan;       // When get around to making stereo sfx
-  unsigned char pad[2]; // Pad to one cache line
+	char pan;			// When get around to making stereo sfx
+	unsigned char pad[2]; // Pad to one cache line
 } channel_t;
 
-extern void Hw32xAudioCallback(unsigned long buffer);
-extern void Hw32xAudioInit(void);
-extern void Hw32xAudioShutdown(void);
-extern void Hw32xAudioToggleMute(void);
-extern void Hw32xAudioVolume(char d);
-extern char Hw32xAudioPlay(sound_t *sound, char loop, char selectch);
-extern void Hw32xAudioPause(char pause);
-extern void Hw32xAudioStopChannel(unsigned char chan);
-extern void Hw32xAudioStopAudio(sound_t *sound);
-extern int Hw32xAudioIsPlaying(sound_t *sound);
-extern void Hw32xAudioStopAllChannels(void);
-extern void Hw32xAudioLoad(sound_t *snd, char *name);
-extern void Hw32xAudioFree(sound_t *s);
+void sound_fillBuffer(unsigned long buffer);
+void sound_toggleMute(void);
+void sound_volume(char d);
+char sound_play(sound_t *sound, char loop, char selectch);
+void sound_pause(char pause);
+void sound_stopChannel(unsigned char chan);
+void sound_stopSound(sound_t *sound);
+int sound_isPlaying(sound_t *sound);
+void sound_stopAllChannels(void);
+void sound_load(sound_t *snd, char *name);
+void sound_free(sound_t *s);
 
-extern unsigned short sndbuf[];
+extern int16_t snd_buffer[];
 
 extern char *soundFileName[NUM_SOUND_FILES];
 extern int soundFileSize[NUM_SOUND_FILES];
@@ -77,19 +87,5 @@ extern sound_file_t *sound_file_open(char *name);
 extern int sound_file_seek(sound_file_t *file, long offset, int origin);
 extern int sound_file_read(sound_file_t *file, void *buf, size_t size, size_t count);
 extern void *sound_file_mmap(sound_file_t *file, long offset);
-
-extern void sysarg_init(int, char **);
-
-#define SAMPLE_MIN         2
-#define SAMPLE_CENTER    517
-#define SAMPLE_MAX      1032
-#define FREQ 22050
-#define CHANNELS 1
-#define MAXVOL 16
-#define MIXCHANNELS 8
-#define MIXSAMPLES 1024
-#define SAMPLE_RATE 22050
-#define MAX_NUM_SAMPLES 1024
-#define NUM_SAMPLES 1024
 
 #endif /* _SOUND_H_ */

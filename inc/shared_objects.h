@@ -1,6 +1,6 @@
 /* 
  * 240p Test Suite for the Sega 32X
- * Port by Dasutin
+ * Port by Dasutin (Dustin Dembrosky)
  * Copyright (C)2011-2022 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
@@ -63,20 +63,20 @@ extern uint32_t canvas_yaw; // canvas_height + scrollheight
 void setRandomSeed(u16 seed);
 u16 random();
 
-#define FIX32_INT_BITS              22
-#define FIX32_FRAC_BITS             (32 - FIX32_INT_BITS)
+#define FIX32_INT_BITS			22
+#define FIX32_FRAC_BITS			(32 - FIX32_INT_BITS)
 
-#define FIX32_INT_MASK              (((1 << FIX32_INT_BITS) - 1) << FIX32_FRAC_BITS)
-#define FIX32_FRAC_MASK             ((1 << FIX32_FRAC_BITS) - 1)
+#define FIX32_INT_MASK			(((1 << FIX32_INT_BITS) - 1) << FIX32_FRAC_BITS)
+#define FIX32_FRAC_MASK			((1 << FIX32_FRAC_BITS) - 1)
 
-#define FIX32(value)                ((fix32) ((value) * (1 << FIX32_FRAC_BITS)))
+#define FIX32(value)			((fix32) ((value) * (1 << FIX32_FRAC_BITS)))
 
-#define fix32Div(val1, val2)        (((val1) << (FIX32_FRAC_BITS / 2)) / ((val2) >> (FIX32_FRAC_BITS / 2)))
+#define fix32Div(val1, val2)	(((val1) << (FIX32_FRAC_BITS / 2)) / ((val2) >> (FIX32_FRAC_BITS / 2)))
 
-#define intToFix32(value)           ((fix32) ((value) << FIX32_FRAC_BITS))
-#define fix32ToInt(value)           ((s32) ((value) >> FIX32_FRAC_BITS))
-#define fix32Frac(value)            ((value) & FIX32_FRAC_MASK)
-#define fix32Mul(val1, val2)        (((val1) >> (FIX32_FRAC_BITS / 2)) * ((val2) >> (FIX32_FRAC_BITS / 2)))
-#define fix32Div(val1, val2)        (((val1) << (FIX32_FRAC_BITS / 2)) / ((val2) >> (FIX32_FRAC_BITS / 2)))
+#define intToFix32(value)		((fix32) ((value) << FIX32_FRAC_BITS))
+#define fix32ToInt(value)		((s32) ((value) >> FIX32_FRAC_BITS))
+#define fix32Frac(value)		((value) & FIX32_FRAC_MASK)
+#define fix32Mul(val1, val2)	(((val1) >> (FIX32_FRAC_BITS / 2)) * ((val2) >> (FIX32_FRAC_BITS / 2)))
+#define fix32Div(val1, val2)	(((val1) << (FIX32_FRAC_BITS / 2)) / ((val2) >> (FIX32_FRAC_BITS / 2)))
 
 #endif

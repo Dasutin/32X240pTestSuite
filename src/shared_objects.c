@@ -1,6 +1,6 @@
 /* 
  * 240p Test Suite for the Sega 32X
- * Port by Dasutin
+ * Port by Dasutin (Dustin Dembrosky)
  * Copyright (C)2011-2021 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
@@ -42,15 +42,15 @@ volatile unsigned mars_swdt_ovf_count = 0;
 
 int Mars_GetFRTCounter(void)
 {
-    unsigned int cnt = SH2_WDT_RTCNT;
-    return (int)((mars_pwdt_ovf_count << 8) | cnt);
+	unsigned int cnt = SH2_WDT_RTCNT;
+	return (int)((mars_pwdt_ovf_count << 8) | cnt);
 }
 
 static const u32 crc32_table[] = {
-    0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac,
-    0x76dc4190, 0x6b6b51f4, 0x4db26158, 0x5005713c,
-    0xedb88320, 0xf00f9344, 0xd6d6a3e8, 0xcb61b38c,
-    0x9b64c2b0, 0x86d3d2d4, 0xa00ae278, 0xbdbdf21c
+	0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac,
+	0x76dc4190, 0x6b6b51f4, 0x4db26158, 0x5005713c,
+	0xedb88320, 0xf00f9344, 0xd6d6a3e8, 0xcb61b38c,
+	0x9b64c2b0, 0x86d3d2d4, 0xa00ae278, 0xbdbdf21c
 };
 
 int fontColorWhite = 204;
@@ -127,36 +127,36 @@ void swapBuffers()
 
 void CRC32_reset()
 {
-    _state = ~0L;
+	_state = ~0L;
 }
 
 void CRC32_update(u8 data)
 {
-    u8 tbl_idx = 0;
+	u8 tbl_idx = 0;
 
-    tbl_idx = _state ^ (data >> (0 * 4));
-    _state = (*(u32*)(crc32_table + (tbl_idx & 0x0f)) ^ (_state >> 4));
-    tbl_idx = _state ^ (data >> (1 * 4));
-    _state = (*(u32*)(crc32_table + (tbl_idx & 0x0f)) ^ (_state >> 4));
+	tbl_idx = _state ^ (data >> (0 * 4));
+	_state = (*(u32*)(crc32_table + (tbl_idx & 0x0f)) ^ (_state >> 4));
+	tbl_idx = _state ^ (data >> (1 * 4));
+	_state = (*(u32*)(crc32_table + (tbl_idx & 0x0f)) ^ (_state >> 4));
 }
 
 u32 CRC32_finalize()
 {
-    return ~_state;
+	return ~_state;
 }
 
 int memcmp1(const void *s1, const void *s2, int n)
 {
-    unsigned char u1, u2;
+	unsigned char u1, u2;
 
-    for ( ; n-- ; s1++, s2++) {
-	u1 = * (unsigned char *) s1;
-	u2 = * (unsigned char *) s2;
-	if ( u1 != u2) {
-	    return (u1-u2);
+	for ( ; n-- ; s1++, s2++) {
+		u1 = * (unsigned char *) s1;
+		u2 = * (unsigned char *) s2;
+		if ( u1 != u2) {
+			return (u1-u2);
+		}
 	}
-    }
-    return 0;
+	return 0;
 }
 
 u32 CalculateCRC(u32 startAddress, u32 size)
@@ -182,14 +182,14 @@ u32 CalculateCRC(u32 startAddress, u32 size)
 
 void setRandomSeed(u16 seed)
 {
-    // xor it with a random value to avoid 0 value
-    randbase = seed ^ 0xD94B;
+	// xor it with a random value to avoid 0 value
+	randbase = seed ^ 0xD94B;
 }
 
 u16 random()
 {
-    randbase ^= (randbase >> 1) ^ MARS_SYS_COMM12;
-    randbase ^= (randbase << 1);
+	randbase ^= (randbase >> 1) ^ MARS_SYS_COMM12;
+	randbase ^= (randbase << 1);
 
-    return randbase;
+	return randbase;
 }

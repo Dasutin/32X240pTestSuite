@@ -1,6 +1,6 @@
 /* 
  * 240p Test Suite for the Sega 32X
- * Port by Dasutin
+ * Port by Dasutin (Dustin Dembrosky)
  * Copyright (C)2011-2022 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
@@ -23,8 +23,8 @@
 #ifndef _32X_IMAGES_H_
 #define _32X_IMAGES_H_
 
-#define MARS_SDRAM_CACHE          (*(volatile unsigned short *)0x06000000)
-#define MARS_CACHE_OFFSET         0x20000000
+#define MARS_SDRAM_CACHE		(*(volatile unsigned short *)0x06000000)
+#define MARS_CACHE_OFFSET		0x20000000
 
 /*
 * Loads all colors from region in ROM defined by paletteStart to paletteEnd

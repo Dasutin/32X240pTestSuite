@@ -1,6 +1,6 @@
 /* 
  * 240p Test Suite for the Sega 32X
- * Port by Dasutin
+ * Port by Dasutin (Dustin Dembrosky)
  * Copyright (C)2011-2022 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
@@ -21,19 +21,18 @@
  */
 
 #include <stdint.h>
-//#include <strings.h>
-#include "sound.h"
 #include "string.h"
 #include "32x.h"
+#include "hw_32x.h"
+#include "sound.h"
 
-int sysarg_args_nosound = 0;
 int sysarg_args_vol = 0;
 
-unsigned short __attribute__((aligned(16))) sndbuf[MIXSAMPLES*2*2]; // two buffers of MIXSAMPLES words of stereo pwm audio
+int16_t __attribute__((aligned(16))) snd_buffer[MIXSAMPLES*2*2]; // Two buffers of MIXSAMPLES words of stereo pwm audio
 static channel_t __attribute__((aligned(16))) channel[MIXCHANNELS];
 
 static uint8_t snd_bufidx = 0;
-static uint8_t	snd_init = 0, snd_stopmix = 0;
+static uint8_t snd_init = 0, snd_stopmix = 0;
 
 static unsigned char isAudioActive = 0;
 static unsigned char sndMute = 0;  // Mute flag
@@ -44,36 +43,49 @@ static void end_channel(unsigned char);
 
 void sec_dma1_handler(void)
 {
-    SH2_DMA_CHCR1; // Read TE
-    SH2_DMA_CHCR1 = 0; // Clear TE
+	static int32_t which = 0;
 
-    // Start DMA on buffer and fill the other one
-    SH2_DMA_SAR1 = ((unsigned long)&sndbuf) | 0x20000000;
-    SH2_DMA_TCR1 = NUM_SAMPLES; // Number longs
-    SH2_DMA_CHCR1 = 0x18E1; // Dest fixed, src incr, size long, ext req, dack mem to dev, dack hi, dack edge, dreq rising edge, cycle-steal, dual addr, intr disabled, clear TE, dma enabled
+	SH2_DMA_CHCR1; // Read TE
+	SH2_DMA_CHCR1 = 0; // Clear TE
 
-    Hw32xAudioCallback((unsigned long)&sndbuf);
+	if (which)
+	{
+		SH2_DMA_SAR1 = ((uint32_t)&snd_buffer[0]) | 0x20000000;
+		SH2_DMA_TCR1 = 1024; // Number longs
+		SH2_DMA_CHCR1 = 0x18E5; // Dest fixed, src incr, size long, ext req, dack mem to dev, dack hi, dack edge, dreq rising edge, cycle-steal, dual addr, intr disabled, clear TE, dma enabled
+
+		sound_fillBuffer(&snd_buffer[0]);
+	}
+	else {
+		SH2_DMA_SAR1 = ((uint32_t)&snd_buffer[0]) | 0x20000000;
+		SH2_DMA_TCR1 = 1023; // Number longs
+		SH2_DMA_CHCR1 = 0x18E5; // Dest fixed, src incr, size long, ext req, dack mem to dev, dack hi, dack edge, dreq rising edge, cycle-steal, dual addr, intr disabled, clear TE, dma enabled
+
+		sound_fillBuffer(&snd_buffer[0]);
+	}
+
+	which ^= 1; // flip audio buffer
 }
 
 void Mars_Sec_InitSoundDMA(void)
 {
 	uint16_t sample, ix;
 
-    // Init DMA
-    SH2_DMA_SAR0 = 0;
-    SH2_DMA_DAR0 = 0;
-    SH2_DMA_TCR0 = 0;
-    SH2_DMA_CHCR0 = 0;
-    SH2_DMA_DRCR0 = 0;
-    SH2_DMA_SAR1 = 0;
-    SH2_DMA_DAR1 = 0x20004034; // Storing a long here will set left and right
-    SH2_DMA_TCR1 = 0;
-    SH2_DMA_CHCR1 = 0;
-    SH2_DMA_DRCR1 = 0;
-    SH2_DMA_DMAOR = 1; // Enable DMA
+	// Init DMA
+	SH2_DMA_SAR0 = 0;
+	SH2_DMA_DAR0 = 0;
+	SH2_DMA_TCR0 = 0;
+	SH2_DMA_CHCR0 = 0;
+	SH2_DMA_DRCR0 = 0;
+	SH2_DMA_SAR1 = 0;
+	SH2_DMA_DAR1 = 0x20004034; // Storing a long here will set left and right
+	SH2_DMA_TCR1 = 0;
+	SH2_DMA_CHCR1 = 0;
+	SH2_DMA_DRCR1 = 0;
+	SH2_DMA_DMAOR = 1; // Enable DMA
 
-    SH2_DMA_VCR1 = 72; // Set exception vector for DMA channel 1
-    SH2_INT_IPRA = (SH2_INT_IPRA & 0xF0FF) | 0x0F00; // Set DMA INT to priority 15
+	SH2_DMA_VCR1 = 72; // Set exception vector for DMA channel 1
+	SH2_INT_IPRA = (SH2_INT_IPRA & 0xF0FF) | 0x0F00; // Set DMA INT to priority 15
 
 	// Init the sound hardware
 	MARS_PWM_MONO = 1;
@@ -118,146 +130,113 @@ void Mars_Sec_StartSoundMixer(void)
 	snd_stopmix = 0;
 
 	// Fill first buffer
-	Hw32xAudioCallback((unsigned long)&sndbuf);
+	//Hw32xAudioCallback((unsigned long)&snd_buffer);
+	sound_fillBuffer(&snd_buffer[0]);
 
 	// Start DMA
 	sec_dma1_handler();
+
+	isAudioActive = 1;
+
+	// SetSH2SR(2);
 }
 
-// Audio Data Loading Code -----------------------------------------------------------------------------------------
+// Audio Data Loading Code
 
 static int foffs[NUM_SOUND_FILES];
 
 // Open Data File
 sound_file_t *sound_file_open(char *name)
 {
-    int ix;
+	int ix;
 
-    for (ix=0; ix<NUM_SOUND_FILES; ix++)
-        if (!strcasecmp(name, soundFileName[ix]))
-        {
-            foffs[ix] = 0;
-            return (sound_file_t *)(ix + 1);
-        }
+	for (ix=0; ix<NUM_SOUND_FILES; ix++)
+		if (!strcasecmp(name, soundFileName[ix]))
+		{
+			foffs[ix] = 0;
+			return (sound_file_t *)(ix + 1);
+		}
 
-    return (sound_file_t *)0;
+	return (sound_file_t *)0;
 }
 
 // Seek
 int sound_file_seek(sound_file_t *file, long offset, int origin)
 {
-    switch (origin)
-    {
-        case SEEK_SET:
-            foffs[(int)file - 1] = offset;
-            break;
-        case SEEK_CUR:
-            foffs[(int)file - 1] += offset;
-            break;
-        case SEEK_END:
-            foffs[(int)file - 1] = soundFileSize[(int)file - 1] + offset;
-            break;
-    }
+	switch (origin)
+	{
+		case SEEK_SET:
+			foffs[(int)file - 1] = offset;
+			break;
+		case SEEK_CUR:
+			foffs[(int)file - 1] += offset;
+			break;
+		case SEEK_END:
+			foffs[(int)file - 1] = soundFileSize[(int)file - 1] + offset;
+			break;
+	}
 
-    return foffs[(int)file - 1];
+	return foffs[(int)file - 1];
 }
 
 // Read
 int sound_file_read(sound_file_t *file, void *buf, size_t size, size_t count)
 {
-    memcpy(buf, (char *)(soundFilePtr[(int)file - 1] + foffs[(int)file - 1]), size * count);
-    return size * count;
+	memcpy(buf, (char *)(soundFilePtr[(int)file - 1] + foffs[(int)file - 1]), size * count);
+	return size * count;
 }
 
 // Memory Map
 void *sound_file_mmap(sound_file_t *file, long offset)
 {
-    return (void *)(soundFilePtr[(int)file - 1] + offset);
+	return (void *)(soundFilePtr[(int)file - 1] + offset);
 }
 
 
 static void end_channel(unsigned char c)
 {
-    channel[c].loop = 0;
-    channel[c].snd = NULL;
+	channel[c].loop = 0;
+	channel[c].snd = NULL;
 }
 
-void Hw32xAudioInit(void)
+void sound_toggleMute(void)
 {
-    unsigned char c;
-
-    if (sysarg_args_vol != 0)
-    {
-        sndUVol = sysarg_args_vol;
-        sndVol = sndUVol << 1;
-    }
-
-    for (c = 0; c < MIXCHANNELS; c++)
-        channel[c].loop = 0;  // Deactivate
-
-    snd_init = 1;
+	sndMute = !sndMute;
 }
 
-void Hw32xAudioShutdown(void)
+void sound_volume(char d)
 {
-    snd_init = 0;
+	if ((d < 0 && sndUVol > 0) || (d > 0 && sndUVol < MAXVOL)) 
+	{
+		sndUVol += d;
+		sndVol = sndUVol << 1;
+	}
 }
 
-//
-// Toggle mute
-//
-// When muted, sounds are still managed but not sent to the dsp, hence
-// it is possible to un-mute at any time.
-//
-
- void Hw32xAudioToggleMute(void)
+char sound_play(sound_t *sound, char loop, char selectch)
 {
-    sndMute = !sndMute;
-}
+	unsigned char c;
 
-void Hw32xAudioVolume(char d)
-{
-    if ((d < 0 && sndUVol > 0) || (d > 0 && sndUVol < MAXVOL)) 
-    {
-        sndUVol += d;
-        sndVol = sndUVol << 1;
-    }
-}
+	switch (selectch)
+	{
+		case 1:
+			MARS_PWM_CTRL = 0x0182;  // Left Channel Only
+		break;
 
-//
-// Play a sound
-//
-// loop: number of times the sound should be played, -1 to loop forever
-// returns: channel number, or -1 if none was available
-//
-// NOTE if sound is already playing, simply reset it (i.e. can not have
-// twice the same sound playing
-//
+		case 2:
+			MARS_PWM_CTRL = 0x0184;  // Right Channel Only
+		break;
 
-char Hw32xAudioPlay(sound_t *sound, char loop, char selectch)
-{
-    unsigned char c;
+		case 3:
+			MARS_PWM_CTRL = 0x0185;  // Center
+		break;
+	}
 
-    switch (selectch)
-    {
-        case 1:
-            MARS_PWM_CTRL = 0x0182;  // Left Channel Only
-        break;
-
-        case 2:
-            MARS_PWM_CTRL = 0x0184;  // Right Channel Only
-        break;
-
-        case 3:
-            MARS_PWM_CTRL = 0x0185;  // Center
-        break;
-    }
-
-    //if (!isAudioActive) return -1;
-    //if (sound == NULL) return -1;
+    if (!isAudioActive) return -1;
+    if (sound == NULL) return -1;
 
     //while (MARS_SYS_COMM6 == 3);
-    MARS_SYS_COMM4 = 8;
+    Mars_StartSoundMixer();
 
     c = 0;
     CacheClearLine(&channel[0]);
@@ -279,13 +258,12 @@ char Hw32xAudioPlay(sound_t *sound, char loop, char selectch)
         channel[c].len = sound->len;
     }
 
-   // MARS_SYS_COMM6 = 1;
+    MARS_SYS_COMM6 = 1;
 
     return c;
 }
 
-// Pause
-void Hw32xAudioPause(char pause)
+void sound_pause(char pause)
 {
     if (pause == 1)
         isAudioActive = 0;
@@ -293,8 +271,7 @@ void Hw32xAudioPause(char pause)
         isAudioActive = 1;
 }
 
-// Stop a channel
-void Hw32xAudioStopChannel(unsigned char chan)
+void sound_stopChannel(unsigned char chan)
 {
     if (chan < 0 || chan > MIXCHANNELS)
         return;
@@ -308,8 +285,7 @@ void Hw32xAudioStopChannel(unsigned char chan)
     MARS_SYS_COMM6 = 1;
 }
 
-// Stop a sound
-void Hw32xAudioStopAudio(sound_t *sound)
+void sound_stopSound(sound_t *sound)
 {
     unsigned char i;
 
@@ -327,8 +303,7 @@ void Hw32xAudioStopAudio(sound_t *sound)
     MARS_SYS_COMM6 = 1;
 }
 
-// See if a sound is playing
-int Hw32xAudioIsPlaying(sound_t *sound)
+int sound_isPlaying(sound_t *sound)
 {
     unsigned char i, playing;
 
@@ -347,8 +322,7 @@ int Hw32xAudioIsPlaying(sound_t *sound)
     return playing;
 }
 
-// Stops all channels
-void Hw32xAudioStopAllChannels(void)
+void sound_stopAllChannels(void)
 {
     unsigned char i;
 
@@ -364,8 +338,7 @@ void Hw32xAudioStopAllChannels(void)
     MARS_SYS_COMM6 = 1;
 }
 
-// Load a sound
-void Hw32xAudioLoad(sound_t *snd, char *name)
+void sound_load(sound_t *snd, char *name)
 {
     sound_file_t *afd;
 
@@ -383,13 +356,12 @@ void Hw32xAudioLoad(sound_t *snd, char *name)
     }
 }
 
-void Hw32xAudioFree(sound_t *s)
+void sound_free(sound_t *s)
 {
-    s->valid = 0;
+	s->valid = 0;
 }
 
-// Callback -- This is also where all sound mixing is done
-void Hw32xAudioCallback(unsigned long buff)
+void sound_fillBuffer(unsigned long buff)
 {
     unsigned char c;
     short s;
@@ -400,11 +372,12 @@ void Hw32xAudioCallback(unsigned long buff)
     //unsigned char ssndMute = *(unsigned char *)((unsigned int)&sndMute | 0x20000000);
     channel_t *schannel = (channel_t *)((unsigned int)channel | 0x20000000);
 
-    if (snd_init) {
-        for (i = 0; i < MIXSAMPLES; i++) 
+    if (snd_init)
+	{
+        for (i = 0; i < MIXSAMPLES; i++)
         {
             s = 0;
-            for (c = 0; c < MIXCHANNELS; c++) 
+            for (c = 0; c < MIXCHANNELS; c++)
             {
                 if (schannel[c].loop != 0) // Channel is active
                 {  
@@ -414,20 +387,18 @@ void Hw32xAudioCallback(unsigned long buff)
                         schannel[c].buf++;
                         schannel[c].len--;
                     }
-                else 
-                    {  // Ending
+                	else {  // Ending
                         if (schannel[c].loop > 0) schannel[c].loop--;
-                        if (schannel[c].loop) 
-                        {  // Just loop
-                            schannel[c].buf = schannel[c].snd->buf;
-                            schannel[c].len = schannel[c].snd->len;
-                            s += ADJVOL(*schannel[c].buf - 0x80);
-                            schannel[c].buf++;
-                            schannel[c].len--;
-                        }
-                    else 
-                        {  
-                        end_channel(c); // End for real
+                        	if (schannel[c].loop)
+                        	{  // Just loop
+                            	schannel[c].buf = schannel[c].snd->buf;
+                            	schannel[c].len = schannel[c].snd->len;
+                            	s += ADJVOL(*schannel[c].buf - 0x80);
+                            	schannel[c].buf++;
+                            	schannel[c].len--;
+                        	}
+                    		else {
+                        		end_channel(c); // End for real
                         }
                     }
                 }
@@ -444,8 +415,7 @@ void Hw32xAudioCallback(unsigned long buff)
         //}
         }
     } 
-    else 
-    {
+    else {
         for (i = 0; i < MIXSAMPLES; i++)
         stream[i] = ((unsigned long)516<<16) | (unsigned long)516;
     }

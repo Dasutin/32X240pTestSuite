@@ -1,6 +1,6 @@
 /* 
  * 240p Test Suite for the Sega 32X
- * Port by Dasutin
+ * Port by Dasutin (Dustin Dembrosky)
  * Copyright (C)2011-2022 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
@@ -57,73 +57,60 @@
 #include "sonic_tilemap.h"
 
 // Global Variables
-extern int fontColorWhite;
-extern int fontColorRed;
-extern int fontColorGreen;
-extern int fontColorGray;
-extern int fontColorBlack;
-
+extern int fontColorWhite, fontColorRed, fontColorGreen, fontColorGray, fontColorBlack;
 extern u32 schecksum;
-
 unsigned mars_frtc2msec_frac = 0;
+int fpcamera_x, fpcamera_y;
+int fpmoveinc_x = 1<<16, fpmoveinc_y = 1<<16; // in 16.16 fixed point
+uint16_t canvas_rebuild_id;
+int window_canvas_x = 0, window_canvas_y = 0;
+const int NTSC_CLOCK_SPEED = 23011360; // HZ
+const int PAL_CLOCK_SPEED = 22801467; // HZ
+int sec;
+tilemap_t tm;
 
 int Mars_FRTCounter2Msec(int c)
 {
-    return (c * mars_frtc2msec_frac) >> 16;
+	return (c * mars_frtc2msec_frac) >> 16;
 }
 
-int fpcamera_x, fpcamera_y;
-int fpmoveinc_x = 1<<16, fpmoveinc_y = 1<<16; // in 16.16 fixed point
-
-uint16_t canvas_rebuild_id;
-
-int window_canvas_x = 0, window_canvas_y = 0;
-
-const int NTSC_CLOCK_SPEED = 23011360; // HZ
-const int PAL_CLOCK_SPEED = 22801467; // HZ
-
-tilemap_t tm;
-
-int sec;
-
-//TODO Move CRC and BIOS support functions
 typedef struct bios_data {
-    u32 crc;
-    char *name;
+	u32 crc;
+	char *name;
 } BIOSID;
 
 static const BIOSID bioslist[] = {
-{ 0xDD9C46B8, "32X Master SH2 1.0" },	// 32X_M_BIOS.bin
-{ 0xBFDA1FE5, "32X Slave SH2 1.0" },	// 32X_S_BIOS.bin
-{ 0, NULL } } ;
+	{ 0xDD9C46B8, "32X Master SH2 1.0" },	// 32X_M_BIOS.bin
+	{ 0xBFDA1FE5, "32X Slave SH2 1.0" },	// 32X_S_BIOS.bin
+	{ 0, NULL } };
 
 int Detect32XMBIOS(u32 address)
 {
-    u8 *bios;
-	
-    bios = (u8 *)0+address;
-    if (memcmp1(bios + 0x47E, "MARS", 4))
-    	return 0;
-    return 1;
+	u8 *bios;
+
+	bios = (u8 *)0+address;
+	if (memcmp1(bios + 0x47E, "MARS", 4))
+		return 0;
+	return 1;
 }
 
 int Detect32XSBIOS(u32 address)
 {
-    u8 *bios;
-	
-    bios = (u8 *)0+address;
-    //if (memcmp1(bios + 0x1D4, "M", 1))
-    //	return 0;
-    return 1;
+	u8 *bios;
+
+	bios = (u8 *)0+address;
+	//if (memcmp1(bios + 0x1D4, "M", 1))
+	//	return 0;
+	return 1;
 }
 
 char *GetBIOSNamebyCRC(u32 checksum)
 {
 	int i = 0;
 	
-	while(bioslist[i].crc != 0)
-	{		
-		if(checksum == bioslist[i].crc)
+	while (bioslist[i].crc != 0)
+	{
+		if (checksum == bioslist[i].crc)
 			return bioslist[i].name;
 		i++;
 	}
@@ -132,31 +119,30 @@ char *GetBIOSNamebyCRC(u32 checksum)
 
 void doMBIOSID(u32 checksum, u32 address)
 {
-	char 		*name = NULL;
+	char *name = NULL;
 	
 	name = GetBIOSNamebyCRC(checksum);
-	if(name)
+	if (name)
 	{
 		HwMdPuts(name, 0x4000, 11, 20);
 		return;
 	}
 
-	if(Detect32XMBIOS(address))
+	if (Detect32XMBIOS(address))
 	{
-		u32	   mchecksum = 0;
+		u32 mchecksum = 0;
 
 		mchecksum = CalculateCRC(address, 0x0000800);
 
 		ShowMessageAndData("32X M BIOS CRC32:", mchecksum, 0x2000, 8, 6, 18);
 	}
-	
+
 	// No match! check if we find the SEGA string and report
-	if(Detect32XMBIOS(address))
+	if (Detect32XMBIOS(address))
 	{
 		HwMdPuts("Unknown BIOS, please report CRC", 0x2000, 4, 19);
 	}
-	else
-	{
+	else {
 		HwMdPuts("BIOS not recognized", 0x2000, 8, 19);
 	}
 	return;
@@ -164,31 +150,30 @@ void doMBIOSID(u32 checksum, u32 address)
 
 void doSBIOSID(u32 checksum, u32 address)
 {
-	char 		*name = NULL;
+	char *name = NULL;
 	
 	name = GetBIOSNamebyCRC(checksum);
-	if(name)
+	if (name)
 	{
 		HwMdPuts(name, 0x2000, 11, 21);
 		return;
 	}
 
-	if(Detect32XSBIOS(address))
+	if (Detect32XSBIOS(address))
 	{
-		//u32	   schecksum = 0;
+		//u32 schecksum = 0;
 
 		//schecksum = CalculateCRC(address, 0x0000400);
 
 		//ShowMessageAndData("32X S BIOS CRC32:", schecksum, 0x4000, 8, 6, 20);
 	}
-	
+
 	// No match! check if we find the SEGA string and report
-	if(Detect32XSBIOS(address))
+	if (Detect32XSBIOS(address))
 	{
 		HwMdPuts("Unknown BIOS, please report CRC", 0x4000, 4, 21);
 	}
-	else
-	{
+	else {
 		HwMdPuts("BIOS not recognized", 0x4000, 8, 21);
 	}
 	return;
@@ -196,8 +181,8 @@ void doSBIOSID(u32 checksum, u32 address)
 
 void ShowMessageAndData(char *message, u32 address, u8 color, int len, int xpos, int ypos)
 {
-	int			msglen = 0;
-	char		buffer[40];
+	int	msglen = 0;
+	char buffer[40];
 	
 	intToHex(address, buffer, len);
 	
@@ -234,26 +219,18 @@ void MDPSG_stop()
 
 void vt_drop_shadow_test()
 {
-	int done = 0;
-	unsigned short button = 0, pressedButton = 0, oldButton = 0xFFFF;
-	int frameCount = 0;
-    int mode = DRAWSPR_OVERWRITE;
-	int x = 30;
-	int y = 30;
+	int done = 0, frameCount = 0, mode = DRAWSPR_OVERWRITE, x = 30, y = 30;
+	int otherTests = 1, changeSprite = 0, background = 1, initTilemap = 1, evenFrames = 0;
 	u16 frame = 1;
-	int otherTests = 1;
-	int changeSprite = 0;
-	int background = 1;
-	int initTilemap = 1;
-	int evenFrames = 0;
+	unsigned short button = 0, pressedButton = 0, oldButton = 0xFFFF;
 
 	Hw32xSetPalette(donna_palette);
 
-    fpcamera_x = fpcamera_y = 0;
+	fpcamera_x = fpcamera_y = 0;
 
-    Hw32xScreenFlip(0);
+	Hw32xScreenFlip(0);
 
-    while (!done) 
+	while (!done)
 	{
 		button = MARS_SYS_COMM8;
 
@@ -263,29 +240,29 @@ void vt_drop_shadow_test()
 		}
 
 		pressedButton = button & ~oldButton;
-    	oldButton = button;
+		oldButton = button;
 
-		if(!otherTests)
+		if (!otherTests)
 		{
 			switch (frame)
 			{
-        	case 30:
-            Hw32xSetPalette(sonic_tileset_Palette2);
+			case 30:
+			Hw32xSetPalette(sonic_tileset_Palette2);
 				break;
-       		case 60:
-            Hw32xSetPalette(sonic_tileset_Palette3);
+			case 60:
+			Hw32xSetPalette(sonic_tileset_Palette3);
 				break;
 			case 90:
-            Hw32xSetPalette(sonic_tileset_Palette);
+			Hw32xSetPalette(sonic_tileset_Palette);
 				break;
 			}
 		}
 
 		frame++;
-		if(frame > 90)
+		if (frame > 90)
 			frame = 1;
 
-        if (button & SEGA_CTRL_UP)
+		if (button & SEGA_CTRL_UP)
 		{
 			y--;
 			if(y < 0)
@@ -303,7 +280,7 @@ void vt_drop_shadow_test()
 		{
 			mode = DRAWSPR_PRECISE;
 			x--;
-			if(x < 0)
+			if (x < 0)
 				x = 0;
 
 			fpcamera_x -= (fpmoveinc_x * 2);
@@ -313,7 +290,7 @@ void vt_drop_shadow_test()
 		{
 			mode = DRAWSPR_HFLIP;
 			x++;
-			if(x > 288)
+			if (x > 288)
 				x = 288;
 
 			fpcamera_x += (fpmoveinc_x * 2);
@@ -329,14 +306,14 @@ void vt_drop_shadow_test()
 			initTilemap = 1;
 			background++;
 	
-			if(background > 4){
-		 		background = 1;
+			if (background > 4){
+				background = 1;
 			}
 		}
 
 		if (pressedButton & SEGA_CTRL_C)
 		{
-			if(changeSprite == 0){
+			if (changeSprite == 0){
 				changeSprite = 1;
 			}	
 			else {
@@ -350,7 +327,7 @@ void vt_drop_shadow_test()
 			Hw32xSetPalette(donna_palette);
 		}
 		
-        Hw32xFlipWait();
+		Hw32xFlipWait();
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
@@ -359,90 +336,86 @@ void vt_drop_shadow_test()
 		}
 
 		switch (background) {
-				case 1:
-					if (initTilemap == 1)
-					{
-						otherTests = 1;
-						canvas_pitch = 320;
-						Hw32xSetPalette(donna_palette);
-						init_tilemap(&tm, &donna_tmx, (uint8_t **)donna_reslist);
-						canvas_rebuild_id++;
-						initTilemap = 0;
-					}
-				break;
-				
-				case 2:
-					if (initTilemap == 1)
-					{
-						init_tilemap(&tm, &checkerboard_donna_tmx, (uint8_t **)checkerboard_donna_reslist);
-						canvas_rebuild_id++;
-						initTilemap = 0;
-					}
-				break;
+			case 1:
+				if (initTilemap == 1)
+				{
+					otherTests = 1;
+					canvas_pitch = 320;
+					Hw32xSetPalette(donna_palette);
+					init_tilemap(&tm, &donna_tmx, (uint8_t **)donna_reslist);
+					canvas_rebuild_id++;
+					initTilemap = 0;
+				}
+			break;
+			
+			case 2:
+				if (initTilemap == 1)
+				{
+					init_tilemap(&tm, &checkerboard_donna_tmx, (uint8_t **)checkerboard_donna_reslist);
+					canvas_rebuild_id++;
+					initTilemap = 0;
+				}
+			break;
 
-				case 3:
-					if (initTilemap == 1)
-					{
-						otherTests = 1;
-						init_tilemap(&tm, &h_stripes_tmx, (uint8_t **)h_stripes_reslist);
-						canvas_rebuild_id++;
-						initTilemap = 0;
-					}
-				break;
+			case 3:
+				if (initTilemap == 1)
+				{
+					otherTests = 1;
+					init_tilemap(&tm, &h_stripes_tmx, (uint8_t **)h_stripes_reslist);
+					canvas_rebuild_id++;
+					initTilemap = 0;
+				}
+			break;
 
-				case 4:
-					if (initTilemap == 1)
-					{
-						otherTests = !otherTests;
-						canvas_pitch = 384;
-						Hw32xSetPalette(sonic_tileset_Palette);
-						init_tilemap(&tm, &sonic_tilemap_Map, (uint8_t **)sonic_tileset_Reslist);
-						canvas_rebuild_id++;
-						initTilemap = 0;
-					}
-				break;
+			case 4:
+				if (initTilemap == 1)
+				{
+					otherTests = !otherTests;
+					canvas_pitch = 384;
+					Hw32xSetPalette(sonic_tileset_Palette);
+					init_tilemap(&tm, &sonic_tilemap_Map, (uint8_t **)sonic_tileset_Reslist);
+					canvas_rebuild_id++;
+					initTilemap = 0;
+				}
+			break;
 		}
 
 		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
 		draw_setScissor(0, 0, 320, 224);
 
 		if (changeSprite == 0){
-		if (frameCount % 2 == evenFrames) {
-            draw_sprite(x, y, 32, 32, buzz_shadow_sprite, DRAWSPR_OVERWRITE | DRAWSPR_PRECISE | mode, 1);
-        }
-        draw_sprite(x-20, y-20, 32, 32, buzz_sprite, DRAWSPR_OVERWRITE | mode | DRAWSPR_PRECISE, 1);
+			if (frameCount % 2 == evenFrames) {
+				draw_sprite(x, y, 32, 32, buzz_shadow_sprite, DRAWSPR_OVERWRITE | DRAWSPR_PRECISE | mode, 1);
+			}
+			draw_sprite(x-20, y-20, 32, 32, buzz_sprite, DRAWSPR_OVERWRITE | mode | DRAWSPR_PRECISE, 1);
 		}
 		else {
-		if (frameCount % 2 == evenFrames ) {
-		draw_sprite(x, y, 32, 32, marker_shadow_tile, DRAWSPR_OVERWRITE | DRAWSPR_PRECISE | mode, 1);
-		}
+			if (frameCount % 2 == evenFrames ) {
+				draw_sprite(x, y, 32, 32, marker_shadow_tile, DRAWSPR_OVERWRITE | DRAWSPR_PRECISE | mode, 1);
+			}
 		}
 		
-        frameCount++;
+		frameCount++;
 
-        Hw32xScreenFlip(0);
+		Hw32xDelay(1);
+		Hw32xScreenFlip(0);
 	}
 	return;
 }
 
 void vt_striped_sprite_test()
 {
-	int done = 0;
-	unsigned short button = 0, pressedButton = 0, oldButton = 0xFFFF;
-    int x = 30;
-	int y = 30;
-	int otherTests = 1;
+	int done = 0, x = 30, y = 30, otherTests = 1, background = 1, initTilemap = 1;
 	u16 frame = 1;
-	int background = 1;
-	int initTilemap = 1;
+	unsigned short button = 0, pressedButton = 0, oldButton = 0xFFFF;
 
 	Hw32xSetPalette(donna_palette);
 
-    fpcamera_x = fpcamera_y = 0;
+	fpcamera_x = fpcamera_y = 0;
 
-    Hw32xScreenFlip(0);
+	Hw32xScreenFlip(0);
 
-    while (!done) 
+	while (!done) 
 	{
 		button = MARS_SYS_COMM8;
 
@@ -452,46 +425,46 @@ void vt_striped_sprite_test()
 		}
 
 		pressedButton = button & ~oldButton;
-    	oldButton = button;
+		oldButton = button;
 
-		if(!otherTests)
+		if (!otherTests)
 		{
 			switch (frame)
 			{
-        	case 30:
-            Hw32xSetPalette(sonic_tileset_Palette2);
-				break;
-       		case 60:
-            Hw32xSetPalette(sonic_tileset_Palette3);
-				break;
+			case 30:
+				Hw32xSetPalette(sonic_tileset_Palette2);
+			break;
+			case 60:
+				Hw32xSetPalette(sonic_tileset_Palette3);
+			break;
 			case 90:
-            Hw32xSetPalette(sonic_tileset_Palette);
-				break;
+				Hw32xSetPalette(sonic_tileset_Palette);
+			break;
 			}
 		}
 
 		frame++;
-		if(frame > 90)
+		if (frame > 90)
 			frame = 1;
 
-        if (button & SEGA_CTRL_UP)
+		if (button & SEGA_CTRL_UP)
 		{
 			y--;
-			if(y < 0)
+			if (y < 0)
 				y = 0;
 		}
 
 		if (button & SEGA_CTRL_DOWN)
 		{
 			y++;
-			if(y > 192)
+			if (y > 192)
 				y = 192;
 		}
 
 		if (button & SEGA_CTRL_LEFT)
 		{
 			x--;
-			if(x < 0)
+			if (x < 0)
 				x = 0;
 
 			fpcamera_x -= fpmoveinc_x;
@@ -500,33 +473,33 @@ void vt_striped_sprite_test()
 		if (button & SEGA_CTRL_RIGHT)
 		{
 			x++;
-			if(x > 288)
+			if (x > 288)
 				x = 288;
 
 			fpcamera_x += fpmoveinc_x;
 		}
 
 		if (pressedButton & SEGA_CTRL_A)
-		{	
+		{
 			initTilemap = 1;
 			background++;
 	
-			if(background > 4){
-		 		background = 1;
+			if (background > 4){
+				background = 1;
 			}
 		}
 
 		if (pressedButton & SEGA_CTRL_B)
-		{	
+		{
 			initTilemap = 1;
 			background--;
 	
-			if(background < 1){
-		 		background = 4;
+			if (background < 1){
+				background = 4;
 			}
 		}
 
-        Hw32xFlipWait();
+		Hw32xFlipWait();
 
 		if (pressedButton & SEGA_CTRL_Z)
 		{
@@ -591,7 +564,8 @@ void vt_striped_sprite_test()
 		draw_setScissor(0, 0, 320, 224);
 		draw_sprite(x, y, 32, 32, marker_striped_tile, DRAWSPR_OVERWRITE | DRAWSPR_PRECISE, 1);
 
-        Hw32xScreenFlip(0);
+		Hw32xDelay(1);
+		Hw32xScreenFlip(0);
 	}
 	return;
 }
@@ -601,9 +575,9 @@ void vt_lag_test()
 	u16 lsd, msd;
 	int frames = 0, seconds = 0, minutes = 0, hours = 0, framecnt = 1;
 	u16 done = 0;
-	u16 button, pressedButton, oldButton = 0xFFFF;
 	uint8_t *numbers[10] = {tiles_0, tiles_1, tiles_2, tiles_3, tiles_4, tiles_5, tiles_6, tiles_7, tiles_8, tiles_9};
 	u16 pause = 0, cposx = 32, cposy = 17;
+	u16 button, pressedButton, oldButton = 0xFFFF;
 	volatile unsigned short *cram16 = &MARS_CRAM;
 
 	canvas_pitch = 320;
@@ -613,9 +587,9 @@ void vt_lag_test()
 	loadTextPalette();
 
 	MARS_SYS_COMM4 = 0;
-    MARS_SYS_COMM6 = 0;
+	MARS_SYS_COMM6 = 0;
 
-    fpcamera_x = fpcamera_y = 0;
+	fpcamera_x = fpcamera_y = 0;
 
 	init_tilemap(&tm, &lagtest_Map, (uint8_t **)lagtest_res_Reslist);
 
@@ -631,8 +605,8 @@ void vt_lag_test()
 			button = MARS_SYS_COMM10;
 		}
 
-    	pressedButton = button & ~oldButton;
-    	oldButton = button;
+		pressedButton = button & ~oldButton;
+		oldButton = button;
 
 		if(framecnt > 8)
 			framecnt = 1;
@@ -641,8 +615,7 @@ void vt_lag_test()
 		{
 			cram16[3] = 0x001F;
 		}
-		else 
-		{
+		else {
 			cram16[3] = 0x7C00;
 		}
 
@@ -650,8 +623,7 @@ void vt_lag_test()
 		{
 			cram16[4] = 0x001F;
 		}
-		else 
-		{
+		else {
 			cram16[4] = 0x7C00;
 		}
 
@@ -659,8 +631,7 @@ void vt_lag_test()
 		{
 			cram16[5] = 0x001F;
 		}
-		else 
-		{
+		else {
 			cram16[5] = 0x7C00;
 		}
 
@@ -668,8 +639,7 @@ void vt_lag_test()
 		{
 			cram16[6] = 0x001F;
 		}
-		else 
-		{
+		else {
 			cram16[6] = 0x7C00;
 		}
 
@@ -677,8 +647,7 @@ void vt_lag_test()
 		{
 			cram16[7] = 0x001F;
 		}
-		else 
-		{
+		else {
 			cram16[7] = 0x7C00;
 		}
 
@@ -686,8 +655,7 @@ void vt_lag_test()
 		{
 			cram16[8] = 0x001F;
 		}
-		else 
-		{
+		else {
 			cram16[8] = 0x7C00;
 		}
 
@@ -695,8 +663,7 @@ void vt_lag_test()
 		{
 			cram16[9] = 0x001F;
 		}
-		else 
-		{
+		else {
 			cram16[9] = 0x7C00;
 		}
 
@@ -704,8 +671,7 @@ void vt_lag_test()
 		{
 			cram16[10] = 0x001F;
 		}
-		else 
-		{
+		else {
 			cram16[10] = 0x7C00;
 		}
 
@@ -713,19 +679,16 @@ void vt_lag_test()
 		{
 			cram16[1] = 0x0000;
 		}
-		else
-		{
+		else {
 			cram16[1] = 0x7FFF;
 		}
-
 
 		if (framecnt > 4)
 		{
 			cposx = framecnt - 4;
 			cposy = 17;
 		}
-		else
-		{
+		else {
 			cposx = framecnt;
 			cposy = 9;
 		}
@@ -761,7 +724,7 @@ void vt_lag_test()
 		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
 		draw_setScissor(0, 0, 320, 224);
 
-		if(!pause)
+		if (!pause)
 		{
 			frames ++;
 			framecnt ++;
@@ -769,25 +732,25 @@ void vt_lag_test()
 				framecnt = 1;
 		}
 
-		if(frames > 59)
+		if (frames > 59)
 		{
 			frames = 0;
 			seconds ++;
 		}
 		
-		if(seconds > 59)
+		if (seconds > 59)
 		{
 			seconds = 0;
 			minutes ++;
 		}
 
-		if(minutes > 59)
+		if (minutes > 59)
 		{
 			minutes = 0;
 			hours ++;
 		}
 
-		if(hours > 99)
+		if (hours > 99)
 			hours = 0;
 
 		draw_sprite(80, 19, 32, 32, separator_tile, DRAWSPR_OVERWRITE, 1);
@@ -826,14 +789,11 @@ void vt_lag_test()
 void vt_reflex_test()
 {
 	char str[10];
-	u16 pal = 0x0000, change = 1, loadvram = 1;
-	int psgoff = 0;
-	s16 speed = 1, vary = 0;
-	u16 usersound = 0;
+	s16 speed = 1, vary = 0, clicks[10];
+	u16 pal = 0x0000, change = 1, loadvram = 1, psgoff = 0, usersound = 0;
 	u16 x = 0, y = 0, x2 = 0, y2 = 0, done = 0, variation = 1, draw = 1;
-	u16 button, pressedButton, oldButton = 0xFFFF;
 	u16 pos = 0, view = 0, audio = 1, drawoffset = 0;
-	s16 clicks[10];
+	u16 button, pressedButton, oldButton = 0xFFFF;
 	vu16 *cram16 = &MARS_CRAM;
 	extern const uint8_t MARKER_TILE1[] __attribute__((aligned(16)));
 	extern const uint8_t MARKER_TILE2[] __attribute__((aligned(16)));
@@ -875,11 +835,7 @@ void vt_reflex_test()
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	};
 
-	x = 144;
-	y = 60;
-
-	x2 = 108;
-	y2 = 96;
+	x = 144, y = 60, x2 = 108, y2 = 96;
 	
 	MDPSG_init();
 	HwMdPSGSetFrequency(0, 1000);
@@ -897,12 +853,12 @@ void vt_reflex_test()
 	while (!done)
 	{
 		Hw32xFlipWait();
-		clearScreen_Fill8bit();
 
+		clearScreen_Fill8bit();
 		Hw32xSetBGColor(0, 0, 0, 0);
 
 		if (loadvram)
-		{	
+		{
 			HwMdPuts("Press the \"A\" button when the sprite", 0x4000, 2, 21);
 			HwMdPuts("is aligned. A negative value means", 0x4000, 2, 22);
 			HwMdPuts("you pressed \"A\" before they intersect.", 0x4000, 2, 23);
@@ -966,7 +922,7 @@ void vt_reflex_test()
 			button = MARS_SYS_COMM10;
 		}
 		pressedButton = button & ~oldButton;
-    	oldButton = button;
+		oldButton = button;
 
 		if (pressedButton & SEGA_CTRL_Z)
 		{
@@ -998,7 +954,7 @@ void vt_reflex_test()
 						HwMdPSGSetFrequency(0, 500);
 						if (psgoff == 0)
 							psgoff = 2;
-					}	
+					}
 					usersound = 1;
 				}
 			}
@@ -1007,7 +963,7 @@ void vt_reflex_test()
 		if (pressedButton & SEGA_CTRL_B)
 		{
 			view++;
-			if(view > 2)
+			if (view > 2)
 				view = 0;
 		}
 
@@ -1020,7 +976,7 @@ void vt_reflex_test()
 		if (pressedButton & SEGA_CTRL_DOWN)
 		{
 			variation = !variation;
-			if(!variation)
+			if (!variation)
 				vary = 0;
 			draw = 1;
 		}
@@ -1136,9 +1092,9 @@ void vt_reflex_test()
 		else
 			drawSprite(MARKER_TILE2, 320, 224, 32, 32, 0, 0);
 
-		if (y == 96)								// Half the screen?        
+		if (y == 96)								// Half the screen?
 		{
-			if(audio)
+			if (audio)
 			{
 				HwMdPSGSetChandVol(0, 0);
 				HwMdPSGSetFrequency(0, 1000);
@@ -1162,7 +1118,7 @@ void vt_reflex_test()
 	}
 
 	if (pos > 9)
-	{	
+	{
 		int totald = 0, cnt, tot;
 		u16 total = 0, count = 0, c = 0;
 
@@ -1199,8 +1155,7 @@ void vt_reflex_test()
 
 		if (count > 0)
 		{
-			u16 h = 10;
-			u16 v = 18;
+			u16 h = 10, v = 18;
 			fix32 framerate = MARS_VDP_DISPMODE & MARS_NTSC_FORMAT ? FIX32(16.6884) : FIX32(20.1196);
 			
 			HwMdPuts("----", 0x0000, h - 2, v++);
@@ -1230,8 +1185,7 @@ void vt_reflex_test()
 			HwMdPuts(str, 0x0000, 26, v);
 			HwMdPuts("ms.", 0x0000, 32, v);
 
-			h = 14;
-			v = 12;
+			h = 14, v = 12;
 			cnt = fix32Mul(totald, framerate);
 			fix32ToStr(cnt, str, 2);
 			HwMdPuts(str, 0x2000, h, v);
@@ -1247,13 +1201,13 @@ void vt_reflex_test()
 
 		loadPalette(&BACKGROUND_PAL[0], &BACKGROUND_PAL[255],0);
 		drawBG(BACKGROUND_TILE);
-			
+
 		drawLineTable(4);
-			
+
 		Hw32xScreenFlip(0);
-			
+
 		done = 0;
-			
+
 		while (!done)
 		{
 			button = MARS_SYS_COMM8;
@@ -1264,8 +1218,8 @@ void vt_reflex_test()
 			}
 
 			pressedButton = button & ~oldButton;
-    		oldButton = button;
-		
+			oldButton = button;
+
 			if (pressedButton & SEGA_CTRL_START || pressedButton & SEGA_CTRL_B)
 			{
 				done = 1;
@@ -1283,14 +1237,14 @@ void vt_scroll_test()
 	canvas_pitch = 384; // canvas_width + scrollwidth
 
 	Hw32xSetPalette(sonic_tileset_Palette);
- 
-    fpcamera_x = fpcamera_y = 0;
 
-    Hw32xScreenFlip(0);
+	fpcamera_x = fpcamera_y = 0;
+
+	Hw32xScreenFlip(0);
 
 	init_tilemap(&tm, &sonic_tilemap_Map, (uint8_t **)sonic_tileset_Reslist);
 
-    while (!done) 
+	while (!done) 
 	{
 		button = MARS_SYS_COMM8;
 
@@ -1300,106 +1254,104 @@ void vt_scroll_test()
 		}
 
 		pressedButton = button & ~oldButton;
-    	oldButton = button;
+		oldButton = button;
 
-		if(!vertical)
+		if (!vertical)
 		{
 			switch (frame)
 			{
-        	case 30:
-            Hw32xSetPalette(sonic_tileset_Palette2);
-				break;
-       		case 60:
-            Hw32xSetPalette(sonic_tileset_Palette3);
-				break;
+			case 30:
+				Hw32xSetPalette(sonic_tileset_Palette2);
+			break;
+			case 60:
+				Hw32xSetPalette(sonic_tileset_Palette3);
+			break;
 			case 90:
-            Hw32xSetPalette(sonic_tileset_Palette);
-				break;
+				Hw32xSetPalette(sonic_tileset_Palette);
+			break;
 			}
 		}
 
 		frame++;
-		if(frame > 90)
+		if (frame > 90)
 			frame = 1;
 
-		if(!vertical)
+		if (!vertical)
 		{	
-			if(!pause){	
-				if(!direction){
-					fpcamera_x += (fpmoveinc_x * acc);
-				} 
-				else 
+			if (!pause)
+			{
+				if (!direction)
 				{
+					fpcamera_x += (fpmoveinc_x * acc);
+				}
+				else {
 					fpcamera_x -= (fpmoveinc_x * acc);
 				}
 			}
 		}
-		else
-		{
-			if(!pause){	
-				if(!direction){
+		else {
+			if (!pause){
+				if (!direction){
 					fpcamera_y += (fpmoveinc_y * acc);
-				} 
-				else 
+				}
+				else
 				{
 					fpcamera_y -= (fpmoveinc_y * acc);
 				}
 			}
 		}
-        
+
 		if (pressedButton & SEGA_CTRL_LEFT) {
-            direction = !direction;
-        }
+			direction = !direction;
+		}
 
 		if (pressedButton & SEGA_CTRL_UP) {
-            acc++;
-			if(acc == 10)
+			acc++;
+			if (acc == 10)
 				acc = 10;
-        }
+		}
 
 		if (pressedButton & SEGA_CTRL_DOWN) {
-            acc--;
-			if(acc == 1)
+			acc--;
+			if (acc == 1)
 				acc = 1;
-        }
+		}
 
 		if (pressedButton & SEGA_CTRL_A) {
-            pause = !pause;
-        }
+			pause = !pause;
+		}
 
 		if (pressedButton & SEGA_CTRL_B) {
-			if(!vertical)
-			{	
+			if (!vertical)
+			{
 				canvas_yaw = 256;
 				canvas_pitch = 320;
-            	vertical = 1;
+				vertical = 1;
 				initTilemap = 1;
 			}
-			else
-			{
+			else {
 				canvas_pitch = 384;
 				canvas_yaw = 224;
 				vertical = 0;
 				initTilemap = 1;
 			}
-        }
+		}
 
 		if (pressedButton & SEGA_CTRL_Z) {
-			if(!vertical)
+			if (!vertical)
 			{
 				canvas_pitch = 320;
 				DrawHelp(HELP_HSCROLL);
 				canvas_pitch = 384;
 			}
-			else
-			{
+			else {
 				canvas_yaw = 224;
 				DrawHelp(HELP_HSCROLL);
 				canvas_yaw = 256;
 			}
-        }
+		}
 
-		if(!vertical)
+		if (!vertical)
 		{
 			if (fpcamera_x < 0) fpcamera_x = sonic_tilemap_Map.wrapX*(1<<16);
 		}
@@ -1408,7 +1360,7 @@ void vt_scroll_test()
 			if (fpcamera_y < 0) fpcamera_y = kiki_Map.wrapY*(1<<16);
 		}
 
-        Hw32xFlipWait();
+		Hw32xFlipWait();
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
@@ -1416,7 +1368,7 @@ void vt_scroll_test()
 			done = 1;
 		}
 
-		if(!vertical)
+		if (!vertical)
 		{
 			if (initTilemap == 1)
 				{
@@ -1428,14 +1380,13 @@ void vt_scroll_test()
 			draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
 			draw_setScissor(0, 0, 320, 224);
 		}
-		else
-		{
+		else {
 			if (initTilemap == 1)
 				{
 					marsVDP256Start();
 					Hw32xSetPalette(kiki_tiles_Palette);
 					initTilemap = 0;
-				}			
+				}
 			canvas_rebuild_id++;
 			init_tilemap(&tm, &kiki_Map, (uint8_t **)kiki_tiles_Reslist);
 			draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
@@ -1444,7 +1395,7 @@ void vt_scroll_test()
 
 		frame++;
 
-        Hw32xScreenFlip(0);
+		Hw32xScreenFlip(0);
 	}
 	return;
 }
@@ -1459,15 +1410,15 @@ void vt_gridscroll_test()
 
 	Hw32xSetPalette(grid_palette);
 
-    fpcamera_x = fpcamera_y = 0;
+	fpcamera_x = fpcamera_y = 0;
 
-    Hw32xScreenFlip(0);
+	Hw32xScreenFlip(0);
 
 	init_tilemap(&tm, &grid_tmx, (uint8_t **)grid_reslist);
 
-    while (!done) 
+	while (!done)
 	{
-        button = MARS_SYS_COMM8;
+		button = MARS_SYS_COMM8;
 		
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
 		{
@@ -1475,73 +1426,75 @@ void vt_gridscroll_test()
 		}
 
 		pressedButton = button & ~oldButton;
-    	oldButton = button;
+		oldButton = button;
 
-		if(!horizontal)
-		{	
-			if(!pause){	
-				if(!direction){
+		if (!horizontal)
+		{
+			if (!pause){
+				if (!direction){
 					fpcamera_y += (fpmoveinc_y * acc);
-				} 
-				else 
-				{
+				}
+				else {
 					fpcamera_y -= (fpmoveinc_y * acc);
 				}
 			}
 		}
-		else
-		{
-			if(!pause){	
-				if(!direction){
+		else {
+			if (!pause){
+				if (!direction){
 					fpcamera_x += (fpmoveinc_x * acc);
-				} 
-				else 
-				{
+				}
+				else {
 					fpcamera_x -= (fpmoveinc_x * acc);
 				}
 			}
 		}
-		
-			
-		if (pressedButton & SEGA_CTRL_A) {
-            pause = !pause;
-        }
 
-		if (pressedButton & SEGA_CTRL_B) {
-            horizontal = !horizontal;
-        }
-        
-		if (pressedButton & SEGA_CTRL_LEFT) {
-            direction = !direction;
-        }
+		if (pressedButton & SEGA_CTRL_A)
+		{
+			pause = !pause;
+		}
 
-		if (pressedButton & SEGA_CTRL_UP) {
-            acc++;
-			if(acc == 10)
+		if (pressedButton & SEGA_CTRL_B)
+		{
+			horizontal = !horizontal;
+		}
+
+		if (pressedButton & SEGA_CTRL_LEFT)
+		{
+			direction = !direction;
+		}
+
+		if (pressedButton & SEGA_CTRL_UP)
+		{
+			acc++;
+			if (acc == 10)
 				acc = 10;
-        }
-        
-		if (pressedButton & SEGA_CTRL_DOWN) {
-            acc--;
-			if(acc == 1)
-				acc = 1;
-        }
+		}
 
-		if (pressedButton & SEGA_CTRL_Z) {
+		if (pressedButton & SEGA_CTRL_DOWN)
+		{
+			acc--;
+			if (acc == 1)
+				acc = 1;
+		}
+
+		if (pressedButton & SEGA_CTRL_Z)
+		{
 			canvas_pitch = 320;
 			canvas_yaw = 224;
-            DrawHelp(HELP_VSCROLL);
+			DrawHelp(HELP_VSCROLL);
 			Hw32xSetPalette(grid_palette);
 			canvas_pitch = 384;
 			canvas_yaw = 256;
-        }
+		}
 
-		if(!pause)
+		if (!pause)
 
 		if (fpcamera_x < 0) fpcamera_x = grid_tmx.wrapX*(1<<16);
 		if (fpcamera_y < 0) fpcamera_y = grid_tmx.wrapY*(1<<16);
 
-        Hw32xFlipWait();
+		Hw32xFlipWait();
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
@@ -1553,18 +1506,14 @@ void vt_gridscroll_test()
 		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
 		draw_setScissor(0, 0, 320, 224);
 
-        Hw32xScreenFlip(0);
+		Hw32xScreenFlip(0);
 	}
 	return;
 }
 
-void vt_horizontal_stripes()
+/* void vt_horizontal_stripes()
 {
-	int done = 0;
-	int test = 1;
-	int manualtest = 1;
-	int pal = 1;
-	int pattern = 1;
+	int done = 0, test = 1, manualtest = 1, pal = 1, pattern = 1;
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
 	volatile unsigned short *cram16 = &MARS_CRAM;
 
@@ -1611,7 +1560,7 @@ void vt_horizontal_stripes()
 		}
 
 		pressedButton = button & ~oldButton;
-    	oldButton = button;
+    	oldButton = button; */
 
 /* 		switch (test) {
 				switch (pal) {
@@ -1628,7 +1577,7 @@ void vt_horizontal_stripes()
 			break;
 		}
  */
-		if (pressedButton & SEGA_CTRL_START)
+/* 		if (pressedButton & SEGA_CTRL_START)
 		{
 			screenFadeOut(1);
 			done = 1;
@@ -1763,14 +1712,148 @@ void vt_horizontal_stripes()
 		Hw32xScreenFlip(0);
 	}
 	return;
+} */
+
+void vt_horizontal_stripes()
+{
+	int done = 0, test = 1, manualtest = 1, pal = 1;
+	unsigned short button, pressedButton, oldButton = 0xFFFF;
+	volatile unsigned short *cram16 = &MARS_CRAM;
+
+	uint8_t h_bars_tile_8[] __attribute__((aligned(16))) = {
+		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+		0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,
+		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+		0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,
+		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+		0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,
+		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+		0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01
+	};
+
+	marsVDP256Start();
+
+	cram16[0] = 0x7FFF;
+	cram16[1] = 0x0000;
+
+	Hw32xScreenFlip(0);
+
+	while (!done)
+	{
+		Hw32xFlipWait();
+
+		button = MARS_SYS_COMM8;
+
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
+		{
+			button = MARS_SYS_COMM10;
+		}
+
+		pressedButton = button & ~oldButton;
+		oldButton = button;
+
+		switch (test) {
+			case 1:
+				for (int i=0; i<=224; i=i+8){
+					for (int a=0; a<=320; a=a+8){
+						drawSprite(h_bars_tile_8,a,i,8,8,0,0);
+					}
+				}
+			break;
+
+			case 2:
+				switch (pal)
+				{
+					case 1:
+						cram16[0] = 0x0000;
+						cram16[1] = 0x7FFF;
+					break;
+				
+					case 2:
+						cram16[0] = 0x7FFF;
+						cram16[1] = 0x0000;
+					break;
+				}
+			break;
+		}
+
+		if (pressedButton & SEGA_CTRL_START)
+		{
+			screenFadeOut(1);
+			done = 1;
+		}
+
+		if (pressedButton & SEGA_CTRL_A)
+		{
+			if (test == 1)
+			{
+				test = 2;
+			}
+			else {
+				test = 1;
+			}
+		}
+
+		if (pressedButton & SEGA_CTRL_UP)
+		{
+			if (manualtest > 2)
+				manualtest = 1;
+
+			switch (manualtest) 
+			{
+				case 1:
+					test = 1;
+					cram16[0] = 0x7FFF;
+					cram16[1] = 0x0000;
+				break;
+
+				case 2:
+					test = 1;
+					cram16[0] = 0x0000;
+					cram16[1] = 0x7FFF;
+				break;
+			}
+
+			manualtest++;
+		}
+
+		if (pressedButton & SEGA_CTRL_DOWN)
+		{
+			if (manualtest > 2)
+				manualtest = 1;
+
+			switch (manualtest)
+			{
+				case 1:
+					test = 1;
+					cram16[0] = 0x7FFF;
+					cram16[1] = 0x0000;
+				break;
+
+				case 2:
+					test = 1;
+					cram16[0] = 0x0000;
+					cram16[1] = 0x7FFF;
+				break;
+			}
+			manualtest++;
+		}
+
+		pal++;
+
+		if (pal > 2)
+			pal = 1;
+
+		drawLineTable(4);
+
+		Hw32xScreenFlip(0);
+	}
+	return;
 }
 
 void vt_vertical_stripes()
 {
-	int done = 0;
-	int test = 1;
-	int manualtest = 1;
-	int pal = 1;
+	int done = 0, test = 1, manualtest = 1, pal = 1;
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
 	volatile unsigned short *cram16 = &MARS_CRAM;
 
@@ -1804,7 +1887,7 @@ void vt_vertical_stripes()
 		}
 
 		pressedButton = button & ~oldButton;
-    	oldButton = button;
+		oldButton = button;
 
 		switch (test) {
 			case 1:
@@ -1812,11 +1895,12 @@ void vt_vertical_stripes()
 					for (int a=0; a<=320; a=a+8){
 						drawSprite(v_bars_tile_8,a,i,8,8,0,0);
 					}
-				}	
+				}
 			break;
-				
+
 			case 2:
-				switch (pal) {
+				switch (pal) 
+				{
 					case 1:
 						cram16[0] = 0x0000;
 						cram16[1] = 0x7FFF;
@@ -1841,7 +1925,7 @@ void vt_vertical_stripes()
 			if (test == 1)
 			{
 				test = 2;
-			}		
+			}
 			else {
 				test = 1;
 			}
@@ -1850,7 +1934,7 @@ void vt_vertical_stripes()
 		if (pressedButton & SEGA_CTRL_UP)
 		{
 			if(manualtest > 2){
-		 		manualtest = 1;
+				manualtest = 1;
 			}
 
 			switch (manualtest) {
@@ -1873,7 +1957,7 @@ void vt_vertical_stripes()
 		if (pressedButton & SEGA_CTRL_DOWN)
 		{
 			if(manualtest > 2){
-		 		manualtest = 1;
+				manualtest = 1;
 			}
 
 			switch (manualtest) {
@@ -1887,7 +1971,7 @@ void vt_vertical_stripes()
 					test = 1;
 					cram16[0] = 0x0000;
 					cram16[1] = 0x7FFF;
-				break;				
+				break;
 			}
 
 			manualtest++;
@@ -1895,7 +1979,8 @@ void vt_vertical_stripes()
 
 		pal++;
 
-		if(pal > 2){
+		if(pal > 2)
+		{
 			pal = 1;
 		}
 
@@ -1908,27 +1993,32 @@ void vt_vertical_stripes()
 
 void vt_checkerboard()
 {
-	int done = 0;
+	int done = 0, count = 0, test = 1, pal = 1, docounter = 0, manualtest = 1;
 	unsigned short button = 0, pressedButton = 0, oldButton = 0xFFFF;
-	int count = 0;
-	int test = 1;
-	int pal = 1;
-	int docounter = 0;
-	int manualtest = 1;
 	volatile unsigned short *cram16 = &MARS_CRAM;
 
-	//while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
+	const uint8_t checkerboard_tile_8[] __attribute__((aligned(16))) = {
+		0x00,0x01,0x00,0x01,0x00,0x01,0x00,0x01,
+		0x01,0x00,0x01,0x00,0x01,0x00,0x01,0x00,
+		0x00,0x01,0x00,0x01,0x00,0x01,0x00,0x01,
+		0x01,0x00,0x01,0x00,0x01,0x00,0x01,0x00,
+		0x00,0x01,0x00,0x01,0x00,0x01,0x00,0x01,
+		0x01,0x00,0x01,0x00,0x01,0x00,0x01,0x00,
+		0x00,0x01,0x00,0x01,0x00,0x01,0x00,0x01,
+		0x01,0x00,0x01,0x00,0x01,0x00,0x01,0x00
+	};
 
-	Hw32xSetPalette(checkerboard_bw_palette);
+	marsVDP256Start();
 
-    fpcamera_x = fpcamera_y = 0;
+	cram16[0] = 0x7FFF;
+	cram16[1] = 0x0000;
 
-    Hw32xScreenFlip(0);
+	Hw32xScreenFlip(0);
 
-	init_tilemap(&tm, &checkerboard_tmx, (uint8_t **)checkerboard_reslist);
-
-    while (!done) 
+	while (!done)
 	{
+		Hw32xFlipWait();
+
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
@@ -1936,8 +2026,7 @@ void vt_checkerboard()
 			button = MARS_SYS_COMM10;
 		}
 
-
-		if(docounter)
+		/* if(docounter)
 		{
 			count++;
 
@@ -1952,92 +2041,30 @@ void vt_checkerboard()
 					count = 0;
 			//}
 			HwMdScreenPrintf(0x2000, 2, 25, "Frame:%02d", count);
-		}
+		} */
 
 		pressedButton = button & ~oldButton;
-    	oldButton = button;
+		oldButton = button;
 
-		if (pressedButton & SEGA_CTRL_A)
-		{	
-			if (test == 1)
-			{
-				test = 2;
-			}		
-			else {
-				test = 1;
+		for (int i=0; i<=224; i=i+8){
+			for (int a=0; a<=320; a=a+8){
+				drawSprite(checkerboard_tile_8,a,i,8,8,0,0);
 			}
 		}
 
-		if (pressedButton & SEGA_CTRL_B)
-		{	
-			docounter = ~docounter;
-		}
-
-		if (pressedButton & SEGA_CTRL_UP)
+		switch (test)
 		{
-			if(manualtest > 2){
-		 		manualtest = 1;
-			}
-
-			switch (manualtest) {
 			case 1:
-				test = 1;
-				cram16[0] = 0x7FFF;
-				cram16[1] = 0x0000;
+				for (int i=0; i<=224; i=i+8){
+					for (int a=0; a<=320; a=a+8){
+						drawSprite(checkerboard_tile_8,a,i,8,8,0,0);
+					}
+				}
 			break;
 				
 			case 2:
-				test = 1;
-				cram16[0] = 0x0000;
-				cram16[1] = 0x7FFF;
-			break;
-			}
-			manualtest++;
-		}
-
-		if (pressedButton & SEGA_CTRL_DOWN)
-		{
-			if(manualtest > 2){
-		 		manualtest = 1;
-			}
-
-			switch (manualtest) {
-			case 1:
-				test = 1;
-				cram16[0] = 0x7FFF;
-				cram16[1] = 0x0000;
-			break;
-				
-			case 2:
-				test = 1;
-				cram16[0] = 0x0000;
-				cram16[1] = 0x7FFF;
-			break;
-			}
-			manualtest++;
-		}
-
-		if (pressedButton & SEGA_CTRL_Z)
-		{
-			DrawHelp(HELP_CHECK);
-			Hw32xSetPalette(checkerboard_bw_palette);
-		}
-		
-        Hw32xFlipWait();
-
-		if (pressedButton & SEGA_CTRL_START)
-		{
-			screenFadeOut(1);
-			done = 1;
-		}
-
-		switch (test) {
-			case 1:
-				draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
-			break;
-				
-			case 2:
-				switch (pal) {
+				switch (pal)
+				{
 					case 1:
 						cram16[0] = 0x0000;
 						cram16[1] = 0x7FFF;
@@ -2051,30 +2078,108 @@ void vt_checkerboard()
 			break;
 		}
 
+		if (pressedButton & SEGA_CTRL_START)
+		{
+			screenFadeOut(1);
+			done = 1;
+		}
+
+		if (pressedButton & SEGA_CTRL_A)
+		{
+			if (test == 1)
+			{
+				test = 2;
+			}		
+			else {
+				test = 1;
+			}
+		}
+
+		//if (pressedButton & SEGA_CTRL_B)
+		//{	
+		//	docounter = ~docounter;
+		//}
+
+		if (pressedButton & SEGA_CTRL_UP)
+		{
+			if (manualtest > 2)
+			{
+				manualtest = 1;
+			}
+
+			switch (manualtest)
+			{
+				case 1:
+					test = 1;
+					cram16[0] = 0x7FFF;
+					cram16[1] = 0x0000;
+				break;
+				
+				case 2:
+					test = 1;
+					cram16[0] = 0x0000;
+					cram16[1] = 0x7FFF;
+				break;
+			}
+			manualtest++;
+		}
+
+		if (pressedButton & SEGA_CTRL_DOWN)
+		{
+			if (manualtest > 2)
+			{
+				manualtest = 1;
+			}
+
+			switch (manualtest)
+			{
+				case 1:
+					test = 1;
+					cram16[0] = 0x7FFF;
+					cram16[1] = 0x0000;
+				break;
+
+				case 2:
+					test = 1;
+					cram16[0] = 0x0000;
+					cram16[1] = 0x7FFF;
+				break;
+			}
+			manualtest++;
+		}
+
+		if (pressedButton & SEGA_CTRL_Z)
+		{
+			DrawHelp(HELP_CHECK);
+			marsVDP256Start();
+			cram16[0] = 0x7FFF;
+			cram16[1] = 0x0000;
+		}
+
 		pal++;
 
-		if(pal > 2){
+		if(pal > 2)
+		{
 			pal = 1;
 		}
 
-		count++;
+		//count++;
 
-        Hw32xScreenFlip(0);
+		drawLineTable(4);
+
+		Hw32xScreenFlip(0);
 	}
 	return;
 }
 
 void vt_backlitzone_test()
 {
-	int done = 0;
+	int done = 0, x = 160, y = 112, block = 2;
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
-	int x = 160;
-	int y = 112;
-	int block = 2;
 
 	while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
 
-	uint8_t block_0x0_tile[] __attribute__((aligned(16))) = {
+	const uint8_t block_0x0_tile[] __attribute__((aligned(16))) = {
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -2085,7 +2190,7 @@ void vt_backlitzone_test()
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
 	};
 
-	uint8_t block_1x1_tile[] __attribute__((aligned(16))) = {
+	const uint8_t block_1x1_tile[] __attribute__((aligned(16))) = {
 		0x02,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -2096,7 +2201,7 @@ void vt_backlitzone_test()
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
 	};
 
-	uint8_t block_2x2_tile[] __attribute__((aligned(16))) = {
+	const uint8_t block_2x2_tile[] __attribute__((aligned(16))) = {
 		0x02,0x02,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x02,0x02,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -2107,7 +2212,7 @@ void vt_backlitzone_test()
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
 	};
 
-	uint8_t block_4x4_tile[] __attribute__((aligned(16))) = {
+	const uint8_t block_4x4_tile[] __attribute__((aligned(16))) = {
 		0x02,0x02,0x02,0x02,0x00,0x00,0x00,0x00,
 		0x02,0x02,0x02,0x02,0x00,0x00,0x00,0x00,
 		0x02,0x02,0x02,0x02,0x00,0x00,0x00,0x00,
@@ -2118,7 +2223,7 @@ void vt_backlitzone_test()
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
 	};
 
-	uint8_t block_6x6_tile[] __attribute__((aligned(16))) = {
+	const uint8_t block_6x6_tile[] __attribute__((aligned(16))) = {
 		0x02,0x02,0x02,0x02,0x02,0x02,0x00,0x00,
 		0x02,0x02,0x02,0x02,0x02,0x02,0x00,0x00,
 		0x02,0x02,0x02,0x02,0x02,0x02,0x00,0x00,
@@ -2129,7 +2234,7 @@ void vt_backlitzone_test()
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
 	};
 
-	uint8_t block_8x8_tile[] __attribute__((aligned(16))) = {
+	const uint8_t block_8x8_tile[] __attribute__((aligned(16))) = {
 		0x02,0x02,0x02,0x02,0x02,0x02,0x02,0x02,
 		0x02,0x02,0x02,0x02,0x02,0x02,0x02,0x02,
 		0x02,0x02,0x02,0x02,0x02,0x02,0x02,0x02,
@@ -2155,8 +2260,8 @@ void vt_backlitzone_test()
 			button = MARS_SYS_COMM10;
 		}
 
-    	pressedButton = button & ~oldButton;
-    	oldButton = button;
+		pressedButton = button & ~oldButton;
+		oldButton = button;
 
 		if (pressedButton & SEGA_CTRL_A)
 		{
@@ -2179,28 +2284,28 @@ void vt_backlitzone_test()
 		if (button & SEGA_CTRL_UP)
 		{
 			y--;
-			if(y < 1)
+			if (y < 1)
 				y = 1;
 		}
 
 		if (button & SEGA_CTRL_DOWN)
 		{
 			y++;
-			if(y > 222)
+			if (y > 222)
 				y = 222;
 		}
 
 		if (button & SEGA_CTRL_LEFT)
 		{
 			x--;
-			if(x < 1)
+			if (x < 1)
 				x = 1;
 		}
 
 		if (button & SEGA_CTRL_RIGHT)
 		{
 			x++;
-			if(x > 320)
+			if (x > 320)
 				x = 320;
 		}
 
@@ -2257,7 +2362,7 @@ void at_sound_test()
 	sound_t JUMP;
 
 	Mars_InitSoundDMA();
-	Hw32xAudioLoad(&JUMP, "jump");
+	sound_load(&JUMP, "jump");
 
 	MDPSG_init();
 
@@ -2306,12 +2411,12 @@ void at_sound_test()
 		}
 
 		pressedButton = button & ~oldButton;
-    	oldButton = button;
+		oldButton = button;
 
-    	if (pressedButton & SEGA_CTRL_RIGHT)
+		if (pressedButton & SEGA_CTRL_RIGHT)
 		{
 			xcurse++;
-		 	if(xcurse > 3 && ycurse == 1)
+		 	if (xcurse > 3 && ycurse == 1)
 		 		xcurse = 1;
 			else if (xcurse > 4 && ycurse == 2)
 			{
@@ -2321,9 +2426,9 @@ void at_sound_test()
 
 		if (pressedButton & SEGA_CTRL_LEFT)
 		{
-		 	xcurse--;
-			if(xcurse < 1 && ycurse == 1)
-		 		xcurse = 3;
+			xcurse--;
+			if (xcurse < 1 && ycurse == 1)
+				xcurse = 3;
 			else if (xcurse < 1 && ycurse == 2)
 			{
 				xcurse = 4;
@@ -2333,8 +2438,8 @@ void at_sound_test()
 		if (pressedButton & SEGA_CTRL_UP)
 		{
 			ycurse++;
-		 	if(ycurse > 2)
-		 		ycurse = 1;
+			if (ycurse > 2)
+				ycurse = 1;
 			else if (ycurse == 2 && xcurse > 4)
 			{
 				ycurse = 1;
@@ -2344,9 +2449,9 @@ void at_sound_test()
 
 		if (pressedButton & SEGA_CTRL_DOWN)
 		{
-		 	ycurse--;
-		 	if(ycurse < 1)
-		 		ycurse = 2;
+			ycurse--;
+			if (ycurse < 1)
+				ycurse = 2;
 			else if (ycurse == 2 && xcurse > 4)
 			{
 				ycurse = 1;
@@ -2363,29 +2468,23 @@ void at_sound_test()
 		if (pressedButton & SEGA_CTRL_START)
 		{
 			screenFadeOut(1);
-			Hw32xAudioFree(&JUMP);
-		 	done = 1;
+			sound_free(&JUMP);
+			done = 1;
 		}
 
 		if (pressedButton & SEGA_CTRL_A)
 		{
 			if (xcurse == 1 && ycurse == 1)
 			{
-				//Hw32xAudioLoad(&JUMP, "jump");
-				Hw32xAudioPlay(&JUMP, 1, 1);  // Left Channel Only
-				//Hw32xAudioFree(&JUMP);
+				sound_play(&JUMP, 1, 1);  // Left Channel Only
 			}
 			if (xcurse == 2 && ycurse == 1)
 			{
-				//Hw32xAudioLoad(&JUMP, "jump");
-				Hw32xAudioPlay(&JUMP, 1, 3);  // Center
-				//Hw32xAudioFree(&JUMP);
+				sound_play(&JUMP, 1, 3);  // Center
 			}
 			if (xcurse == 3 && ycurse == 1)
 			{
-				//Hw32xAudioLoad(&JUMP, "jump");
-				Hw32xAudioPlay(&JUMP, 1, 2);  // Right Channel Only
-				//Hw32xAudioFree(&JUMP);
+				sound_play(&JUMP, 1, 2);  // Right Channel Only
 			}
 			if (xcurse == 1 && ycurse == 2)
 			{
@@ -2437,7 +2536,7 @@ void at_sound_test()
 				MDPSG_stop();
 		}
 	}
-    return;
+	return;
 }
 
 void at_audiosync_test()
@@ -2659,7 +2758,7 @@ void at_audiosync_test()
 		}
 
 		pressedButton = button & ~oldButton;
-    	oldButton = button;
+		oldButton = button;
 		
 		if (pressedButton & SEGA_CTRL_Z)
 		{
@@ -2712,8 +2811,10 @@ void at_audiosync_test()
 
 		if (status >= 20 && status <= 120)
 		{
-			switch (status) {
+			switch (status) 
+			{
 				case 20:
+
 				break;
 				case 40:
 					cram16[2] = COLOR(31, 31, 31);
@@ -2784,7 +2885,7 @@ void ht_controller_test()
 
 	Hw32xScreenFlip(0);
 
-	while (!done) 
+	while (!done)
 	{
 		Hw32xFlipWait();
 
@@ -2793,10 +2894,10 @@ void ht_controller_test()
 		button2 = MARS_SYS_COMM10;
 
 		pressedButton = button & ~oldButton;
-    	oldButton = button;
+		oldButton = button;
 
 		pressedButton2 = button2 & ~oldButton2;
-    	oldButton2 = button2;
+		oldButton2 = button2;
 
 		if (pressedButton & SEGA_CTRL_START && pressedButton & SEGA_CTRL_LEFT)
 		{
@@ -2866,21 +2967,19 @@ void ht_controller_test()
 
 		Hw32xScreenFlip(0);
 	}
-    return;
+	return;
 }
 
-#define	MAX_LOCATIONS	9
+#define MAX_LOCATIONS 9
 
 void ht_memory_viewer(u32 address)
 {
-	int done = 0;
-	int frameDelay = 0;
-	int redraw = 1, docrc = 0, locpos = 1, i = 0;
-	u32	crc = 0, locations[MAX_LOCATIONS] = { 0, 0x0004000, 0x0004100, 0x0004200, 0x0004400, 0x2000000, 0x4000000, 0x4020000, 0x6000000 };
+	int done = 0, frameDelay = 0, redraw = 1, docrc = 0, locpos = 1, i = 0;
+	u32 crc = 0, locations[MAX_LOCATIONS] = { 0, 0x0004000, 0x0004100, 0x0004200, 0x0004400, 0x2000000, 0x4000000, 0x4020000, 0x6000000 };
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
 
 	// Clear the 32X CRAM
-	for(i = 0; i < 255; i++)
+	for (i = 0; i < 255; i++)
 	{
 		Hw32xSetBGColor(i,0,0,0);
 	}
@@ -2888,9 +2987,9 @@ void ht_memory_viewer(u32 address)
 	// Set screen priority for the 32X 
 	MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X | MARS_224_LINES | MARS_VDP_MODE_256;
 
-	for(i = 0; i < MAX_LOCATIONS; i++)
+	for (i = 0; i < MAX_LOCATIONS; i++)
 	{
-		if(locations[i] == address)
+		if (locations[i] == address)
 		{
 			locpos = i;
 			break;
@@ -2903,15 +3002,15 @@ void ht_memory_viewer(u32 address)
 	{
 		Hw32xFlipWait();
 
-		if(redraw)
+		if (redraw)
 		{
-			int 	i = 0, j = 0;
-			u8     *mem = NULL;
-			char 	buffer[10];
+			int i = 0, j = 0;
+			u8 *mem = NULL;
+			char buffer[10];
 
 			mem = (u8*)address;
 
-			if(docrc)
+			if (docrc)
 				crc = CalculateCRC(address, 0x1C0);
 
 			intToHex(address, buffer, 8);
@@ -2919,15 +3018,15 @@ void ht_memory_viewer(u32 address)
 			intToHex(address+448, buffer, 8);
 			HwMdPuts(buffer, 0x2000, 32, 27);
 
-			if(docrc)
+			if (docrc)
 			{
 				intToHex(crc, buffer, 8);
 				HwMdPuts(buffer, 0x4000, 32, 14);
 			}
 
-			for(i = 0; i < 28; i++)
+			for (i = 0; i < 28; i++)
 			{
-				for(j = 0; j < 16; j++)
+				for (j = 0; j < 16; j++)
 				{
 					intToHex(mem[i*16+j], buffer, 2);
 					HwMdPuts(buffer, 0x0000, j*2, i);
@@ -2944,24 +3043,24 @@ void ht_memory_viewer(u32 address)
 		button = MARS_SYS_COMM8;
 
 		pressedButton = button & ~oldButton;
-    	oldButton = button;
+		oldButton = button;
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
-		 	done = 1;
+			done = 1;
 		}
 
-		if(pressedButton & SEGA_CTRL_A)
+		if (pressedButton & SEGA_CTRL_A)
 		{
 			docrc = !docrc;
 			HwMdClearScreen();
 			redraw = 1;
 		}
 
-		if(pressedButton & SEGA_CTRL_B)
+		if (pressedButton & SEGA_CTRL_B)
 		{
 			locpos ++;
-			if(locpos == MAX_LOCATIONS)
+			if (locpos == MAX_LOCATIONS)
 				locpos = 0;
 			address = locations[locpos];
 			redraw = 1;
@@ -2974,9 +3073,9 @@ void ht_memory_viewer(u32 address)
 			ht_memory_viewer(0);
 		}
 
-		if(pressedButton & SEGA_CTRL_LEFT)
+		if (pressedButton & SEGA_CTRL_LEFT)
 		{
-			if(address >= 0x1C0)
+			if (address >= 0x1C0)
 				address -= 0x1C0;
 			else
 				address = 0;
@@ -2984,15 +3083,15 @@ void ht_memory_viewer(u32 address)
 			redraw = 1;
 		}
 
-		if(pressedButton & SEGA_CTRL_RIGHT)
+		if (pressedButton & SEGA_CTRL_RIGHT)
 		{
 			address += 0x1C0;	
 			redraw = 1;
 		}
 
-		if(pressedButton & SEGA_CTRL_UP)
+		if (pressedButton & SEGA_CTRL_UP)
 		{
-			if(address >= 0x10000)
+			if (address >= 0x10000)
 				address -= 0x10000;
 			else
 				address = 0;
@@ -3000,7 +3099,7 @@ void ht_memory_viewer(u32 address)
 			redraw = 1;
 		}
 
-		if(pressedButton & SEGA_CTRL_DOWN)
+		if (pressedButton & SEGA_CTRL_DOWN)
 		{
 			address += 0x10000;
 
@@ -3011,21 +3110,20 @@ void ht_memory_viewer(u32 address)
 
 		Hw32xDelay(frameDelay);
 	}
-    return;
+	return;
 }
 
 void PrintBIOSInfo(u32 address)
 {
-	u8      *bios = NULL;
-	char	buffer[50];
-	int		i = 0, j = 0, data[] = { 16, 16, 17, 15, 16, 48, 14, -2, 16, -4, -4, -4, -4, -2, -2, -4, -4, -12, -40, 16, 0};
-	
+	u8 *bios = NULL;
+	char buffer[50];
+	int i = 0, j = 0, data[] = { 16, 16, 17, 15, 16, 48, 14, -2, 16, -4, -4, -4, -4, -2, -2, -4, -4, -12, -40, 16, 0};
 
 	bios = (u8*)(address+0x047E);
 
-	while(data[i] != 0)
+	while (data[i] != 0)
 	{
-		if(data[i] > 0)
+		if (data[i] > 0)
 		{
 			memcpy(buffer, bios, sizeof(u8)*data[i]);
 			buffer[data[i]] = '\0';
@@ -3039,16 +3137,15 @@ void PrintBIOSInfo(u32 address)
 
 void PrintSBIOSInfo(u32 saddress)
 {
-	u8      *sbios = NULL;
-	char	sbuffer[50];
-	int		i = 0, j = 0, sdata[] = { 16, 16, 17, 15, 16, 48, 14, -2, 16, -4, -4, -4, -4, -2, -2, -4, -4, -12, -40, 16, 0};
+	u8 *sbios = NULL;
+	char sbuffer[50];
+	int i = 0, j = 0, sdata[] = { 16, 16, 17, 15, 16, 48, 14, -2, 16, -4, -4, -4, -4, -2, -2, -4, -4, -12, -40, 16, 0};
 	
-
 	sbios = (u8*)(saddress+0x047E);
 
-	while(sdata[i] != 0)
+	while (sdata[i] != 0)
 	{
-		if(sdata[i] > 0)
+		if (sdata[i] > 0)
 		{
 			memcpy(sbuffer, sbios, sizeof(u8)*sdata[i]);
 			sbuffer[sdata[i]] = '\0';
@@ -3062,12 +3159,10 @@ void PrintSBIOSInfo(u32 saddress)
 
 void ht_check_32x_bios_crc(u32 address)
 {
-	int done = 0;
-	int	checksum = 0;
+	int done = 0, checksum = 0;
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
 	extern const unsigned short BACKGROUND_PAL[];
 	extern const uint8_t BACKGROUND_TILE[] __attribute__((aligned(16)));
-
 
 	loadPalette(&BACKGROUND_PAL[0], &BACKGROUND_PAL[255],0);
 
@@ -3096,14 +3191,14 @@ void ht_check_32x_bios_crc(u32 address)
 		button = MARS_SYS_COMM8;
 
 		pressedButton = button & ~oldButton;
-    	oldButton = button;
+		oldButton = button;
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
-		 	done = 1;
+			done = 1;
 		}
 
-		if(pressedButton & SEGA_CTRL_B)
+		if (pressedButton & SEGA_CTRL_B)
 		{
 			done = 1;
 		}
@@ -3112,28 +3207,28 @@ void ht_check_32x_bios_crc(u32 address)
 
 		Hw32xScreenFlip(0);
 	}
-    return;
+	return;
 }
 
 void Set32XRegion(u8 value, u32 startaddress, u32 size)
 {
-	u8		*ram = NULL;
-	u32		address = 0;
+	u8 *ram = NULL;
+	u32 address = 0;
 	
 	ram = (u8*)startaddress;
-	for(address = 0; address < size; address++)
+	for (address = 0; address < size; address++)
 		ram[address] = value;
 }
 
 int Read32XRegion(u8 value, u32 startaddress, u32 size)
 {
-	u8		*ram = NULL;
-	u32		address = 0;
+	u8 *ram = NULL;
+	u32 address = 0;
 	
 	ram = (u8*)startaddress;
-	for(address = 0; address < size; address++)
+	for (address = 0; address < size; address++)
 	{
-		if(ram[address] != value)
+		if (ram[address] != value)
 			return address;
 	}
 	
@@ -3149,22 +3244,24 @@ int Check32XRegion(u8 value, u32 startaddress, u32 size)
 
 int Check32XRAM(void *start, u32 size)
 {
-   u32 *sdram = start;
-   while(size--)
-   {
-      u16 result, value;
-      value = *sdram;
-      *sdram ^= UCHAR_MAX;
-      result = value ^ *sdram;
-      *sdram++ = value;
-      if (result != UCHAR_MAX)
-      {
-      	HwMdPuts("FAILED", 0x2000, 12, 10);
-        return 0;
-      }
-   }
-   HwMdPuts("ALL OK", 0x4000, 12, 10);
-   return 1;
+	u32 *sdram = start;
+
+	while(size--)
+	{
+		u16 result, value;
+		value = *sdram;
+		*sdram ^= UCHAR_MAX;
+		result = value ^ *sdram;
+		*sdram++ = value;
+		if (result != UCHAR_MAX)
+		{
+			HwMdPuts("FAILED", 0x2000, 12, 10);
+			return 0;
+		}
+	}
+	HwMdPuts("ALL OK", 0x4000, 12, 10);
+
+	return 1;
 }
 
 int Check32XRAMWithValue(char * message, u32 start, u32 end, u8 value, int pos)
@@ -3175,7 +3272,7 @@ int Check32XRAMWithValue(char * message, u32 start, u32 end, u8 value, int pos)
 	
 	memoryFail = Check32XRegion(value, start, end - start);
 	
-	if(memoryFail != MEMORY_OK)
+	if (memoryFail != MEMORY_OK)
 	{
 		//ShowMessageAndData("FAILED", memoryFail, 6, 0x2000, 12, pos+1);
 		HwMdPuts("FAILED", 0x2000, 16, pos+1);
@@ -3188,9 +3285,7 @@ int Check32XRAMWithValue(char * message, u32 start, u32 end, u8 value, int pos)
 
 void ht_test_32x_sdram()
 {
-	int done = 0;
-	int draw = 0;
-	int test = 0;
+	int done = 0, draw = 0, test = 0;
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
 	extern const unsigned short BACKGROUND_PAL[];
 	extern const uint8_t BACKGROUND_TILE[] __attribute__((aligned(16)));
@@ -3204,14 +3299,14 @@ void ht_test_32x_sdram()
 
 	Hw32xScreenFlip(0);
 
-	while (!done) 
+	while (!done)
 	{
 		Hw32xFlipWait();
 
 		button = MARS_SYS_COMM8;
 
 		pressedButton = button & ~oldButton;
-    	oldButton = button;
+		oldButton = button;
 
 		drawBG(BACKGROUND_TILE);
 
@@ -3236,16 +3331,16 @@ void ht_test_32x_sdram()
 					Check32XRAMWithValue("Setting to 0xAA", 0x06000000, 0x060000FF, 0xAA, 16);
 				case 5:
 					draw = 0;
-					test = 0;	
+					test = 0;
 			}
 		}
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
-		 	done = 1;
+			done = 1;
 		}
 
-		if(pressedButton & SEGA_CTRL_B)
+		if (pressedButton & SEGA_CTRL_B)
 		{
 			done = 1;
 		}
@@ -3256,5 +3351,5 @@ void ht_test_32x_sdram()
 
 		test++;
 	}
-    return;
+	return;
 }

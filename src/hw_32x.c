@@ -1,3 +1,25 @@
+/* 
+ * 240p Test Suite for the Sega 32X
+ * Port by Dasutin (Dustin Dembrosky)
+ * Copyright (C)2011-2022 Artemio Urbina
+ *
+ * This file is part of the 240p Test Suite
+ *
+ * The 240p Test Suite is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * The 240p Test Suite is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with 240p Test Suite; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
 /*
  * Licensed under the BSD license
  *
@@ -22,7 +44,6 @@
 
 int old_camera_x, old_camera_y;
 int main_camera_x, main_camera_y;
-
 int camera_x, camera_y;
 
 extern int fontColorWhite;
@@ -39,12 +60,9 @@ static unsigned char fgs = 0, bgs = 0;
 
 static volatile const uint8_t *new_palette;
 
-//int sysarg_args_nosound = 0;
-//int sysarg_args_vol = 0;
-
 int nodraw = 0;
 
-int32_t canvas_width = 320; // +4 to avoid hitting that 0xXXFF bug in the shift register
+int32_t canvas_width = 320;
 int32_t canvas_height = 224;
 
 extern drawsprcmd_t slave_drawsprcmd;
@@ -69,7 +87,7 @@ void pri_vbi_handler(void)
         volatile unsigned short *palette = &MARS_CRAM;
 
         if ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0)
-		    return;
+			return;
 
         for (i = 0; i < 256; i++)
         {
@@ -393,7 +411,7 @@ static void debug_put_char_8(int x, int y, unsigned char ch)
     unsigned char *font;
     int vram, vram_ptr;
 
-    if(!init)
+    if (!init)
     {
         return;
     }
@@ -446,7 +464,7 @@ int Hw32xScreenPrintData(const char *buff, int size)
     int i;
     char c;
 
-    if(!init)
+    if (!init)
     {
         return 0;
     }
@@ -504,16 +522,16 @@ int Hw32xScreenPutsn(const char *str, int len)
 
 void Hw32xScreenPrintf(const char *format, ...)
 {
-   va_list  opt;
-   char     buff[128];
-   int      n;
+	va_list  opt;
+	char     buff[128];
+	int      n;
 
-   va_start(opt, format);
-   n = vsnprintf(buff, (size_t)sizeof(buff), format, opt);
-   va_end(opt);
-   buff[sizeof(buff) - 1] = 0;
+	va_start(opt, format);
+	n = vsnprintf(buff, (size_t)sizeof(buff), format, opt);
+	va_end(opt);
+	buff[sizeof(buff) - 1] = 0;
 
-   Hw32xScreenPutsn(buff, n);
+	Hw32xScreenPutsn(buff, n);
 }
 
 void Hw32xDelay(int ticks)
@@ -539,7 +557,7 @@ void Hw32xFlipWait()
     UNCACHED_CURFB ^= 1;
 }
 
-// Mega Drive Command Support Code ---------------------------------------------
+// Mega Drive Command Support Code
 
 unsigned short HwMdReadPad(int port)
 {
@@ -553,7 +571,7 @@ unsigned short HwMdReadPad(int port)
 
 unsigned char HwMdReadSram(unsigned short offset)
 {
-    while (MARS_SYS_COMM0) ;                    // Wait until 68000 has responded to any earlier requests
+    while (MARS_SYS_COMM0);                    // Wait until 68000 has responded to any earlier requests
     MARS_SYS_COMM2 = offset;
     MARS_SYS_COMM0 = 0x0100;                    // Read SRAM
     while (MARS_SYS_COMM0) ;
@@ -562,7 +580,7 @@ unsigned char HwMdReadSram(unsigned short offset)
 
 void HwMdWriteSram(unsigned char byte, unsigned short offset)
 {
-    while (MARS_SYS_COMM0) ;                    // Wait until 68000 has responded to any earlier requests
+    while (MARS_SYS_COMM0);                    // Wait until 68000 has responded to any earlier requests
     MARS_SYS_COMM2 = offset;
     MARS_SYS_COMM0 = 0x0200 | byte;             // Write SRAM
     while (MARS_SYS_COMM0) ;
@@ -571,9 +589,9 @@ void HwMdWriteSram(unsigned char byte, unsigned short offset)
 int HwMdReadMouse(int port)
 {
     unsigned int mouse1, mouse2;
-    while (MARS_SYS_COMM0) ;                    // Wait until 68000 has responded to any earlier requests
+    while (MARS_SYS_COMM0);                    // Wait until 68000 has responded to any earlier requests
     MARS_SYS_COMM0 = 0x0500|port;               // Tell 68000 to read mouse
-    while (MARS_SYS_COMM0 == (0x0500|port)) ;   // Wait for mouse value
+    while (MARS_SYS_COMM0 == (0x0500|port));   // Wait for mouse value
     mouse1 = MARS_SYS_COMM0;
     mouse2 = MARS_SYS_COMM2;
     MARS_SYS_COMM0 = 0;                         // Tells 68000 we got the mouse value
@@ -640,18 +658,18 @@ void HwMdScreenPrintf(int color, int x, int y, const char *format, ...)
 
 void HwMdSetPal(unsigned short pal)
 {
-    while (MARS_SYS_COMM0) ;                    // Wait until 68000 has responded to any earlier requests
+    while (MARS_SYS_COMM0);                    // Wait until 68000 has responded to any earlier requests
     MARS_SYS_COMM2 = pal;                    
     MARS_SYS_COMM0 = 0x0A00;                    // Send handle request flag
-    while (MARS_SYS_COMM0) ;
+    while (MARS_SYS_COMM0);
 }
 
 void HwMdSetColor(unsigned short color)
 {
-    while (MARS_SYS_COMM0) ;                    // Wait until 68000 has responded to any earlier requests
+    while (MARS_SYS_COMM0);                    // Wait until 68000 has responded to any earlier requests
     MARS_SYS_COMM2 = color;                    
     MARS_SYS_COMM0 = 0x0B00;                    // Send handle request flag
-    while (MARS_SYS_COMM0) ;
+    while (MARS_SYS_COMM0);
 }
 
 void HwMdSetColorPal(unsigned short pal, unsigned short color)
@@ -665,15 +683,15 @@ void HwMdPSGSetChannel(unsigned short word)
     while (MARS_SYS_COMM0) ;                    // Wait until 68000 has responded to any earlier requests
     MARS_SYS_COMM2 = word;
     MARS_SYS_COMM0 = 0x0C00;                    // Send handle request flag
-    while (MARS_SYS_COMM0) ;
+    while (MARS_SYS_COMM0);
 }
 
 void HwMdPSGSetVolume(unsigned short word)
 {
-    while (MARS_SYS_COMM0) ;                    // Wait until 68000 has responded to any earlier requests
+    while (MARS_SYS_COMM0);                    // Wait until 68000 has responded to any earlier requests
     MARS_SYS_COMM2 = word;
     MARS_SYS_COMM0 = 0x0D00;                    // Send handle request flag
-    while (MARS_SYS_COMM0) ;
+    while (MARS_SYS_COMM0);
 }
 
 void HwMdPSGSetChandVol(unsigned short channel, unsigned short vol)
@@ -685,29 +703,29 @@ void HwMdPSGSetChandVol(unsigned short channel, unsigned short vol)
 void HwMdPSGSendTone(unsigned short value1, unsigned short value2)
 {
 
-    while (MARS_SYS_COMM0) ;
+    while (MARS_SYS_COMM0);
     MARS_SYS_COMM2 = value1;                    // Send first half of data
     MARS_SYS_COMM0 = 0x0E00;                    // Send handle request flag
-    while (MARS_SYS_COMM0) ;
+    while (MARS_SYS_COMM0);
     MARS_SYS_COMM2 = value2;                    // Send second half of data
     MARS_SYS_COMM0 = 0x0F00;                    // Send handle request flag
-    while (MARS_SYS_COMM0) ;
+    while (MARS_SYS_COMM0);
 }
 
 void HwMdPSGSendNoise(unsigned short word)
 {
-    while (MARS_SYS_COMM0) ;                    // Wait until 68000 has responded to any earlier requests
+    while (MARS_SYS_COMM0);                    // Wait until 68000 has responded to any earlier requests
     MARS_SYS_COMM2 = word;
     MARS_SYS_COMM0 = 0x1000;                    // Send handle request flag
-    while (MARS_SYS_COMM0) ;
+    while (MARS_SYS_COMM0);
 }
 
 void HwMdPSGSendEnvelope(unsigned short word)
 {
-    while (MARS_SYS_COMM0) ;                    // Wait until 68000 has responded to any earlier requests
+    while (MARS_SYS_COMM0);                    // Wait until 68000 has responded to any earlier requests
     MARS_SYS_COMM2 = word;
     MARS_SYS_COMM0 = 0x1100;                    // Send handle request flag
-    while (MARS_SYS_COMM0) ;
+    while (MARS_SYS_COMM0);
 }
 
 void HwMdPSGSetFrequency(u8 channel, u16 value)
@@ -727,13 +745,13 @@ void HwMdPSGSetFrequency(u8 channel, u16 value)
 
 void HwMdPSGSetTone(u8 channel, u16 value)
 {
-    vu8 value1;
+	vu8 value1;
 	vu8 value2;
 
-    value1 = 0x80 | ((channel & 3) << 5) | (value & 0xF);
-    value2 = (value >> 4) & 0x3F;
+	value1 = 0x80 | ((channel & 3) << 5) | (value & 0xF);
+	value2 = (value >> 4) & 0x3F;
 
-    HwMdPSGSendTone(value1, value2);
+	HwMdPSGSendTone(value1, value2);
 }
 
 void HwMdPSGSetNoise(u8 type, u8 frequency)
@@ -752,7 +770,7 @@ void HwMdPSGSetEnvelope(u8 channel, u8 value)
     HwMdPSGSendEnvelope(data);
 }
 
-// --------Put Secondary Calls here ---------
+// Put Secondary Calls here
 
 int secondary_task(int cmd)
 {
@@ -799,7 +817,9 @@ int secondary_task(int cmd)
     return 0;
 }
 
-void secondary(void)                            // Slave waiting for commands (called by crt0.s)
+// Slave waiting for commands (called by crt0.s)
+
+void secondary(void)
 {
     ClearCache();
 
@@ -809,7 +829,8 @@ void secondary(void)                            // Slave waiting for commands (c
         while ((cmd = MARS_SYS_COMM4) == 0) {}
 
         int res = secondary_task(cmd);
-        if (res > 0) {
+        if (res > 0)
+		{
             MARS_SYS_COMM4 = 0;
         }
     }

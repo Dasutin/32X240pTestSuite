@@ -1,6 +1,6 @@
 /* 
  * 240p Test Suite for the Sega 32X
- * Port by Dasutin
+ * Port by Dasutin (Dustin Dembrosky)
  * Copyright (C)2011-2022 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
@@ -27,7 +27,6 @@ extern void menu_tp(void);
 extern void menu_vt(void);
 extern void menu_at(void);
 extern void menu_ht(void);
-extern void options(void);
 extern void credits(void);
 
 #endif /* _MAIN_H_ */

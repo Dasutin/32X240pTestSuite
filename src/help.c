@@ -1,6 +1,6 @@
 /* 
  * 240p Test Suite for the Sega 32X
- * Port by Dasutin
+ * Port by Dasutin (Dustin Dembrosky)
  * Copyright (C)2011-2022 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
@@ -78,7 +78,7 @@ void DrawHelp(int option)
 		}
 
 		pressedButton = button & ~oldButton;
-    	oldButton = button & 0x0FFF;
+		oldButton = button & 0x0FFF;
 
 		DrawMainBG();
 		loadTextPalette();
@@ -112,7 +112,7 @@ void DrawHelp(int option)
 					break;
 				case 2:
 					mars_drawTextwShadow("HELP (2/2)", 125, 35, fontColorGreen, fontColorGray);
-                                                              //|
+
 					mars_drawTextwShadow("The Sega 32X can output 224", 35, 50, fontColorWhite, fontColorGray);
 					mars_drawTextwShadow("active video lines. In PAL", 35, 58, fontColorWhite, fontColorGray);
 					mars_drawTextwShadow("consoles, it can display either", 35, 66, fontColorWhite, fontColorGray);
@@ -277,7 +277,7 @@ void DrawHelp(int option)
 						mars_drawTextwShadow("Designed by Keith Raney.", 32, 164, fontColorWhite, fontColorGray);
 					break;
 				}
-				break;				
+				break;
 			case HELP_BLEED:
 				mars_drawTextwShadow("COLOR BLEED", 123, 35, fontColorGreen, fontColorGray);
 				mars_drawTextwShadow("This pattern helps diagnose", 32, 56, fontColorWhite, fontColorGray);
@@ -683,7 +683,7 @@ void DrawHelp(int option)
 
 		if (pressedButton & SEGA_CTRL_LEFT)
 		{
-		 	if(page - 1 > 0)
+			if(page - 1 > 0)
 			{
 				page--;
 			}

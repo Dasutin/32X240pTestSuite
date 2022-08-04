@@ -10,7 +10,8 @@
             "*.s": "asm-collection",
             "types.h": "c",
             "draw.h": "c",
-            "colorbars_map.h": "c"
+            "colorbars_map.h": "c",
+            "stdint.h": "c"
         }
     }
 }

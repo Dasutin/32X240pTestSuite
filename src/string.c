@@ -1,6 +1,6 @@
 /* 
  * 240p Test Suite for the Sega 32X
- * Port by Dasutin
+ * Port by Dasutin (Dustin Dembrosky)
  * Copyright (C)2011-2022 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
@@ -40,58 +40,60 @@
 //static const char hexchars[] = "0123456789ABCDEF";
 
 static const char digits[] =
-    "0001020304050607080910111213141516171819"
-    "2021222324252627282930313233343536373839"
-    "4041424344454647484950515253545556575859"
-    "6061626364656667686970717273747576777879"
-    "8081828384858687888990919293949596979899";
+	"0001020304050607080910111213141516171819"
+	"2021222324252627282930313233343536373839"
+	"4041424344454647484950515253545556575859"
+	"6061626364656667686970717273747576777879"
+	"8081828384858687888990919293949596979899";
 
 static u16 digits10(const u16 v);
 static u16 uint16ToStr(u16 value, char *str, u16 minsize);
 
-size_t strlen(const char *str) {
+size_t strlen(const char *str)
+{
 	const char *src = str;
 	while(*src++);
 	return (src - str) - 1;
 }
- 
+
 char* strcpy(char *to, const char *from)
 {
-    const char *src;
-    char *dst;
+	const char *src;
+	char *dst;
 
-    src = from;
-    dst = to;
-    while ((*dst++ = *src++));
+	src = from;
+	dst = to;
+	while ((*dst++ = *src++));
 
-    return to;
+	return to;
 }
 
 char* strcat(char *to, const char *from)
 {
-    const char *src;
-    char *dst;
+	const char *src;
+	char *dst;
 
-    src = from;
-    dst = to;
-    while (*dst++);
+	src = from;
+	dst = to;
+	while (*dst++);
 
-    --dst;
-    while ((*dst++ = *src++));
+	--dst;
+	while ((*dst++ = *src++));
 
-    return to;
+	return to;
 }
 
 void* memcpy (volatile void *dest, const void *src, size_t len)
 {
-  char *d = dest;
-  const char *s = src;
-  while (len--)
-    *d++ = *s++;
-  return dest;
+	char *d = dest;
+	const char *s = src;
+	while (len--)
+	*d++ = *s++;
+	return dest;
 }
 
-void memset(void* str, char ch, size_t n){
+void memset(void* str, char ch, size_t n)
+{
 	int i;
 	//type cast the str from void* to char*
 	char *s = (char*) str;
@@ -322,18 +324,18 @@ static size_t skip_atoi(const char **s) {
 
 u16 intToStr(s32 value, char *str, u16 minsize)
 {
-    if (value < -500000000)
-    {
-        *str = '-';
-        return intToHex(-value, str + 1, minsize) + 1;
-    }
+	if (value < -500000000)
+	{
+		*str = '-';
+		return intToHex(-value, str + 1, minsize) + 1;
+	}
 
-    if (value < 0)
-    {
-        *str = '-';
-        return uintToStr(-value, str + 1, minsize) + 1;
-    }
-    else return uintToStr(value, str, minsize);
+	if (value < 0)
+	{
+		*str = '-';
+		return uintToStr(-value, str + 1, minsize) + 1;
+	}
+	else return uintToStr(value, str, minsize);
 }
 
 u16 uintToStr(u32 value, char *str, u16 minsize)
@@ -445,44 +447,44 @@ u32 intToHex(u32 value, char *str, u16 minsize)
 
 void fix32ToStr(fix32 value, char *str, u16 numdec)
 {
-    char *dst = str;
-    fix32 v = value;
+	char *dst = str;
+	fix32 v = value;
 
-    if (v < 0)
-    {
-        v = -v;
-        *dst++ = '-';
-    }
+	if (v < 0)
+	{
+		v = -v;
+		*dst++ = '-';
+	}
 
-    dst += uintToStr(fix32ToInt(v), dst, 1);
-    *dst++ = '.';
+	dst += uintToStr(fix32ToInt(v), dst, 1);
+	*dst++ = '.';
 
-    // get fractional part
-    const u16 frac = (((u16) fix32Frac(v)) * (u16) 1000) / ((u16) 1 << FIX32_FRAC_BITS);
-    u16 len = uint16ToStr(frac, dst, 3);
+	// get fractional part
+	const u16 frac = (((u16) fix32Frac(v)) * (u16) 1000) / ((u16) 1 << FIX32_FRAC_BITS);
+	u16 len = uint16ToStr(frac, dst, 3);
 
-    if (len < numdec)
-    {
-        // need to add ending '0'
-        dst += len;
-        while(len++ < numdec) *dst++ = '0';
-        // mark end here
-        *dst = 0;
-    }
-    else dst[numdec] = 0;
+	if (len < numdec)
+	{
+		// need to add ending '0'
+		dst += len;
+		while(len++ < numdec) *dst++ = '0';
+		// mark end here
+		*dst = 0;
+	}
+	else dst[numdec] = 0;
 }
 
 static u16 digits10(const u16 v)
 {
-    if (v < P02)
-    {
-        if (v < P01) return 1;
-        return 2;
-    }
-    else
-    {
-        if (v < P03) return 3;
-        if (v < P04) return 4;
-        return 5;
-    }
+	if (v < P02)
+	{
+		if (v < P01) return 1;
+		return 2;
+	}
+	else
+	{
+		if (v < P03) return 3;
+		if (v < P04) return 4;
+		return 5;
+	}
 }

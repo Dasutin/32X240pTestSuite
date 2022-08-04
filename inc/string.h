@@ -1,6 +1,6 @@
 /* 
  * 240p Test Suite for the Sega 32X
- * Port by Dasutin
+ * Port by Dasutin (Dustin Dembrosky)
  * Copyright (C)2011-2022 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
@@ -25,11 +25,11 @@
 
 #include "types.h"
 
-#define isdigit(c)      ((c) >= '0' && (c) <= '9')
+#define isdigit(c)	((c) >= '0' && (c) <= '9')
 
-#define	SEEK_SET	0
-#define	SEEK_CUR	1	
-#define	SEEK_END	2
+#define SEEK_SET	0
+#define SEEK_CUR	1
+#define SEEK_END	2
 
 /* #ifndef SEEK_SET
 #define	SEEK_SET	0	      // Set file offset to offset
