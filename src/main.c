@@ -813,7 +813,7 @@ void credits()
 
 		mars_drawTextwShadow("Credits", 125, 35, fontColorGreen, fontColorGray);
 		mars_drawTextwShadow("Ver. 1.0", 221, 50, fontColorGreen, fontColorGray);
-		mars_drawTextwShadow("8/4/2022", 221, 58, fontColorWhite, fontColorGray);
+		mars_drawTextwShadow("8/7/2022", 221, 58, fontColorWhite, fontColorGray);
 		mars_drawTextwShadow("Code and Port by:", 35, 66, fontColorGreen, fontColorGray);
 		mars_drawTextwShadow("Dasutin (Dustin Dembrosky)", 43, 74, fontColorWhite, fontColorGray);
 		mars_drawTextwShadow("Patterns:", 35, 82, fontColorGreen, fontColorGray);
