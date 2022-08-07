@@ -38,9 +38,7 @@
 
 void tp_pluge()
 {
-	int done = 0;
-	int draw = 1;
-	int IsRGB = 0, text = 0;
+	int done = 0, draw = 1, IsNTSC = 0, text = 0;
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
 	extern const u16 PLUGE_NTSC_PAL[];
 	extern const u16 PLUGE_RGB_PAL[];
@@ -66,10 +64,10 @@ void tp_pluge()
 
 		if (draw)
 		{
-			if (!IsRGB)
-				loadPalette(&PLUGE_NTSC_PAL[0], &PLUGE_NTSC_PAL[255],0);
-			else
+			if (!IsNTSC)
 				loadPalette(&PLUGE_RGB_PAL[0], &PLUGE_RGB_PAL[255],0);
+			else
+				loadPalette(&PLUGE_NTSC_PAL[0], &PLUGE_NTSC_PAL[255],0);
 
 			draw = 0;
 		}
@@ -85,16 +83,16 @@ void tp_pluge()
 
 		if (pressedButton & SEGA_CTRL_A)
 		{
-			IsRGB = !IsRGB;
+			IsNTSC = !IsNTSC;
 
-			if (!IsRGB)
+			if (!IsNTSC)
 			{
-				loadPalette(&PLUGE_NTSC_PAL[0], &PLUGE_NTSC_PAL[255],0);
-				HwMdPuts("NTSC 7.5 IRE  ", 0x2000, 24, 2);
-			}
-			else {
 				loadPalette(&PLUGE_RGB_PAL[0], &PLUGE_RGB_PAL[255],0);
 				HwMdPuts("RGB FULL RANGE", 0x2000, 24, 2);
+			}
+			else {
+				loadPalette(&PLUGE_NTSC_PAL[0], &PLUGE_NTSC_PAL[255],0);
+				HwMdPuts("NTSC 7.5 IRE  ", 0x2000, 24, 2);
 			}
 			text = 30;
 		}

@@ -103,8 +103,7 @@ void DrawHelp(int option)
 					mars_drawTextwShadow("black, white, and color levels.", 35, 130, fontColorWhite, fontColorGray);
 
 					mars_drawTextwShadow("Help can be shown with 'Z' in", 35, 146, fontColorGreen, fontColorGray);
-					mars_drawTextwShadow("any test. Video Options can be", 35, 154, fontColorGreen, fontColorGray);
-					mars_drawTextwShadow("changed with 'Y'.", 35, 162, fontColorGreen, fontColorGray);
+					mars_drawTextwShadow("any test.", 35, 154, fontColorGreen, fontColorGray);
 
 					mars_drawTextwShadow("(cont...)", 207, 178, fontColorWhite, fontColorGray);
 
@@ -177,13 +176,10 @@ void DrawHelp(int option)
 				case 3:
 					mars_drawTextwShadow("PLUGE (3/3)", 115, 35, fontColorGreen, fontColorGray);
 
-					mars_drawTextwShadow("You can change to a contrast", 32, 57, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("test with C.", 32, 65, fontColorWhite, fontColorGray);
-
-					mars_drawTextwShadow("Within it A button changes", 32, 82, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("palettes between the original,", 32, 90, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("highest and lowest values the", 32, 98, fontColorWhite, fontColorGray);
-					mars_drawTextwShadow("hardware can display.", 32, 106, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("Within it A button changes", 32, 56, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("palettes between the original,", 32, 64, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("highest and lowest values the", 32, 72, fontColorWhite, fontColorGray);
+					mars_drawTextwShadow("hardware can display.", 32, 80, fontColorWhite, fontColorGray);
 					break;
 				}
 				break;

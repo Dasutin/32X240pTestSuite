@@ -58,7 +58,7 @@ int main()
 		DrawMainBGwGillian();
 		loadTextPalette();
 
-		mars_drawTextwShadow("Test Patterns",  50, 80, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Test Patterns", 50, 80, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);
 		mars_drawTextwShadow("Video tests", 50, 88, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
 		mars_drawTextwShadow("Audio tests", 50, 96, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
 		mars_drawTextwShadow("Hardware tools", 50, 104, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorBlack : fontColorGray);
@@ -98,6 +98,12 @@ int main()
 			curse--;
 			if(curse < 1)
 				curse = 6;
+		}
+
+		if (pressedButton & SEGA_CTRL_Z)
+		{
+			screenFadeOut(1);
+			DrawHelp(HELP_GENERAL);
 		}
 
 		if(pressedButton & SEGA_CTRL_A)
