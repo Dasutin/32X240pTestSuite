@@ -36,6 +36,12 @@
 
 #define BLOCK_COLOR_1 32
 
+extern int fontColorWhite;
+extern int fontColorRed;
+extern int fontColorGreen;
+extern int fontColorGray;
+extern int fontColorBlack;
+
 void tp_pluge()
 {
 	int done = 0, draw = 1, IsNTSC = 0, text = 0;
@@ -1203,7 +1209,7 @@ void tp_overscan()
 	while(!done)
 	{
 		Hw32xFlipWait();
-
+		loadTextPalette();
 		clearScreen_Fill16bit();
 
 		char datat[10];
@@ -1223,24 +1229,24 @@ void tp_overscan()
 
 		// Text
 		intToStr(top, datat, 1);
-		HwMdPuts("Top:", sel == 0 ? 0x2000 : 0x0000, 12, 12);
-		HwMdPuts("   pixels", sel == 0 ? 0x2000 : 0x0000, 20, 12);
-		HwMdPuts(datat, sel == 0 ? 0x2000 : 0x0000, 20, 12);
+		mars_drawTextwShadow("Top:", 96, 96, sel == 0 ? fontColorRed : fontColorWhite, sel == 0 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("   pixels", 160, 96, sel == 0 ? fontColorRed : fontColorWhite, sel == 0 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow(datat, 160, 96, sel == 0 ? fontColorRed : fontColorWhite, sel == 0 ? fontColorBlack : fontColorGray);
 
 		intToStr(abs(bottom-223), datab, 1);
-		HwMdPuts("Bottom:", sel == 1 ? 0x2000 : 0x0000, 12, 13);
-		HwMdPuts("   pixels", sel == 1 ? 0x2000 : 0x0000, 20, 13);
-		HwMdPuts(datab, sel == 1 ? 0x2000 : 0x0000, 20, 13);
+		mars_drawTextwShadow("Bottom:", 96, 104, sel == 1 ? fontColorRed : fontColorWhite, sel == 1 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("   pixels", 160, 104, sel == 1 ? fontColorRed : fontColorWhite, sel == 1 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow(datab, 160, 104, sel == 1 ? fontColorRed : fontColorWhite, sel == 1 ? fontColorBlack : fontColorGray);
 
 		intToStr(left, datal, 1);
-		HwMdPuts("Left:", sel == 2 ? 0x2000 : 0x0000, 12, 14);
-		HwMdPuts("   pixels", sel == 2 ? 0x2000 : 0x0000, 20, 14);
-		HwMdPuts(datal, sel == 2 ? 0x2000 : 0x0000, 20, 14);
+		mars_drawTextwShadow("Left:", 96, 112, sel == 2 ? fontColorRed : fontColorWhite, sel == 2 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("   pixels", 160, 112, sel == 2 ? fontColorRed : fontColorWhite, sel == 2 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow(datal, 160, 112, sel == 2 ? fontColorRed : fontColorWhite, sel == 2 ? fontColorBlack : fontColorGray);
 
 		intToStr(abs(right-320), datar, 1);
-		HwMdPuts("Right:", sel == 3 ? 0x2000 : 0x0000, 12, 15);
-		HwMdPuts("   pixels", sel == 3 ? 0x2000 : 0x0000, 20, 15);
-		HwMdPuts(datar, sel == 3 ? 0x2000 : 0x0000, 20, 15);
+		mars_drawTextwShadow("Right:", 96, 120, sel == 3 ? fontColorRed : fontColorWhite, sel == 3 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("   pixels", 160, 120, sel == 3 ? fontColorRed : fontColorWhite, sel == 3 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow(datar, 160, 120, sel == 3 ? fontColorRed : fontColorWhite, sel == 3 ? fontColorBlack : fontColorGray);
 
 		button = MARS_SYS_COMM8;
 
@@ -1300,25 +1306,25 @@ void tp_overscan()
 				case 0:
 					datat = &top;
 					(*datat)--;
-					if(*datat < 0)
+					if (*datat < 0)
 						*datat = 0;
 				break;
 				case 1:
 					datab = &bottom;
 					(*datab)++;
-					if(*datab > 223)
+					if (*datab > 223)
 						*datab = 223;
 				break;
 				case 2:
 					datal = &left;
 					(*datal)--; right++;
-					if(*datal < 0)
+					if (*datal < 0)
 						*datal = 0;
 				break;
 				case 3:
 					datar = &right;
 					(*datar)++;
-					if(*datar > 320)
+					if (*datar > 320)
 						*datar = 320;
 				break;
 			}
@@ -1336,25 +1342,25 @@ void tp_overscan()
 				case 0:
 					datat = &top;
 					(*datat)++;
-					if(*datat < 0)
+					if (*datat < 0)
 						*datat = 0;
 				break;
 				case 1:
 					datab = &bottom;
 					(*datab)--;
-					if(*datab < 124)
+					if (*datab < 124)
 						*datab = 124;
 				break;
 				case 2:
 					datal = &left;
 					(*datal)++; right--;
-					if(*datal < 0)
+					if (*datal < 0)
 						*datal = 0;
 				break;
 				case 3:
 					datar = &right;
 					(*datar)--;
-					if(*datar < 221)
+					if (*datar < 221)
 						*datar = 221;
 				break;
 			}
