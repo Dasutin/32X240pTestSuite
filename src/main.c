@@ -100,6 +100,15 @@ int main()
 				curse = 6;
 		}
 
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
+		{
+			if (pressedButton & SEGA_CTRL_C)
+			{
+				screenFadeOut(1);
+				DrawHelp(HELP_GENERAL);
+			}
+		}
+
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			screenFadeOut(1);
@@ -223,6 +232,15 @@ void menu_tp()
 		{
 			screenFadeOut(1);
 			done = 1;
+		}
+
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
+		{
+			if (pressedButton & SEGA_CTRL_C)
+			{
+				screenFadeOut(1);
+				DrawHelp(HELP_GENERAL);
+			}
 		}
 
 		if (pressedButton & SEGA_CTRL_Z)
@@ -435,6 +453,15 @@ void menu_vt()
 			done = 1;
 		}
 
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
+		{
+			if (pressedButton & SEGA_CTRL_C)
+			{
+				screenFadeOut(1);
+				DrawHelp(HELP_GENERAL);
+			}
+		}
+
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			screenFadeOut(1);
@@ -620,6 +647,15 @@ void menu_at()
 			done = 1;
 		}
 
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
+		{
+			if (pressedButton & SEGA_CTRL_C)
+			{
+				screenFadeOut(1);
+				DrawHelp(HELP_GENERAL);
+			}
+		}
+
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			DrawHelp(HELP_GENERAL);
@@ -726,6 +762,15 @@ void menu_ht()
 		{
 			screenFadeOut(1);
 			done = 1;
+		}
+
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
+		{
+			if (pressedButton & SEGA_CTRL_C)
+			{
+				screenFadeOut(1);
+				DrawHelp(HELP_GENERAL);
+			}
 		}
 
 		if (pressedButton & SEGA_CTRL_Z)

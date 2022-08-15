@@ -506,11 +506,25 @@ void vt_striped_sprite_test()
 
 		Hw32xFlipWait();
 
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
+		{
+			if (pressedButton & SEGA_CTRL_C)
+			{
+				canvas_pitch = 320;
+				DrawHelp(HELP_STRIPED);
+				if (!otherTests)
+				{
+					canvas_pitch = 384;
+				}
+				Hw32xSetPalette(donna_palette);
+			}
+		}
+
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			canvas_pitch = 320;
 			DrawHelp(HELP_STRIPED);
-			if(!otherTests)
+			if (!otherTests)
 			{
 				canvas_pitch = 384;
 			}
@@ -703,6 +717,15 @@ void vt_lag_test()
 			cposy = 9;
 		}
 		cposx = (cposx - 1) * 10 + 2;
+
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
+		{
+			if (pressedButton & SEGA_CTRL_C)
+			{
+				DrawHelp(HELP_LAG);
+				Hw32xSetPalette(background_fill_palette1);
+			}
+		}
 
 		if (pressedButton & SEGA_CTRL_Z)
 		{
@@ -1347,7 +1370,26 @@ void vt_scroll_test()
 			}
 		}
 
-		if (pressedButton & SEGA_CTRL_Z) {
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
+		{
+			if (pressedButton & SEGA_CTRL_C)
+			{
+				if (!vertical)
+				{
+					canvas_pitch = 320;
+					DrawHelp(HELP_HSCROLL);
+					canvas_pitch = 384;
+				}
+				else {
+					canvas_yaw = 224;
+					DrawHelp(HELP_HSCROLL);
+					canvas_yaw = 256;
+				}
+			}
+		}
+
+		if (pressedButton & SEGA_CTRL_Z)
+		{
 			if (!vertical)
 			{
 				canvas_pitch = 320;
@@ -1358,6 +1400,7 @@ void vt_scroll_test()
 				canvas_yaw = 224;
 				DrawHelp(HELP_HSCROLL);
 				canvas_yaw = 256;
+				initTilemap = 1;
 			}
 		}
 
@@ -1487,6 +1530,19 @@ void vt_gridscroll_test()
 			acc--;
 			if (acc == 1)
 				acc = 1;
+		}
+
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
+		{
+			if (pressedButton & SEGA_CTRL_C)
+			{
+				canvas_pitch = 320;
+				canvas_yaw = 224;
+				DrawHelp(HELP_VSCROLL);
+				Hw32xSetPalette(grid_palette);
+				canvas_pitch = 384;
+				canvas_yaw = 256;
+			}
 		}
 
 		if (pressedButton & SEGA_CTRL_Z)
@@ -1901,6 +1957,22 @@ void vt_horizontal_stripes()
 			HwMdScreenPrintf(0x0000, 2, 25, "Frame:%02d", count);
 		}
 
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
+		{
+			if (pressedButton & SEGA_CTRL_C)
+			{
+				HwMdClearScreen();
+				DrawHelp(HELP_STRIPES);
+				Hw32xScreenClear();
+				cram16[0] = 0x7FFF;
+				cram16[1] = 0x0000;
+				cram16[2] = 0x0000;
+				cram16[3] = 0x0000;
+				test = 1, manualtest = 1, pal = 1;
+				draw = 1;
+			}
+		}
+
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			HwMdClearScreen();
@@ -2105,6 +2177,22 @@ void vt_vertical_stripes()
 			HwMdScreenPrintf(0x0000, 2, 25, "Frame:%02d", count);
 		}
 
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
+		{
+			if (pressedButton & SEGA_CTRL_C)
+			{
+				HwMdClearScreen();
+				DrawHelp(HELP_STRIPES);
+				Hw32xScreenClear();
+				cram16[0] = 0x7FFF;
+				cram16[1] = 0x0000;
+				cram16[2] = 0x0000;
+				cram16[3] = 0x0000;
+				test = 1, manualtest = 1, pal = 1;
+				draw = 1;
+			}
+		}
+
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			HwMdClearScreen();
@@ -2288,6 +2376,17 @@ void vt_checkerboard()
 			manualtest++;
 		}
 
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
+		{
+			if (pressedButton & SEGA_CTRL_C)
+			{
+				DrawHelp(HELP_CHECK);
+				marsVDP256Start();
+				cram16[0] = 0x7FFF;
+				cram16[1] = 0x0000;
+			}
+		}
+
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			DrawHelp(HELP_CHECK);
@@ -2413,6 +2512,15 @@ void vt_backlitzone_test()
 		if (pressedButton & SEGA_CTRL_B)
 		{
 			block = 6;
+		}
+
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
+		{
+			if (pressedButton & SEGA_CTRL_C)
+			{
+				DrawHelp(HELP_LED);
+				Hw32xSetPalette(background_fill_palette);
+			}
 		}
 
 		if (pressedButton & SEGA_CTRL_Z)
@@ -2596,6 +2704,30 @@ void at_sound_test()
 			{
 				ycurse = 1;
 				xcurse = 3;
+			}
+		}
+
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
+		{
+			if (pressedButton & SEGA_CTRL_C)
+			{
+				DrawHelp(HELP_SOUND);
+				for (int i = 0; i < 27; i++){
+					cram16[i] = BACKGROUND_PAL[i] & 0x7FFF;
+				}
+
+				cram16[205] = COLOR(31, 31, 31); // 204 is White
+				cram16[206] = COLOR(31, 0, 0);   // 205 is Red
+				cram16[207] = COLOR(0, 31, 0);   // 205 is Green
+				cram16[208] = COLOR(5, 5, 5);    // 206 is Gray
+				cram16[209] = COLOR(0, 0, 0);    // 206 is Black
+
+				int fontColorWhite = 204;
+				int fontColorRed = 205;
+				int fontColorGreen = 206;
+				int fontColorGray = 207;
+				int fontColorBlack = 208;
+				//at_sound_test();
 			}
 		}
 
@@ -2914,7 +3046,16 @@ void at_audiosync_test()
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
-		
+
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
+		{
+			if (pressedButton & SEGA_CTRL_C)
+			{
+				DrawHelp(HELP_AUDIOSYNC);
+				at_audiosync_test();
+			}
+		}
+
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			DrawHelp(HELP_AUDIOSYNC);
@@ -3083,40 +3224,72 @@ void ht_controller_test()
 		mars_drawTextwShadow("Controller Test", 100, 35, fontColorGreen, fontColorGray);
 
 		// Controller 1
-		mars_drawTextwShadow("Up", 74, 80, pressedButton & SEGA_CTRL_UP ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_UP ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Left", 44, 90, pressedButton & SEGA_CTRL_LEFT ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_LEFT ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Right", 89, 90, pressedButton & SEGA_CTRL_RIGHT ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_RIGHT ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Down", 68, 100, pressedButton & SEGA_CTRL_DOWN ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_DOWN ? fontColorBlack : fontColorGray);
+		if ((button & SEGA_CTRL_TYPE) != SEGA_CTRL_NONE)
+		{
+			mars_drawTextwShadow("Up", 74, 80, pressedButton & SEGA_CTRL_UP ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_UP ? fontColorBlack : fontColorGray);
+			mars_drawTextwShadow("Left", 44, 90, pressedButton & SEGA_CTRL_LEFT ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_LEFT ? fontColorBlack : fontColorGray);
+			mars_drawTextwShadow("Right", 89, 90, pressedButton & SEGA_CTRL_RIGHT ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_RIGHT ? fontColorBlack : fontColorGray);
+			mars_drawTextwShadow("Down", 68, 100, pressedButton & SEGA_CTRL_DOWN ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_DOWN ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("Start", 149, 90, pressedButton & SEGA_CTRL_START ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_START ? fontColorBlack : fontColorGray);
+			mars_drawTextwShadow("Start", 149, 90, pressedButton & SEGA_CTRL_START ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_START ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("M", 275, 72, pressedButton & SEGA_CTRL_MODE ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_MODE ? fontColorBlack : fontColorGray);
+			if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
+			{
+				mars_drawTextwShadow("A", 219, 90, pressedButton & SEGA_CTRL_A ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_A ? fontColorBlack : fontColorGray);
+				mars_drawTextwShadow("B", 239, 90, pressedButton & SEGA_CTRL_B ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_B ? fontColorBlack : fontColorGray);
+				mars_drawTextwShadow("C", 259, 90, pressedButton & SEGA_CTRL_C ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_C ? fontColorBlack : fontColorGray);
+			}
+			else
+			{
+				mars_drawTextwShadow("M", 275, 72, pressedButton & SEGA_CTRL_MODE ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_MODE ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("X", 219, 80, pressedButton & SEGA_CTRL_X ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_X ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Y", 239, 80, pressedButton & SEGA_CTRL_Y ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_Y ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Z", 259, 80, pressedButton & SEGA_CTRL_Z ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_Z ? fontColorBlack : fontColorGray);
+				mars_drawTextwShadow("X", 219, 80, pressedButton & SEGA_CTRL_X ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_X ? fontColorBlack : fontColorGray);
+				mars_drawTextwShadow("Y", 239, 80, pressedButton & SEGA_CTRL_Y ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_Y ? fontColorBlack : fontColorGray);
+				mars_drawTextwShadow("Z", 259, 80, pressedButton & SEGA_CTRL_Z ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_Z ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("A", 219, 100, pressedButton & SEGA_CTRL_A ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_A ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("B", 239, 100, pressedButton & SEGA_CTRL_B ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_B ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("C", 259, 100, pressedButton & SEGA_CTRL_C ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_C ? fontColorBlack : fontColorGray);
+				mars_drawTextwShadow("A", 219, 100, pressedButton & SEGA_CTRL_A ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_A ? fontColorBlack : fontColorGray);
+				mars_drawTextwShadow("B", 239, 100, pressedButton & SEGA_CTRL_B ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_B ? fontColorBlack : fontColorGray);
+				mars_drawTextwShadow("C", 259, 100, pressedButton & SEGA_CTRL_C ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_C ? fontColorBlack : fontColorGray);
+			}
+		}
+		else
+		{
+			mars_drawTextwShadow("Controller 1 not detected", 60, 90, fontColorRed, fontColorGray);
+		}
 
 		// Controller 2
-		mars_drawTextwShadow("Up", 74, 130, pressedButton2 & SEGA_CTRL_UP ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_UP ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Left", 44, 140, pressedButton2 & SEGA_CTRL_LEFT ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_LEFT ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Right", 89, 140, pressedButton2 & SEGA_CTRL_RIGHT ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_RIGHT ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Down", 68, 150, pressedButton2 & SEGA_CTRL_DOWN ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_DOWN ? fontColorBlack : fontColorGray);
+		if ((button2 & SEGA_CTRL_TYPE) != SEGA_CTRL_NONE)
+		{
+			mars_drawTextwShadow("Up", 74, 130, pressedButton2 & SEGA_CTRL_UP ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_UP ? fontColorBlack : fontColorGray);
+			mars_drawTextwShadow("Left", 44, 140, pressedButton2 & SEGA_CTRL_LEFT ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_LEFT ? fontColorBlack : fontColorGray);
+			mars_drawTextwShadow("Right", 89, 140, pressedButton2 & SEGA_CTRL_RIGHT ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_RIGHT ? fontColorBlack : fontColorGray);
+			mars_drawTextwShadow("Down", 68, 150, pressedButton2 & SEGA_CTRL_DOWN ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_DOWN ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("Start", 149, 140, pressedButton2 & SEGA_CTRL_START ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_START ? fontColorBlack : fontColorGray);
+			mars_drawTextwShadow("Start", 149, 140, pressedButton2 & SEGA_CTRL_START ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_START ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("M", 275, 122, pressedButton2 & SEGA_CTRL_MODE ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_MODE ? fontColorBlack : fontColorGray);
+			if ((button2 & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
+			{
+				mars_drawTextwShadow("A", 219, 140, pressedButton2 & SEGA_CTRL_A ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_A ? fontColorBlack : fontColorGray);
+				mars_drawTextwShadow("B", 239, 140, pressedButton2 & SEGA_CTRL_B ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_B ? fontColorBlack : fontColorGray);
+				mars_drawTextwShadow("C", 259, 140, pressedButton2 & SEGA_CTRL_C ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_C ? fontColorBlack : fontColorGray);
+			}
+			else
+			{
+				mars_drawTextwShadow("M", 275, 122, pressedButton2 & SEGA_CTRL_MODE ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_MODE ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("X", 219, 130, pressedButton2 & SEGA_CTRL_X ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_X ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Y", 239, 130, pressedButton2 & SEGA_CTRL_Y ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_Y ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Z", 259, 130, pressedButton2 & SEGA_CTRL_Z ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_Z ? fontColorBlack : fontColorGray);
+				mars_drawTextwShadow("X", 219, 130, pressedButton2 & SEGA_CTRL_X ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_X ? fontColorBlack : fontColorGray);
+				mars_drawTextwShadow("Y", 239, 130, pressedButton2 & SEGA_CTRL_Y ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_Y ? fontColorBlack : fontColorGray);
+				mars_drawTextwShadow("Z", 259, 130, pressedButton2 & SEGA_CTRL_Z ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_Z ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("A", 219, 150, pressedButton2 & SEGA_CTRL_A ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_A ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("B", 239, 150, pressedButton2 & SEGA_CTRL_B ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_B ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("C", 259, 150, pressedButton2 & SEGA_CTRL_C ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_C ? fontColorBlack : fontColorGray);
+				mars_drawTextwShadow("A", 219, 150, pressedButton2 & SEGA_CTRL_A ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_A ? fontColorBlack : fontColorGray);
+				mars_drawTextwShadow("B", 239, 150, pressedButton2 & SEGA_CTRL_B ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_B ? fontColorBlack : fontColorGray);
+				mars_drawTextwShadow("C", 259, 150, pressedButton2 & SEGA_CTRL_C ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_C ? fontColorBlack : fontColorGray);
+			}
+		}
+		else
+		{
+			mars_drawTextwShadow("Controller 2 not detected", 60, 140, fontColorRed, fontColorGray);
+		}
 
 		mars_drawTextwShadow("Use START+LEFT to exit", 70, 192, fontColorGreen, fontColorGray);
 
@@ -3219,6 +3392,16 @@ void ht_memory_viewer(u32 address)
 				locpos = 0;
 			address = locations[locpos];
 			redraw = 1;
+		}
+
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
+		{
+			if (pressedButton & SEGA_CTRL_C)
+			{
+				HwMdClearScreen();
+				DrawHelp(HELP_MEMVIEW);
+				ht_memory_viewer(0);
+			}
 		}
 
 		if (pressedButton & SEGA_CTRL_Z)

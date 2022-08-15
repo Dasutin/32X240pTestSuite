@@ -106,8 +106,14 @@ void DrawHelp(int option)
 					mars_drawTextwShadow("any test.", 35, 154, fontColorGreen, fontColorGray);
 
 					mars_drawTextwShadow("(cont...)", 207, 178, fontColorWhite, fontColorGray);
-
-					mars_drawTextwShadow("Press Z to exit help", 91, 193, fontColorWhite, fontColorGray);
+					if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
+					{
+						mars_drawTextwShadow("Press C to exit help", 91, 193, fontColorWhite, fontColorGray);
+					}
+					else
+					{
+						mars_drawTextwShadow("Press Z to exit help", 91, 193, fontColorWhite, fontColorGray);
+					}
 					break;
 				case 2:
 					mars_drawTextwShadow("HELP (2/2)", 125, 35, fontColorGreen, fontColorGray);
@@ -128,7 +134,14 @@ void DrawHelp(int option)
 					mars_drawTextwShadow("http://junkerhq.net/240p", 35, 160, fontColorGreen, fontColorGray);
 					mars_drawTextwShadow("for more information", 35, 170, fontColorWhite, fontColorGray);
 
-					mars_drawTextwShadow("Press Z to exit help", 91, 193, fontColorWhite, fontColorGray);
+					if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
+					{
+						mars_drawTextwShadow("Press C to exit help", 91, 193, fontColorWhite, fontColorGray);
+					}
+					else
+					{
+						mars_drawTextwShadow("Press Z to exit help", 91, 193, fontColorWhite, fontColorGray);
+					}
 					break;
 				}
 				break;
@@ -682,6 +695,15 @@ void DrawHelp(int option)
 			if(page - 1 > 0)
 			{
 				page--;
+			}
+		}
+
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
+		{
+			if (pressedButton & SEGA_CTRL_C)
+			{
+				screenFadeOut(1);
+				exit = 1;
 			}
 		}
 
