@@ -18,7 +18,7 @@ This software is open source and free.
 - Code and Port: Dustin Dembrosky (Dasutin) [@Dasutin](https://twitter.com/Dasutin)
 - Patterns: Artemio Urbina [@Artemio](https://twitter.com/Artemio)
 - 32X Toolchain: Joseph Fenton (Chilly Willy)
-- Tilemapper: Victor Luchitz (Vic)
+- [Tilemapper](https://github.com/viciious/yatssd): Victor Luchitz (Vic)
 - [Donna](https://www.inprnt.com/gallery/pepesalot/perfect-geometry/): Jose Salot [@pepe_salot](https://twitter.com/pepe_salot). [Support by buying a print here](https://www.inprnt.com/gallery/pepesalot/perfect-geometry/)
 
 # Special Thanks
