@@ -19,7 +19,7 @@ This software is open source and free.
 - Patterns: Artemio Urbina [@Artemio](https://twitter.com/Artemio)
 - 32X Toolchain: Joseph Fenton (Chilly Willy)
 - Tilemapper: Victor Luchitz (Vic)
-- [Donna](https://www.inprnt.com/gallery/pepesalot/perfect-geometry/): Jose Salot [@pepe_salot](https://twitter.com/- pepe_salot). [Support by buying a print here](https://www.inprnt.com/gallery/pepesalot/perfect-geometry/)
+- [Donna](https://www.inprnt.com/gallery/pepesalot/perfect-geometry/): Jose Salot [@pepe_salot](https://twitter.com/pepe_salot). [Support by buying a print here](https://www.inprnt.com/gallery/pepesalot/perfect-geometry/)
 
 # Special Thanks
 - Bob Neal from [RetroRGB](https://www.retrorgb.com/)
