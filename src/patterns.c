@@ -269,7 +269,7 @@ void tp_colorbars()
 			{
 				HwMdClearScreen();
 				screenFadeOut(1);
-				DrawHelp(HELP_COLORS);
+				DrawHelp(HELP_601CB);
 				draw = 1;
 			}
 		}
@@ -278,7 +278,7 @@ void tp_colorbars()
 		{
 			HwMdClearScreen();
 			screenFadeOut(1);
-			DrawHelp(HELP_COLORS);
+			DrawHelp(HELP_601CB);
 			draw = 1;
 		}
 

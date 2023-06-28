@@ -478,7 +478,7 @@ void mars_drawText(const char *str, int x, int y, int palOffs)
 	unsigned char *font;
 	int screenOffs;
 	int fontOffs;
-	extern const uint8_t FONT_HIGHLIGHT_TILE[] __attribute__((aligned(16)));
+	extern const uint8_t FONT_TILE[] __attribute__((aligned(16)));
 
 	for (int i = 0; i < 40; i++) {
 		c = str[i];
@@ -490,10 +490,10 @@ void mars_drawText(const char *str, int x, int y, int palOffs)
 		fontOffs += (c & 15) << 3;
 		for (int t = 0; t < 8; t++) {
 			for (int s = 0; s < 8; s++) {
-				font = FONT_HIGHLIGHT_TILE[fontOffs + s];
+				font = FONT_TILE[fontOffs + s];
 				// if (font) font += palOffs;
-				if (FONT_HIGHLIGHT_TILE[fontOffs + s])
-					frameBuffer8[screenOffs + s] = FONT_HIGHLIGHT_TILE[fontOffs + s] + palOffs;
+				if (FONT_TILE[fontOffs + s])
+					frameBuffer8[screenOffs + s] = FONT_TILE[fontOffs + s] + palOffs;
 			}
 			screenOffs += 320;
 			fontOffs += 128;
@@ -503,7 +503,7 @@ void mars_drawText(const char *str, int x, int y, int palOffs)
 
 void mars_drawTextwShadow(const char *str, int x, int y, int textpalOffs, int shadowpalOffs)
 {
-	mars_drawText(str, x+2, y+1, shadowpalOffs);
+	mars_drawText(str, x+1, y+1, shadowpalOffs);
 	mars_drawText(str, x, y, textpalOffs);
 }
 

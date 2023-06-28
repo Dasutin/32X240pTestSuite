@@ -80,12 +80,6 @@ _BACKGROUND_PAL:
 
 			.align 2
 
-			.global _FONT_HIGHLIGHT_PAL
-_FONT_HIGHLIGHT_PAL:
-			.incbin "res/240pfont_highlight_pal.bin"
-
-			.align 2
-
 			.global _CONVERGENCE_GRID_PAL
 _CONVERGENCE_GRID_PAL:
 			.incbin "res/convergence_grid_pal.bin"
@@ -208,9 +202,9 @@ _BACKGROUND_TILE:
 
 			.align 2
 
-			.global _FONT_HIGHLIGHT_TILE
-_FONT_HIGHLIGHT_TILE:
-			.incbin "res/240pfont_highlight_tile.bin"
+			.global _FONT_TILE
+_FONT_TILE:
+			.incbin "res/font_tile.bin"
 
 			.align 2
 
