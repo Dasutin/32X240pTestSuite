@@ -304,6 +304,18 @@ _EBU_COLORBARS_TILE:
 
 			.align 2
 
+			.global _QRCODE_TILE
+_QRCODE_TILE:
+			.incbin "res/qrcode_tile.bin"
+
+			.align 2
+
+			.global _QRCODE_PAL
+_QRCODE_PAL:
+			.incbin "res/qrcode_pal.bin"
+
+			.align 2
+
 soundFileName1:
 			.asciz  "jump"
 soundFileName2:

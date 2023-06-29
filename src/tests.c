@@ -3097,7 +3097,7 @@ void at_audiosync_test()
 		drawSprite(block_32x32_tile3, 224, 48, 32, 32, 0, 0);
 
 		drawSprite(block_32x32_tile4, 96, 48, 32, 32, 0, 0);
-		drawSprite(block_32x32_tile4, 192, 48, 32, 32, 0, 0);		
+		drawSprite(block_32x32_tile4, 192, 48, 32, 32, 0, 0);
 
 		for(int i=0; i<=320; i=i+8)
 		{
