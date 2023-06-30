@@ -151,7 +151,6 @@ int main()
 				break;
 			}
 		}
-		Hw32xDelay(1);
 
 		Hw32xScreenFlip(0);
 	}
@@ -376,7 +375,7 @@ void menu_tp()
 
 		Hw32xScreenFlip(0);
 
-		Hw32xDelay(1);
+		//Hw32xDelay(1);
 	}
 	return;
 }
@@ -577,7 +576,7 @@ void menu_vt()
 
 		Hw32xScreenFlip(0);
 
-		Hw32xDelay(1);
+		//Hw32xDelay(1);
 	}
 	return;
 }
@@ -694,7 +693,7 @@ void menu_at()
 
 		Hw32xScreenFlip(0);
 
-		Hw32xDelay(1);
+		//Hw32xDelay(1);
 	}
 	return;
 }
@@ -838,7 +837,7 @@ void menu_ht()
 
 		Hw32xScreenFlip(0);
 
-		Hw32xDelay(1);
+		//Hw32xDelay(1);
 	}
 	return;
 }
@@ -897,7 +896,7 @@ void credits()
 
 		Hw32xScreenFlip(0);
 
-		Hw32xDelay(1);
+		//Hw32xDelay(1);
 	}
 	return;
 }

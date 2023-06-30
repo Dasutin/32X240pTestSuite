@@ -38,7 +38,6 @@ extern int fontColorBlack;
 
 void DrawHelp(int option)
 {
-	int frameDelay = 5;
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
 	int exit = 0;
 	int page = 1;
@@ -726,7 +725,5 @@ void DrawHelp(int option)
 		}
 
 		Hw32xScreenFlip(0);
-
-		Hw32xDelay(frameDelay);
 	}
 }

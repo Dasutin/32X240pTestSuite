@@ -3104,7 +3104,6 @@ void at_audiosync_test()
 			drawSprite(block_8x8_tile, i, 160, 8, 8, 0, 0);
 		}
 
-
 		if (status >= 20 && status <= 120)
 		{
 			switch (status) 
