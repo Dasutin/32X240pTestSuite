@@ -1,7 +1,7 @@
 /* 
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
- * Copyright (C)2011-2022 Artemio Urbina
+ * Copyright (C)2011-2023 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
  *
@@ -46,11 +46,8 @@ int old_camera_x, old_camera_y;
 int main_camera_x, main_camera_y;
 int camera_x, camera_y;
 
-extern int fontColorWhite;
-extern int fontColorRed;
-extern int fontColorGreen;
-extern int fontColorGray;
-extern int fontColorBlack;
+extern int fontColorWhite, fontColorRed, fontColorGreen, fontColorGray, fontColorBlack;
+extern int fontColorWhiteHighlight, fontColorRedHighlight, fontColorGreenHighlight;
 
 static int X = 0, Y = 0;
 static int MX = 40, MY = 25;

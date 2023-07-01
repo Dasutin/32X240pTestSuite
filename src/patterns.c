@@ -1,7 +1,7 @@
 /* 
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
- * Copyright (C)2011-2022 Artemio Urbina
+ * Copyright (C)2011-2023 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
  *
@@ -36,11 +36,8 @@
 
 #define BLOCK_COLOR_1 32
 
-extern int fontColorWhite;
-extern int fontColorRed;
-extern int fontColorGreen;
-extern int fontColorGray;
-extern int fontColorBlack;
+extern int fontColorWhite, fontColorRed, fontColorGreen, fontColorGray, fontColorBlack;
+extern int fontColorWhiteHighlight, fontColorRedHighlight, fontColorGreenHighlight;
 
 void tp_pluge()
 {
@@ -1229,24 +1226,24 @@ void tp_overscan()
 
 		// Text
 		intToStr(top, datat, 1);
-		mars_drawTextwShadow("Top:", 96, 96, sel == 0 ? fontColorRed : fontColorWhite, sel == 0 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("   pixels", 160, 96, sel == 0 ? fontColorRed : fontColorWhite, sel == 0 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow(datat, 160, 96, sel == 0 ? fontColorRed : fontColorWhite, sel == 0 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Top:", 96, 96, sel == 0 ? fontColorRed : fontColorWhite, sel == 0 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		mars_drawTextwShadow("   pixels", 160, 96, sel == 0 ? fontColorRed : fontColorWhite, sel == 0 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		mars_drawTextwShadow(datat, 160, 96, sel == 0 ? fontColorRed : fontColorWhite, sel == 0 ? fontColorRedHighlight : fontColorWhiteHighlight);
 
 		intToStr(abs(bottom-223), datab, 1);
-		mars_drawTextwShadow("Bottom:", 96, 104, sel == 1 ? fontColorRed : fontColorWhite, sel == 1 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("   pixels", 160, 104, sel == 1 ? fontColorRed : fontColorWhite, sel == 1 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow(datab, 160, 104, sel == 1 ? fontColorRed : fontColorWhite, sel == 1 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Bottom:", 96, 104, sel == 1 ? fontColorRed : fontColorWhite, sel == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		mars_drawTextwShadow("   pixels", 160, 104, sel == 1 ? fontColorRed : fontColorWhite, sel == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		mars_drawTextwShadow(datab, 160, 104, sel == 1 ? fontColorRed : fontColorWhite, sel == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
 
 		intToStr(left, datal, 1);
-		mars_drawTextwShadow("Left:", 96, 112, sel == 2 ? fontColorRed : fontColorWhite, sel == 2 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("   pixels", 160, 112, sel == 2 ? fontColorRed : fontColorWhite, sel == 2 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow(datal, 160, 112, sel == 2 ? fontColorRed : fontColorWhite, sel == 2 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Left:", 96, 112, sel == 2 ? fontColorRed : fontColorWhite, sel == 2 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		mars_drawTextwShadow("   pixels", 160, 112, sel == 2 ? fontColorRed : fontColorWhite, sel == 2 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		mars_drawTextwShadow(datal, 160, 112, sel == 2 ? fontColorRed : fontColorWhite, sel == 2 ? fontColorRedHighlight : fontColorWhiteHighlight);
 
 		intToStr(abs(right-320), datar, 1);
-		mars_drawTextwShadow("Right:", 96, 120, sel == 3 ? fontColorRed : fontColorWhite, sel == 3 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("   pixels", 160, 120, sel == 3 ? fontColorRed : fontColorWhite, sel == 3 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow(datar, 160, 120, sel == 3 ? fontColorRed : fontColorWhite, sel == 3 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Right:", 96, 120, sel == 3 ? fontColorRed : fontColorWhite, sel == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		mars_drawTextwShadow("   pixels", 160, 120, sel == 3 ? fontColorRed : fontColorWhite, sel == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		mars_drawTextwShadow(datar, 160, 120, sel == 3 ? fontColorRed : fontColorWhite, sel == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
 
 		button = MARS_SYS_COMM8;
 

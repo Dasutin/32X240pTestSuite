@@ -1,7 +1,7 @@
 /* 
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
- * Copyright (C)2011-2022 Artemio Urbina
+ * Copyright (C)2011-2023 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
  *
@@ -37,6 +37,9 @@
 #define fontColorGreen 206
 #define fontColorGray 207
 #define fontColorBlack 208
+#define fontColorWhiteHighlight 209
+#define fontColorRedHighlight 210
+#define fontColorGreenHighlight 211
 
 #define IS_TRANSPARENT 1
 static const int TRANSPARENT_PIXEL_COLOR = 0;

@@ -1,7 +1,7 @@
 /* 
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
- * Copyright (C)2011-2021 Artemio Urbina
+ * Copyright (C)2011-2023 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
  *
@@ -58,6 +58,9 @@ int fontColorRed = 205;
 int fontColorGreen = 206;
 int fontColorGray = 207;
 int fontColorBlack = 208;
+int fontColorWhiteHighlight = 209;
+int fontColorRedHighlight = 210;
+int fontColorGreenHighlight = 211;
 
 void DrawMainBG()
 {
@@ -91,11 +94,14 @@ void loadTextPalette()
 {
 	vu16 *cram16 = &MARS_CRAM;
 
-	cram16[205] = COLOR(31,31,31); // 204 is White
-	cram16[206] = COLOR(31,0,0);   // 205 is Red
-	cram16[207] = COLOR(0,31,0);   // 206 is Green
-	cram16[208] = COLOR(5,5,5);    // 207 is Gray
-	cram16[209] = COLOR(0,0,0);    // 208 is Black
+	cram16[205] = COLOR(31,31,31);	// 204 is White
+	cram16[206] = COLOR(31,0,0);	// 205 is Red
+	cram16[207] = COLOR(0,31,0);	// 206 is Green
+	cram16[208] = COLOR(5,5,5);		// 207 is Gray
+	cram16[209] = COLOR(0,0,0);		// 208 is Black
+	cram16[210] = COLOR(8,8,8);		// 209 is White Shadow Highlight
+	cram16[211] = COLOR(8,0,0);		// 210 is Red Shadow Highlight
+	cram16[212] = COLOR(0,8,0);		// 211 is Green Shadow Highlight
 }
 
 void cleanup()
@@ -118,7 +124,7 @@ void swapBuffers()
 {
 	MARS_VDP_FBCTL = currentFB ^ 1;
 	while ((MARS_VDP_FBCTL & MARS_VDP_FS) == currentFB) {}
-	currentFB ^= 1;	
+	currentFB ^= 1;
 }
 
 /*
