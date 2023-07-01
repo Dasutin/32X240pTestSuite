@@ -1,7 +1,7 @@
 /* 
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
- * Copyright (C)2011-2022 Artemio Urbina
+ * Copyright (C)2011-2023 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
  *
@@ -170,23 +170,130 @@ void menu_tp()
 		DrawMainBGwGillian();
 		loadTextPalette();
 
-		mars_drawTextwShadow("Pluge", 40, 48, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Color Bars", 40, 56, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("EBU Color Bars", 40, 64, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("SMPTE Color Bars", 40, 72, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Referenced Color Bars", 40, 80, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Color Bleed Check", 40, 88, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Monoscope", 40, 96, curse == 7 ? fontColorRed : fontColorWhite, curse == 7 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Grid", 40, 104, curse == 8 ? fontColorRed : fontColorWhite, curse == 8 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Gray Ramp", 40, 112, curse == 9 ? fontColorRed : fontColorWhite, curse == 9 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("White & RGB Screens", 40, 120, curse == 10 ? fontColorRed : fontColorWhite, curse == 10 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("100 IRE", 40, 128, curse == 11 ? fontColorRed : fontColorWhite, curse == 11 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Sharpness", 40, 136, curse == 12 ? fontColorRed : fontColorWhite, curse == 12 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Overscan", 40, 144, curse == 13 ? fontColorRed : fontColorWhite, curse == 13 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Convergence", 40, 152, curse == 14 ? fontColorRed : fontColorWhite, curse == 14 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Color & Black Levels", 50, 96, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Geometry", 50, 104, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
 
-		mars_drawTextwShadow("Help", 40, 170, curse == 15 ? fontColorRed : fontColorWhite, curse == 15 ? fontColorBlack : fontColorGray);
-		mars_drawTextwShadow("Back to Main Menu", 40, 178, curse == 16 ? fontColorRed : fontColorWhite, curse == 16 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Help", 50, 130, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Credits", 50, 138, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorBlack : fontColorGray);
+		
+		if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT)
+		{
+			mars_drawTextwShadow("NTSC VDP 320x224p", 152, 192, fontColorWhite, fontColorGray);
+			mars_drawTextwShadow("Genesis 32X", 208, 208, fontColorWhite, fontColorGray);
+		}
+		else {
+			mars_drawTextwShadow("PAL VDP 320x224p", 160, 192, fontColorWhite, fontColorGray);
+			mars_drawTextwShadow("Mega Drive 32X", 184, 208, fontColorWhite, fontColorGray);
+		}
+		
+		button = MARS_SYS_COMM8;
+
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
+		{
+			button = MARS_SYS_COMM10;
+		}
+
+		pressedButton = button & ~oldButton;
+		oldButton = button;
+
+		if (pressedButton & SEGA_CTRL_DOWN)
+		{
+			curse++;
+			if(curse > 4)
+				curse = 1;
+		}
+
+		if (pressedButton & SEGA_CTRL_UP)
+		{
+			curse--;
+			if(curse < 1)
+				curse = 4;
+		}
+
+		if (pressedButton & SEGA_CTRL_B)
+		{
+			screenFadeOut(1);
+			done = 1;
+		}
+
+		if (pressedButton & SEGA_CTRL_START)
+		{
+			screenFadeOut(1);
+			done = 1;
+		}
+
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
+		{
+			if (pressedButton & SEGA_CTRL_C)
+			{
+				screenFadeOut(1);
+				DrawHelp(HELP_GENERAL);
+			}
+		}
+
+		if (pressedButton & SEGA_CTRL_Z)
+		{
+			screenFadeOut(1);
+			DrawHelp(HELP_GENERAL);
+		}
+
+		if(pressedButton & SEGA_CTRL_A)
+		{
+			switch (curse) {
+				case 1:
+					screenFadeOut(1);
+					menu_color_black_levels();
+				break;
+				
+				case 2:
+					screenFadeOut(1);
+					menu_geo();
+				break;
+
+				case 3:
+					screenFadeOut(1);
+					DrawHelp(HELP_GENERAL);
+					DrawMainBGwGillian();
+				break;
+
+				case 4:
+					screenFadeOut(1);
+					credits();
+					DrawMainBGwGillian();
+				break;
+			}
+		}
+
+		Hw32xScreenFlip(0);
+	}
+	return;
+}
+
+void menu_color_black_levels()
+{
+	int done = 0, curse = 1;
+	unsigned short button, pressedButton, oldButton = 0xFFFF;
+
+	Hw32xScreenFlip(0);
+
+	while (!done)
+	{
+		Hw32xFlipWait();
+		DrawMainBGwGillian();
+		loadTextPalette();
+
+		mars_drawTextwShadow("Pluge", 40, 72, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Color Bars", 40, 80, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("EBU Color Bars", 40, 88, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("SMPTE Color Bars", 40, 96, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Referenced Color Bars", 40, 104, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Color Bleed Check", 40, 112, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Gray Ramp", 40, 120, curse == 7 ? fontColorRed : fontColorWhite, curse == 7 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("White & RGB Screens", 40, 128, curse == 8 ? fontColorRed : fontColorWhite, curse == 8 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("100 IRE", 40, 136, curse == 9 ? fontColorRed : fontColorWhite, curse == 9 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Sharpness", 40, 144, curse == 10 ? fontColorRed : fontColorWhite, curse == 10 ? fontColorBlack : fontColorGray);
+
+		mars_drawTextwShadow("Back to Patterns Menu", 40, 160, curse == 11 ? fontColorRed : fontColorWhite, curse == 11 ? fontColorBlack : fontColorGray);
 
 		if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT)
 		{
@@ -210,7 +317,7 @@ void menu_tp()
 		if (pressedButton & SEGA_CTRL_DOWN)
 		{
 			curse++;
-			if(curse > 16)
+			if(curse > 11)
 				curse = 1;
 		}
 
@@ -218,7 +325,7 @@ void menu_tp()
 		{
 			curse--;
 			if(curse < 1)
-				curse = 16;
+				curse = 11;
 		}
 
 		if (pressedButton & SEGA_CTRL_B)
@@ -250,7 +357,7 @@ void menu_tp()
 
 		if (pressedButton & SEGA_CTRL_A)
 		{
-			switch (curse) 
+			switch (curse)
 			{
 				case 1:
 					screenFadeOut(1);
@@ -296,72 +403,82 @@ void menu_tp()
 
 				case 7:
 					screenFadeOut(1);
-					tp_monoscope();
+					tp_gray_ramp();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 8:
 					screenFadeOut(1);
-					tp_grid();
+					tp_white_rgb();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 9:
 					screenFadeOut(1);
-					tp_gray_ramp();
+					tp_100_ire();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 10:
 					screenFadeOut(1);
-					tp_white_rgb();
+					tp_sharpness();
 					marsVDP256Start();
 					DrawMainBGwGillian();
 				break;
 
 				case 11:
 					screenFadeOut(1);
-					tp_100_ire();
-					marsVDP256Start();
-					DrawMainBGwGillian();
-				break;
-
-				case 12:
-					screenFadeOut(1);
-					tp_sharpness();
-					marsVDP256Start();
-					DrawMainBGwGillian();
-				break;
-
-				case 13:
-					screenFadeOut(1);
-					tp_overscan();
-					HwMdClearScreen();
-					marsVDP256Start();
-					DrawMainBGwGillian();
-				break;
-
-				case 14:
-					screenFadeOut(1);
-					tp_convergence();
-					marsVDP256Start();
-					DrawMainBGwGillian();
-				break;
-
-				case 15:
-					screenFadeOut(1);
-					DrawHelp(HELP_GENERAL);
-					DrawMainBGwGillian();
-				break;
-
-				case 16:
-					screenFadeOut(1);
 					done = 1;
 				break;
 			}
+		}
+
+		button = MARS_SYS_COMM8;
+
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
+		{
+			button = MARS_SYS_COMM10;
+		}
+
+		pressedButton = button & ~oldButton;
+		oldButton = button;
+
+		Hw32xScreenFlip(0);
+	}
+	return;
+}
+
+void menu_geo()
+{
+	int done = 0, curse = 1;
+	unsigned short button, pressedButton, oldButton = 0xFFFF;
+
+	Hw32xScreenFlip(0);
+
+	while (!done)
+	{
+		Hw32xFlipWait();
+		DrawMainBGwGillian();
+		loadTextPalette();
+
+		mars_drawTextwShadow("Monoscope", 40, 96, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Grid", 40, 104, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Overscan", 40, 112, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorBlack : fontColorGray);
+		mars_drawTextwShadow("Convergence", 40, 120, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorBlack : fontColorGray);
+
+		mars_drawTextwShadow("Back to Patterns Menu", 40, 136, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorBlack : fontColorGray);
+
+		if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT)
+		{
+			mars_drawTextwShadow("NTSC VDP 320x224p", 152, 192, fontColorWhite, fontColorGray);
+			mars_drawTextwShadow("Genesis 32X", 208, 208, fontColorWhite, fontColorGray);
+		}
+		else {
+			mars_drawTextwShadow("PAL VDP 320x224p", 160, 192, fontColorWhite, fontColorGray);
+			mars_drawTextwShadow("Mega Drive 32X", 184, 208, fontColorWhite, fontColorGray);
 		}
 
 		button = MARS_SYS_COMM8;
@@ -373,9 +490,98 @@ void menu_tp()
 		pressedButton = button & ~oldButton;
 		oldButton = button;
 
-		Hw32xScreenFlip(0);
+		if (pressedButton & SEGA_CTRL_DOWN)
+		{
+			curse++;
+			if(curse > 5)
+				curse = 1;
+		}
 
-		//Hw32xDelay(1);
+		if (pressedButton & SEGA_CTRL_UP)
+		{
+			curse--;
+			if(curse < 1)
+				curse = 5;
+		}
+
+		if (pressedButton & SEGA_CTRL_B)
+		{
+			screenFadeOut(1);
+			done = 1;
+		}
+
+		if (pressedButton & SEGA_CTRL_START)
+		{
+			screenFadeOut(1);
+			done = 1;
+		}
+
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
+		{
+			if (pressedButton & SEGA_CTRL_C)
+			{
+				screenFadeOut(1);
+				DrawHelp(HELP_GENERAL);
+			}
+		}
+
+		if (pressedButton & SEGA_CTRL_Z)
+		{
+			screenFadeOut(1);
+			DrawHelp(HELP_GENERAL);
+		}
+
+		if (pressedButton & SEGA_CTRL_A)
+		{
+			switch (curse)
+			{
+				case 1:
+					screenFadeOut(1);
+					tp_monoscope();
+					marsVDP256Start();
+					DrawMainBGwGillian();
+				break;
+
+				case 2:
+					screenFadeOut(1);
+					tp_grid();
+					marsVDP256Start();
+					DrawMainBGwGillian();
+				break;
+
+				case 3:
+					screenFadeOut(1);
+					tp_overscan();
+					HwMdClearScreen();
+					marsVDP256Start();
+					DrawMainBGwGillian();
+				break;
+
+				case 4:
+					screenFadeOut(1);
+					tp_convergence();
+					marsVDP256Start();
+					DrawMainBGwGillian();
+				break;
+
+				case 5:
+					screenFadeOut(1);
+					done = 1;
+				break;
+			}
+		}
+
+		button = MARS_SYS_COMM8;
+
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
+		{
+			button = MARS_SYS_COMM10;
+		}
+
+		pressedButton = button & ~oldButton;
+		oldButton = button;
+
+		Hw32xScreenFlip(0);
 	}
 	return;
 }
@@ -387,7 +593,7 @@ void menu_vt()
 
 	Hw32xScreenFlip(0);
 	
-	while(!done) 
+	while(!done)
 	{
 		Hw32xFlipWait();
 		DrawMainBGwGillian();
@@ -469,7 +675,7 @@ void menu_vt()
 
 		if(pressedButton & SEGA_CTRL_A)
 		{
-			switch (curse) 
+			switch (curse)
 			{
 				case 1:
 					screenFadeOut(1);
@@ -575,8 +781,6 @@ void menu_vt()
 		}
 
 		Hw32xScreenFlip(0);
-
-		//Hw32xDelay(1);
 	}
 	return;
 }
@@ -662,7 +866,7 @@ void menu_at()
 
 		if (pressedButton & SEGA_CTRL_A)
 		{
-			switch (curse) 
+			switch (curse)
 			{
 				case 1:
 					screenFadeOut(1);
@@ -692,8 +896,6 @@ void menu_at()
 		}
 
 		Hw32xScreenFlip(0);
-
-		//Hw32xDelay(1);
 	}
 	return;
 }
@@ -735,7 +937,7 @@ void menu_ht()
 		}
 
 		pressedButton = button & ~oldButton;
-		oldButton = button;	
+		oldButton = button;
 
 		if (pressedButton & SEGA_CTRL_DOWN)
 		{
@@ -836,8 +1038,6 @@ void menu_ht()
 		oldButton = button;
 
 		Hw32xScreenFlip(0);
-
-		//Hw32xDelay(1);
 	}
 	return;
 }
@@ -891,12 +1091,10 @@ void credits()
 		if (pressedButton & SEGA_CTRL_B)
 		{
 			screenFadeOut(1);
-		 	done = 1;
+			done = 1;
 		}
 
 		Hw32xScreenFlip(0);
-
-		//Hw32xDelay(1);
 	}
 	return;
 }
