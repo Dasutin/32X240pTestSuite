@@ -1289,7 +1289,8 @@ void vt_scroll_test()
 
 	Hw32xSetPalette(sonic_tileset_Palette);
 
-	fpcamera_x = fpcamera_y = 0;
+	fpcamera_x = 262145;
+	fpcamera_y = 0;
 
 	Hw32xScreenFlip(0);
 
