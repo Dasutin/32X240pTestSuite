@@ -226,7 +226,10 @@ void vt_drop_shadow_test()
 
 	Hw32xSetPalette(donna_palette);
 
-	fpcamera_x = fpcamera_y = 0;
+	fpcamera_x = 262145;
+	fpcamera_y = 0;
+
+	MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X | MARS_224_LINES | MARS_VDP_MODE_256;
 
 	Hw32xScreenFlip(0);
 
@@ -280,10 +283,13 @@ void vt_drop_shadow_test()
 		{
 			mode = DRAWSPR_PRECISE;
 			x--;
-			if (x < 0)
-				x = 0;
+			if (x < 30)
+				x = 30;
 
 			fpcamera_x -= (fpmoveinc_x * 2);
+
+			if (fpcamera_x <= 262145)
+				fpcamera_x = 262145;
 		}
 
 		if (button & SEGA_CTRL_RIGHT)
@@ -294,15 +300,18 @@ void vt_drop_shadow_test()
 				x = 288;
 
 			fpcamera_x += (fpmoveinc_x * 2);
+			
+			if (fpcamera_x >= 34340865)
+				fpcamera_x = 34340865;
 		}
 
 		if (pressedButton & SEGA_CTRL_A)
-		{	
+		{
 			//TODO Even/Odd shadow code goes here
 		}
 
 		if (pressedButton & SEGA_CTRL_B)
-		{	
+		{
 			initTilemap = 1;
 			background++;
 	
@@ -315,7 +324,7 @@ void vt_drop_shadow_test()
 		{
 			if (changeSprite == 0){
 				changeSprite = 1;
-			}	
+			}
 			else {
 				changeSprite = 0;
 			}
@@ -416,11 +425,14 @@ void vt_striped_sprite_test()
 
 	Hw32xSetPalette(donna_palette);
 
-	fpcamera_x = fpcamera_y = 0;
+	fpcamera_x = 262145;
+	fpcamera_y = 0;
+
+	MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X | MARS_224_LINES | MARS_VDP_MODE_256;
 
 	Hw32xScreenFlip(0);
 
-	while (!done) 
+	while (!done)
 	{
 		button = MARS_SYS_COMM8;
 
@@ -473,6 +485,9 @@ void vt_striped_sprite_test()
 				x = 0;
 
 			fpcamera_x -= fpmoveinc_x;
+
+			if (fpcamera_x <= 262145)
+				fpcamera_x = 262145;
 		}
 
 		if (button & SEGA_CTRL_RIGHT)
@@ -482,6 +497,9 @@ void vt_striped_sprite_test()
 				x = 288;
 
 			fpcamera_x += fpmoveinc_x;
+
+			if (fpcamera_x >= 17235969)
+				fpcamera_x = 17235969;
 		}
 
 		if (pressedButton & SEGA_CTRL_A)
