@@ -3316,16 +3316,18 @@ void ht_controller_test()
 	return;
 }
 
-#define MAX_LOCATIONS 9
+#define VISIBLE_HORZ	16
+#define VISIBLE_VERT	28
+#define MAX_LOCATIONS	9
 
 void ht_memory_viewer(u32 address)
 {
-	int done = 0, frameDelay = 0, redraw = 1, docrc = 0, locpos = 1, i = 0;
+	int done = 0, frameDelay = 0, redraw = 1, docrc = 0, locpos = 1, pos = 0, ascii = 0;
 	u32 crc = 0, locations[MAX_LOCATIONS] = { 0, 0x0004000, 0x0004100, 0x0004200, 0x0004400, 0x2000000, 0x4000000, 0x4020000, 0x6000000 };
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
 
 	// Clear the 32X CRAM
-	for (i = 0; i < 255; i++)
+	for (int i = 0; i < 255; i++)
 	{
 		Hw32xSetBGColor(i,0,0,0);
 	}
@@ -3333,18 +3335,18 @@ void ht_memory_viewer(u32 address)
 	// Set screen priority for the 32X 
 	MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X | MARS_224_LINES | MARS_VDP_MODE_256;
 
-	for (i = 0; i < MAX_LOCATIONS; i++)
+	for (pos = 0; pos < MAX_LOCATIONS; pos++)
 	{
-		if (locations[i] == address)
+		if (locations[pos] == address)
 		{
-			locpos = i;
+			locpos = pos;
 			break;
 		}
 	}
 
 	Hw32xScreenFlip(0);
 
-	while (!done) 
+	while (!done)
 	{
 		Hw32xFlipWait();
 
@@ -3354,10 +3356,11 @@ void ht_memory_viewer(u32 address)
 			u8 *mem = NULL;
 			char buffer[10];
 
+			memset(buffer, 0, sizeof(char)*10);
 			mem = (u8*)address;
 
 			if (docrc)
-				crc = CalculateCRC(address, 0x1C0);
+				crc = CalculateCRC(address, VISIBLE_HORZ*VISIBLE_VERT);
 
 			intToHex(address, buffer, 8);
 			HwMdPuts(buffer, 0x2000, 32, 0);
@@ -3370,11 +3373,22 @@ void ht_memory_viewer(u32 address)
 				HwMdPuts(buffer, 0x4000, 32, 14);
 			}
 
-			for (i = 0; i < 28; i++)
+			for(i = 0; i < VISIBLE_VERT; i++)
 			{
-				for (j = 0; j < 16; j++)
+				for(j = 0; j < VISIBLE_HORZ; j++)
 				{
-					intToHex(mem[i*16+j], buffer, 2);
+					if(!ascii)
+						intToHex(mem[i*VISIBLE_HORZ+j], buffer, 2);
+					else
+					{
+						uint16_t c;
+						
+						buffer[0] = 32;				// Space
+						buffer[1] = 0;
+						c = mem[i*VISIBLE_HORZ+j];
+						if(c >= 32 && c <= 126)		// ASCII range
+							buffer[0] = c;
+					}
 					HwMdPuts(buffer, 0x0000, j*2, i);
 				}
 			}
@@ -3412,6 +3426,13 @@ void ht_memory_viewer(u32 address)
 			redraw = 1;
 		}
 
+		if (pressedButton & SEGA_CTRL_C)
+		{
+			ascii = !ascii;
+			HwMdClearScreen();
+			redraw = 1;
+		}
+
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
 		{
 			if (pressedButton & SEGA_CTRL_C)
@@ -3441,7 +3462,7 @@ void ht_memory_viewer(u32 address)
 
 		if (pressedButton & SEGA_CTRL_RIGHT)
 		{
-			address += 0x1C0;	
+			address += 0x1C0;
 			redraw = 1;
 		}
 

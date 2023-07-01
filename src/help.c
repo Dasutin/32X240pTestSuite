@@ -674,7 +674,9 @@ void DrawHelp(int option)
 				mars_drawTextwShadow("- Button A enabled CRC of the", 32, 136, fontColorWhite, fontColorGray);
 				mars_drawTextwShadow("current screen.", 32, 144, fontColorWhite, fontColorGray);
 				mars_drawTextwShadow("- Button B jumps to relevant", 32, 152, fontColorWhite, fontColorGray);
-				mars_drawTextwShadow("memory locations", 32, 160, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("memory locations.", 32, 160, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("- Button C switches to ASCII", 32, 168, fontColorWhite, fontColorGray);
+				mars_drawTextwShadow("mode.", 32, 176, fontColorWhite, fontColorGray);
 				break;
 		default:
 			screenFadeOut(1);
