@@ -55,8 +55,7 @@ void sec_dma1_handler(void)
 		SH2_DMA_CHCR1 = 0x18E5; // Dest fixed, src incr, size long, ext req, dack mem to dev, dack hi, dack edge, dreq rising edge, cycle-steal, dual addr, intr disabled, clear TE, dma enabled
 
 		sound_fillBuffer(&snd_buffer[0]);
-	}
-	else {
+	} else {
 		SH2_DMA_SAR1 = ((uint32_t)&snd_buffer[0]) | 0x20000000;
 		SH2_DMA_TCR1 = 1023; // Number longs
 		SH2_DMA_CHCR1 = 0x18E5; // Dest fixed, src incr, size long, ext req, dack mem to dev, dack hi, dack edge, dreq rising edge, cycle-steal, dual addr, intr disabled, clear TE, dma enabled
@@ -222,11 +221,9 @@ char sound_play(sound_t *sound, char loop, char selectch)
 		case 1:
 			MARS_PWM_CTRL = 0x0182;  // Left Channel Only
 		break;
-
 		case 2:
 			MARS_PWM_CTRL = 0x0184;  // Right Channel Only
 		break;
-
 		case 3:
 			MARS_PWM_CTRL = 0x0185;  // Center
 		break;
@@ -386,8 +383,7 @@ void sound_fillBuffer(unsigned long buff)
                         s += ADJVOL(*schannel[c].buf - 0x80);
                         schannel[c].buf++;
                         schannel[c].len--;
-                    }
-                	else {  // Ending
+                    } else {  // Ending
                         if (schannel[c].loop > 0) schannel[c].loop--;
                         	if (schannel[c].loop)
                         	{  // Just loop
@@ -396,8 +392,7 @@ void sound_fillBuffer(unsigned long buff)
                             	s += ADJVOL(*schannel[c].buf - 0x80);
                             	schannel[c].buf++;
                             	schannel[c].len--;
-                        	}
-                    		else {
+                        	} else {
                         		end_channel(c); // End for real
                         }
                     }
@@ -414,8 +409,7 @@ void sound_fillBuffer(unsigned long buff)
             stream[i] = ((unsigned long)s<<16) | (unsigned long)s;
         //}
         }
-    } 
-    else {
+    } else {
         for (i = 0; i < MIXSAMPLES; i++)
         stream[i] = ((unsigned long)516<<16) | (unsigned long)516;
     }

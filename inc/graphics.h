@@ -1,7 +1,7 @@
 /* 
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
- * Copyright (C)2011-2022 Artemio Urbina
+ * Copyright (C)2011-2023 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
  *
@@ -29,10 +29,8 @@
 // For a given details value 0 - 63 returns the equivalent of sin((d/10)). Precalculated.
 double xSinTable(const int details);
 
-
 // For a given details value 0 - 63 returns the equivalent of sin((d/10)+(pi/2)). Precalculated.
 double ySinTable(const int details);
-
 
 // Draws an elipse
 void circle2(const s16 height, const s16 width, const s16 rx, const s16 ry, const s16 r, vu8 *spriteBuffer, s16 colorIndex);

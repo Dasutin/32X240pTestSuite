@@ -69,9 +69,7 @@ void DrawHelp(int option)
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
-		{
 			button = MARS_SYS_COMM10;
-		}
 
 		pressedButton = button & ~oldButton;
 		oldButton = button & 0x0FFF;
@@ -80,7 +78,7 @@ void DrawHelp(int option)
 		loadTextPalette();
 
 		switch (option)
-			{
+		{
 			case HELP_GENERAL:
 				switch (page)
 				{
@@ -103,13 +101,9 @@ void DrawHelp(int option)
 
 					mars_drawTextwShadow("(cont...)", 207, 178, fontColorWhite, fontColorWhiteHighlight);
 					if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
-					{
 						mars_drawTextwShadow("Press C to exit help", 91, 193, fontColorWhite, fontColorWhiteHighlight);
-					}
 					else
-					{
 						mars_drawTextwShadow("Press Z to exit help", 91, 193, fontColorWhite, fontColorWhiteHighlight);
-					}
 					break;
 				case 2:
 					mars_drawTextwShadow("HELP (2/2)", 125, 35, fontColorGreen, fontColorGreenHighlight);
@@ -119,25 +113,16 @@ void DrawHelp(int option)
 					mars_drawTextwShadow("consoles, it can display either", 35, 66, fontColorWhite, fontColorWhiteHighlight);
 					mars_drawTextwShadow("224 or 240 lines.", 35, 74, fontColorWhite, fontColorWhiteHighlight);
 
-					mars_drawTextwShadow("The 240p suite is also available", 35, 90, fontColorWhite, fontColorWhiteHighlight);
-					mars_drawTextwShadow("on NES/FC, SNES/SFC, GameCube,", 35, 98, fontColorWhite, fontColorWhiteHighlight);
-					mars_drawTextwShadow("Wii, GBA, Neo Geo MVS/AES and CD,", 35, 106, fontColorWhite, fontColorWhiteHighlight);
-					mars_drawTextwShadow("Dreamcast, Genesis/Mega Drive,", 35, 114, fontColorWhite, fontColorWhiteHighlight);
-					mars_drawTextwShadow("Sega/Mega CD, SMS, and", 35, 122, fontColorWhite, fontColorWhiteHighlight);
-					mars_drawTextwShadow("PCE/TG-16/PCE-Duo/SCD/SCD2", 35, 130, fontColorWhite, fontColorWhiteHighlight);
+					mars_drawTextwShadow("Visit:", 35, 90, fontColorWhite, fontColorWhiteHighlight);
+					mars_drawTextwShadow("http://junkerhq.net/240p", 35, 98, fontColorGreen, fontColorGreenHighlight);
+					mars_drawTextwShadow("for more information.", 35, 106, fontColorWhite, fontColorWhiteHighlight);
 
-					mars_drawTextwShadow("Visit:", 35, 150, fontColorWhite, fontColorWhiteHighlight);
-					mars_drawTextwShadow("http://junkerhq.net/240p", 35, 160, fontColorGreen, fontColorGreenHighlight);
-					mars_drawTextwShadow("for more information", 35, 170, fontColorWhite, fontColorWhiteHighlight);
+					drawQRCode(256, 122, 32, 32);
 
 					if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
-					{
 						mars_drawTextwShadow("Press C to exit help", 91, 193, fontColorWhite, fontColorWhiteHighlight);
-					}
 					else
-					{
 						mars_drawTextwShadow("Press Z to exit help", 91, 193, fontColorWhite, fontColorWhiteHighlight);
-					}
 					break;
 				}
 				break;
@@ -682,18 +667,14 @@ void DrawHelp(int option)
 	}
 		if (pressedButton & SEGA_CTRL_RIGHT)
 		{
-			if(page + 1 <= totalpages)
-			{
+			if (page + 1 <= totalpages)
 				page++;
-			}
 		}
 
 		if (pressedButton & SEGA_CTRL_LEFT)
 		{
-			if(page - 1 > 0)
-			{
+			if (page - 1 > 0)
 				page--;
-			}
 		}
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)

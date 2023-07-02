@@ -1,7 +1,7 @@
 /* 
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
- * Copyright (C)2011-2022 Artemio Urbina
+ * Copyright (C)2011-2023 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
  *
@@ -52,7 +52,7 @@ static u16 uint16ToStr(u16 value, char *str, u16 minsize);
 size_t strlen(const char *str)
 {
 	const char *src = str;
-	while(*src++);
+	while (*src++);
 	return (src - str) - 1;
 }
 
@@ -83,7 +83,7 @@ char* strcat(char *to, const char *from)
 	return to;
 }
 
-void* memcpy (volatile void *dest, const void *src, size_t len)
+void* memcpy(volatile void *dest, const void *src, size_t len)
 {
 	char *d = dest;
 	const char *s = src;
@@ -98,7 +98,7 @@ void memset(void* str, char ch, size_t n)
 	//type cast the str from void* to char*
 	char *s = (char*) str;
 	//fill "n" elements/blocks with ch
-	for(i=0; i<n; i++)
+	for (i=0; i<n; i++)
 		s[i]=ch;
 }
 
@@ -106,13 +106,13 @@ void memset(void* str, char ch, size_t n)
 
 size_t strnlen(const char *str, size_t maxlen) {
 	const char *src;
-	for(src = str; maxlen-- && *src != '\0'; ++src);
+	for (src = str; maxlen-- && *src != '\0'; ++src);
 	return src - str;
 }
 
 static size_t skip_atoi(const char **s) {
 	size_t i = 0;
-	while(isdigit(**s)) {
+	while (isdigit(**s)) {
 		i = (i * 10) + *((*s)++) - '0';
 	}
 	return i;
@@ -135,7 +135,7 @@ static size_t skip_atoi(const char **s) {
 		char *s;
 		
 		// Process the flags
-		for(;;) {
+		for (;;) {
 			++fmt;          // this also skips first '%'
 			switch (*fmt) {
 				case '-':
@@ -295,17 +295,17 @@ static size_t skip_atoi(const char **s) {
 		}
 		if (!left_align) {
 			if (zero_pad) {
-				while(len < field_width--)
+				while (len < field_width--)
 					*str++ = '0';
 			} else {
-				while(len < field_width--)
+				while (len < field_width--)
 					*str++ = ' ';
 			}
 		}
 		for (size_t i = 0; i < len; ++i) {
 			*str++ = *s++;
 		}
-		while(len < field_width--) {
+		while (len < field_width--) {
 			*str++ = ' ';
 		}
 	}
@@ -340,107 +340,108 @@ u16 intToStr(s32 value, char *str, u16 minsize)
 
 u16 uintToStr(u32 value, char *str, u16 minsize)
 {
-    // the implentation cannot encode > 500000000 value --> use hexa
-    if (value > 500000000)
-        return intToHex(value, str, minsize);
+	// the implentation cannot encode > 500000000 value --> use hexa
+	if (value > 500000000)
+		return intToHex(value, str, minsize);
 
-    u16 len;
+	u16 len;
 
-    // need to split in 2 conversions ?
-    if (value > 10000)
-    {
-        const u16 v1 = value / (u16) 10000;
-        const u16 v2 = value % (u16) 10000;
+	// need to split in 2 conversions ?
+	if (value > 10000)
+	{
+		const u16 v1 = value / (u16) 10000;
+		const u16 v2 = value % (u16) 10000;
 
-        len = uint16ToStr(v1, str, (minsize > 4)?(minsize - 4):1);
-        len += uint16ToStr(v2, str + len, 4);
-    }
-    else len = uint16ToStr(value, str, minsize);
+		len = uint16ToStr(v1, str, (minsize > 4)?(minsize - 4):1);
+		len += uint16ToStr(v2, str + len, 4);
+	}
+	else len = uint16ToStr(value, str, minsize);
 
-    return len;
+	return len;
 }
 
 static u16 uint16ToStr(u16 value, char *str, u16 minsize)
 {
-    u16 length;
-    char *dst;
-    u16 v;
+	u16 length;
+	char *dst;
+	u16 v;
 
-    length = digits10(value);
-    if (length < minsize) length = minsize;
-    dst = &str[length];
-    *dst = 0;
-    v = value;
+	length = digits10(value);
+	if (length < minsize) length = minsize;
+	dst = &str[length];
+	*dst = 0;
+	v = value;
 
-    while (v >= 100)
-    {
-        const u16 quot = v / 100;
-        const u16 remain = v % 100;
+	while (v >= 100)
+	{
+		const u16 quot = v / 100;
+		const u16 remain = v % 100;
 
-        const u16 i = remain * 2;
-        v = quot;
+		const u16 i = remain * 2;
+		v = quot;
 
-        *--dst = digits[i + 1];
-        *--dst = digits[i + 0];
-    }
+		*--dst = digits[i + 1];
+		*--dst = digits[i + 0];
+	}
 
-    // handle last 1-2 digits
-    if (v < 10) *--dst = '0' + v;
-    else
-    {
-        const u16 i = v * 2;
+	// handle last 1-2 digits
+	if (v < 10) *--dst = '0' + v;
+	else
+	{
+		const u16 i = v * 2;
 
-        *--dst = digits[i + 1];
-        *--dst = digits[i + 0];
-    }
+		*--dst = digits[i + 1];
+		*--dst = digits[i + 0];
+	}
 
-    // pad with '0'
-    while(dst != str) *--dst = '0';
+	// pad with '0'
+	while (dst != str) *--dst = '0';
 
-    return length;
+	return length;
 }
 
 u32 intToHex(u32 value, char *str, u16 minsize)
 {
-    u32 res;
-    u16 cnt;
-    u16 left;
-    char data[16];
-    char *src;
-    char *dst;
-    const u16 maxsize = 16;
+	u32 res;
+	u16 cnt;
+	u16 left;
+	char data[16];
+	char *src;
+	char *dst;
+	const u16 maxsize = 16;
 
-    src = &data[16];
-    res = value;
-    left = minsize;
+	src = &data[16];
+	res = value;
+	left = minsize;
 
-    cnt = 0;
-    while (res)
-    {
-        u8 c;
+	cnt = 0;
+	while (res)
+	{
+		u8 c;
 
-        c = res & 0xF;
+		c = res & 0xF;
 
-        if (c >= 10) c += ('A' - 10);
-        else c += '0';
+		if (c >= 10) c += ('A' - 10);
+		else c += '0';
 
-        *--src = c;
-        cnt++;
-        left--;
-        res >>= 4;
-    }
-    while (left > 0)
-    {
-        *--src = '0';
-        cnt++;
-        left--;
-    }
+		*--src = c;
+		cnt++;
+		left--;
+		res >>= 4;
+	}
+	
+	while (left > 0)
+	{
+		*--src = '0';
+		cnt++;
+		left--;
+	}
 
-    if (cnt > maxsize) cnt = maxsize;
+	if (cnt > maxsize) cnt = maxsize;
 
-    dst = str;
-    while(cnt--) *dst++ = *src++;
-    *dst = 0;
+	dst = str;
+	while (cnt--) *dst++ = *src++;
+	*dst = 0;
 
 	return 0;
 }
@@ -467,7 +468,7 @@ void fix32ToStr(fix32 value, char *str, u16 numdec)
 	{
 		// need to add ending '0'
 		dst += len;
-		while(len++ < numdec) *dst++ = '0';
+		while (len++ < numdec) *dst++ = '0';
 		// mark end here
 		*dst = 0;
 	}
@@ -480,9 +481,7 @@ static u16 digits10(const u16 v)
 	{
 		if (v < P01) return 1;
 		return 2;
-	}
-	else
-	{
+	} else {
 		if (v < P03) return 3;
 		if (v < P04) return 4;
 		return 5;

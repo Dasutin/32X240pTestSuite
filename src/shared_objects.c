@@ -37,22 +37,6 @@ vu16 overwriteImg16;
 u32 _state = ~0L;
 u16 randbase;
 
-volatile unsigned mars_pwdt_ovf_count = 0;
-volatile unsigned mars_swdt_ovf_count = 0;
-
-int Mars_GetFRTCounter(void)
-{
-	unsigned int cnt = SH2_WDT_RTCNT;
-	return (int)((mars_pwdt_ovf_count << 8) | cnt);
-}
-
-static const u32 crc32_table[] = {
-	0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac,
-	0x76dc4190, 0x6b6b51f4, 0x4db26158, 0x5005713c,
-	0xedb88320, 0xf00f9344, 0xd6d6a3e8, 0xcb61b38c,
-	0x9b64c2b0, 0x86d3d2d4, 0xa00ae278, 0xbdbdf21c
-};
-
 int fontColorWhite = 204;
 int fontColorRed = 205;
 int fontColorGreen = 206;
@@ -62,6 +46,22 @@ int fontColorWhiteHighlight = 209;
 int fontColorRedHighlight = 210;
 int fontColorGreenHighlight = 211;
 
+volatile unsigned mars_pwdt_ovf_count = 0;
+volatile unsigned mars_swdt_ovf_count = 0;
+
+static const u32 crc32_table[] = {
+	0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac,
+	0x76dc4190, 0x6b6b51f4, 0x4db26158, 0x5005713c,
+	0xedb88320, 0xf00f9344, 0xd6d6a3e8, 0xcb61b38c,
+	0x9b64c2b0, 0x86d3d2d4, 0xa00ae278, 0xbdbdf21c
+};
+
+int Mars_GetFRTCounter(void)
+{
+	unsigned int cnt = SH2_WDT_RTCNT;
+	return (int)((mars_pwdt_ovf_count << 8) | cnt);
+}
+
 void DrawMainBG()
 {
 	extern const u16 BACKGROUND_PAL[];
@@ -69,9 +69,8 @@ void DrawMainBG()
 	vu16 *cram16 = &MARS_CRAM;
 	volatile unsigned short *frameBuffer16 = &MARS_FRAMEBUFFER;
 
-	for (int i = 0; i < 27; i++){
+	for (int i = 0; i < 18; i++)
 		cram16[i] = BACKGROUND_PAL[i] & 0x7FFF;
-	}
 
 	memcpy(frameBuffer16 + 0x100, BACKGROUND_TILE, 320*224);
 }
@@ -83,11 +82,34 @@ void DrawMainBGwGillian()
 	vu16 *cram16 = &MARS_CRAM;
 	volatile unsigned short *frameBuffer16 = &MARS_FRAMEBUFFER;
 
-	for (int i = 0; i < 27; i++){
+	for (int i = 0; i < 27; i++)
 		cram16[i] = BACKGROUND_W_GILLIAN_PAL[i] & 0x7FFF;
-	}
 
 	memcpy(frameBuffer16 + 0x100, BACKGROUND_W_GILLIAN_TILE, 320*224);
+}
+
+void drawQRCode(u16 x, u16 y, u16 xWidth, u16 yWidth)
+{
+	extern const u8 QRCODE_TILE[] __attribute__((aligned(16)));
+	vu16 *cram16 = &MARS_CRAM;
+	vu8 *frameBuffer8 = (vu8*)&MARS_OVERWRITE_IMG;
+	vu8* dst = &frameBuffer8[0x100 + (y * 320) + (x + 256)];
+	vu8* src = QRCODE_TILE;
+
+	const u16 xw = xWidth;
+	const int dstStep = 320 - xw;
+	u16 row = yWidth;
+
+	cram16[32] = COLOR(31,31,31);	// White
+	cram16[33] = COLOR(0,0,0);		// Black
+	cram16[34] = COLOR(23,23,23);	// Gray
+
+	while (row--)
+	{
+		u16 col = xw;
+		while (col--) *dst++ = *src++;
+		dst += dstStep;
+	}
 }
 
 void loadTextPalette()
@@ -155,7 +177,8 @@ int memcmp1(const void *s1, const void *s2, int n)
 {
 	unsigned char u1, u2;
 
-	for ( ; n-- ; s1++, s2++) {
+	for ( ; n-- ; s1++, s2++)
+	{
 		u1 = * (unsigned char *) s1;
 		u2 = * (unsigned char *) s2;
 		if ( u1 != u2) {

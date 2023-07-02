@@ -1,7 +1,7 @@
 /* 
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
- * Copyright (C)2011-2022 Artemio Urbina
+ * Copyright (C)2011-2023 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
  *
@@ -30,7 +30,7 @@
 #define SLAVE_STATUS_OK 2
 #define SLAVE_LOCK 8
 
-#define PAUSED  1
+#define PAUSED 1
 #define UNPAUSED 0
 
 #define TRUE 1
@@ -42,12 +42,12 @@ extern unsigned short int currentFB;
 
 extern void DrawMainBG(void);
 extern void DrawMainBGwGillian(void);
+extern void drawQRCode(u16 x, u16 y, u16 xWidth, u16 yWidth);
 extern void loadTextPalette(void);
 extern void cleanup(void);
 extern void marsVDP256Start(void);
 extern void marsVDP32KStart(void);
 extern void swapBuffers(void);
-extern void handle_input();
 void CRC32_reset();
 void CRC32_update(u8 data);
 u32 CRC32_finalize();

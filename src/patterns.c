@@ -58,9 +58,7 @@ void tp_pluge()
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
-		{
 			button = MARS_SYS_COMM10;
-		}
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
@@ -79,9 +77,7 @@ void tp_pluge()
 		{
 			text--;
 			if (!text)
-			{
 				HwMdClearScreen();
-			}
 		}
 
 		if (pressedButton & SEGA_CTRL_A)
@@ -92,8 +88,7 @@ void tp_pluge()
 			{
 				loadPalette(&PLUGE_RGB_PAL[0], &PLUGE_RGB_PAL[255],0);
 				HwMdPuts("RGB FULL RANGE", 0x2000, 24, 2);
-			}
-			else {
+			} else {
 				loadPalette(&PLUGE_NTSC_PAL[0], &PLUGE_NTSC_PAL[255],0);
 				HwMdPuts("NTSC 7.5 IRE  ", 0x2000, 24, 2);
 			}
@@ -156,9 +151,7 @@ void tp_colorchart()
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
-		{
 			button = MARS_SYS_COMM10;
-		}
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
@@ -211,9 +204,7 @@ void tp_colorbars()
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
-		{
 			button = MARS_SYS_COMM10;
-		}
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
@@ -232,9 +223,7 @@ void tp_colorbars()
 		{
 			text--;
 			if (!text)
-			{
 				HwMdClearScreen();
-			}
 		}
 
 		if (pressedButton & SEGA_CTRL_START)
@@ -252,8 +241,7 @@ void tp_colorbars()
 			{
 				loadPalette(&EBU_COLORBARS_100_PAL[0], &EBU_COLORBARS_100_PAL[255],0);
 				HwMdPuts("100%", 0x0000, 32, 1);
-			}
-			else {
+			} else {
 				loadPalette(&EBU_COLORBARS_75_PAL[0], &EBU_COLORBARS_75_PAL[255],0);
 				HwMdPuts(" 75%", 0x0000, 32, 1);
 			}
@@ -305,9 +293,7 @@ void tp_smpte_color_bars()
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
-		{
 			button = MARS_SYS_COMM10;
-		}
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
@@ -326,9 +312,7 @@ void tp_smpte_color_bars()
 		{
 			text--;
 			if (!text)
-			{
 				HwMdClearScreen();
-			}
 		}
 
 		if (pressedButton & SEGA_CTRL_START)
@@ -346,8 +330,7 @@ void tp_smpte_color_bars()
 			{
 				loadPalette(&SMPTE100IRE_PAL[0], &SMPTE100IRE_PAL[255],0);
 				HwMdPuts("100%", 0x0000, 32, 1);
-			}
-			else {
+			} else {
 				loadPalette(&SMPTE75IRE_PAL[0], &SMPTE75IRE_PAL[255],0);
 				HwMdPuts(" 75%", 0x0000, 32, 1);
 			}
@@ -400,9 +383,7 @@ void tp_ref_color_bars()
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
-		{
 			button = MARS_SYS_COMM10;
-		}
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
@@ -458,9 +439,7 @@ void tp_color_bleed_check()
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
-		{
 			button = MARS_SYS_COMM10;
-		}
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
@@ -469,15 +448,12 @@ void tp_color_bleed_check()
 		{
 			pattern++;
 	
-			if (pattern > 2){
+			if (pattern > 2)
 				pattern = 1;
-			}
 		}
 
 		if (pressedButton & SEGA_CTRL_START)
-		{
 			done = 1;
-		}
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
 		{
@@ -499,7 +475,6 @@ void tp_color_bleed_check()
 			case 1:
 				drawBG(COLORBLEED_TILE);
 			break;
-			
 			case 2:
 				drawBG(COLORBLEED_CHECKERBOARD_TILE);
 			break;
@@ -533,9 +508,7 @@ void tp_grid()
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
-		{
 			button = MARS_SYS_COMM10;
-		}
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
@@ -545,7 +518,6 @@ void tp_grid()
 			case 1:
 				loadPalette(&GRID_PAL[0], &GRID_PAL[255],0);
 			break;
-
 			case 2:
 				loadPalette(&GRID_GRAY_PAL[0], &GRID_GRAY_PAL[255],0);
 			break;
@@ -562,9 +534,7 @@ void tp_grid()
 			pattern++;
 
 			if (pattern > 2)
-			{
 				pattern = 1;
-			}
 		}
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
@@ -613,20 +583,15 @@ void tp_monoscope()
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
-		{
 			button = MARS_SYS_COMM10;
-		}
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
 
-		if (!gray) 
-		{
+		if (!gray)
 			cram16[1] = COLOR(0, 0, 0);
-		}
-		else {
+		else
 			cram16[1] = COLOR(13, 13, 13);
-		}
 
 		if (pressedButton & SEGA_CTRL_A)
 		{
@@ -636,9 +601,7 @@ void tp_monoscope()
 		}
 
 		if (pressedButton & SEGA_CTRL_B)
-		{
 			gray = !gray;
-		}
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
 		{
@@ -666,27 +629,21 @@ void tp_monoscope()
 			case 1:
 				cram16[0] = COLOR(30, 30, 30);
 			break;
-
 			case 2:
 				cram16[0] = COLOR(26, 26, 26);
 			break;
-
 			case 3:
 				cram16[0] = COLOR(21, 21, 21);
 			break;
-
 			case 4:
 				cram16[0] = COLOR(17, 17, 17);
 			break;
-
 			case 5:
 				cram16[0] = COLOR(13, 13, 13);
 			break;
-
 			case 6:
 				cram16[0] = COLOR(8, 8, 8);
 			break;
-
 			case 7:
 				cram16[0] = COLOR(4, 4, 4);
 			break;
@@ -725,9 +682,7 @@ void tp_gray_ramp()
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
-		{
 			button = MARS_SYS_COMM10;
-		}
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
@@ -791,9 +746,7 @@ void tp_white_rgb()
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
-		{
 			button = MARS_SYS_COMM10;
-		}
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
@@ -812,59 +765,41 @@ void tp_white_rgb()
 		}
 
 		if (pressedButton & SEGA_CTRL_C)
-		{
 			custom = !custom;
-			//draw = 1;
-		}
 
 		if (pressedButton & SEGA_CTRL_A)
-		{
 			color++;
-			//draw = 1;
-		}
 
 		if (pressedButton & SEGA_CTRL_B)
-		{
 			color--;
-			//draw = 1;
-		}
 
 		cram16[0] = COLOR(r, g, b);
 
 		switch (color)
 		{
 			case 1:
-				for (int i=0; i<=l; i++){
+				for (int i = 0; i <= l; i++)
 					frameBuffer16[i] = 0x0000;
-				}
 			break;
-
 			case 2:
-				for (int i=0; i<=l; i++){
+				for (int i = 0; i <= l; i++)
 					frameBuffer16[i] = 0x0101;
-				}
 			break;
-
 			case 3:
-				for (int i=0; i<=l; i++){
+				for (int i = 0; i <= l; i++)
 					frameBuffer16[i] = 0x0202;
-				}
 			break;
-
 			case 4:
-				for (int i=0; i<=l; i++){
+				for (int i = 0; i <= l; i++)
 					frameBuffer16[i] = 0x0303;
-				}
 			break;
-
 			case 5:
-				for (int i=0; i<=l; i++){
+				for (int i = 0; i <= l; i++)
 					frameBuffer16[i] = 0x0404;
-				}
 			break;
 		}
 
-		if(custom && color == 1)
+		if (custom && color == 1)
 		{
 			strcpy(str, "R:");
 			intToStr(r, num, 2);
@@ -888,34 +823,30 @@ void tp_white_rgb()
 		if (custom)
 		{
 			if (pressedButton & SEGA_CTRL_LEFT)
-			{
 				sel--;
-			}
 
 			if (pressedButton & SEGA_CTRL_RIGHT)
-			{
 				sel++;
-			}
 
 			if (pressedButton & SEGA_CTRL_UP)
 			{
 				switch (sel)
 				{
-				case 1:
-					r++;
-					if (r > 31)
-						r = 0;
-				break;
-				case 2:
-					g++;
-					if (g > 31)
-						g = 0;
-				break;
-				case 3:
-					b++;
-					if (b > 31)
-						b = 0;
-				break;
+					case 1:
+						r++;
+						if (r > 31)
+							r = 0;
+					break;
+					case 2:
+						g++;
+						if (g > 31)
+							g = 0;
+					break;
+					case 3:
+						b++;
+						if (b > 31)
+							b = 0;
+					break;
 				}
 			}
 
@@ -989,9 +920,7 @@ void tp_100_ire()
 		}
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
-		{
 			button = MARS_SYS_COMM10;
-		}
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
@@ -1036,31 +965,25 @@ void tp_100_ire()
 		switch (ire)
 		{
 			case 0:
-				cram16[1] = COLOR(4, 4, 4);     // 13
+				cram16[1] = COLOR(4, 4, 4);		// 13
 			break;
-
 			case 1:
-				cram16[1] = COLOR(8, 8, 8);     // 25
+				cram16[1] = COLOR(8, 8, 8);		// 25
 			break;
-
 			case 2:
-				cram16[1] = COLOR(13, 13, 13);  // 41
+				cram16[1] = COLOR(13, 13, 13);	// 41
 			break;
-
 			case 3:
-				cram16[1] = COLOR(17, 17, 17);  // 53
+				cram16[1] = COLOR(17, 17, 17);	// 53
 			break;
-
 			case 4:
-				cram16[1] = COLOR(21, 21, 21);  // 66
+				cram16[1] = COLOR(21, 21, 21);	// 66
 			break;
-
 			case 5:
-				cram16[1] = COLOR(26, 26, 26);  // 82
+				cram16[1] = COLOR(26, 26, 26);	// 82
 			break;
-
 			case 6:
-				cram16[1] = COLOR(30, 30, 30);  // 94
+				cram16[1] = COLOR(30, 30, 30);	// 94
 			break;
 		}
 
@@ -1075,9 +998,7 @@ void tp_100_ire()
 		{
 			text--;
 			if (!text)
-			{
 				HwMdClearScreen();
-			}
 		}
 
 		drawLineTable(4);
@@ -1107,9 +1028,7 @@ void tp_sharpness()
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
-		{
 			button = MARS_SYS_COMM10;
-		}
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
@@ -1118,9 +1037,8 @@ void tp_sharpness()
 		{
 			pattern++;
 	
-			if (pattern > 2){
+			if (pattern > 2)
 				pattern = 1;
-			}
 		}
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
@@ -1135,7 +1053,6 @@ void tp_sharpness()
 						loadPalette(&SHARPNESS_PAL[0], &SHARPNESS_PAL[255],0);
 						drawBG(SHARPNESS_TILE);
 					break;
-
 					case 2:
 						loadPalette(&SHARPNESS_BRICK_PAL[0], &SHARPNESS_BRICK_PAL[255],0);
 						drawBG(SHARPNESS_BRICK_TILE);
@@ -1154,7 +1071,6 @@ void tp_sharpness()
 					loadPalette(&SHARPNESS_PAL[0], &SHARPNESS_PAL[255],0);
 					drawBG(SHARPNESS_TILE);
 				break;
-
 				case 2:
 					loadPalette(&SHARPNESS_BRICK_PAL[0], &SHARPNESS_BRICK_PAL[255],0);
 					drawBG(SHARPNESS_BRICK_TILE);
@@ -1168,7 +1084,6 @@ void tp_sharpness()
 				loadPalette(&SHARPNESS_PAL[0], &SHARPNESS_PAL[255],0);
 				drawBG(SHARPNESS_TILE);
 			break;
-
 			case 2:
 				loadPalette(&SHARPNESS_BRICK_PAL[0], &SHARPNESS_BRICK_PAL[255],0);
 				drawBG(SHARPNESS_BRICK_TILE);
@@ -1203,7 +1118,7 @@ void tp_overscan()
 
 	Hw32xScreenFlip(0);
 
-	while(!done)
+	while (!done)
 	{
 		Hw32xFlipWait();
 		loadTextPalette();
@@ -1220,9 +1135,8 @@ void tp_overscan()
 		t = top;
 		b = bottom;
 
-		for (int i= t; i <= b; i++) {
+		for (int i= t; i <= b; i++)
 			drawLine(l,i,r,1);
-		}
 
 		// Text
 		intToStr(top, datat, 1);
@@ -1248,9 +1162,7 @@ void tp_overscan()
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
-		{
 			button = MARS_SYS_COMM10;
-		}
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
@@ -1276,14 +1188,10 @@ void tp_overscan()
 			done = 1;
 
 		if (pressedButton & SEGA_CTRL_UP)
-		{
 			sel--;
-		}
 
 		if (pressedButton & SEGA_CTRL_DOWN)
-		{
 			sel++;
-		}
 
 		if (sel < 0)
 			sel = 3;
@@ -1388,9 +1296,8 @@ void tp_convergence()
 	extern const uint8_t CONVERGENCE_COLOR_BORDER_TILE[] __attribute__((aligned(16)));
 	volatile unsigned short *cram16 = &MARS_CRAM;
 
-	for (int i = 0; i < 255; i++){
+	for (int i = 0; i < 255; i++)
 		cram16[i] = CONVERGENCE_GRID_PAL[i] & 0x7FFF;
-	}
 
 	Hw32xScreenFlip(0);
 
@@ -1401,9 +1308,7 @@ void tp_convergence()
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
-		{
 			button = MARS_SYS_COMM10;
-		}
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
@@ -1412,23 +1317,17 @@ void tp_convergence()
 		{
 			pattern++;
 			if (pattern > 3)
-			{
 				pattern = 1;
-			}
 		}
 
 		if (pressedButton & SEGA_CTRL_B)
 		{
 			if (pattern < 3)
-			{
 				pattern = 4;
-			}
 
 			pattern++;
 			if (pattern > 5)
-			{
 				pattern = 4;
-			}
 		}
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
@@ -1437,9 +1336,8 @@ void tp_convergence()
 			{
 				DrawHelp(HELP_CONVERGENCE);
 
-				for (int i = 0; i < 255; i++){
+				for (int i = 0; i < 255; i++)
 					cram16[i] = CONVERGENCE_GRID_PAL[i] & 0x7FFF;
-				}
 			}
 		}
 
@@ -1447,48 +1345,38 @@ void tp_convergence()
 		{
 			DrawHelp(HELP_CONVERGENCE);
 
-			for (int i = 0; i < 255; i++){
+			for (int i = 0; i < 255; i++)
 				cram16[i] = CONVERGENCE_GRID_PAL[i] & 0x7FFF;
-			}
 		}
 
 		switch (pattern)
 		{
 			case 1:
-				for (int i = 0; i < 255; i++){
+				for (int i = 0; i < 255; i++)
 					cram16[i] = CONVERGENCE_GRID_PAL[i] & 0x7FFF;
-				}
 				cram16[1] = COLOR(31, 31, 31);
 				drawBG(CONVERGENCE_GRID_TILE);
 			break;
-
 			case 2:
-				for (int i = 0; i < 255; i++){
+				for (int i = 0; i < 255; i++)
 					cram16[i] = CONVERGENCE_GRID_PAL[i] & 0x7FFF;
-				}
 				cram16[1] = COLOR(31, 31, 31);
 				drawBG(CONVERGENCE_DOTS_TILE);
 			break;
-
 			case 3:
-				for (int i = 0; i < 255; i++){
+				for (int i = 0; i < 255; i++)
 					cram16[i] = CONVERGENCE_GRID_PAL[i] & 0x7FFF;
-				}
 				cram16[1] = COLOR(31, 31, 31);
 				drawBG(CONVERGENCE_STARS_TILE);
 			break;
-
 			case 4:
-				for (int i = 0; i < 255; i++){
+				for (int i = 0; i < 255; i++)
 					cram16[i] = CONVERGENCE_COLOR_PAL[i] & 0x7FFF;
-				}
 				drawBG(CONVERGENCE_COLOR_TILE);
 			break;
-
 			case 5:
-				for (int i = 0; i < 255; i++){
+				for (int i = 0; i < 255; i++)
 					cram16[i] = CONVERGENCE_COLOR_BORDER_PAL[i] & 0x7FFF;
-				}
 				drawBG(CONVERGENCE_COLOR_BORDER_TILE);
 			break;
 		}

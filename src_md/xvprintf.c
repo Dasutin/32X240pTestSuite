@@ -50,9 +50,7 @@ static char* xvprintfd(char* buf, int val)
 		{
 			quot = val / dvsr;
 			val = val - (quot * dvsr);
-		}
-		else
-		{
+		} else {
 			quot = 0;
 		}
 		dvsr = dvsr / 10;
@@ -139,9 +137,7 @@ void xvprintf(char* buf, char* fmt, int val)
 				pbuf[i] = widthfield;
 			buf = pbuf + width;
 		}
-	}
-	else
-	{
+	} else {
 		// Format string has no value
 		buf = xvprintfs(buf, fmt);
 	}
