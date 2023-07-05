@@ -366,6 +366,19 @@ void DrawHelp(int option)
 				mars_drawTextwShadow("color pattern for transition", 32, 120, fontColorWhite, fontColorWhiteHighlight);
 				mars_drawTextwShadow("boundary check.", 32, 128, fontColorWhite, fontColorWhiteHighlight);
 				break;
+			case HELP_DISAPPEAR:
+				mars_drawTextwShadow("DISAPPEARING LOGO", 90, 35, fontColorGreen, fontColorGreenHighlight);
+				mars_drawTextwShadow("This test allows you to use a", 32, 56, fontColorWhite, fontColorWhiteHighlight);
+				mars_drawTextwShadow("slow motion camera to measure", 32, 64, fontColorWhite, fontColorWhiteHighlight);
+				mars_drawTextwShadow("how long it takes from a button", 32, 72, fontColorWhite, fontColorWhiteHighlight);
+				mars_drawTextwShadow("press to when the logo", 32, 80, fontColorWhite, fontColorWhiteHighlight);
+				mars_drawTextwShadow("disappears.", 32, 88, fontColorWhite, fontColorWhiteHighlight);
+
+				mars_drawTextwShadow("You can also use a photodiode", 32, 104, fontColorWhite, fontColorWhiteHighlight);
+				mars_drawTextwShadow("and press 'C', to turn the", 32, 112, fontColorWhite, fontColorWhiteHighlight);
+				mars_drawTextwShadow("whole background white for", 32, 120, fontColorWhite, fontColorWhiteHighlight);
+				mars_drawTextwShadow("2 frames.", 32, 128, fontColorWhite, fontColorWhiteHighlight);
+				break;
 			case HELP_CHECK:
 				mars_drawTextwShadow("CHECKERBOARD", 115, 35, fontColorGreen, fontColorGreenHighlight);
 				mars_drawTextwShadow("This pattern shows all the", 32, 57, fontColorWhite, fontColorWhiteHighlight);

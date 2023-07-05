@@ -44,6 +44,7 @@ extern void DrawMainBG(void);
 extern void DrawMainBGwGillian(void);
 extern void drawQRCode(u16 x, u16 y, u16 xWidth, u16 yWidth);
 extern void loadTextPalette(void);
+extern void drawResolution(void);
 extern void cleanup(void);
 extern void marsVDP256Start(void);
 extern void marsVDP32KStart(void);

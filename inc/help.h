@@ -54,6 +54,7 @@
 #define HELP_MDFOURIER		29
 #define HELP_SEGACD			30
 #define HELP_MEMVIEW		31
+#define HELP_DISAPPEAR		32
 
 void DrawHelp(int option);
 

@@ -112,6 +112,18 @@ void drawQRCode(u16 x, u16 y, u16 xWidth, u16 yWidth)
 	}
 }
 
+void drawResolution()
+{
+	if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT)
+	{
+		mars_drawTextwShadow("NTSC VDP 320x224p", 152, 192, fontColorWhite, fontColorWhiteHighlight);
+		mars_drawTextwShadow("Genesis 32X", 208, 208, fontColorWhite, fontColorWhiteHighlight);
+	} else {
+		mars_drawTextwShadow("PAL VDP 320x224p", 160, 192, fontColorWhite, fontColorWhiteHighlight);
+		mars_drawTextwShadow("Mega Drive 32X", 184, 208, fontColorWhite, fontColorWhiteHighlight);
+	}
+}
+
 void loadTextPalette()
 {
 	vu16 *cram16 = &MARS_CRAM;

@@ -55,6 +55,8 @@
 #include "sonic_tileset_palette.h"
 #include "sonic_tileset.h"
 #include "sonic_tilemap.h"
+#include "sd_pal.h"
+#include "sd_tile.h"
 
 // Global Variables
 extern int fontColorWhite, fontColorRed, fontColorGreen, fontColorGray, fontColorBlack;
@@ -208,10 +210,6 @@ void MDPSG_stop()
 	HwMdPSGSetChandVol(1,15);
 	HwMdPSGSetChandVol(2,15);
 	HwMdPSGSetChandVol(3,15);
-	//HwMdPSGSetEnvelope(0, PSG_ENVELOPE_MIN);
-	//HwMdPSGSetEnvelope(1, PSG_ENVELOPE_MIN);
-	//HwMdPSGSetEnvelope(2, PSG_ENVELOPE_MIN);
-	//HwMdPSGSetEnvelope(3, PSG_ENVELOPE_MIN);
 }
 
 void vt_drop_shadow_test()
@@ -392,7 +390,7 @@ void vt_drop_shadow_test()
 
 			draw_sprite(x-20, y-20, 32, 32, buzz_sprite, DRAWSPR_OVERWRITE | mode | DRAWSPR_PRECISE, 1);
 		} else {
-			if (frameCount % 2 == evenFrames )
+			if (frameCount % 2 == evenFrames)
 				draw_sprite(x, y, 32, 32, marker_shadow_tile, DRAWSPR_OVERWRITE | DRAWSPR_PRECISE | mode, 1);
 		}
 
@@ -1351,9 +1349,11 @@ void vt_scroll_test()
 		}
 
 		if (!vertical)
+		{
 			if (fpcamera_x < 0) fpcamera_x = sonic_tilemap_Map.wrapX*(1<<16);
-		else
+		} else {
 			if (fpcamera_y < 0) fpcamera_y = kiki_Map.wrapY*(1<<16);
+		}
 
 		Hw32xFlipWait();
 
@@ -2491,6 +2491,146 @@ void vt_backlitzone_test()
 	return;
 }
 
+void vt_DisappearingLogo()
+{
+	u16 lsd, msd;
+	u16 x = 132, y = 75, done = 0, draw = 1, reload = 1, redraw = 1;
+	u16 custom_pal[16], oldColor = 0, frame = 2, frames = 0;
+	int seconds = 0, minutes = 0, hours = 0, framecnt = 1;
+	uint8_t *numbers[10] = {tiles_0, tiles_1, tiles_2, tiles_3, tiles_4, tiles_5, tiles_6, tiles_7, tiles_8, tiles_9};
+	//timecode tc;
+	u16 button, pressedButton, oldButton = 0xFFFF;
+	vu16 *cram16 = &MARS_CRAM;
+
+	Hw32xSetPalette(sd_palette);
+
+	MARS_SYS_COMM4 = 0;
+	MARS_SYS_COMM6 = 0;
+
+	fpcamera_x = fpcamera_y = 0;
+
+	Hw32xScreenFlip(0);
+
+	init_tilemap(&tm, &background_fill_tmx, (uint8_t **)background_fill_reslist);
+
+	while (!done)
+	{
+		if (reload)
+		{
+			redraw = 1;
+		}
+
+		button = MARS_SYS_COMM8;
+
+		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
+			button = MARS_SYS_COMM10;
+
+		pressedButton = button & ~oldButton;
+		oldButton = button;
+
+		if (pressedButton & SEGA_CTRL_Z)
+		{
+			DrawHelp(HELP_DISAPPEAR);
+			Hw32xSetPalette(sd_palette);
+		}
+
+		if (pressedButton & SEGA_CTRL_START)
+			done = 1;
+
+		if (pressedButton & SEGA_CTRL_A)
+		{
+			draw = !draw;
+			redraw = 1;
+		}
+
+		if (frame)
+		{
+			frame--;
+			if (!frame)
+			{
+				Hw32xSetPalette(sd_palette);
+			}
+		}
+
+		if (pressedButton & SEGA_CTRL_C)
+		{
+			if (!frame)
+			{
+				cram16[1] = COLOR(31,31,31);
+				frame = 2;
+			}
+		}
+
+		Hw32xFlipWait();
+
+		canvas_rebuild_id++;
+		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+		draw_setScissor(0, 0, 320, 224);
+
+		frames ++;
+		framecnt ++;
+
+		if (frames > 59)
+		{
+			frames = 0;
+			seconds ++;
+		}
+
+		if (seconds > 59)
+		{
+			seconds = 0;
+			minutes ++;
+		}
+
+		if (minutes > 59)
+		{
+			minutes = 0;
+			hours ++;
+		}
+
+		if (hours > 99)
+			hours = 0;
+
+		draw_sprite(80, 19, 32, 32, separator_tile, DRAWSPR_OVERWRITE, 1);
+		draw_sprite(152, 19, 32, 32, separator_tile, DRAWSPR_OVERWRITE, 1);
+		draw_sprite(224, 19, 32, 32, separator_tile, DRAWSPR_OVERWRITE, 1);
+
+		// Draw Hours
+		lsd = hours % 10;
+		msd = hours / 10;
+		draw_sprite(32, 19, 32, 32, numbers[msd], DRAWSPR_OVERWRITE, 1);
+		draw_sprite(56, 19, 32, 32, numbers[lsd], DRAWSPR_OVERWRITE, 1);
+
+		// Draw Minutes
+		lsd = minutes % 10;
+		msd = minutes / 10;
+		draw_sprite(104, 19, 32, 32, numbers[msd], DRAWSPR_OVERWRITE, 1);
+		draw_sprite(128, 19, 32, 32, numbers[lsd], DRAWSPR_OVERWRITE, 1);
+
+		// Draw Seconds
+		lsd = seconds % 10;
+		msd = seconds / 10;
+		draw_sprite(176, 19, 32, 32, numbers[msd], DRAWSPR_OVERWRITE, 1);
+		draw_sprite(200, 19, 32, 32, numbers[lsd], DRAWSPR_OVERWRITE, 1);
+
+		// Draw frames
+		lsd = frames % 10;
+		msd = frames / 10;
+		draw_sprite(248, 19, 32, 32, numbers[msd], DRAWSPR_OVERWRITE, 1);
+		draw_sprite(272, 19, 32, 32, numbers[lsd], DRAWSPR_OVERWRITE, 1);
+
+		if (redraw)
+		{
+			if (draw)
+				draw_sprite(128, 70, 64, 128, sd_sprite, DRAWSPR_OVERWRITE, 1);
+			redraw = 0;
+		}
+
+		Hw32xScreenFlip(0);
+	}
+	return;
+}
+
 void at_sound_test()
 {
 	int done = 0;
@@ -2615,6 +2755,7 @@ void at_sound_test()
 		{
 			screenFadeOut(1);
 			sound_free(&JUMP);
+			MDPSG_stop();
 			done = 1;
 		}
 
@@ -2631,21 +2772,21 @@ void at_sound_test()
 				HwMdPSGSetChandVol(0, 0);
 				HwMdPSGSetFrequency(0, 200);
 				if (psgoff == 0)
-					psgoff = 80;
+					psgoff = 30;
 			}
 			if (xcurse == 2 && ycurse == 2)
 			{
 				HwMdPSGSetChandVol(1, 0);
 				HwMdPSGSetFrequency(1, 2000);
 				if (psgoff == 0)
-					psgoff = 80;
+					psgoff = 30;
 			}
 			if (xcurse == 3 && ycurse == 2)
 			{
 				HwMdPSGSetChandVol(2, 0);
 				HwMdPSGSetFrequency(2, 4095);
 				if (psgoff == 0)
-					psgoff = 80;
+					psgoff = 30;
 			}
 			if (xcurse == 4 && ycurse == 2)
 			{
@@ -2653,7 +2794,7 @@ void at_sound_test()
 				HwMdPSGSetNoise(PSG_NOISE_TYPE_WHITE, PSG_NOISE_FREQ_TONE3);
 				HwMdPSGSetFrequency(3, 500);
 				if (psgoff == 0)
-					psgoff = 80;
+					psgoff = 30;
 			}
 		}
 

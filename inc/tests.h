@@ -43,6 +43,7 @@ void vt_horizontal_stripes(void);
 void vt_vertical_stripes(void);
 void vt_checkerboard(void);
 void vt_backlitzone_test(void);
+void vt_DisappearingLogo(void);
 void at_sound_test(void);
 void at_audiosync_test(void);
 void ht_controller_test(void);

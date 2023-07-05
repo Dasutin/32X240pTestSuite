@@ -7,11 +7,13 @@
     "settings": {
         "git.ignoreLimitWarning": true,
         "files.associations": {
+            "*.embeddedhtml": "html",
             "*.s": "asm-collection",
             "types.h": "c",
             "draw.h": "c",
             "colorbars_map.h": "c",
-            "stdint.h": "c"
+            "stdint.h": "c",
+            "disappearinglogo_res_palette.h": "c"
         }
     }
 }
