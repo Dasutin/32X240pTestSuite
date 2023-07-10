@@ -1,4 +1,4 @@
-/* 
+/*
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
  * Copyright (C)2011-2023 Artemio Urbina
@@ -20,31 +20,24 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "types.h"
-#include "shared_objects.h"
 #include "32x.h"
 #include "hw_32x.h"
-#include "main.h"
-#include "help.h"
-#include "patterns.h"
+#include "types.h"
+#include "shared_objects.h"
 #include "32x_images.h"
-#include "graphics.h"
-#include "tests.h"
+#include "draw.h"
+#include "bg_tiles.h"
+#include "bg_map.h"
+#include "bg_palette.h"
+#include "sd_pal.h"
+#include "sd_tile.h"
+#include "qrcode_tiles.h"
 
 u8 paused = PAUSED;
 u16 currentFB = 0;
 vu16 overwriteImg16;
 u32 _state = ~0L;
 u16 randbase;
-
-int fontColorWhite = 204;
-int fontColorRed = 205;
-int fontColorGreen = 206;
-int fontColorGray = 207;
-int fontColorBlack = 208;
-int fontColorWhiteHighlight = 209;
-int fontColorRedHighlight = 210;
-int fontColorGreenHighlight = 211;
 
 volatile unsigned mars_pwdt_ovf_count = 0;
 volatile unsigned mars_swdt_ovf_count = 0;
@@ -62,80 +55,98 @@ int Mars_GetFRTCounter(void)
 	return (int)((mars_pwdt_ovf_count << 8) | cnt);
 }
 
-void DrawMainBG()
+void initMainBG()
 {
-	extern const u16 BACKGROUND_PAL[];
-	extern const u8 BACKGROUND_TILE[] __attribute__((aligned(16)));
-	vu16 *cram16 = &MARS_CRAM;
-	volatile unsigned short *frameBuffer16 = &MARS_FRAMEBUFFER;
-
-	for (int i = 0; i < 18; i++)
-		cram16[i] = BACKGROUND_PAL[i] & 0x7FFF;
-
-	memcpy(frameBuffer16 + 0x100, BACKGROUND_TILE, 320*224);
+	init_tilemap(&tm, &bg_map_Map, (uint8_t **)bg_Reslist);
+	Hw32xSetPalette(bg_Palette);
 }
 
-void DrawMainBGwGillian()
+void initMainBGwGil()
 {
-	extern const u16 BACKGROUND_W_GILLIAN_PAL[];
-	extern const u8 BACKGROUND_W_GILLIAN_TILE[] __attribute__((aligned(16)));
-	vu16 *cram16 = &MARS_CRAM;
-	volatile unsigned short *frameBuffer16 = &MARS_FRAMEBUFFER;
+	init_tilemap(&tm, &bg_map_Map, (uint8_t **)bg_Reslist);
+	Hw32xSetPalette(bg_Palette);
+	Hw32xSetPalette(sd_palette);
+}
 
-	for (int i = 0; i < 27; i++)
-		cram16[i] = BACKGROUND_W_GILLIAN_PAL[i] & 0x7FFF;
+void drawMainBG()
+{
+	int fpcamera_x = 0;
+	int fpcamera_y = 0;
 
-	memcpy(frameBuffer16 + 0x100, BACKGROUND_W_GILLIAN_TILE, 320*224);
+	canvas_rebuild_id++;
+	draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+	draw_setScissor(0, 0, 320, 224);
+}
+
+void drawBGwGil()
+{
+	int fpcamera_x = 0;
+	int fpcamera_y = 0;
+
+	canvas_rebuild_id++;
+	draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+	draw_setScissor(0, 0, 320, 224);
+
+	draw_sprite(216, 72, 64, 128, sd_sprite, DRAWSPR_OVERWRITE, 1);
+}
+
+void redrawBGwGil()
+{
+	Hw32xSetPalette(bg_Palette);
+	Hw32xSetPalette(sd_palette);
+
+	int fpcamera_x = 0;
+	int fpcamera_y = 0;
+
+	canvas_rebuild_id++;
+	draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+	draw_setScissor(0, 0, 320, 224);
+
+	draw_sprite(216, 72, 64, 128, sd_sprite, DRAWSPR_OVERWRITE, 1);
 }
 
 void drawQRCode(u16 x, u16 y, u16 xWidth, u16 yWidth)
 {
-	extern const u8 QRCODE_TILE[] __attribute__((aligned(16)));
-	vu16 *cram16 = &MARS_CRAM;
-	vu8 *frameBuffer8 = (vu8*)&MARS_OVERWRITE_IMG;
-	vu8* dst = &frameBuffer8[0x100 + (y * 320) + (x + 256)];
-	vu8* src = QRCODE_TILE;
+	// White
+	setColor(32, 31, 31, 31);
+	// Black
+	setColor(33, 0, 0, 0);
+	// Gray
+	setColor(34, 23, 23,23);
 
-	const u16 xw = xWidth;
-	const int dstStep = 320 - xw;
-	u16 row = yWidth;
+	draw_sprite(248, 88, 32, 32, qrcode_tiles, DRAWSPR_OVERWRITE, 1);
 
-	cram16[32] = COLOR(31,31,31);	// White
-	cram16[33] = COLOR(0,0,0);		// Black
-	cram16[34] = COLOR(23,23,23);	// Gray
-
-	while (row--)
-	{
-		u16 col = xw;
-		while (col--) *dst++ = *src++;
-		dst += dstStep;
-	}
 }
 
 void drawResolution()
 {
 	if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT)
 	{
-		mars_drawTextwShadow("NTSC VDP 320x224p", 152, 192, fontColorWhite, fontColorWhiteHighlight);
-		mars_drawTextwShadow("Genesis 32X", 208, 208, fontColorWhite, fontColorWhiteHighlight);
+		drawTextwHighlight("NTSC VDP 320x224p", 152, 192, fontColorWhite, fontColorWhiteHighlight);
+		drawTextwHighlight("Genesis 32X", 208, 208, fontColorWhite, fontColorWhiteHighlight);
 	} else {
-		mars_drawTextwShadow("PAL VDP 320x224p", 160, 192, fontColorWhite, fontColorWhiteHighlight);
-		mars_drawTextwShadow("Mega Drive 32X", 184, 208, fontColorWhite, fontColorWhiteHighlight);
+		drawTextwHighlight("PAL VDP 320x224p", 160, 192, fontColorWhite, fontColorWhiteHighlight);
+		drawTextwHighlight("Mega Drive 32X", 184, 208, fontColorWhite, fontColorWhiteHighlight);
 	}
 }
 
 void loadTextPalette()
 {
-	vu16 *cram16 = &MARS_CRAM;
+	setColor(203, 0, 0, 0); 	// Black Background
+	setColor(205, 31, 31, 31);	// 204 is White
+	setColor(206, 31, 0, 0);	// 205 is Red
+	setColor(207, 0, 31, 0);	// 206 is Green
+	setColor(208, 5, 5, 5);		// 207 is Gray
+	setColor(209, 0, 0, 0);		// 208 is Black
+	setColor(210, 8, 8, 8);		// 209 is White Shadow Highlight
+	setColor(211, 8, 0, 0);		// 210 is Red Shadow Highlight
+	setColor(212, 0, 8, 0);		// 211 is Green Shadow Highlight
+}
 
-	cram16[205] = COLOR(31,31,31);	// 204 is White
-	cram16[206] = COLOR(31,0,0);	// 205 is Red
-	cram16[207] = COLOR(0,31,0);	// 206 is Green
-	cram16[208] = COLOR(5,5,5);		// 207 is Gray
-	cram16[209] = COLOR(0,0,0);		// 208 is Black
-	cram16[210] = COLOR(8,8,8);		// 209 is White Shadow Highlight
-	cram16[211] = COLOR(8,0,0);		// 210 is Red Shadow Highlight
-	cram16[212] = COLOR(0,8,0);		// 211 is Green Shadow Highlight
+void loadMainBGwGilPalette()
+{
+	Hw32xSetPalette(bg_Palette);
+	Hw32xSetPalette(sd_palette);
 }
 
 void cleanup()
@@ -211,7 +222,7 @@ u32 CalculateCRC(u32 startAddress, u32 size)
 	for (address = 0; address < size; address ++)
 	{
 		u8 data;
-		
+
 		data = bios[address];
 
 		CRC32_update(data);

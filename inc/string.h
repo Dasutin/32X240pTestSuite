@@ -1,4 +1,4 @@
-/* 
+/*
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
  * Copyright (C)2011-2023 Artemio Urbina
@@ -27,48 +27,33 @@
 
 #define isdigit(c)	((c) >= '0' && (c) <= '9')
 
-#define SEEK_SET	0
-#define SEEK_CUR	1
-#define SEEK_END	2
-
-/* #ifndef SEEK_SET
-#define	SEEK_SET	0	      // Set file offset to offset
-#endif
-#ifndef SEEK_CUR
-#define	SEEK_CUR	1	      // Set file offset to current plus offset
-#endif
-#ifndef SEEK_END
-#define	SEEK_END	2	      // Set file offset to EOF plus offset
-#endif */
-
-/* typedef void *__gnuc_va_list;
+typedef void *__gnuc_va_list;
 typedef __gnuc_va_list va_list;
 
-#define __va_rounded_size(TYPE)  \
-  (((sizeof (TYPE) + sizeof (int) - 1) / sizeof (int)) * sizeof (int)) */
+#define __va_rounded_size(TYPE) (((sizeof (TYPE) + sizeof (int) - 1) / sizeof (int)) * sizeof (int))
 
-/* #define va_start(AP, LASTARG)                                           \
- (AP = ((__gnuc_va_list) __builtin_next_arg (LASTARG)))
+#define va_start(AP, LASTARG)(AP = ((__gnuc_va_list) __builtin_next_arg (LASTARG)))
 
-#define va_end(AP)      ((void)0) */
+#define va_end(AP)((void)0)
 
-/* #define va_arg(AP, TYPE)                                                \
- (AP = (__gnuc_va_list) ((char *) (AP) + __va_rounded_size (TYPE)),     \
-  *((TYPE *) (void *) ((char *) (AP)                                    \
-                       - ((sizeof (TYPE) < __va_rounded_size (char)     \
-                           ? sizeof (TYPE) : __va_rounded_size (TYPE)))))) */
+#define va_arg(AP, TYPE) \
+		(AP = (__gnuc_va_list) ((char *) (AP) + __va_rounded_size (TYPE)), \
+		*((TYPE *) (void *) ((char *) (AP) \
+		- ((sizeof (TYPE) < __va_rounded_size (char) \
+		? sizeof (TYPE) : __va_rounded_size (TYPE))))))
 
 size_t strlen(const char *str);
-// size_t strnlen(const char *str, size_t maxlen);
-
+size_t strnlen(const char *str, size_t maxlen);
+size_t vsprintf(char *buf, const char *fmt, va_list args);
+size_t sprintf(char *buffer,const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 
 char* strcpy(char *dest, const char *src);
 char* strcat(char *dest, const char *src);
-void* memcpy (volatile void *dest, const void *src, size_t len);
+int isupper(int c);
+int tolower(int c);
+int strcasecmp(const char *_l, const char *_r);
+void* memcpy (void *dest, const void *src, size_t len);
 void myMemSet(void* str, char ch, size_t n);
-
-// size_t vsprintf(char *buf, const char *fmt, va_list args);
-// size_t sprintf(char *buffer,const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 
 unsigned short intToStr(signed long value, char *str, unsigned short minsize);
 unsigned long intToHex(unsigned long value, char *str, unsigned short minsize);

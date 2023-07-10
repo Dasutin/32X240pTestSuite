@@ -5,7 +5,7 @@
 static char* xvprintfs(char* buf, char* str) __attribute__((section(".data"), aligned(16)));
 static char* xvprintfd(char* buf, int val) __attribute__((section(".data"), aligned(16)));
 static char* xvprintfx(char* buf, unsigned int val) __attribute__((section(".data"), aligned(16)));
-void xvprintf(char* buf, char* fmt, int val) __attribute__((section(".data"), aligned(16)));
+void xvprintf(char *buf, char *fmt, int val);
 #endif
 
 /*

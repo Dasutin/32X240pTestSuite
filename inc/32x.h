@@ -22,16 +22,22 @@
 #define MARS_SYS_HINT_CLR   (*(volatile unsigned short *)0x20004018)
 #define MARS_SYS_CMDI_CLR   (*(volatile unsigned short *)0x2000401A)
 #define MARS_SYS_PWMI_CLR   (*(volatile unsigned short *)0x2000401C)
-#define MARS_SYS_COMM0      (*(volatile unsigned short *)0x20004020) // Primary SH2 communication
+// Primary SH2 communication
+#define MARS_SYS_COMM0      (*(volatile unsigned short *)0x20004020)
 #define MARS_SYS_COMM2      (*(volatile unsigned short *)0x20004022)
-#define MARS_SYS_COMM4      (*(volatile unsigned short *)0x20004024) // Secondary SH2 communication
+// Secondary SH2 communication
+#define MARS_SYS_COMM4      (*(volatile unsigned short *)0x20004024)
 #define MARS_SYS_COMM6      (*(volatile unsigned short *)0x20004026)
-#define MARS_SYS_COMM8      (*(volatile unsigned short *)0x20004028) // Controller 1 current value
-#define MARS_SYS_COMM10     (*(volatile unsigned short *)0x2000402A) // Controller 2 current value
-#define MARS_SYS_COMM12     (*(volatile unsigned short *)0x2000402C) // Vcount current value
+// Controller 1 current value
+#define MARS_SYS_COMM8      (*(volatile unsigned short *)0x20004028)
+// Controller 2 current value
+#define MARS_SYS_COMM10     (*(volatile unsigned short *)0x2000402A)
+// Vcount current value
+#define MARS_SYS_COMM12     (*(volatile unsigned short *)0x2000402C)
 #define MARS_SYS_COMM14     (*(volatile unsigned short *)0x2000402E)
 
-#define MARS_PWM_CTRL       (*(volatile unsigned short *)0x20004030) // Audio
+// Audio
+#define MARS_PWM_CTRL       (*(volatile unsigned short *)0x20004030)
 #define MARS_PWM_CYCLE      (*(volatile unsigned short *)0x20004032)
 #define MARS_PWM_LEFT       (*(volatile unsigned short *)0x20004034)
 #define MARS_PWM_RIGHT      (*(volatile unsigned short *)0x20004036)
@@ -141,7 +147,7 @@
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 224
 
-/* COMM6 - mixer status */
+// COMM6 - Mixer status
 #define MIXER_INITIALIZE    0
 #define MIXER_UNLOCKED      1
 #define MIXER_LOCK_MSH2     2

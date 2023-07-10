@@ -43,9 +43,9 @@ void draw_setScissor(int16_t x, int16_t y, int16_t w, int16_t h)
     scissor.y2 = scissor.y1 + h;
 }
 
-// returns 2 if fully clipped
-// returns 1 if partially clipped
-// otherwise returns 0 
+// Returns 2 if fully clipped
+// Returns 1 if partially clipped
+// Otherwise returns 0
 int draw_clip(int x, int y, int w, int h, rect_t* cliprect)
 {
     int cl, cr, ct, cb;

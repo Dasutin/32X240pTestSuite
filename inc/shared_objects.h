@@ -1,4 +1,4 @@
-/* 
+/*
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
  * Copyright (C)2011-2023 Artemio Urbina
@@ -24,7 +24,6 @@
 #define _SHARED_OBJECTS_
 
 // Constants
-
 #define MASTER_STATUS_OK 1
 #define MASTER_LOCK 4
 #define SLAVE_STATUS_OK 2
@@ -40,12 +39,26 @@ extern u8 paused;
 
 extern unsigned short int currentFB;
 
-extern void DrawMainBG(void);
-extern void DrawMainBGwGillian(void);
+#define fontBackgroundColorBlack 203
+#define fontColorWhite 204
+#define fontColorRed 205
+#define fontColorGreen 206
+#define fontColorGray 207
+#define fontColorBlack 208
+#define fontColorWhiteHighlight 209
+#define fontColorRedHighlight 210
+#define fontColorGreenHighlight 211
+
+extern void drawMainBG(void);
+extern void drawBGwGil(void);
+extern void redrawBGwGil(void);
 extern void drawQRCode(u16 x, u16 y, u16 xWidth, u16 yWidth);
 extern void loadTextPalette(void);
 extern void drawResolution(void);
+extern void loadMainBGwGilPalette(void);
 extern void cleanup(void);
+extern void initMainBG(void);
+extern void initMainBGwGil(void);
 extern void marsVDP256Start(void);
 extern void marsVDP32KStart(void);
 extern void swapBuffers(void);
@@ -55,29 +68,16 @@ u32 CRC32_finalize();
 u32 CalculateCRC(u32 startAddress, u32 size);
 int memcmp1(const void *s1, const void *s2, int n);
 
-// 384 seems to be the ideal value - anything thing 
+// 384 seems to be the ideal value - anything thing
 // increases the odds of hitting the "0xFF screen shift
 // register bug"
-extern uint32_t canvas_pitch; // canvas_width + scrollwidth
-extern uint32_t canvas_yaw; // canvas_height + scrollheight
+
+// canvas_width + scrollwidth
+extern uint32_t canvas_pitch;
+// canvas_height + scrollheight
+extern uint32_t canvas_yaw;
 
 void setRandomSeed(u16 seed);
 u16 random();
 
-#define FIX32_INT_BITS			22
-#define FIX32_FRAC_BITS			(32 - FIX32_INT_BITS)
-
-#define FIX32_INT_MASK			(((1 << FIX32_INT_BITS) - 1) << FIX32_FRAC_BITS)
-#define FIX32_FRAC_MASK			((1 << FIX32_FRAC_BITS) - 1)
-
-#define FIX32(value)			((fix32) ((value) * (1 << FIX32_FRAC_BITS)))
-
-#define fix32Div(val1, val2)	(((val1) << (FIX32_FRAC_BITS / 2)) / ((val2) >> (FIX32_FRAC_BITS / 2)))
-
-#define intToFix32(value)		((fix32) ((value) << FIX32_FRAC_BITS))
-#define fix32ToInt(value)		((s32) ((value) >> FIX32_FRAC_BITS))
-#define fix32Frac(value)		((value) & FIX32_FRAC_MASK)
-#define fix32Mul(val1, val2)	(((val1) >> (FIX32_FRAC_BITS / 2)) * ((val2) >> (FIX32_FRAC_BITS / 2)))
-#define fix32Div(val1, val2)	(((val1) << (FIX32_FRAC_BITS / 2)) / ((val2) >> (FIX32_FRAC_BITS / 2)))
-
-#endif
+#endif // _SHARED_OBJECTS_

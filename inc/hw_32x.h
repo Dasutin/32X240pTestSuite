@@ -1,4 +1,4 @@
-/* 
+/*
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
  * Copyright (C)2011-2023 Artemio Urbina
@@ -23,29 +23,24 @@
 #ifndef _HW_32X_H_
 #define _HW_32X_H_
 
-#include <stdarg.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdint.h>
-
 #define MD_PAL_0 0x0100
 #define MD_PAL_1 0x0200
 #define MD_PAL_2 0x0300
 #define MD_PAL_3 0x0400
 
-#define MD_COLOR_PAL_GRAY  0x0100
-#define MD_COLOR_PAL_RED   0x0200
-#define MD_COLOR_PAL_GREEN 0x0300
-#define MD_COLOR_PAL_BLUE  0x0400
+#define MD_COLOR_PAL_GRAY		0x0100
+#define MD_COLOR_PAL_RED		0x0200
+#define MD_COLOR_PAL_GREEN		0x0300
+#define MD_COLOR_PAL_BLUE		0x0400
 
-#define PSG_ENVELOPE_MIN    15
-#define PSG_ENVELOPE_MAX    0
-#define PSG_NOISE_TYPE_PERIODIC 0
-#define PSG_NOISE_TYPE_WHITE    1
-#define PSG_NOISE_FREQ_CLOCK2   0
-#define PSG_NOISE_FREQ_CLOCK4   1
-#define PSG_NOISE_FREQ_CLOCK8   2
-#define PSG_NOISE_FREQ_TONE3    3
+#define PSG_ENVELOPE_MIN		15
+#define PSG_ENVELOPE_MAX		0
+#define PSG_NOISE_TYPE_PERIODIC	0
+#define PSG_NOISE_TYPE_WHITE	1
+#define PSG_NOISE_FREQ_CLOCK2	0
+#define PSG_NOISE_FREQ_CLOCK4	1
+#define PSG_NOISE_FREQ_CLOCK8	2
+#define PSG_NOISE_FREQ_TONE3	3
 
 #define HW32X_ATTR_DATA_ALIGNED __attribute__((section(".data"), aligned(16)))
 

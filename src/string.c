@@ -1,4 +1,4 @@
-/* 
+/*
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
  * Copyright (C)2011-2023 Artemio Urbina
@@ -20,8 +20,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <stddef.h>
-#include <stdarg.h>
 #include "types.h"
 #include "string.h"
 #include "shared_objects.h"
@@ -37,7 +35,7 @@
 #define P09 1000000000
 #define P10 10000000000
 
-//static const char hexchars[] = "0123456789ABCDEF";
+static const char hexchars[] = "0123456789ABCDEF";
 
 static const char digits[] =
 	"0001020304050607080910111213141516171819"
@@ -83,7 +81,25 @@ char* strcat(char *to, const char *from)
 	return to;
 }
 
-void* memcpy(volatile void *dest, const void *src, size_t len)
+int isupper(int c)
+{
+	return (unsigned)c-'A' < 26;
+}
+
+int tolower(int c)
+{
+	if (isupper(c)) return c | 32;
+	return c;
+}
+
+int strcasecmp(const char *_l, const char *_r)
+{
+	const unsigned char *l=(void *)_l, *r=(void *)_r;
+	for (; *l && *r && (*l == *r || tolower(*l) == tolower(*r)); l++, r++);
+	return tolower(*l) - tolower(*r);
+}
+
+void* memcpy(void *dest, const void *src, size_t len)
 {
 	char *d = dest;
 	const char *s = src;
@@ -92,7 +108,7 @@ void* memcpy(volatile void *dest, const void *src, size_t len)
 	return dest;
 }
 
-void memset(void* str, char ch, size_t n)
+void myMemSet(void* str, char ch, size_t n)
 {
 	int i;
 	//type cast the str from void* to char*
@@ -102,23 +118,23 @@ void memset(void* str, char ch, size_t n)
 		s[i]=ch;
 }
 
-/*
-
-size_t strnlen(const char *str, size_t maxlen) {
+size_t strnlen(const char *str, size_t maxlen)
+{
 	const char *src;
 	for (src = str; maxlen-- && *src != '\0'; ++src);
 	return src - str;
 }
 
-static size_t skip_atoi(const char **s) {
+static size_t skip_atoi(const char **s)
+{
 	size_t i = 0;
 	while (isdigit(**s)) {
 		i = (i * 10) + *((*s)++) - '0';
 	}
 	return i;
-} */
+}
 
-/* size_t vsprintf(char *buf, const char *fmt, va_list args) {
+size_t vsprintf(char *buf, const char *fmt, va_list args) {
 	char tmp_buffer[12];
 	char *str;
 	for (str = buf; *fmt; ++fmt) {
@@ -133,7 +149,7 @@ static size_t skip_atoi(const char **s) {
 		size_t left_align = 0;
 		char sign = 0;
 		char *s;
-		
+
 		// Process the flags
 		for (;;) {
 			++fmt;          // this also skips first '%'
@@ -153,7 +169,7 @@ static size_t skip_atoi(const char **s) {
 			}
 			break;
 		}
-		
+
 		// Process field width and precision
 		field_width = precision = -1;
 		if (isdigit(*fmt)) {
@@ -167,7 +183,7 @@ static size_t skip_atoi(const char **s) {
 				left_align = 1;
 			}
 		}
-		
+
 		if (*fmt == '.') {
 			++fmt;
 			if (isdigit(*fmt)) {
@@ -181,7 +197,7 @@ static size_t skip_atoi(const char **s) {
 				precision = 0;
 			}
 		}
-		
+
 		if (*fmt == 'h') ++fmt;
 		if ((*fmt == 'l') || (*fmt == 'L')) {
 			longint = 1;
@@ -222,7 +238,7 @@ static size_t skip_atoi(const char **s) {
 				}
 				continue;
 			}
-			
+
 			case 'p':
 				longint = 1;
 				if (field_width == -1) {
@@ -287,7 +303,7 @@ static size_t skip_atoi(const char **s) {
 			}
 			default: continue;
 		}
-		
+
 		size_t len = strnlen(s, precision);
 		if (sign) {
 			*str++ = sign;
@@ -309,18 +325,18 @@ static size_t skip_atoi(const char **s) {
 			*str++ = ' ';
 		}
 	}
-	
+
 	*str = '\0';
 	return str - buf;
-} */
+}
 
-/* size_t sprintf(char *buffer, const char *fmt, ...) {
+size_t sprintf(char *buffer, const char *fmt, ...) {
 	va_list args;
 	va_start(args, fmt);
 	size_t i = vsprintf(buffer, fmt, args);
 	va_end(args);
 	return i;
-} */
+}
 
 u16 intToStr(s32 value, char *str, u16 minsize)
 {
@@ -429,7 +445,7 @@ u32 intToHex(u32 value, char *str, u16 minsize)
 		left--;
 		res >>= 4;
 	}
-	
+
 	while (left > 0)
 	{
 		*--src = '0';

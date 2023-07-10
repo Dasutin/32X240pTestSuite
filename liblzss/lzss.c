@@ -2,7 +2,8 @@
 #include <string.h>
 #include "lzss.h"
 
-#define LENSHIFT 4		/* this must be log2(LOOKAHEAD_SIZE) */
+// This must be log2(LOOKAHEAD_SIZE)
+#define LENSHIFT 4
 
 static inline void lzss_reset(lzss_state_t* lzss);
 
@@ -58,7 +59,7 @@ int lzss_read(lzss_state_t* lzss, uint16_t chunk)
 
 	while (left > 0)
 	{
-		/* get a new idbyte if necessary */
+		// Get a new idbyte if necessary
 		if (!getidbyte) idbyte = *input++;
 
 	crunch:
@@ -68,23 +69,22 @@ int lzss_read(lzss_state_t* lzss, uint16_t chunk)
 			uint16_t pos;
 			uint32_t outpos_masked, source_masked;
 
-			/* decompress */
+			// Decompress
 			if (buf_size <= 0x1000)
 			{
 				pos = *input++ << LENSHIFT;
 				pos = pos | (*input >> LENSHIFT);
 				len = (*input++ & 0xf) + 1;
-			}
-			else
-			{
+			} else {
 				pos = *input++ << 8;
 				pos = pos | (*input++);
 				len = (*input++ & 0xff) + 1;
 			}
 			source = outpos - pos - 1;
 
-			if (len == 1) {
-				/* end of stream */
+			if (len == 1)
+			{
+				// End of stream
 				lzss->eof = 1;
 				return chunk - left;
 			}
@@ -102,10 +102,9 @@ int lzss_read(lzss_state_t* lzss, uint16_t chunk)
 					output[outpos_masked++] = output[source_masked++];
 				outpos += limit;
 				source += limit;
-			}
-			else
-			{
-				for (j = 0; j < limit; j++) {
+			} else {
+				for (j = 0; j < limit; j++)
+				{
 					output[outpos & buf_mask] = output[source & buf_mask];
 					outpos++;
 					source++;
@@ -114,13 +113,13 @@ int lzss_read(lzss_state_t* lzss, uint16_t chunk)
 			left -= limit;
 			i += limit;
 
-			if (i == len) {
+			if (i == len)
+			{
 				i = len = 0;
 				idbyte = idbyte >> 1;
 				getidbyte = (getidbyte + 1) & 7;
 			}
-		}
-		else {
+		} else {
 			output[outpos & buf_mask] = *input++;
 			outpos++;
 			left--;
@@ -155,11 +154,12 @@ int lzss_read_all(lzss_state_t* lzss)
 
 	len = 0;
 	getidbyte = 0;
+
 	while (1)
 	{
 		uint8_t idbyte;
 
-		/* get a new idbyte if necessary */
+		// Get a new idbyte if necessary
 		if (!getidbyte) idbyte = *input++;
 
 		if (idbyte & 1)
@@ -167,23 +167,22 @@ int lzss_read_all(lzss_state_t* lzss)
 			uint16_t j;
 			uint16_t pos;
 
-			/* decompress */
+			// Decompress
 			if (buf_size <= 0x1000)
 			{
 				pos = *input++ << LENSHIFT;
 				pos = pos | (*input >> LENSHIFT);
 				len = (*input++ & 0xf) + 1;
-			}
-			else
-			{
+			} else {
 				pos = *input++ << 8;
 				pos = pos | (*input++);
 				len = (*input++ & 0xff) + 1;
 			}
 			source = outpos - pos - 1;
 
-			if (len == 1) {
-				/* end of stream */
+			if (len == 1)
+			{
+				// End of stream
 				return output - lzss->buf;
 			}
 
@@ -192,8 +191,7 @@ int lzss_read_all(lzss_state_t* lzss)
 
 			idbyte = idbyte >> 1;
 			getidbyte = (getidbyte + 1) & 7;
-		}
-		else {
+		} else {
 			output[outpos++] = *input++;
 			idbyte = idbyte >> 1;
 			getidbyte = (getidbyte + 1) & 7;

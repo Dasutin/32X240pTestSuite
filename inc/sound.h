@@ -1,4 +1,4 @@
-/* 
+/*
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
  * Copyright (C)2011-2023 Artemio Urbina
@@ -23,8 +23,7 @@
 #ifndef _SOUND_H_
 #define _SOUND_H_
 
-#include <stdint.h>
-#include <stdio.h>
+#include "types.h"
 
 #define SAMPLE_MIN          2
 #define SAMPLE_CENTER     517
@@ -40,7 +39,7 @@
 
 #define NUM_SOUND_FILES 1
 
-#define SND_ATTR_SDRAM  __attribute__((section(".data"), aligned(16)))
+#define SND_ATTR_SDRAM __attribute__((section(".data"), aligned(16)))
 
 #define ADJVOL(S) ((S)*ssndVol)
 
@@ -59,7 +58,8 @@ typedef struct {
 	unsigned char pad[2]; // Pad to one cache line
 } channel_t;
 
-void sound_fillBuffer(unsigned long buffer);
+typedef void *sound_file_t;
+
 void sound_toggleMute(void);
 void sound_volume(char d);
 char sound_play(sound_t *sound, char loop, char selectch);
@@ -70,14 +70,13 @@ int sound_isPlaying(sound_t *sound);
 void sound_stopAllChannels(void);
 void sound_load(sound_t *snd, char *name);
 void sound_free(sound_t *s);
+void sound_fillBuffer(unsigned long buffer);
 
 extern int16_t snd_buffer[];
 
 extern char *soundFileName[NUM_SOUND_FILES];
 extern int soundFileSize[NUM_SOUND_FILES];
 extern int soundFilePtr[NUM_SOUND_FILES];
-
-typedef void *sound_file_t;
 
 void Mars_Sec_InitSoundDMA(void);
 void Mars_Sec_StopSoundMixer(void);

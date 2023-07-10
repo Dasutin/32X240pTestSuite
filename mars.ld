@@ -67,6 +67,7 @@ SECTIONS
     *(.eh_frame_hdr)
     KEEP (*(.eh_frame))
     *(.gcc_except_table)
+    *(.gcc_except_table.*)
     KEEP (*(.jcr))
 
     . = ALIGN(16);

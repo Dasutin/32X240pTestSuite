@@ -1,4 +1,4 @@
-/* 
+/*
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
  * Copyright (C)2011-2023 Artemio Urbina
@@ -23,11 +23,11 @@
 #ifndef _TESTS_H_
 #define _TESTS_H_
 
-#include "sound.h"
+#include "types.h"
 
 #define MEMORY_OK 0xFFFFFFFF
 
-void ShowMessageAndData(char *message, u32 address, u8 color, int len, int xpos, int ypos);
+void ShowMessageAndData(char *message, u32 address, int color, int len, int xpos, int ypos);
 
 void MDPSG_init();
 void MDPSG_stop();
@@ -37,10 +37,8 @@ void vt_striped_sprite_test(void);
 void vt_lag_test(void);
 void vt_reflex_test(void);
 void vt_scroll_test(void);
-void vt_vert_scroll_test(void);
 void vt_gridscroll_test(void);
-void vt_horizontal_stripes(void);
-void vt_vertical_stripes(void);
+void vt_stripes(void);
 void vt_checkerboard(void);
 void vt_backlitzone_test(void);
 void vt_DisappearingLogo(void);
@@ -61,4 +59,4 @@ typedef struct timecode
 	u16 res;
 } timecode;
 
-#endif /* _TESTS_H_ */
+#endif // _TESTS_H_

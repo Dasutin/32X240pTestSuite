@@ -1,4 +1,4 @@
-/* 
+/*
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
  * Copyright (C)2011-2023 Artemio Urbina
@@ -20,25 +20,16 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <string.h>
 #include "types.h"
 #include "string.h"
 #include "32x.h"
 #include "hw_32x.h"
 #include "shared_objects.h"
+#include "font_tiles.h"
 
 #define PIXEL_WRITE_BUFFER_SIZE_B 8
 #define FRAMEBUFFER_ROW_EXTENSION 16
 #define IS_MIRRORED 1
-
-#define fontColorWhite 204
-#define fontColorRed 205
-#define fontColorGreen 206
-#define fontColorGray 207
-#define fontColorBlack 208
-#define fontColorWhiteHighlight 209
-#define fontColorRedHighlight 210
-#define fontColorGreenHighlight 211
 
 #define IS_TRANSPARENT 1
 static const int TRANSPARENT_PIXEL_COLOR = 0;
@@ -74,20 +65,26 @@ void clearArea(vu16 x, vu16 y, int xWidth, int yWidth)
 	u16 fbOff = lineTableEnd;
 	int drawWidth = 0;
 
-	xOff = x / 2; // Offset the number of pixels in each line to start to draw the image
-	fbOff = lineTableEnd; // Y-offset for top of sprite to correct line in framebuffer
-	fbOff = fbOff + (y * 160); // X-offset from start of first line
-	fbOff = fbOff + xOff; // Draw spriteBuffer to the framebuffer
+	// Offset the number of pixels in each line to start to draw the image
+	xOff = x / 2;
+	// Y-offset for top of sprite to correct line in framebuffer
+	fbOff = lineTableEnd;
+	// X-offset from start of first line
+	fbOff = fbOff + (y * 160);
+	// Draw spriteBuffer to the framebuffer
+	fbOff = fbOff + xOff;
 
 	drawWidth = 0;
 	for (bufCnt = 0; bufCnt < size; bufCnt++)
 	{
-		frameBuffer16[fbOff] = TRANSPARENT_PIXEL_COLOR; // Write word to framebuffer
+		// Write word to framebuffer
+		frameBuffer16[fbOff] = TRANSPARENT_PIXEL_COLOR;
 		fbOff++;
 		drawWidth++;
 		if (drawWidth >= (xWidth / 2))
 		{
-			drawWidth = 0; // Reset line
+			// Reset line
+			drawWidth = 0;
 			fbOff = fbOff + (160 - ((xWidth / 2) + xOff)) + xOff;
 		}
 	}
@@ -166,11 +163,13 @@ int drawSpriteMaster(const vu8 *spriteBuffer, const s16 x, const s16 y, const in
 		//int p = 0;
 
 		if (mirror == IS_MIRRORED)
-			bufCnt = bufCnt + xWidth; // Increment a row
+			// Increment a row
+			bufCnt = bufCnt + xWidth;
 
 		xCount = 0;
 		lineEnd = 0;
-		// If off the left edge of the screen + our buffer, we should skip to the correct part of the spriteBuffer for each row
+		// If off the left edge of the screen + our buffer,
+		// we should skip to the correct part of the spriteBuffer for each row
 		if (x < -PIXEL_WRITE_BUFFER_SIZE_B)
 		{
 			xCount = spriteStart;
@@ -188,19 +187,23 @@ int drawSpriteMaster(const vu8 *spriteBuffer, const s16 x, const s16 y, const in
 			else
 				// Copy the next 8 bytes
 				word_8byte_copy((void *)(frameBuffer8 + fbOff), (void *)(&spriteBuffer[bufCnt + xCount]), pixelWriteBufferSizeWords);
-
-			if (xOff + xCount + PIXEL_WRITE_BUFFER_SIZE_B > (SCREEN_WIDTH)) // Don't draw if you've gone over the screenwidth to the right side
+			// Don't draw if you've gone over the screenwidth to the right side
+			if (xOff + xCount + PIXEL_WRITE_BUFFER_SIZE_B > (SCREEN_WIDTH))
 			{
-				xOverflow = SCREEN_WIDTH - (xOff+xCount); // Advance up to the end of this row
+				// Advance up to the end of this row
+				xOverflow = SCREEN_WIDTH - (xOff+xCount);
 				xCount = xWidth;
-			} else if (x < -PIXEL_WRITE_BUFFER_SIZE_B) { // If drawing something where x is off the left side
-				fbOff += PIXEL_WRITE_BUFFER_SIZE_B; // Increment to next position in FrameBuffer
+				// If drawing something where x is off the left side
+			} else if (x < -PIXEL_WRITE_BUFFER_SIZE_B) {
+				// Increment to next position in FrameBuffer
+				fbOff += PIXEL_WRITE_BUFFER_SIZE_B;
 				xOverflow = SCREEN_WIDTH - (xOff+lineEnd) - PIXEL_WRITE_BUFFER_SIZE_B;
-			} else { // Default case
-				fbOff += PIXEL_WRITE_BUFFER_SIZE_B; // Increment to next position in FrameBuffer
+			} else {
+				// Increment to next position in FrameBuffer
+				fbOff += PIXEL_WRITE_BUFFER_SIZE_B;
 				xOverflow = SCREEN_WIDTH - (xOff+xCount) - PIXEL_WRITE_BUFFER_SIZE_B;
 			}
-		} // End for xCount
+		}
 
 		// Increment a row if not "reversed"
 		if (mirror != IS_MIRRORED)
@@ -209,7 +212,7 @@ int drawSpriteMaster(const vu8 *spriteBuffer, const s16 x, const s16 y, const in
 		//reset the "line" in framebuffer if past the width of the image
 		fbOff += (xOverflow + FRAMEBUFFER_ROW_EXTENSION) + xOff;
 
-	} // End for rowPos
+	}
 	// Write any "leftover pixels? shouldn't happen
 	return 0;
 }
@@ -232,8 +235,10 @@ int drawSprite(const vu8 *spriteBuffer, const s16 x, const s16 y, const int xWid
 void drawS(vu8* spriteBuffer, u16 x, u16 y, u16 xWidth, u16 yWidth)
 {
 	vu8 *frameBuffer8 = (vu8*)&MARS_OVERWRITE_IMG;
-	vu8* dst = &frameBuffer8[0x100 + (y * 320) + (x + 256)]; // Destination frame buffer pointer (X + Y offset)
-	vu8* src = spriteBuffer; // Source sprite pointer
+	// Destination frame buffer pointer (X + Y offset)
+	vu8* dst = &frameBuffer8[0x100 + (y * 320) + (x + 256)];
+	// Source sprite pointer
+	vu8* src = spriteBuffer;
 
 	const u16 xw = xWidth;
 	const int dstStep = 320 - xw;
@@ -250,8 +255,10 @@ void drawS(vu8* spriteBuffer, u16 x, u16 y, u16 xWidth, u16 yWidth)
 void drawLine(u16 x, u16 y, u16 xWidth, u16 yWidth)
 {
 	vu8 *frameBuffer8 = (vu8*)&MARS_OVERWRITE_IMG;
-	vu8* dst = &frameBuffer8[0x100 + (y * 320) + (x + 256)]; // Destination frame buffer pointer (X + Y offseted)
-	vu8* src = 0x01; // Just write one pixel on screen
+	// Destination frame buffer pointer (X + Y offseted)
+	vu8* dst = &frameBuffer8[0x100 + (y * 320) + (x + 256)];
+	// Just write one pixel on screen
+	vu8 src = 0x01;
 
 	u16 xw = xWidth;
 	int dstStep = 320 - xw;
@@ -352,7 +359,8 @@ void drawRect(const s16 x, const s16 y, const int xWidth, const int yWidth, vu8*
 				word_8byte_copy((void *)(frameBuffer8 + fbOff), (void *)(color), pixelWriteBufferSizeWords);
 				fbOff += PIXEL_WRITE_BUFFER_SIZE_B;
 			}
-		} else { // Draw pixel at start of line and at end
+		} else {
+			// Draw pixel at start of line and at end
 			frameBuffer8[fbOff] = color[0];
 			// Skip to end of line
 			fbOff += xWidth;
@@ -378,7 +386,7 @@ void my_debug_put_char_8(const int x, const int y, const unsigned char ch, const
 
 	for (i = 0; i < 8; i++, font++)
 	{
-		vram_ptr  = vram;
+		vram_ptr = vram;
 		for (j = 0; j < 8; j++)
 		{
 			if ((*font & (128 >> j)))
@@ -397,7 +405,7 @@ int myScreenPrintData(const char *buff, const int x, const int y, const vu8* fgC
 {
 	int i, size, xOff;
 	char c;
-	
+
 	size = strlen(buff);
 	xOff = x;
 
@@ -405,7 +413,8 @@ int myScreenPrintData(const char *buff, const int x, const int y, const vu8* fgC
 	{
 		c = buff[i];
 		my_debug_put_char_8(xOff, y, c, fgColor, bgColor);
-		xOff += PIXEL_WRITE_BUFFER_SIZE_B - 1; // Move 8 bytes
+		// Move 8 bytes
+		xOff += PIXEL_WRITE_BUFFER_SIZE_B - 1;
 	}
 	return i;
 }
@@ -420,8 +429,9 @@ void drawLineTable(const int xOff)
 	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
 	const u16 lineTableEnd = 0x100;
 	u16 lineOffs = lineTableEnd + xOff;
-	
-	for (int i = 0; i < 256; i++) // Set up the line table
+
+	// Set up the line table
+	for (int i = 0; i < 256; i++)
 	{
 		frameBuffer16[i] = lineOffs;
 		// This made a warping effect!
@@ -429,12 +439,11 @@ void drawLineTable(const int xOff)
 	}
 }
 
-void mars_drawText(const char *str, int x, int y, int palOffs)
+void drawText(const char *str, int x, int y, int palOffs)
 {
-	int c, screenOffs, fontOffs;
-	volatile unsigned char *frameBuffer8 = &MARS_FRAMEBUFFER + 0x100;
-	unsigned char *font;
-	extern const uint8_t FONT_TILE[] __attribute__((aligned(16)));
+	int screenOffs, fontOffs;
+	u8 c;
+	vu8 *fb = (volatile unsigned char*)&MARS_FRAMEBUFFER + 0x200;
 
 	for (int i = 0; i < 40; i++)
 	{
@@ -449,10 +458,8 @@ void mars_drawText(const char *str, int x, int y, int palOffs)
 		{
 			for (int s = 0; s < 8; s++)
 			{
-				font = FONT_TILE[fontOffs + s];
-				// if (font) font += palOffs;
-				if (FONT_TILE[fontOffs + s])
-					frameBuffer8[screenOffs + s] = FONT_TILE[fontOffs + s] + palOffs;
+				if (font_tile[fontOffs + s])
+					fb[screenOffs + s] = font_tile[fontOffs + s] + palOffs;
 			}
 			screenOffs += 320;
 			fontOffs += 128;
@@ -460,17 +467,17 @@ void mars_drawText(const char *str, int x, int y, int palOffs)
 	}
 }
 
-void mars_drawTextwShadow(const char *str, int x, int y, int textpalOffs, int shadowpalOffs)
+void drawTextwHighlight(const char *str, int x, int y, int textpalOffs, int shadowpalOffs)
 {
-	mars_drawText(str, x + 1, y + 1, shadowpalOffs);
-	mars_drawText(str, x, y, textpalOffs);
+	drawText(str, x + 1, y + 1, shadowpalOffs);
+	drawText(str, x, y, textpalOffs);
 }
 
 void screenFadeOut(int fadeSpeed)
 {
-	int frameDelay = fadeSpeed;
-	int len = 31;
-	int r, g, b;
+	u16 frameDelay = fadeSpeed;
+	u16 len = 31;
+	u16 r, g, b;
 	u16 tempcolor;
 	vu16 temppal[256];
 	vu16 *cram16 = &MARS_CRAM;
@@ -511,6 +518,34 @@ void screenFadeOut(int fadeSpeed)
 	return;
 }
 
+void drawTextwBackground(const char *str, int x, int y, int palOffs)
+{
+	int screenOffs, fontOffs;
+	int c;
+	vu8 *fb = (volatile unsigned char*)&MARS_FRAMEBUFFER + 0x200;
+
+	for (int i = 0; i < 40; i++)
+	{
+		c = str[i];
+		if (!c) break;
+
+		c -= ' ';
+		screenOffs = y * 320 + i * 8 + x;
+		fontOffs = (c >> 4) << 10;
+		fontOffs += (c & 15) << 3;
+		for (int t = 0; t < 8; t++)
+		{
+			for (int s = 0; s < 8; s++)
+			{
+				if (fontwbackground_tile[fontOffs + s])
+					fb[screenOffs + s] = fontwbackground_tile[fontOffs + s] + palOffs;
+			}
+			screenOffs += 320;
+			fontOffs += 128;
+		}
+	}
+}
+
 void clearScreen_Fill8bit()
 {
 	MARS_VDP_FILLEN = 255;
@@ -533,4 +568,10 @@ void clearScreen_Fill16bit()
 		MARS_VDP_FILDAT = 0;
 		while (MARS_VDP_FBCTL & MARS_VDP_FEN);
 	}
+}
+
+void setColor(int index, int r, int g, int b)
+{
+	vu16 *cram16 = &MARS_CRAM;
+	cram16[index] = COLOR(r, g, b);
 }

@@ -1,4 +1,4 @@
-/* 
+/*
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
  * Copyright (C)2011-2023 Artemio Urbina
@@ -30,11 +30,6 @@
  * 32X by Chilly Willy
  */
 
-#include <string.h>
-#include <stdint.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdint.h>
 #include "32x.h"
 #include "hw_32x.h"
 #include "string.h"
@@ -45,9 +40,6 @@
 int old_camera_x, old_camera_y;
 int main_camera_x, main_camera_y;
 int camera_x, camera_y;
-
-extern int fontColorWhite, fontColorRed, fontColorGreen, fontColorGray, fontColorBlack;
-extern int fontColorWhiteHighlight, fontColorRedHighlight, fontColorGreenHighlight;
 
 static int X = 0, Y = 0;
 static int MX = 40, MY = 25;
@@ -507,7 +499,7 @@ void Hw32xScreenPrintf(const char *format, ...)
 	int n;
 
 	va_start(opt, format);
-	n = vsnprintf(buff, (size_t)sizeof(buff), format, opt);
+	n = vsprintf(buff, format, opt);
 	va_end(opt);
 	buff[sizeof(buff) - 1] = 0;
 
@@ -625,11 +617,10 @@ void HwMdPutc(char chr, int color, int x, int y)
 void HwMdScreenPrintf(int color, int x, int y, const char *format, ...)
 {
 	va_list opt;
-	char buff[128];
-	int n;
+	char buff[64];
 
 	va_start(opt, format);
-	n = vsnprintf(buff, (size_t)sizeof(buff), format, opt);
+	vsprintf(buff, format, opt);
 	va_end(opt);
 	buff[sizeof(buff) - 1] = 0;
 
@@ -639,7 +630,7 @@ void HwMdScreenPrintf(int color, int x, int y, const char *format, ...)
 void HwMdSetPal(unsigned short pal)
 {
 	while (MARS_SYS_COMM0);                    // Wait until 68000 has responded to any earlier requests
-	MARS_SYS_COMM2 = pal;                    
+	MARS_SYS_COMM2 = pal;
 	MARS_SYS_COMM0 = 0x0A00;                    // Send handle request flag
 	while (MARS_SYS_COMM0);
 }
@@ -647,7 +638,7 @@ void HwMdSetPal(unsigned short pal)
 void HwMdSetColor(unsigned short color)
 {
 	while (MARS_SYS_COMM0);                    // Wait until 68000 has responded to any earlier requests
-	MARS_SYS_COMM2 = color;                    
+	MARS_SYS_COMM2 = color;
 	MARS_SYS_COMM0 = 0x0B00;                    // Send handle request flag
 	while (MARS_SYS_COMM0);
 }
@@ -817,7 +808,3 @@ void secondary(void)
 		}
 	}
 }
-
-
-
-

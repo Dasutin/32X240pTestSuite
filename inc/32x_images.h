@@ -1,4 +1,4 @@
-/* 
+/*
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
  * Copyright (C)2011-2023 Artemio Urbina
@@ -23,8 +23,10 @@
 #ifndef _32X_IMAGES_H_
 #define _32X_IMAGES_H_
 
-#define MARS_SDRAM_CACHE		(*(volatile unsigned short *)0x06000000)
-#define MARS_CACHE_OFFSET		0x20000000
+#include "types.h"
+
+#define MARS_SDRAM_CACHE	(*(volatile unsigned short *)0x06000000)
+#define MARS_CACHE_OFFSET	0x20000000
 
 /*
 * Loads all colors from region in ROM defined by paletteStart to paletteEnd
@@ -37,14 +39,14 @@ void loadPalette(const u16 *paletteStart, const u16 *paletteEnd, const int palet
 
 /*
 * Draws an image to position on MARS framebuffer allowing you to flip the image using mirror param.
-* 
+*
 * @param spriteBuffer - pointer to starting position of image data to read
-* @param x - x pixel coordinate of top-left corner of the image 
+* @param x - x pixel coordinate of top-left corner of the image
 * @param y - y pixel coordinate of top-left corner of the image
 * @param xWidth - vertical size of image to be drawn in pixels - must be actual size, does not resize or trim
 * @param yWidth - horizontal size of image to be drawn in pixels
 * @param mirror - 0 for normal 1 for flipped along y-axis
-* @param screenWrap - 0 for no screenWrap, 1 for screen wrapping  
+* @param screenWrap - 0 for no screenWrap, 1 for screen wrapping
 */
 int drawSprite(const vu8 *spriteBuffer, const s16 x, const s16 y, const int xWidth, const int yWidth, const int mirror,const int screenWrap);
 
@@ -54,13 +56,13 @@ void drawLine(u16 x, u16 y, u16 xWidth, u16 yWidth);
 
 /*
 * Draws a background image on MARS framebuffer allowing you to flip the image using mirror param, no transparency
-* 
+*
 * @param spriteBuffer - pointer to starting position of image data
 *
 */
 int drawBG(const vu8 *spriteBuffer);
 
-/* 
+/*
 * Draws blank pixels to rectangle specified by x, y, xWidth and yWidth (height)
 */
 void clearArea(vu16 x, vu16 y, int xWidth, int yWidth);
@@ -70,14 +72,14 @@ void clearArea(vu16 x, vu16 y, int xWidth, int yWidth);
 */
 void drawLineTable(int xOff);
 
-/* 
+/*
 * Draws pixels to rectangle specified by x, y, xWidth and yWidth (height). Must be on screen.
 * xWidth must be sized in multiples of 8 wide (8 pixels, 16 pixels, etc..)
 *
 */
 void drawFillRect(const s16 x, const s16 y, const int xWidth, const int yWidth, vu8* color);
 
-/* 
+/*
 * Draws pixels to outline a rectangle specified by x, y, xWidth and yWidth (height). Must be on screen.
 * xWidth must be sized in multiples of 8 wide (8 pixels, 16 pixels, etc..)
 *
@@ -86,10 +88,12 @@ void drawRect(const s16 x, const s16 y, const int xWidth, const int yWidth, vu8*
 
 void my_debug_put_char_8(int x, int y, unsigned char ch, vu8* fgColor, vu8* bgColor);
 int myScreenPrintData(const char *buff, const int x, const int y, const vu8* fgColor, const vu8* bgColor );
-void mars_drawText(const char *str, int x, int y, int palOffs);
-void mars_drawTextwShadow(const char *str, int x, int y, int textpalOffs, int shadowpalOffs);
+void drawText(const char *str, int x, int y, int palOffs);
+void drawTextwHighlight(const char *str, int x, int y, int textpalOffs, int shadowpalOffs);
+void drawTextwBackground(const char *str, int x, int y, int palOffs);
 void screenFadeOut(int fadeSpeed);
 void clearScreen_Fill8bit();
 void clearScreen_Fill16bit();
+void setColor(int index, int r, int g, int b);
 
-#endif /* _32X_IMAGES_H_ */
+#endif // _32X_IMAGES_H_

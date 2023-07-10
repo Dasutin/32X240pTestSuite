@@ -1,4 +1,4 @@
-/* 
+/*
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
  * Copyright (C)2011-2023 Artemio Urbina
@@ -19,31 +19,32 @@
  * along with 240p Test Suite; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
-#include "types.h"
 #include "32x.h"
 #include "hw_32x.h"
+#include "types.h"
 #include "32x_images.h"
+#include "draw.h"
 #include "shared_objects.h"
 #include "main.h"
 #include "patterns.h"
 #include "tests.h"
 #include "help.h"
 
-extern int fontColorWhite, fontColorRed, fontColorGreen, fontColorGray, fontColorBlack;
-extern int fontColorWhiteHighlight, fontColorRedHighlight, fontColorGreenHighlight;
-
-uint32_t canvas_pitch = 320; // canvas_width + scrollwidth
-uint32_t canvas_yaw = 224; // canvas_height + scrollheight
+// canvas_width + scrollwidth
+uint32_t canvas_pitch = 320;
+// canvas_height + scrollheight
+uint32_t canvas_yaw = 224;
 
 int main(void)
 {
 	int curse = 1, pos;
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
-	
+
 	marsVDP256Start();
 
 	SetSH2SR(1);
+
+	initMainBGwGil();
 
 	while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
 
@@ -52,17 +53,17 @@ int main(void)
 	while (1)
 	{
 		Hw32xFlipWait();
-		DrawMainBGwGillian();
+		drawBGwGil();
 		loadTextPalette();
 
 		pos = 72;
-		mars_drawTextwShadow("Test Patterns", 50, pos += 8, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Video tests", 50, pos += 8, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Audio tests", 50, pos += 8, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Hardware tools", 50, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Test Patterns", 50, pos += 8, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Video tests", 50, pos += 8, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Audio tests", 50, pos += 8, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Hardware tools", 50, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		pos += 34;
-		mars_drawTextwShadow("Help", 50, pos += 8, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Credits", 50, pos += 8, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Help", 50, pos += 8, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Credits", 50, pos += 8, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorRedHighlight : fontColorWhiteHighlight);
 
 		drawResolution();
 
@@ -110,33 +111,37 @@ int main(void)
 				case 1:
 					screenFadeOut(1);
 					menu_tp();
+					loadMainBGwGilPalette();
 					break;
 
 				case 2:
 					screenFadeOut(1);
 					menu_vt();
+					loadMainBGwGilPalette();
 					break;
 
 				case 3:
 					screenFadeOut(1);
 					menu_at();
+					loadMainBGwGilPalette();
 					break;
 
 				case 4:
 					screenFadeOut(1);
 					menu_ht();
+					loadMainBGwGilPalette();
 					break;
 
 				case 5:
 					screenFadeOut(1);
 					DrawHelp(HELP_GENERAL);
-					DrawMainBGwGillian();
+					redrawBGwGil();
 					break;
 
 				case 6:
 					screenFadeOut(1);
 					credits();
-					DrawMainBGwGillian();
+					redrawBGwGil();
 					break;
 			}
 		}
@@ -151,21 +156,23 @@ void menu_tp()
 	int done = 0, curse = 1, pos;
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
 
+	initMainBGwGil();
+
 	Hw32xScreenFlip(0);
 
 	while (!done)
 	{
 		Hw32xFlipWait();
-		DrawMainBGwGillian();
+		drawBGwGil();
 		loadTextPalette();
 
 		pos = 88;
-		mars_drawTextwShadow("Color & Black Levels", 40, pos += 8, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Geometry", 40, pos += 8, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Color & Black Levels", 40, pos += 8, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Geometry", 40, pos += 8, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		pos += 8;
 		pos += 8;
-		mars_drawTextwShadow("Help", 40, pos += 8, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Credits", 40, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Help", 40, pos += 8, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Credits", 40, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
 
 		drawResolution();
 
@@ -225,23 +232,25 @@ void menu_tp()
 				case 1:
 					screenFadeOut(1);
 					menu_color_black_levels();
+					loadMainBGwGilPalette();
 					break;
 
 				case 2:
 					screenFadeOut(1);
 					menu_geo();
+					loadMainBGwGilPalette();
 					break;
 
 				case 3:
 					screenFadeOut(1);
 					DrawHelp(HELP_GENERAL);
-					DrawMainBGwGillian();
+					redrawBGwGil();
 					break;
 
 				case 4:
 					screenFadeOut(1);
 					credits();
-					DrawMainBGwGillian();
+					redrawBGwGil();
 					break;
 			}
 		}
@@ -256,32 +265,33 @@ void menu_color_black_levels()
 	int done = 0, curse = 1, pos;
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
 
+	initMainBGwGil();
+
 	Hw32xScreenFlip(0);
 
 	while (!done)
 	{
 		Hw32xFlipWait();
-		DrawMainBGwGillian();
+		drawBGwGil();
 		loadTextPalette();
 
 		pos = 64;
-		mars_drawTextwShadow("Pluge", 40, pos += 8, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Color Bars", 40, pos += 8, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("EBU Color Bars", 40, pos += 8, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("SMPTE Color Bars", 40, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Referenced Color Bars", 40, pos += 8, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Color Bleed Check", 40, pos += 8, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Gray Ramp", 40, pos += 8, curse == 7 ? fontColorRed : fontColorWhite, curse == 7 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("White & RGB Screens", 40, pos += 8, curse == 8 ? fontColorRed : fontColorWhite, curse == 8 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("100 IRE", 40, pos += 8, curse == 9 ? fontColorRed : fontColorWhite, curse == 9 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Sharpness", 40, pos += 8, curse == 10 ? fontColorRed : fontColorWhite, curse == 10 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Pluge", 40, pos += 8, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Color Bars", 40, pos += 8, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("EBU Color Bars", 40, pos += 8, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("SMPTE Color Bars", 40, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Referenced Color Bars", 40, pos += 8, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Color Bleed Check", 40, pos += 8, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Gray Ramp", 40, pos += 8, curse == 7 ? fontColorRed : fontColorWhite, curse == 7 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("White & RGB Screens", 40, pos += 8, curse == 8 ? fontColorRed : fontColorWhite, curse == 8 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("100 IRE", 40, pos += 8, curse == 9 ? fontColorRed : fontColorWhite, curse == 9 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Sharpness", 40, pos += 8, curse == 10 ? fontColorRed : fontColorWhite, curse == 10 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		pos += 8;
-		mars_drawTextwShadow("Back to Patterns Menu", 40, pos += 8, curse == 11 ? fontColorRed : fontColorWhite, curse == 11 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Back to Patterns Menu", 40, pos += 8, curse == 11 ? fontColorRed : fontColorWhite, curse == 11 ? fontColorRedHighlight : fontColorWhiteHighlight);
 
 		drawResolution();
 
 		button = MARS_SYS_COMM8;
-
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
 			button = MARS_SYS_COMM10;
 
@@ -337,70 +347,81 @@ void menu_color_black_levels()
 					screenFadeOut(1);
 					tp_pluge();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					initMainBG();
+					redrawBGwGil();
 					break;
 
 				case 2:
 					screenFadeOut(1);
+					canvas_rebuild_id++;
 					tp_colorchart();
+					canvas_rebuild_id++;
+					initMainBG();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					redrawBGwGil();
 					break;
 
 				case 3:
 					screenFadeOut(1);
 					tp_colorbars();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					initMainBG();
+					redrawBGwGil();
 					break;
 
 				case 4:
 					screenFadeOut(1);
 					tp_smpte_color_bars();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					initMainBG();
+					redrawBGwGil();
 					break;
 
 				case 5:
 					screenFadeOut(1);
 					tp_ref_color_bars();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					initMainBG();
+					redrawBGwGil();
 					break;
 
 				case 6:
 					screenFadeOut(1);
 					tp_color_bleed_check();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					initMainBG();
+					redrawBGwGil();
 					break;
 
 				case 7:
 					screenFadeOut(1);
 					tp_gray_ramp();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					initMainBG();
+					redrawBGwGil();
 					break;
 
 				case 8:
 					screenFadeOut(1);
 					tp_white_rgb();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					redrawBGwGil();
 					break;
 
 				case 9:
 					screenFadeOut(1);
 					tp_100_ire();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					initMainBG();
+					redrawBGwGil();
 					break;
 
 				case 10:
 					screenFadeOut(1);
 					tp_sharpness();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					initMainBG();
+					redrawBGwGil();
 					break;
 
 				case 11:
@@ -428,21 +449,23 @@ void menu_geo()
 	int done = 0, curse = 1, pos;
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
 
+	initMainBGwGil();
+
 	Hw32xScreenFlip(0);
 
 	while (!done)
 	{
 		Hw32xFlipWait();
-		DrawMainBGwGillian();
+		drawBGwGil();
 		loadTextPalette();
 
 		pos = 88;
-		mars_drawTextwShadow("Monoscope", 40, pos += 8, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Grid", 40, pos += 8, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Overscan", 40, pos += 8, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Convergence", 40, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Monoscope", 40, pos += 8, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Grid", 40, pos += 8, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Overscan", 40, pos += 8, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Convergence", 40, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		pos += 8;
-		mars_drawTextwShadow("Back to Patterns Menu", 40, pos += 8, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Back to Patterns Menu", 40, pos += 8, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorRedHighlight : fontColorWhiteHighlight);
 
 		drawResolution();
 
@@ -503,14 +526,16 @@ void menu_geo()
 					screenFadeOut(1);
 					tp_monoscope();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					initMainBG();
+					redrawBGwGil();
 					break;
 
 				case 2:
 					screenFadeOut(1);
 					tp_grid();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					initMainBG();
+					redrawBGwGil();
 					break;
 
 				case 3:
@@ -518,14 +543,15 @@ void menu_geo()
 					tp_overscan();
 					HwMdClearScreen();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					redrawBGwGil();
 					break;
 
 				case 4:
 					screenFadeOut(1);
 					tp_convergence();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					initMainBG();
+					redrawBGwGil();
 					break;
 
 				case 5:
@@ -553,29 +579,31 @@ void menu_vt()
 	int done = 0, curse = 1, pos;
 	unsigned short button, pressedButton, oldButton  = 0xFFFF;
 
+	marsVDP256Start();
+	initMainBGwGil();
 	Hw32xScreenFlip(0);
-	
+
 	while (!done)
 	{
 		Hw32xFlipWait();
-		DrawMainBGwGillian();
+
+		drawBGwGil();
 		loadTextPalette();
 
 		pos = 50;
-		mars_drawTextwShadow("Drop Shadow Test", 40, pos += 8, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Striped Sprite Test", 40, pos += 8, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Lag Test", 40, pos += 8, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Timing & Reflex Test", 40, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Scroll Test", 40, pos += 8, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Grid Scroll Test", 40, pos += 8, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Horizontal Stripes", 40, pos += 8, curse == 7 ? fontColorRed : fontColorWhite, curse == 7 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Vertical Stripes", 40, pos += 8, curse == 8 ? fontColorRed : fontColorWhite, curse == 8 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Checkerboard", 40, pos += 8, curse == 9 ? fontColorRed : fontColorWhite, curse == 9 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Backlit Zone Test", 40, pos += 8, curse == 10 ? fontColorRed : fontColorWhite, curse == 10 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Disappearing Logo", 40, pos += 8, curse == 11 ? fontColorRed : fontColorWhite, curse == 11 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Drop Shadow Test", 40, pos += 8, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Striped Sprite Test", 40, pos += 8, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Lag Test", 40, pos += 8, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Timing & Reflex Test", 40, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Scroll Test", 40, pos += 8, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Grid Scroll Test", 40, pos += 8, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Horiz/Vert Stripes", 40, pos += 8, curse == 7 ? fontColorRed : fontColorWhite, curse == 7 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Checkerboard", 40, pos += 8, curse == 8 ? fontColorRed : fontColorWhite, curse == 8 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Backlit Zone Test", 40, pos += 8, curse == 9 ? fontColorRed : fontColorWhite, curse == 9 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Disappearing Logo", 40, pos += 8, curse == 10 ? fontColorRed : fontColorWhite, curse == 10 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		pos += 8;
-		mars_drawTextwShadow("Help", 40, pos += 8, curse == 12 ? fontColorRed : fontColorWhite, curse == 12 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Back to Main Menu", 40, pos += 8, curse == 13 ? fontColorRed : fontColorWhite, curse == 13 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Help", 40, pos += 8, curse == 11 ? fontColorRed : fontColorWhite, curse == 11 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Back to Main Menu", 40, pos += 8, curse == 12 ? fontColorRed : fontColorWhite, curse == 12 ? fontColorRedHighlight : fontColorWhiteHighlight);
 
 		drawResolution();
 
@@ -590,7 +618,7 @@ void menu_vt()
 		if (pressedButton & SEGA_CTRL_DOWN)
 		{
 			curse++;
-			if (curse > 13)
+			if (curse > 12)
 				curse = 1;
 		}
 
@@ -598,7 +626,7 @@ void menu_vt()
 		{
 			curse--;
 			if (curse < 1)
-				curse = 13;
+				curse = 12;
 		}
 
 		if (pressedButton & SEGA_CTRL_B)
@@ -634,27 +662,33 @@ void menu_vt()
 			{
 				case 1:
 					screenFadeOut(1);
+					canvas_rebuild_id++;
 					vt_drop_shadow_test();
 					canvas_pitch = 320;
 					canvas_yaw = 224;
+					initMainBG();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					redrawBGwGil();
 					break;
 
 				case 2:
 					screenFadeOut(1);
+					canvas_rebuild_id++;
 					vt_striped_sprite_test();
 					canvas_pitch = 320;
 					canvas_yaw = 224;
+					initMainBG();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					redrawBGwGil();
 					break;
 
 				case 3:
 					screenFadeOut(1);
+					canvas_rebuild_id++;
 					vt_lag_test();
+					initMainBG();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					redrawBGwGil();
 					break;
 
 				case 4:
@@ -662,71 +696,75 @@ void menu_vt()
 					vt_reflex_test();
 					HwMdClearScreen();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					initMainBG();
+					redrawBGwGil();
 					break;
 
 				case 5:
 					screenFadeOut(1);
+					canvas_rebuild_id++;
 					vt_scroll_test();
 					HwMdClearScreen();
 					canvas_pitch = 320;
 					canvas_yaw = 224;
+					initMainBG();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					redrawBGwGil();
 					break;
 
 				case 6:
 					screenFadeOut(1);
+					canvas_rebuild_id++;
 					vt_gridscroll_test();
 					HwMdClearScreen();
 					canvas_pitch = 320;
 					canvas_yaw = 224;
+					initMainBG();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					redrawBGwGil();
 					break;
 
 				case 7:
 					screenFadeOut(1);
-					vt_horizontal_stripes();
+					vt_stripes();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					initMainBG();
+					redrawBGwGil();
 					break;
 
 				case 8:
 					screenFadeOut(1);
-					vt_vertical_stripes();
+					vt_checkerboard();
+					initMainBG();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					redrawBGwGil();
 					break;
 
 				case 9:
 					screenFadeOut(1);
-					vt_checkerboard();
+					canvas_rebuild_id++;
+					vt_backlitzone_test();
+					initMainBG();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					redrawBGwGil();
 					break;
 
 				case 10:
 					screenFadeOut(1);
-					vt_backlitzone_test();
+					canvas_rebuild_id++;
+					vt_DisappearingLogo();
+					initMainBG();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					redrawBGwGil();
 					break;
 
 				case 11:
 					screenFadeOut(1);
-					vt_DisappearingLogo();
-					marsVDP256Start();
-					DrawMainBGwGillian();
+					DrawHelp(HELP_GENERAL);
+					redrawBGwGil();
 					break;
 
 				case 12:
-					screenFadeOut(1);
-					DrawHelp(HELP_GENERAL);
-					DrawMainBGwGillian();
-					break;
-
-				case 13:
 					screenFadeOut(1);
 					done = 1;
 					break;
@@ -749,23 +787,25 @@ void menu_vt()
 void menu_at()
 {
 	int done = 0, curse = 1, pos;
-	unsigned short button, pressedButton, oldButton  = 0xFFFF;
+	unsigned short button, pressedButton, oldButton = 0xFFFF;
+
+	initMainBGwGil();
 
 	Hw32xScreenFlip(0);
 
 	while (!done)
 	{
 		Hw32xFlipWait();
-		DrawMainBGwGillian();
+		drawBGwGil();
 		loadTextPalette();
 
 		pos = 80;
-		mars_drawTextwShadow("Sound Test", 40, pos += 8, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Audio Sync Test", 40, pos += 8, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Sound Test", 40, pos += 8, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Audio Sync Test", 40, pos += 8, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		pos += 8;
 		pos += 8;
-		mars_drawTextwShadow("Help", 40, pos += 8, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Back to Main Menu", pos += 8, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Help", 40, pos += 8, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Back to Main Menu", 40, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
 
 		drawResolution();
 
@@ -823,20 +863,20 @@ void menu_at()
 					screenFadeOut(1);
 					at_sound_test();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					redrawBGwGil();
 					break;
 
 				case 2:
 					screenFadeOut(1);
 					at_audiosync_test();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					redrawBGwGil();
 					break;
 
 				case 3:
 					screenFadeOut(1);
 					DrawHelp(HELP_GENERAL);
-					DrawMainBGwGillian();
+					redrawBGwGil();
 					break;
 
 				case 4:
@@ -844,6 +884,13 @@ void menu_at()
 					done = 1;
 					break;
 			}
+			button = MARS_SYS_COMM8;
+
+			if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
+				button = MARS_SYS_COMM10;
+
+			pressedButton = button & ~oldButton;
+			oldButton = button;
 		}
 
 		Hw32xScreenFlip(0);
@@ -856,23 +903,25 @@ void menu_ht()
 	int done = 0, curse = 1, pos;
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
 
+	initMainBGwGil();
+
 	Hw32xScreenFlip(0);
 
 	while (!done)
 	{
 		Hw32xFlipWait();
-		DrawMainBGwGillian();
+		drawBGwGil();
 		loadTextPalette();
 
 		pos = 72;
-		mars_drawTextwShadow("Controller Test", 40, pos += 8, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("SDRAM Check", 40, pos += 8, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Memory Viewer", 40, pos += 8, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("BIOS Info", 40, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Controller Test", 40, pos += 8, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("SDRAM Check", 40, pos += 8, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Memory Viewer", 40, pos += 8, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("BIOS Info", 40, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		pos += 8;
 		pos += 8;
-		mars_drawTextwShadow("Help", 40, pos += 8, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		mars_drawTextwShadow("Back to Main Menu", 40, pos += 8, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Help", 40, pos += 8, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Back to Main Menu", 40, pos += 8, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorRedHighlight : fontColorWhiteHighlight);
 
 		drawResolution();
 
@@ -933,14 +982,14 @@ void menu_ht()
 					screenFadeOut(1);
 					ht_controller_test();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					redrawBGwGil();
 					break;
 
 				case 2:
 					ht_test_32x_sdram();
 					HwMdClearScreen();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					redrawBGwGil();
 					break;
 
 				case 3:
@@ -948,7 +997,7 @@ void menu_ht()
 					ht_memory_viewer(0);
 					HwMdClearScreen();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					redrawBGwGil();
 					break;
 
 				case 4:
@@ -956,13 +1005,13 @@ void menu_ht()
 					ht_check_32x_bios_crc(0);
 					HwMdClearScreen();
 					marsVDP256Start();
-					DrawMainBGwGillian();
+					redrawBGwGil();
 					break;
 
 				case 5:
 					screenFadeOut(1);
 					DrawHelp(HELP_GENERAL);
-					DrawMainBGwGillian();
+					redrawBGwGil();
 					break;
 
 				case 6:
@@ -990,40 +1039,42 @@ void credits()
 	int done = 0;
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
 
+	initMainBG();
+
 	Hw32xScreenFlip(0);
 
 	while (!done)
 	{
 		Hw32xFlipWait();
-		DrawMainBG();
+		drawMainBG();
 		loadTextPalette();
 
-		mars_drawTextwShadow("Ver. 1.03", 80, 35, fontColorGreen, fontColorGreenHighlight);
-		mars_drawTextwShadow("07/05/2023", 166, 35, fontColorWhite, fontColorWhiteHighlight);
+		drawTextwHighlight("Ver. 1.10", 80, 35, fontColorGreen, fontColorGreenHighlight);
+		drawTextwHighlight("07/10/2023", 166, 35, fontColorWhite, fontColorWhiteHighlight);
 
-		mars_drawTextwShadow("Code and Port by:", 35, 50, fontColorGreen, fontColorGreenHighlight);
-		mars_drawTextwShadow("Dustin Dembrosky (@Dasutin)", 43, 58, fontColorWhite, fontColorWhiteHighlight);
+		drawTextwHighlight("Code and Port by:", 35, 50, fontColorGreen, fontColorGreenHighlight);
+		drawTextwHighlight("Dustin Dembrosky (@Dasutin)", 43, 58, fontColorWhite, fontColorWhiteHighlight);
 
-		mars_drawTextwShadow("Patterns:", 35, 66, fontColorGreen, fontColorGreenHighlight);
-		mars_drawTextwShadow("Artemio Urbina (@artemio)", 43, 74, fontColorWhite, fontColorWhiteHighlight);
+		drawTextwHighlight("Patterns:", 35, 66, fontColorGreen, fontColorGreenHighlight);
+		drawTextwHighlight("Artemio Urbina (@artemio)", 43, 74, fontColorWhite, fontColorWhiteHighlight);
 
-		mars_drawTextwShadow("Monoscope Pattern:", 35, 82, fontColorGreen, fontColorGreenHighlight);
-		mars_drawTextwShadow("Keith Raney (@khmr33)", 43, 90, fontColorWhite, fontColorWhiteHighlight);
+		drawTextwHighlight("Monoscope Pattern:", 35, 82, fontColorGreen, fontColorGreenHighlight);
+		drawTextwHighlight("Keith Raney (@khmr33)", 43, 90, fontColorWhite, fontColorWhiteHighlight);
 
-		mars_drawTextwShadow("Menu Pixel Art:", 35, 98, fontColorGreen, fontColorGreenHighlight);
-		mars_drawTextwShadow("Asher", 43, 106, fontColorWhite, fontColorWhiteHighlight);
+		drawTextwHighlight("Menu Pixel Art:", 35, 98, fontColorGreen, fontColorGreenHighlight);
+		drawTextwHighlight("Asher", 43, 106, fontColorWhite, fontColorWhiteHighlight);
 
-		mars_drawTextwShadow("Donna Art:", 35, 114, fontColorGreen, fontColorGreenHighlight);
-		mars_drawTextwShadow("Jose Salot (@pepe_salot)", 43, 122, fontColorWhite, fontColorWhiteHighlight);
+		drawTextwHighlight("Donna Art:", 35, 114, fontColorGreen, fontColorGreenHighlight);
+		drawTextwHighlight("Jose Salot (@pepe_salot)", 43, 122, fontColorWhite, fontColorWhiteHighlight);
 
-		mars_drawTextwShadow("32X Toolchain:", 35, 130, fontColorGreen, fontColorGreenHighlight);
-		mars_drawTextwShadow("Joseph Fenton (Chilly Willy)", 43, 138, fontColorWhite, fontColorWhiteHighlight);
+		drawTextwHighlight("32X Toolchain:", 35, 130, fontColorGreen, fontColorGreenHighlight);
+		drawTextwHighlight("Joseph Fenton (Chilly Willy)", 43, 138, fontColorWhite, fontColorWhiteHighlight);
 
-		mars_drawTextwShadow("Tile Mapper:", 35, 146, fontColorGreen, fontColorGreenHighlight);
-		mars_drawTextwShadow("Victor Luchitz (@vluchitz)", 43, 154, fontColorWhite, fontColorWhiteHighlight);
+		drawTextwHighlight("Tile Mapper:", 35, 146, fontColorGreen, fontColorGreenHighlight);
+		drawTextwHighlight("Victor Luchitz (@vluchitz)", 43, 154, fontColorWhite, fontColorWhiteHighlight);
 
-		mars_drawTextwShadow("Info on using this test suite:", 35, 162, fontColorGreen, fontColorGreenHighlight);
-		mars_drawTextwShadow("http://junkerhq.net/240p", 43, 170, fontColorWhite, fontColorWhiteHighlight);
+		drawTextwHighlight("Info on using this test suite:", 35, 162, fontColorGreen, fontColorGreenHighlight);
+		drawTextwHighlight("http://junkerhq.net/240p", 43, 170, fontColorWhite, fontColorWhiteHighlight);
 
 		drawQRCode(248, 88, 32, 32);
 
