@@ -29,7 +29,9 @@
 
 #include "fixed.h"
 
+#ifndef NULL
 #define NULL 0
+#endif
 
 #define ATTR_CACHE_ALIGNED  __attribute__((aligned(16)))
 #define ATTR_DATA_ALIGNED   __attribute__((section(".data"), aligned(16)))

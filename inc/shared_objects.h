@@ -78,6 +78,6 @@ extern uint32_t canvas_pitch;
 extern uint32_t canvas_yaw;
 
 void setRandomSeed(u16 seed);
-u16 random();
+u16 rand16();
 
 #endif // _SHARED_OBJECTS_

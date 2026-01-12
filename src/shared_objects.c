@@ -238,7 +238,7 @@ void setRandomSeed(u16 seed)
 	randbase = seed ^ 0xD94B;
 }
 
-u16 random()
+u16 rand16()
 {
 	randbase ^= (randbase >> 1) ^ MARS_SYS_COMM12;
 	randbase ^= (randbase << 1);

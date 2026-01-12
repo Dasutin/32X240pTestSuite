@@ -2772,51 +2772,39 @@ int Check32XRegion(u8 value, u32 startaddress, u32 size)
 	return(Read32XRegion(value, startaddress, size));
 }
 
-int Check32XRAM(void *start, u32 size)
+int Check32XRAMNonDestructive(u32 startaddress, u32 size)
 {
-	u32 *sdram = start;
+	volatile u32 *sdram = (volatile u32 *)startaddress;
+	const u32 patterns[] = { 0x00000000, 0xFFFFFFFF, 0x55555555, 0xAAAAAAAA };
+	u32 words = size / sizeof(u32);
 
-	while (size--)
+	for (u32 i = 0; i < words; i++)
 	{
-		u16 result, value;
-		value = *sdram;
-		*sdram ^= UCHAR_MAX;
-		result = value ^ *sdram;
-		*sdram++ = value;
-		if (result != UCHAR_MAX)
+		u32 original = sdram[i];
+
+		for (unsigned p = 0; p < (sizeof(patterns)/sizeof(patterns[0])); p++)
 		{
-			HwMdPuts("FAILED", 0x2000, 12, 10);
-			return 0;
+			sdram[i] = patterns[p];
+			if (sdram[i] != patterns[p])
+			{
+				sdram[i] = original; // restore before exiting
+				return startaddress + (i * sizeof(u32));
+			}
 		}
-	}
-	HwMdPuts("ALL OK", 0x4000, 12, 10);
 
-	return 1;
-}
-
-int Check32XRAMWithValue(char * message, u32 start, u32 end, u8 value, int pos)
-{
-	int memoryFail = 0;
-
-	HwMdPuts(message, 0x0000, 12, pos);
-
-	memoryFail = Check32XRegion(value, start, end - start);
-
-	if (memoryFail != MEMORY_OK)
-	{
-		//ShowMessageAndData("FAILED", memoryFail, 6, 0x2000, 12, pos+1);
-		HwMdPuts("FAILED", 0x2000, 16, pos+1);
-		return 0;
+		sdram[i] = original;
 	}
 
-	HwMdPuts("ALL OK", 0x4000, 16, pos+1);
-	return 1;
+	return MEMORY_OK;
 }
 
 void ht_test_32x_sdram()
 {
 	u16 done = 0, draw = 1, test = 0;
 	u16 button, pressedButton, oldButton = 0xFFFF;
+	const u32 sdram_base = 0x06000000;
+	// 256 KB of SDRAM on 32X common RAM
+	const u32 sdram_size = 0x00040000;
 
 	initMainBG();
 
@@ -2839,7 +2827,7 @@ void ht_test_32x_sdram()
 		drawMainBG();
 		loadTextPalette();
 
-		HwMdPuts("32X SDRAM 0x6000000", 0x4000, 10, 4);
+		HwMdPuts("32X SDRAM 0x6000000-0x603FFFF", 0x4000, 6, 4);
 
 		if (pressedButton & SEGA_CTRL_START)
 			done = 1;
@@ -2849,28 +2837,24 @@ void ht_test_32x_sdram()
 
 		if (draw == 1)
 		{
-			switch (test)
+			HwMdPuts("Setting to 0x00", 0x0000, 12, 10);
+			HwMdPuts("Setting to 0xFF", 0x0000, 12, 12);
+			HwMdPuts("Setting to 0x55", 0x0000, 12, 14);
+			HwMdPuts("Setting to 0xAA", 0x0000, 12, 16);
+
+			int result = Check32XRAMNonDestructive(sdram_base, sdram_size);
+			if (result == MEMORY_OK)
 			{
-				case 1:
-					Check32XRAMWithValue("Setting to 0x00", 0x06000000, 0x060000FF, 0x00, 10);
-					Hw32xSleep(1000);
-
-				case 2:
-					Check32XRAMWithValue("Setting to 0xFF", 0x06000000, 0x060000FF, 0xFF, 12);
-					Hw32xSleep(1000);
-
-				case 3:
-					Check32XRAMWithValue("Setting to 0x55", 0x06000000, 0x060000FF, 0x55, 14);
-					Hw32xSleep(500);
-
-				case 4:
-					Check32XRAMWithValue("Setting to 0xAA", 0x06000000, 0x060000FF, 0xAA, 16);
-
-				case 5:
-					HwMdPuts("PRESS START OR B TO EXIT TEST", 0x4000, 5, 24);
-					draw = 0;
-					test = 0;
+				HwMdPuts("ALL OK", 0x4000, 16, 18);
 			}
+			else
+			{
+				ShowMessageAndData("FAILED at", result, 0x2000, 8, 8, 18);
+			}
+
+			HwMdPuts("PRESS START OR B TO EXIT TEST", 0x4000, 5, 24);
+			draw = 0;
+			test = 0;
 		}
 
 		Hw32xScreenFlip(0);
