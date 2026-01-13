@@ -114,22 +114,22 @@ void Mars_Sec_InitSoundDMA(void)
 	else
 		// PAL clock
 		MARS_PWM_CYCLE = (((22801467 << 1) / (SAMPLE_RATE) + 1) >> 1) + 1;
+	// Keep output muted during ramp to avoid startup pop; enable after ramp completes
+	MARS_PWM_CTRL = 0x0000;
+
+	// Short ramp to center to avoid pop but keep init quick (fewer steps than the old full ramp)
+	#define RAMP_STEPS 128
+	for (ix = 0; ix < RAMP_STEPS; ix++)
+	{
+		sample = SAMPLE_MIN + ((SAMPLE_CENTER - SAMPLE_MIN) * ix) / (RAMP_STEPS - 1);
+		while (MARS_PWM_MONO & 0x8000);
+		MARS_PWM_MONO = sample;
+	}
+	while (MARS_PWM_MONO & 0x8000);
+	MARS_PWM_MONO = SAMPLE_CENTER;
+
 	// TM = 1, RTP, RMD = right, LMD = left
 	MARS_PWM_CTRL = 0x0185;
-
-	sample = SAMPLE_MIN;
-
-	// Ramp up to SAMPLE_CENTER to avoid click in audio (real 32X)
-	while (sample < SAMPLE_CENTER)
-	{
-		for (ix = 0; ix < (SAMPLE_RATE * 2) / (SAMPLE_CENTER - SAMPLE_MIN); ix++)
-		{
-			// Wait while full
-			while (MARS_PWM_MONO & 0x8000);
-			MARS_PWM_MONO = sample;
-		}
-		sample++;
-	}
 
 	snd_bufidx = 0;
 	snd_init = 1;

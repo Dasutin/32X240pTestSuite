@@ -58,6 +58,7 @@ extern void drawBGwGil(void);
 extern void redrawBGwGil(void);
 extern void drawQRCode(u16 x, u16 y, u16 xWidth, u16 yWidth);
 extern void loadTextPalette(void);
+extern void restoreMdTextPalette(void);
 extern void drawResolution(void);
 extern void loadMainBGwGilPalette(void);
 extern void fpsOverlaySetEnabled(int enabled);

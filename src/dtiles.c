@@ -45,7 +45,22 @@ void init_tilemap(tilemap_t *tm, const dtilemap_t *dtm, uint8_t **reslist)
 
     tm->numtiles = tm->tiles_hor * tm->tiles_ver;
 
+    tm->mdPlane[0] = (dtm->mdPlaneA.bitmap || dtm->mdPlaneA.tiles) ? (dtilelayer_t *)&dtm->mdPlaneA : NULL;
+    tm->mdPlane[1] = (dtm->mdPlaneB.bitmap || dtm->mdPlaneB.tiles) ? (dtilelayer_t *)&dtm->mdPlaneB : NULL;
+    tm->mdPriority = dtm->mdPriority;
+
     set_tilemap_wrap(tm, dtm->wrapX, dtm->wrapY);
+
+    if (tm->mdPlane[0] || tm->mdPlane[1]) {
+        HwMdClearPlanes();
+        if (tm->mdPlane[0])
+            HwMdSetPlaneBitmap(0, tm->mdPlane[0]->bitmap);
+        if (tm->mdPlane[1])
+            HwMdSetPlaneBitmap(1, tm->mdPlane[1]->bitmap);
+
+        Hw32xSetFGOverlayPriorityBit(tm->mdPriority ^ 1);
+        Hw32xSetBGOverlayPriorityBit(0);
+    }
 
     Hw32xUpdateLineTable(0, 0, 0);
 }
@@ -131,6 +146,7 @@ static int draw_drawtile(int x, int y, int w, int h,
     cmd.sw = w, cmd.sh = h;
     cmd.sdata = (void*)data;
     cmd.scale = 0;
+    cmd.stride = w;
     fn(fb, &cmd);
 
     return 1;
@@ -222,20 +238,31 @@ void draw_handle_layercmd(drawtilelayerscmd_t *cmd)
             for (tile = t1; tile <= t2; tile++)
             {
                 uint16_t idx = layer[tile];
+                if (idx == 0)
+                {
+                    dirty[id] = (l == 0) ? 0 : (dirty[id] == 0 ? 0 : UINT16_MAX);
+                    id++;
+                    x += w;
+                    continue;
+                }
+
                 if (dirty[id] != idx)
                 {
-                    if (idx != 0)
-                    {
-                        int tiledrawmode;
-                        const uint8_t* res = reslist[(idx >> 2) - 1];
+                    int tiledrawmode;
+                    const uint8_t* res = reslist[(idx >> 2) - 1];
 
-                        tiledrawmode = drawmode | (idx & 3);
-                        fn = draw_spritefn(tiledrawmode);
+                    // For base layer, always update dirty matrix with the current tile id.
+                    // For upper layers, track mixed content with UINT16_MAX sentinel.
+                    if (l == 0)
+                        dirty[id] = idx;
+                    else
+                        dirty[id] = dirty[id] == 0 ? idx : UINT16_MAX;
 
-                        draw_drawtile(x, y, w, h, res, tiledrawmode, fb, fn);
-                        drawcnt++;
-                    }
-                    dirty[id] = idx;
+                    tiledrawmode = drawmode | (idx & 3);
+                    fn = draw_spritefn(tiledrawmode);
+
+                    draw_drawtile(x, y, w, h, res, tiledrawmode, fb, fn);
+                    drawcnt++;
                 }
 
                 id++;
@@ -359,6 +386,21 @@ static int draw_tile_layer(tilemap_t *tm, int layer, int fpcamera_x, int fpcamer
     xx = ((start_tile_hor - top_scroll_tile_hor) * w) - scroll_x;
     yy = -(scroll_y & (h - 1));
 
+    if (layer == 0 && (tm->mdPlane[0] || tm->mdPlane[1]))
+    {
+        int i;
+        for (i = 0; i < 2; i++) {
+            dtilelayer_t *pl = tm->mdPlane[i];
+            if (!pl) continue;
+            int mdx = FixedMul(fpcamera_x, pl->parallax[0]) >> 16;
+            int mdy = FixedMul(fpcamera_y, pl->parallax[1]) >> 16;
+            mdx += pl->offset[0];
+            mdy += pl->offset[1];
+            HwMdHScrollPlane(i, mdx);
+            HwMdVScrollPlane(i, mdy);
+        }
+    }
+
     if (layer == 0)
     {
         window_canvas_x = scroll_x;
@@ -427,7 +469,7 @@ static int draw_tile_layer(tilemap_t *tm, int layer, int fpcamera_x, int fpcamer
     }
 
     while (MARS_SYS_COMM4 != 0) {}
-    MARS_SYS_COMM4 = 5;
+    MARS_SYS_COMM4 = 3;
 
     draw_handle_layercmd(&cmd);
 

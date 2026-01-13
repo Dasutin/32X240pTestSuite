@@ -171,6 +171,19 @@ void drawResolution()
 	}
 }
 
+// Restore the four MD text palettes (gray, red, green, blue) using the MD-side gradients
+void restoreMdTextPalette()
+{
+	// Palette 0: grayscale (font base)
+	HwMdSetColorPal(0x0000, 0x0100);
+	// Palette 1: red
+	HwMdSetColorPal(0x0200, 0x0200);
+	// Palette 2: green
+	HwMdSetColorPal(0x0300, 0x0300);
+	// Palette 3: blue
+	HwMdSetColorPal(0x0400, 0x0400);
+}
+
 void loadTextPalette()
 {
 	setColor(203, 0, 0, 0); 	// Black Background

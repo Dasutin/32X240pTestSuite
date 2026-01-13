@@ -251,10 +251,18 @@ handle_req:
         bls     set_psg_tone1
         cmpi.w  #0x0FFF,d0
         bls     set_psg_tone2
-        cmpi.w  #0x10FF,d0
-        bls     set_psg_noise
-        cmpi.w  #0x10FF,d0
-        bls     set_psg_envelope
+        cmpi.w  #0x1000,d0
+        beq     set_psg_noise
+        cmpi.w  #0x10F0,d0
+        beq     set_psg_envelope
+        cmpi.w  #0x11FF,d0
+        bls     clear_planes
+        cmpi.w  #0x12FF,d0
+        bls     set_plane_bitmap
+        cmpi.w  #0x13FF,d0
+        bls     set_plane_hscroll
+        cmpi.w  #0x14FF,d0
+        bls     set_plane_vscroll
 
 
 # Unknown command
@@ -531,8 +539,76 @@ set_psg_volume:
 set_psg_tone1:
         moveq   #0,d5                   /* Clear register */
         move.w  0xA15122,d5             /* Grab the first value from COMM Port 2 */
-        move.b  d5,d5                   /* Convert word to byte */
-        move.w  #0,0xA15120             /* Tell 32X we are done here */
+
+clear_planes:
+        move.w  #0x2700,sr          /* Disable ints */
+        move.l  #0x8F02,0xC00004    /* INC = 2 */
+        move.l  #0xC0000000,0xC00004 /* Plane A base */
+        move.w  #2048-1,d1
+        moveq   #0,d0
+0:
+        move.w  d0,0xC00000
+        dbra    d1,0b
+        move.l  #0xE0000000,0xC00004 /* Plane B base */
+        move.w  #2048-1,d1
+1:
+        move.w  d0,0xC00000
+        dbra    d1,1b
+        move.w  #0,0xA15120       /* Done */
+        move.w  #0x2000,sr        /* Enable ints */
+        bra     main_loop
+
+set_plane_bitmap:
+        move.w  #0x2700,sr
+        move.l  0xA1512C,a0       /* COMM12 pointer to bitmap */
+        moveq   #0,d1
+        move.w  d0,d1             /* command */
+        andi.w  #1,d1             /* plane id */
+        move.l  #0x8F02,0xC00004  /* INC = 2 */
+        tst.w   d1
+        beq     2f
+        move.l  #0xE0000000,0xC00004 /* Plane B base */
+        bra     3f
+2:
+        move.l  #0xC0000000,0xC00004 /* Plane A base */
+3:
+        move.w  #2048-1,d2
+4:
+        move.w  (a0)+,0xC00000
+        dbra    d2,4b
+        move.w  #0,0xA15120
+        move.w  #0x2000,sr
+        bra     main_loop
+
+set_plane_hscroll:
+        move.w  #0x2700,sr
+        moveq   #0,d1
+        move.w  d0,d1
+        andi.w  #1,d1             /* plane id */
+        move.l  #0x8F02,0xC00004  /* INC = 2 */
+        move.l  #0xBC000000,0xC00004 /* Hscroll table base */
+        tst.w   d1
+        beq     5f
+        move.w  0xC00000,d2       /* skip plane A entry */
+5:
+        move.w  0xA15122,0xC00000 /* COMM2 value */
+        move.w  #0,0xA15120
+        move.w  #0x2000,sr
+        bra     main_loop
+
+set_plane_vscroll:
+        move.w  #0x2700,sr
+        moveq   #0,d1
+        move.w  d0,d1
+        andi.w  #1,d1             /* plane id */
+        move.l  #0x40000010,0xC00004 /* VSRAM address 0 */
+        tst.w   d1
+        beq     6f
+        move.l  #0x40000012,0xC00004 /* VSRAM address 1 */
+6:
+        move.w  0xA15122,0xC00000 /* COMM2 value */
+        move.w  #0,0xA15120
+        move.w  #0x2000,sr
         bra     main_loop
 set_psg_tone2:
         moveq   #0,d6                   /* Clear register */
@@ -554,7 +630,7 @@ set_psg_noise:
 set_psg_envelope:
         moveq   #0,d5                   /* Clear register */
         move.w  0xA15122,d5             /* Grab the envelope value from COMM Port 2 */
-        move.b  d5,d5                   /* Convert word to byte */
+                move.b  d5,d5                   /* Convert word to byte */
         move.b  d5, (0xC00011)          /* Set envelope value to PSG port */
         move.w  #0,0xA15120             /* Tell 32X we are done here */
         bra     main_loop

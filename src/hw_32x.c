@@ -37,6 +37,9 @@
 #include "draw.h"
 #include "sound.h"
 
+#define COLOR_PRI  (1<<15)
+#define COLOR_MASK ((1<<15)-1)
+
 int old_camera_x, old_camera_y;
 int main_camera_x, main_camera_y;
 int camera_x, camera_y;
@@ -46,6 +49,7 @@ static int MX = 40, MY = 25;
 static int init = 0;
 static unsigned short fgc = 0, bgc = 0;
 static unsigned char fgs = 0, bgs = 0;
+static unsigned short fgp = 0, bgp = 0;
 
 static volatile const uint8_t *new_palette;
 
@@ -126,6 +130,52 @@ void Hw32xSetPalette(const uint8_t *palette)
 	if (new_palette == palette)
 		return;
 	new_palette = palette;
+}
+void HwMdClearPlanes(void)
+{
+	while (MARS_SYS_COMM0);
+	MARS_SYS_COMM0 = 0x1100;
+	while (MARS_SYS_COMM0);
+}
+
+void HwMdSetPlaneBitmap(char plane, void *data)
+{
+	while (MARS_SYS_COMM0);
+	*(volatile uintptr_t*)&MARS_SYS_COMM12 = (uintptr_t)data;
+	MARS_SYS_COMM0 = 0x1200 + (plane & 1);
+	while (MARS_SYS_COMM0);
+}
+
+void HwMdHScrollPlane(char plane, int hscroll)
+{
+	while (MARS_SYS_COMM0);
+	MARS_SYS_COMM2 = hscroll;
+	MARS_SYS_COMM0 = 0x1300 + (plane & 1);
+	while (MARS_SYS_COMM0);
+}
+
+void HwMdVScrollPlane(char plane, int vscroll)
+{
+	while (MARS_SYS_COMM0);
+	MARS_SYS_COMM2 = vscroll;
+	MARS_SYS_COMM0 = 0x1400 + (plane & 1);
+	while (MARS_SYS_COMM0);
+}
+
+void Hw32xSetFGOverlayPriorityBit(int p)
+{
+	fgp = p ? COLOR_PRI : 0;
+	fgc = (fgc & COLOR_MASK) | fgp;
+	if (fgs)
+		((volatile unsigned short *)&MARS_CRAM)[fgs] = fgc;
+}
+
+void Hw32xSetBGOverlayPriorityBit(int p)
+{
+	bgp = p ? COLOR_PRI : 0;
+	bgc = (bgc & COLOR_MASK) | bgp;
+	if (bgs)
+		((volatile unsigned short *)&MARS_CRAM)[bgs] = bgc;
 }
 
 void Hw32xUpdateLineTable(int hscroll, int vscroll, int lineskip)
@@ -699,7 +749,7 @@ void HwMdPSGSendEnvelope(unsigned short word)
 {
 	while (MARS_SYS_COMM0);                    // Wait until 68000 has responded to any earlier requests
 	MARS_SYS_COMM2 = word;
-	MARS_SYS_COMM0 = 0x1100;                    // Send handle request flag
+	MARS_SYS_COMM0 = 0x10F0;                    // Send handle request flag
 	while (MARS_SYS_COMM0);
 }
 
@@ -754,14 +804,10 @@ int secondary_task(int cmd)
 	case 1:
 		return 1;
 	case 2:
-		return 1;
-	case 3:
 		ClearCacheLines(&slave_drawsprcmd, (sizeof(drawsprcmd_t) + 15) / 16);
 		draw_handle_drawspritecmd(&slave_drawsprcmd);
 		return 1;
-	case 4:
-		return 1;
-	case 5:
+	case 3:
 		ClearCacheLines((uintptr_t)&canvas_width & ~15, 1);
 		ClearCacheLines((uintptr_t)&canvas_height & ~15, 1);
 		ClearCacheLines((uintptr_t)&window_canvas_x & ~15, 1);
@@ -777,6 +823,8 @@ int secondary_task(int cmd)
 		ClearCacheLines(&tm, (sizeof(tilemap_t) + 15) / 16);
 		draw_handle_layercmd(&slave_drawtilelayerscmd);
 		return 1;
+	case 4:
+		return 1;
 	case 6:
 		Mars_Sec_InitSoundDMA();
 		return 1;
@@ -785,6 +833,8 @@ int secondary_task(int cmd)
 		return 1;
 	case 8:
 		Mars_Sec_StartSoundMixer();
+		return 1;
+	case 9:
 		return 1;
 	default:
 		break;

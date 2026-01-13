@@ -109,7 +109,7 @@ void DFUNC(_sprite8_flip0or2)(DUINT * fb, drawsprcmd_t * cmd)
     if (nodraw) return;
 
     hw = w >> DUINT_RSH;
-    hsw = cmd->sw >> DUINT_RSH;
+    hsw = (cmd->stride ? cmd->stride : cmd->sw) >> DUINT_RSH;
     hdw = canvas_pitch >> DUINT_RSH;
     if (hw == 0)
         return;
@@ -195,7 +195,7 @@ void DFUNC(_sprite8_scale_flip0or2)(DUINT *fb, drawsprcmd_t *cmd)
     unsigned i, nn;
     DUINT*td;
     const DUINT*ts = (const DUINT*)cmd->sdata;
-    unsigned hw, hsw;
+    unsigned hw, hsw, hss;
     unsigned step;
     unsigned u, v;
     unsigned umask, vmask, ustart;
@@ -210,7 +210,8 @@ void DFUNC(_sprite8_scale_flip0or2)(DUINT *fb, drawsprcmd_t *cmd)
     SH2_DIVU_DVDNTL = 0;   // set low  bits of the 64-bit dividend, start divide
 
     hw = cmd->w >> DUINT_RSH;
-    hsw = cmd->sw >> DUINT_RSH;
+    hsw = (cmd->stride ? cmd->stride : cmd->sw) >> DUINT_RSH;
+    hss = (cmd->stride ? cmd->stride : cmd->sw) >> DUINT_RSH;
     hdw = canvas_pitch >> DUINT_RSH;
     nn = (hw + 15) >> 4;
     if (hw == 0)
@@ -230,7 +231,7 @@ void DFUNC(_sprite8_scale_flip0or2)(DUINT *fb, drawsprcmd_t *cmd)
 
     v = cmd->sy << 16;
     for (i = 0; i < h; i++) {
-        const DUINT* s = ts + ((v >> 16) & vmask) * hsw;
+        const DUINT* s = ts + ((v >> 16) & vmask) * hss;
         DUINT* d = td;
         unsigned n = nn;
 
@@ -376,7 +377,7 @@ void DFUNC(_sprite8_scale_flip1)(DUINT* fb, drawsprcmd_t* cmd)
     unsigned i, nn;
     DUINT*td;
     const DUINT*ts = (const DUINT*)cmd->sdata;
-    unsigned hw, hsw;
+    unsigned hw, hsw, hss;
     unsigned step;
     unsigned u, v;
     unsigned umask, vmask, ustart;
@@ -392,6 +393,7 @@ void DFUNC(_sprite8_scale_flip1)(DUINT* fb, drawsprcmd_t* cmd)
 
     hw = cmd->w >> DUINT_RSH;
     hsw = cmd->sw >> DUINT_RSH;
+    hss = (cmd->stride ? cmd->stride : cmd->sw) >> DUINT_RSH;
     hdw = canvas_pitch >> DUINT_RSH;
     nn = (hw + 15) >> 4;
     if (hw == 0)
@@ -412,7 +414,7 @@ void DFUNC(_sprite8_scale_flip1)(DUINT* fb, drawsprcmd_t* cmd)
 
     v = cmd->sy << 16;
     for (i = 0; i < h; i++) {
-        const DUINT* s = ts + ((v >> 16) & vmask) * hsw;
+        const DUINT* s = ts + ((v >> 16) & vmask) * hss;
         DUINT* d = td + 1;
         unsigned n = nn;
 

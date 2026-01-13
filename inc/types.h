@@ -56,6 +56,14 @@ typedef struct {
 	int16_t x2, y2;
 } rect_t;
 
+typedef struct {
+	int offset[2];
+	fixed_t parallax[2];
+	void* bitmap;
+	uint16_t* tiles;
+	int objectLayer;
+} dtilelayer_t;
+
 // "on-disk" tilemap
 typedef struct {
 	int tilew, tileh;
@@ -64,6 +72,9 @@ typedef struct {
 	int wrapX, wrapY;
 	int *layerplx;
 	uint16_t **layers;
+	int mdPriority;
+	dtilelayer_t mdPlaneA;
+	dtilelayer_t mdPlaneB;
 } dtilemap_t;
 
 // in-memory tilemap
@@ -81,6 +92,9 @@ typedef struct {
 	unsigned canvas_tiles_hor, canvas_tiles_ver;
 	unsigned scroll_tiles_hor, scroll_interval_hor;
 	unsigned scroll_tiles_ver, scroll_interval_ver;
+
+	dtilelayer_t *mdPlane[2];
+	int mdPriority;
 } tilemap_t;
 
 typedef struct {
@@ -90,6 +104,7 @@ typedef struct {
 	uint16_t sw, sh;
 	uint16_t x, y;
 	uint16_t w, h;
+	int16_t stride;        // source row stride in pixels; 0 uses sw
 	fixed_t scale;
 } drawsprcmd_t;
 

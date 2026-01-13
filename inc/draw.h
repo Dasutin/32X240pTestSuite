@@ -16,6 +16,10 @@ int draw_sprite(int x, int y, int w, int h,
     const uint8_t* data, int flags, fixed_t scale)
     ATTR_DATA_ALIGNED;
 
+int draw_sprite_stride(int x, int y, int w, int h, int stride,
+    const uint8_t* data, int flags, fixed_t scale)
+    ATTR_DATA_ALIGNED;
+
 void draw_stretch_sprite(int x, int y, int sw, int sh,
     const uint8_t* data, int flags, fixed_t scale)
     ATTR_DATA_ALIGNED;

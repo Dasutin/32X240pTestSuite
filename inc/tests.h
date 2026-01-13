@@ -44,6 +44,7 @@ void vt_backlitzone_test(void);
 void vt_DisappearingLogo(void);
 void at_sound_test(void);
 void at_audiosync_test(void);
+void ensureSoundTestReady(void);
 void ht_controller_test(void);
 void ht_memory_viewer(u32 address);
 void ht_check_32x_bios_crc(u32 address);

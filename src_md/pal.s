@@ -5,6 +5,7 @@
 
 	.global pal_gray_data
 pal_gray_data:            
+        .word 0x0000
         .word 0x0222
         .word 0x0444
         .word 0x0666

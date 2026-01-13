@@ -41,6 +41,8 @@ int main(void)
 	unsigned short button, pressedButton, oldButton = 0xFFFF;
 
 	marsVDP256Start();
+	// Warm audio path once at boot so Sound Test loads immediately
+	ensureSoundTestReady();
 
 	SetSH2SR(1);
 

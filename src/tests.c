@@ -3,6 +3,8 @@
  * Port by Dasutin (Dustin Dembrosky)
  * Copyright (C)2011-2023 Artemio Urbina
  *
+	// Warm up Sound Test audio so first entry has no delay/pop
+	ensureSoundTestReady();
  * This file is part of the 240p Test Suite
  *
  * The 240p Test Suite is free software; you can redistribute it and/or modify
@@ -78,6 +80,25 @@ int window_canvas_x = 0, window_canvas_y = 0;
 const int NTSC_CLOCK_SPEED = 23011360; // HZ
 const int PAL_CLOCK_SPEED = 22801467; // HZ
 int sec;
+
+// Cached audio state for Sound Test to avoid re-init delays/pops
+static sound_t soundTestJump;
+static int soundTestAudioReady = 0;
+
+void ensureSoundTestReady(void)
+{
+	if (!soundTestAudioReady)
+	{
+		Mars_InitSoundDMA();
+		soundTestAudioReady = 1;
+	}
+
+	if (!soundTestJump.valid)
+		sound_load(&soundTestJump, "jump");
+
+	// Make sure mixer is idle before we start using it
+	sound_stopAllChannels();
+}
 tilemap_t tm;
 
 int Mars_FRTCounter2Msec(int c)
@@ -365,6 +386,9 @@ void vt_drop_shadow_test()
 			case 2:
 				if (initTilemap == 1)
 				{
+					otherTests = 1;
+					canvas_pitch = 320;
+					Hw32xSetPalette(donna_palette);
 					init_tilemap(&tm, &checkerboard_donna_tmx, (uint8_t **)checkerboard_donna_reslist);
 					canvas_rebuild_id++;
 					initTilemap = 0;
@@ -375,6 +399,8 @@ void vt_drop_shadow_test()
 				if (initTilemap == 1)
 				{
 					otherTests = 1;
+					canvas_pitch = 320;
+					Hw32xSetPalette(donna_palette);
 					init_tilemap(&tm, &h_stripes_tmx, (uint8_t **)h_stripes_reslist);
 					canvas_rebuild_id++;
 					initTilemap = 0;
@@ -384,7 +410,7 @@ void vt_drop_shadow_test()
 			case 4:
 				if (initTilemap == 1)
 				{
-					otherTests = !otherTests;
+					otherTests = 0;
 					canvas_pitch = 384;
 					Hw32xSetPalette(sonic_tileset_Palette);
 					init_tilemap(&tm, &sonic_tilemap_Map, (uint8_t **)sonic_tileset_Reslist);
@@ -568,6 +594,9 @@ void vt_striped_sprite_test()
 			case 2:
 				if (initTilemap == 1)
 				{
+					otherTests = 1;
+					canvas_pitch = 320;
+					Hw32xSetPalette(donna_palette);
 					init_tilemap(&tm, &checkerboard_donna_tmx, (uint8_t **)checkerboard_donna_reslist);
 					canvas_rebuild_id++;
 					initTilemap = 0;
@@ -589,7 +618,7 @@ void vt_striped_sprite_test()
 			case 4:
 				if (initTilemap == 1)
 				{
-					otherTests = !otherTests;
+					otherTests = 0;
 					canvas_pitch = 384;
 					Hw32xSetPalette(sonic_tileset_Palette);
 					init_tilemap(&tm, &sonic_tilemap_Map, (uint8_t **)sonic_tileset_Reslist);
@@ -2051,12 +2080,12 @@ void at_sound_test()
 {
 	u16 done = 0, xcurse = 2, ycurse = 1, psgoff = 0;
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	sound_t JUMP;
 
-	Mars_InitSoundDMA();
-	sound_load(&JUMP, "jump");
+	ensureSoundTestReady();
 
 	MDPSG_init();
+	// Ensure MD CRAM palettes are loaded before entering the loop (fade left them blank)
+	restoreMdTextPalette();
 	initMainBG();
 
 	Hw32xScreenFlip(0);
@@ -2151,7 +2180,11 @@ void at_sound_test()
 		if (pressedButton & SEGA_CTRL_START)
 		{
 			screenFadeOut(1);
-			sound_free(&JUMP);
+			// Restore base palettes (32X and MD) after the fade so CRAM is not left black
+			loadMainBGwGilPalette();
+			loadTextPalette();
+			restoreMdTextPalette();
+			sound_stopAllChannels();
 			MDPSG_stop();
 			done = 1;
 		}
@@ -2160,13 +2193,13 @@ void at_sound_test()
 		{
 			if (xcurse == 1 && ycurse == 1)
 				// Left Channel Only
-				sound_play(&JUMP, 1, 1);
+				sound_play(&soundTestJump, 1, 1);
 			if (xcurse == 2 && ycurse == 1)
 				// Center
-				sound_play(&JUMP, 1, 3);
+				sound_play(&soundTestJump, 1, 3);
 			if (xcurse == 3 && ycurse == 1)
 				// Right Channel Only
-				sound_play(&JUMP, 1, 2);
+				sound_play(&soundTestJump, 1, 2);
 			if (xcurse == 1 && ycurse == 2)
 			{
 				HwMdPSGSetChandVol(0, 0);
@@ -2227,6 +2260,8 @@ void at_audiosync_test()
 	marsVDP256Start();
 
 	MDPSG_init();
+	// Restore MD text palettes so CRAM is valid after the preceding fade
+	restoreMdTextPalette();
 	HwMdPSGSetFrequency(0, 1000);
 
 	setColor(0, 0, 0, 0);
@@ -2295,7 +2330,6 @@ void at_audiosync_test()
 			else
 				y = 160;
 		}
-
 		if (cycle == 1 && status == -1)
 		{
 			status = 0;

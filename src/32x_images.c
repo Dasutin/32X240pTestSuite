@@ -494,7 +494,12 @@ void screenFadeOut(int fadeSpeed)
 	u16 r, g, b;
 	u16 tempcolor;
 	vu16 temppal[256];
+	u16 savedPal[256];
 	vu16 *cram16 = &MARS_CRAM;
+
+	// Capture the current palette so we can restore it after the fade
+	for (int i = 0; i <= 255; i++)
+		savedPal[i] = cram16[i];
 	while (len != 0)
 	{
 		for (int i = 0; i <= 255; i++)
@@ -529,6 +534,10 @@ void screenFadeOut(int fadeSpeed)
 		len--;
 	}
 	Hw32xScreenClear();
+
+	// Restore original palette so CRAM is not left black once the fade ends
+	for (int i = 0; i <= 255; i++)
+		cram16[i] = savedPal[i];
 	return;
 }
 
