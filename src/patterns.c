@@ -801,10 +801,20 @@ void tp_gray_ramp()
 void tp_white_rgb()
 {
 	u16 done = 0, color = 1, sel = 1, custom = 0, r = 31, g = 31, b = 31;
-	int l = 320 * 224;
+	// Visible pixels start after the line table; avoid overwriting it
+	const int lineTableWords = 0x100; // 256 words = 512 bytes
+	const int pixels = 320 * 224;
 	char str[20], num[4];
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
+
+	// 32-bit CPU fill helper; keeps line table intact.
+	auto void cpu_fill_visible(u32 packed)
+	{
+		u32 *fb32 = (u32 *)(frameBuffer16 + lineTableWords);
+		for (int i = 0; i < pixels/2; i++)
+			fb32[i] = packed;
+	};
 
 	setColor(0, r, g, b);
 	setColor(1, 0, 0, 0);
@@ -856,28 +866,23 @@ void tp_white_rgb()
 		switch (color)
 		{
 			case 1:
-				for (int i = 0; i <= l; i++)
-					frameBuffer16[i] = 0x0000;
+				cpu_fill_visible(0x00000000);
 				break;
 
 			case 2:
-				for (int i = 0; i <= l; i++)
-					frameBuffer16[i] = 0x0101;
+				cpu_fill_visible(0x01010101);
 				break;
 
 			case 3:
-				for (int i = 0; i <= l; i++)
-					frameBuffer16[i] = 0x0202;
+				cpu_fill_visible(0x02020202);
 				break;
 
 			case 4:
-				for (int i = 0; i <= l; i++)
-					frameBuffer16[i] = 0x0303;
+				cpu_fill_visible(0x03030303);
 				break;
 
 			case 5:
-				for (int i = 0; i <= l; i++)
-					frameBuffer16[i] = 0x0404;
+				cpu_fill_visible(0x04040404);
 				break;
 		}
 
@@ -1235,8 +1240,12 @@ void tp_overscan()
 		t = top;
 		b = bottom;
 
+		int width = r - l;
+		if (width < 1)
+			width = 1;
+
 		for (int i = t; i <= b; i++)
-			drawLine(l, i, r, 1);
+			drawLine(l, i, width, 1);
 
 		// Text
 		intToStr(top, datat, 1);
@@ -1324,9 +1333,11 @@ void tp_overscan()
 
 				case 2:
 					datal = &left;
-					(*datal)--; right++;
+					(*datal)--;
 					if (*datal < 0)
 						*datal = 0;
+					if (*datal >= right)
+						*datal = right - 1;
 					break;
 
 				case 3:
@@ -1363,16 +1374,18 @@ void tp_overscan()
 
 				case 2:
 					datal = &left;
-					(*datal)++; right--;
+					(*datal)++;
 					if (*datal < 0)
 						*datal = 0;
+					if (*datal >= right)
+						*datal = right - 1;
 					break;
 
 				case 3:
 					datar = &right;
 					(*datar)--;
-					if (*datar < 221)
-						*datar = 221;
+					if (*datar <= left)
+						*datar = left + 1;
 					break;
 			}
 		}

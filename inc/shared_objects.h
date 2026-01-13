@@ -35,6 +35,10 @@
 #define TRUE 1
 #define FALSE 0
 
+#ifndef DEBUG_FPS_OVERLAY
+#define DEBUG_FPS_OVERLAY 1
+#endif
+
 extern u8 paused;
 
 extern unsigned short int currentFB;
@@ -56,12 +60,17 @@ extern void drawQRCode(u16 x, u16 y, u16 xWidth, u16 yWidth);
 extern void loadTextPalette(void);
 extern void drawResolution(void);
 extern void loadMainBGwGilPalette(void);
+extern void fpsOverlaySetEnabled(int enabled);
+extern void fpsOverlayTick(void);
+extern void fpsOverlayDraw(void);
 extern void cleanup(void);
 extern void initMainBG(void);
 extern void initMainBGwGil(void);
 extern void marsVDP256Start(void);
 extern void marsVDP32KStart(void);
+extern int marsVDPIs256(void);
 extern void swapBuffers(void);
+extern void restoreMainBGIfDirty(void);
 void CRC32_reset();
 void CRC32_update(u8 data);
 u32 CRC32_finalize();

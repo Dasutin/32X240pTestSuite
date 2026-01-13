@@ -57,6 +57,20 @@ void loadPalette(const u16 *paletteStart[], const u16 *paletteEnd[], const int p
 
 void clearArea(vu16 x, vu16 y, int xWidth, int yWidth)
 {
+	int ix = (int)x;
+	int iy = (int)y;
+
+	// Clamp to visible screen to avoid scribbling over line table/palette
+	if (xWidth <= 0 || yWidth <= 0)
+		return;
+	if (ix >= SCREEN_WIDTH || iy >= SCREEN_HEIGHT)
+		return;
+
+	if (ix + xWidth > SCREEN_WIDTH)
+		xWidth = SCREEN_WIDTH - ix;
+	if (iy + yWidth > SCREEN_HEIGHT)
+		yWidth = SCREEN_HEIGHT - iy;
+
 	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
 	vu16 xOff;
 	int bufCnt;
@@ -66,11 +80,11 @@ void clearArea(vu16 x, vu16 y, int xWidth, int yWidth)
 	int drawWidth = 0;
 
 	// Offset the number of pixels in each line to start to draw the image
-	xOff = x / 2;
+	xOff = ix / 2;
 	// Y-offset for top of sprite to correct line in framebuffer
 	fbOff = lineTableEnd;
 	// X-offset from start of first line
-	fbOff = fbOff + (y * 160);
+	fbOff = fbOff + (iy * 160);
 	// Draw spriteBuffer to the framebuffer
 	fbOff = fbOff + xOff;
 

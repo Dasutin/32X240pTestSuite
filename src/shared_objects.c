@@ -26,6 +26,7 @@
 #include "shared_objects.h"
 #include "32x_images.h"
 #include "draw.h"
+#include "string.h"
 #include "bg_tiles.h"
 #include "bg_map.h"
 #include "bg_palette.h"
@@ -38,6 +39,12 @@ u16 currentFB = 0;
 vu16 overwriteImg16;
 u32 _state = ~0L;
 u16 randbase;
+static uint16_t fps_last_vbl = 0;
+static uint16_t fps_frames = 0;
+static uint16_t fps_value = 0;
+static uint8_t fps_enabled = DEBUG_FPS_OVERLAY ? 1 : 0;
+
+static uint16_t last_canvas_rebuild_id = 0;
 
 volatile unsigned mars_pwdt_ovf_count = 0;
 volatile unsigned mars_swdt_ovf_count = 0;
@@ -105,6 +112,40 @@ void redrawBGwGil()
 	draw_sprite(216, 72, 64, 128, sd_sprite, DRAWSPR_OVERWRITE, 1);
 }
 
+void fpsOverlaySetEnabled(int enabled)
+{
+	fps_enabled = enabled ? 1 : 0;
+}
+
+void fpsOverlayTick()
+{
+	if (!fps_enabled)
+		return;
+
+	uint16_t now = Hw32xGetTicks();
+	fps_frames++;
+
+	if ((uint16_t)(now - fps_last_vbl) >= 60)
+	{
+		fps_value = fps_frames;
+		fps_frames = 0;
+		fps_last_vbl = now;
+	}
+}
+
+void fpsOverlayDraw()
+{
+	if (!fps_enabled)
+		return;
+
+	// Ensure text palette entries are valid before drawing overlay text.
+	loadTextPalette();
+
+	char buf[6];
+	intToStr(fps_value, buf, 1);
+	drawTextwHighlight(buf, 280, 8, fontColorWhite, fontColorWhiteHighlight);
+}
+
 void drawQRCode(u16 x, u16 y, u16 xWidth, u16 yWidth)
 {
 	// White
@@ -155,9 +196,27 @@ void cleanup()
 	Hw32xSetBGColor(0,0,0,0);
 }
 
+void restoreMainBGIfDirty()
+{
+	// Always ensure the main palettes are current
+	loadMainBGwGilPalette();
+
+	if (last_canvas_rebuild_id == canvas_rebuild_id)
+		return;
+
+	initMainBG();
+	redrawBGwGil();
+	last_canvas_rebuild_id = canvas_rebuild_id;
+}
+
 void marsVDP256Start(void)
 {
 	Hw32xInit(MARS_VDP_MODE_256, 0);
+}
+
+int marsVDPIs256(void)
+{
+	return (MARS_VDP_DISPMODE & MARS_VDP_MODE_256) == MARS_VDP_MODE_256;
 }
 
 void marsVDP32KStart(void)

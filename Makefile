@@ -4,12 +4,12 @@ LIBPATH = -L$(ROOTDIR)/sh-elf/lib -L$(ROOTDIR)/sh-elf/lib/gcc/sh-elf/4.6.2 -L$(R
 INCPATH = -Isrc -Iinc -Ires -I$(ROOTDIR)/sh-elf/include -I$(ROOTDIR)/sh-elf/sh-elf/include
 
 CCFLAGS = -m2 -mb -Wall -c -fomit-frame-pointer -fno-builtin  -ffunction-sections -fdata-sections
-CCFLAGS += -fno-align-loops -fno-align-functions -fno-align-jumps -fno-align-labels -funroll-loops -lto
+CCFLAGS += -fno-align-loops -fno-align-functions -fno-align-jumps -fno-align-labels -funroll-loops -fno-lto
 
 HWFLAGS := $(CCFLAGS)
 HWFLAGS += -O1 -fno-lto
 
-LDFLAGS = -T ./mars.ld -Wl,-Map=output.map -nostdlib -Wl,--print-memory-usage -Wl,--gc-sections --specs=nosys.specs -flto
+LDFLAGS = -T ./mars.ld -Wl,-Map=output.map -nostdlib -Wl,--print-memory-usage -Wl,--gc-sections --specs=nosys.specs -fno-lto
 ASFLAGS = --big
 
 EXTRA = 
@@ -43,7 +43,7 @@ debug: EXTRA = -O0 -g -gdwarf-2
 debug: m68k.bin $(TARGET).32x
 
 m68k.bin:
-	make -C src_md
+	+make -C src_md
 
 $(TARGET).32x: $(TARGET).elf
 	$(OBJC) -O binary $< temp.bin

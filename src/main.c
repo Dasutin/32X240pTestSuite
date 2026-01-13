@@ -111,25 +111,29 @@ int main(void)
 				case 1:
 					screenFadeOut(1);
 					menu_tp();
-					loadMainBGwGilPalette();
+					if (!marsVDPIs256()) marsVDP256Start();
+					restoreMainBGIfDirty();
 					break;
 
 				case 2:
 					screenFadeOut(1);
 					menu_vt();
-					loadMainBGwGilPalette();
+					if (!marsVDPIs256()) marsVDP256Start();
+					restoreMainBGIfDirty();
 					break;
 
 				case 3:
 					screenFadeOut(1);
 					menu_at();
-					loadMainBGwGilPalette();
+					if (!marsVDPIs256()) marsVDP256Start();
+					restoreMainBGIfDirty();
 					break;
 
 				case 4:
 					screenFadeOut(1);
 					menu_ht();
-					loadMainBGwGilPalette();
+					if (!marsVDPIs256()) marsVDP256Start();
+					restoreMainBGIfDirty();
 					break;
 
 				case 5:
@@ -582,6 +586,7 @@ void menu_vt()
 	marsVDP256Start();
 	initMainBGwGil();
 	Hw32xScreenFlip(0);
+	loadTextPalette();
 
 	while (!done)
 	{
@@ -602,8 +607,15 @@ void menu_vt()
 		drawTextwHighlight("Backlit Zone Test", 40, pos += 8, curse == 9 ? fontColorRed : fontColorWhite, curse == 9 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		drawTextwHighlight("Disappearing Logo", 40, pos += 8, curse == 10 ? fontColorRed : fontColorWhite, curse == 10 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		pos += 8;
-		drawTextwHighlight("Help", 40, pos += 8, curse == 11 ? fontColorRed : fontColorWhite, curse == 11 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("Back to Main Menu", 40, pos += 8, curse == 12 ? fontColorRed : fontColorWhite, curse == 12 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		if (curse == 11)
+			drawTextwHighlight("Help", 40, pos += 8, fontColorRed, fontColorRedHighlight);
+		else
+			drawTextwHighlight("Help", 40, pos += 8, fontColorWhite, fontColorWhiteHighlight);
+
+		if (curse == 12)
+			drawTextwHighlight("Back to Main Menu", 40, pos += 8, fontColorRed, fontColorRedHighlight);
+		else
+			drawTextwHighlight("Back to Main Menu", 40, pos += 8, fontColorWhite, fontColorWhiteHighlight);
 
 		drawResolution();
 
@@ -666,9 +678,9 @@ void menu_vt()
 					vt_drop_shadow_test();
 					canvas_pitch = 320;
 					canvas_yaw = 224;
-					initMainBG();
-					marsVDP256Start();
-					redrawBGwGil();
+					if (!marsVDPIs256()) marsVDP256Start();
+					restoreMainBGIfDirty();
+					loadTextPalette();
 					break;
 
 				case 2:
@@ -677,27 +689,27 @@ void menu_vt()
 					vt_striped_sprite_test();
 					canvas_pitch = 320;
 					canvas_yaw = 224;
-					initMainBG();
-					marsVDP256Start();
-					redrawBGwGil();
+					if (!marsVDPIs256()) marsVDP256Start();
+					restoreMainBGIfDirty();
+					loadTextPalette();
 					break;
 
 				case 3:
 					screenFadeOut(1);
 					canvas_rebuild_id++;
 					vt_lag_test();
-					initMainBG();
-					marsVDP256Start();
-					redrawBGwGil();
+					if (!marsVDPIs256()) marsVDP256Start();
+					restoreMainBGIfDirty();
+					loadTextPalette();
 					break;
 
 				case 4:
 					screenFadeOut(1);
 					vt_reflex_test();
 					HwMdClearScreen();
-					marsVDP256Start();
-					initMainBG();
-					redrawBGwGil();
+					if (!marsVDPIs256()) marsVDP256Start();
+					restoreMainBGIfDirty();
+					loadTextPalette();
 					break;
 
 				case 5:
@@ -707,9 +719,9 @@ void menu_vt()
 					HwMdClearScreen();
 					canvas_pitch = 320;
 					canvas_yaw = 224;
-					initMainBG();
-					marsVDP256Start();
-					redrawBGwGil();
+					if (!marsVDPIs256()) marsVDP256Start();
+					restoreMainBGIfDirty();
+					loadTextPalette();
 					break;
 
 				case 6:
@@ -719,49 +731,50 @@ void menu_vt()
 					HwMdClearScreen();
 					canvas_pitch = 320;
 					canvas_yaw = 224;
-					initMainBG();
-					marsVDP256Start();
-					redrawBGwGil();
+					if (!marsVDPIs256()) marsVDP256Start();
+					restoreMainBGIfDirty();
+					loadTextPalette();
 					break;
 
 				case 7:
 					screenFadeOut(1);
 					vt_stripes();
-					marsVDP256Start();
-					initMainBG();
-					redrawBGwGil();
+					if (!marsVDPIs256()) marsVDP256Start();
+					restoreMainBGIfDirty();
+					loadTextPalette();
 					break;
 
 				case 8:
 					screenFadeOut(1);
 					vt_checkerboard();
-					initMainBG();
-					marsVDP256Start();
-					redrawBGwGil();
+					if (!marsVDPIs256()) marsVDP256Start();
+					restoreMainBGIfDirty();
+					loadTextPalette();
 					break;
 
 				case 9:
 					screenFadeOut(1);
 					canvas_rebuild_id++;
 					vt_backlitzone_test();
-					initMainBG();
-					marsVDP256Start();
-					redrawBGwGil();
+					if (!marsVDPIs256()) marsVDP256Start();
+					restoreMainBGIfDirty();
+					loadTextPalette();
 					break;
 
 				case 10:
 					screenFadeOut(1);
 					canvas_rebuild_id++;
 					vt_DisappearingLogo();
-					initMainBG();
-					marsVDP256Start();
-					redrawBGwGil();
+					if (!marsVDPIs256()) marsVDP256Start();
+					restoreMainBGIfDirty();
+					loadTextPalette();
 					break;
 
 				case 11:
 					screenFadeOut(1);
 					DrawHelp(HELP_GENERAL);
 					redrawBGwGil();
+					loadTextPalette();
 					break;
 
 				case 12:
@@ -769,14 +782,6 @@ void menu_vt()
 					done = 1;
 					break;
 			}
-
-			button = MARS_SYS_COMM8;
-
-			if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
-				button = MARS_SYS_COMM10;
-
-			pressedButton = button & ~oldButton;
-			oldButton = button;
 		}
 
 		Hw32xScreenFlip(0);

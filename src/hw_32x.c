@@ -123,6 +123,8 @@ void Hw32xSetBGColor(int s, int r, int g, int b)
 
 void Hw32xSetPalette(const uint8_t *palette)
 {
+	if (new_palette == palette)
+		return;
 	new_palette = palette;
 }
 
@@ -514,6 +516,7 @@ void Hw32xDelay(int ticks)
 
 void Hw32xScreenFlip(int wait)
 {
+	fpsOverlayDraw();
 	// Flip the framebuffer selection bit
 	MARS_VDP_FBCTL = UNCACHED_CURFB ^ 1;
 	if (wait)
@@ -527,6 +530,7 @@ void Hw32xFlipWait()
 {
 	while ((MARS_VDP_FBCTL & MARS_VDP_FS) == UNCACHED_CURFB) ;
 	UNCACHED_CURFB ^= 1;
+	fpsOverlayTick();
 }
 
 // Mega Drive Command Support Code
