@@ -3,8 +3,6 @@
  * Port by Dasutin (Dustin Dembrosky)
  * Copyright (C)2011-2023 Artemio Urbina
  *
-	// Warm up Sound Test audio so first entry has no delay/pop
-	ensureSoundTestReady();
  * This file is part of the 240p Test Suite
  *
  * The 240p Test Suite is free software; you can redistribute it and/or modify
