@@ -1,5 +1,5 @@
-#ifndef _DRAW_INC_H_
-#define _DRAW_INC_H_
+#ifndef DRAW_INC_H__
+#define DRAW_INC_H__
 
 #include "fixed.h"
 
@@ -42,12 +42,13 @@ void DFUNC(_sprite8_scale_scale_flip1)(DUINT* fb, drawsprcmd_t* cmd) __attribute
 
 #define PIX_LOOP(n) do { \
         unsigned i, j, k; \
-        for (i = 0; i < h; i++) { \
+        for (i = h; i > 0; i--) { \
             DUINT *d = td; \
             const DUINT *s = ts; \
-            for (j = 0; j < hw; ) { \
-                for (k = 0; k < n; k++, j++) { \
+            for (j = hw; j > 0; ) { \
+                for (k = n; k > 0; k--) { \
                     *d++ = *s++; \
+                    j--; \
                 } \
             } \
             ts += hsw; \
@@ -58,13 +59,14 @@ void DFUNC(_sprite8_scale_scale_flip1)(DUINT* fb, drawsprcmd_t* cmd) __attribute
 #if 1
 #define PIX_LOOP2(n) do { \
         unsigned i, j, k; \
-        for (i = 0; i < h; i++) { \
+        for (i = h; i > 0; i--) { \
             int *d = (int *)td; \
             const int *s = (const int *)ts; \
-            for (j = 0; j < hw; ) { \
-                for (k = 0; k < n>>2; k++, j+=4) { \
+            for (j = hw>>2; j > 0; ) { \
+                for (k = n>>2; k > 0; k--) { \
                     *d++ = *s++; \
                     *d++ = *s++; \
+                    j--; \
                 } \
             } \
             ts += hsw; \
@@ -131,9 +133,9 @@ void DFUNC(_sprite8_flip0or2)(DUINT * fb, drawsprcmd_t * cmd)
         unsigned i, count, nn;
 
         count = (hw - 1) >> 1;
-        nn = (count + 15) >> 4;
+        nn = (count + 7) >> 3;
 
-        for (i = 0; i < h; i++) {
+        for (i = h; i > 0; i--) {
             uint16_t* d = (uint16_t*)(td + 1);
             const uint16_t* s = (const uint16_t*)ts;
             uint32_t sp;
@@ -147,17 +149,9 @@ void DFUNC(_sprite8_flip0or2)(DUINT * fb, drawsprcmd_t * cmd)
 
 #define DO_PIXEL() do { *d++ = sp >> 16; sp = (sp << 16) | (*s++ << 8); } while (0)
 
-            switch (count & 15)
+            switch (count & 7)
             {
             case 0: do { DO_PIXEL();
-            case 15:     DO_PIXEL();
-            case 14:     DO_PIXEL();
-            case 13:     DO_PIXEL();
-            case 12:     DO_PIXEL();
-            case 11:     DO_PIXEL();
-            case 10:     DO_PIXEL();
-            case 9:      DO_PIXEL();
-            case 8:      DO_PIXEL();
             case 7:      DO_PIXEL();
             case 6:      DO_PIXEL();
             case 5:      DO_PIXEL();
@@ -177,9 +171,7 @@ void DFUNC(_sprite8_flip0or2)(DUINT * fb, drawsprcmd_t * cmd)
         return;
     }
 
-    if (!(hw & 7)) {
-        PIX_LOOP(8);
-    } else if (!(hw & 3)) {
+    if (!(hw & 3)) {
         PIX_LOOP(4);
     } else if (!(hw & 1)) {
         PIX_LOOP(2);
@@ -212,7 +204,7 @@ void DFUNC(_sprite8_scale_flip0or2)(DUINT *fb, drawsprcmd_t *cmd)
     hw = cmd->w >> DUINT_RSH;
     hsw = cmd->sw >> DUINT_RSH;
     hdw = canvas_pitch >> DUINT_RSH;
-    nn = (hw + 15) >> 4;
+    nn = (hw + 7) >> 3;
     if (hw == 0)
         return;
 
@@ -229,7 +221,7 @@ void DFUNC(_sprite8_scale_flip0or2)(DUINT *fb, drawsprcmd_t *cmd)
     step = SH2_DIVU_DVDNTL; // get 32-bit quotient
 
     v = cmd->sy << 16;
-    for (i = 0; i < h; i++) {
+    for (i = h; i > 0; i--) {
         const DUINT* s = ts + ((v >> 16) & vmask) * hsw;
         DUINT* d = td;
         unsigned n = nn;
@@ -237,17 +229,9 @@ void DFUNC(_sprite8_scale_flip0or2)(DUINT *fb, drawsprcmd_t *cmd)
 #define DO_PIXEL() do { *d++ = s[(u >> 16) & umask]; u += step; } while (0)
 
         u = ustart;
-        switch (hw & 15)
+        switch (hw & 7)
 	    {
 	    case 0: do { DO_PIXEL();
-        case 15:     DO_PIXEL();
-        case 14:     DO_PIXEL();
-        case 13:     DO_PIXEL();
-        case 12:     DO_PIXEL();
-        case 11:     DO_PIXEL();
-        case 10:     DO_PIXEL();
-        case 9:      DO_PIXEL();
-        case 8:      DO_PIXEL();
         case 7:      DO_PIXEL();
 	    case 6:      DO_PIXEL();
 	    case 5:      DO_PIXEL();
@@ -267,14 +251,15 @@ void DFUNC(_sprite8_scale_flip0or2)(DUINT *fb, drawsprcmd_t *cmd)
 
 #define PIX_LOOP(n)  do { \
         unsigned i, j, k; \
-        for (i = 0; i < h; i++) { \
+        for (i = h; i > 0; i--) { \
             DUINT *d = td + 1, b; \
             const DUINT *s = ts; \
-            for (j = 0; j < hw; ) { \
-                for (k = 0; k < n; k++, j++) { \
+            for (j = hw; j > 0; ) { \
+                for (k = n; k > 0; k--) { \
                     b = *s++; \
                     DSWAP_BYTE(b); \
                     *--d = b; \
+                    j--; \
                 } \
             } \
             ts += hsw; \
@@ -312,9 +297,9 @@ void DFUNC(_sprite8_flip1)(DUINT* fb, drawsprcmd_t* cmd)
         unsigned i, count, nn;
 
         count = (hw - 1) >> 1;
-        nn = (count + 15) >> 4;
+        nn = (count + 7) >> 3;
 
-        for (i = 0; i < h; i++) {
+        for (i = h; i > 0; i--) {
             uint16_t* d = (uint16_t*)(td);
             const uint16_t* s = (const uint16_t*)ts;
             uint32_t sp;
@@ -328,17 +313,9 @@ void DFUNC(_sprite8_flip1)(DUINT* fb, drawsprcmd_t* cmd)
 
 #define DO_PIXEL() do { uint16_t b = sp>>16; __asm ("swap.b %0, %0\n\t" : "+r" (b)); *--d = b; sp <<= 16; sp |= *s++ << 8; } while (0)
 
-            switch (count & 15)
+            switch (count & 7)
             {
             case 0: do { DO_PIXEL();
-            case 15:     DO_PIXEL();
-            case 14:     DO_PIXEL();
-            case 13:     DO_PIXEL();
-            case 12:     DO_PIXEL();
-            case 11:     DO_PIXEL();
-            case 10:     DO_PIXEL();
-            case 9:      DO_PIXEL();
-            case 8:      DO_PIXEL();
             case 7:      DO_PIXEL();
             case 6:      DO_PIXEL();
             case 5:      DO_PIXEL();
@@ -358,9 +335,7 @@ void DFUNC(_sprite8_flip1)(DUINT* fb, drawsprcmd_t* cmd)
         return;
     }
 
-    if (!(hw & 7)) {
-        PIX_LOOP(8);
-    } else if (!(hw & 3)) {
+    if (!(hw & 3)) {
         PIX_LOOP(4);
     } else if (!(hw & 1)) {
         PIX_LOOP(2);
@@ -393,7 +368,7 @@ void DFUNC(_sprite8_scale_flip1)(DUINT* fb, drawsprcmd_t* cmd)
     hw = cmd->w >> DUINT_RSH;
     hsw = cmd->sw >> DUINT_RSH;
     hdw = canvas_pitch >> DUINT_RSH;
-    nn = (hw + 15) >> 4;
+    nn = (hw + 7) >> 3;
     if (hw == 0)
         return;
 
@@ -411,7 +386,7 @@ void DFUNC(_sprite8_scale_flip1)(DUINT* fb, drawsprcmd_t* cmd)
     step = SH2_DIVU_DVDNTL; // get 32-bit quotient
 
     v = cmd->sy << 16;
-    for (i = 0; i < h; i++) {
+    for (i = h; i > 0; i--) {
         const DUINT* s = ts + ((v >> 16) & vmask) * hsw;
         DUINT* d = td + 1;
         unsigned n = nn;
@@ -419,17 +394,9 @@ void DFUNC(_sprite8_scale_flip1)(DUINT* fb, drawsprcmd_t* cmd)
 #define DO_PIXEL() do { DUINT b = s[(u >> 16) & umask]; u += step; DSWAP_BYTE(b); *--d = b; } while (0)
 
         u = ustart;
-        switch (hw & 15)
+        switch (hw & 7)
 	    {
 	    case 0: do { DO_PIXEL();
-        case 15:     DO_PIXEL();
-        case 14:     DO_PIXEL();
-        case 13:     DO_PIXEL();
-        case 12:     DO_PIXEL();
-        case 11:     DO_PIXEL();
-        case 10:     DO_PIXEL();
-        case 9:      DO_PIXEL();
-        case 8:      DO_PIXEL();
         case 7:      DO_PIXEL();
 	    case 6:      DO_PIXEL();
 	    case 5:      DO_PIXEL();

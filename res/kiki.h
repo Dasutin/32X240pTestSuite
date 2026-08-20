@@ -62,6 +62,19 @@ const uint16_t *kiki_Layers[] = {kiki_Tiles_Tile_Layer_1};
 
 const int kiki_Parallax[][2] = {{65536,65536}};
 
-const dtilemap_t kiki_Map = {16,16,20,52,1,0,512,(int *)kiki_Parallax,(uint16_t **)kiki_Layers};
+const dtilelayer_t kiki_Map_YatssdLayers[] = {
+	{{0,0},{65536,65536},NULL,(uint16_t *)kiki_Tiles_Tile_Layer_1,0}
+};
+
+const dtilemap_t kiki_Map = {
+	16,16,
+	20,52,
+	1,
+	0,512,
+	(dtilelayer_t *)kiki_Map_YatssdLayers,
+	0,
+	{{0,0}},
+	{{0,0}}
+};
 
 #endif

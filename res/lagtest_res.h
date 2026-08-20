@@ -2454,7 +2454,8 @@ uint8_t lagtest_res_Res69[] __attribute__((aligned(16))) = {
 };
 
 
-uint8_t * lagtest_res_Reslist[] = {
+const uint8_t * lagtest_res_Reslist[] = {
+yatssd_empty_tile,
 lagtest_res_Res0,
 lagtest_res_Res1,
 lagtest_res_Res2,

@@ -24,6 +24,19 @@ const uint16_t *ebu_map_Layers[] = {ebu_map_Tiles_Tile_Layer_1};
 
 const int ebu_map_Parallax[][2] = {{65536,65536}};
 
-const dtilemap_t ebu_map_Map = {16,16,20,14,1,0,0,(int *)ebu_map_Parallax,(uint16_t **)ebu_map_Layers};
+const dtilelayer_t ebu_map_Map_YatssdLayers[] = {
+	{{0,0},{65536,65536},NULL,(uint16_t *)ebu_map_Tiles_Tile_Layer_1,0}
+};
+
+const dtilemap_t ebu_map_Map = {
+	16,16,
+	20,14,
+	1,
+	0,0,
+	(dtilelayer_t *)ebu_map_Map_YatssdLayers,
+	0,
+	{{0,0}},
+	{{0,0}}
+};
 
 #endif

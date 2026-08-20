@@ -1,7 +1,7 @@
 /*
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
- * Copyright (C)2011-2023 Artemio Urbina
+ * Copyright (C)2011-2026 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
  *
@@ -488,6 +488,7 @@ void screenFadeOut(int fadeSpeed)
 
 		for (int i = 0; i <= 255; i++)
 		{
+			u16 priority = temppal[i] & 0x8000;
 			tempcolor = temppal[i] & 0x7FFF;
 			if (tempcolor != 0x0000)
 			{
@@ -500,12 +501,12 @@ void screenFadeOut(int fadeSpeed)
 					g--;
 				if (b != 0x0000)
 					b--;
-				tempcolor = COLOR(r,g,b);
-				temppal[i] = tempcolor & 0x7FFF;
+				tempcolor = COLOR(r,g,b) & 0x7FFF;
+				temppal[i] = tempcolor | priority;
 			}
 		}
 		for (int i = 0; i <= 255; i++)
-			cram16[i] = temppal[i] & 0x7FFF;
+			cram16[i] = temppal[i];
 
 		Hw32xDelay(frameDelay);
 
@@ -558,14 +559,14 @@ void clearScreen_Fill8bit()
 	}
 }
 
-void clearScreen_Fill16bit()
+void clearScreen_Fill16bit(u16 color)
 {
 	MARS_VDP_FILLEN = 255;
 
 	for (int loop = 0; loop < 255; loop++)
 	{
 		MARS_VDP_FILADR = MARS_FRAMEBUFFER + (loop << 8);
-		MARS_VDP_FILDAT = 0;
+		MARS_VDP_FILDAT = (color << 8) | color;
 		while (MARS_VDP_FBCTL & MARS_VDP_FEN);
 	}
 }

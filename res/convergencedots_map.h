@@ -24,6 +24,19 @@ const uint16_t *convergencedots_map_Layers[] = {convergencedots_map_Tiles_Tile_L
 
 const int convergencedots_map_Parallax[][2] = {{65536,65536}};
 
-const dtilemap_t convergencedots_map_Map = {16,16,20,14,1,0,0,(int *)convergencedots_map_Parallax,(uint16_t **)convergencedots_map_Layers};
+const dtilelayer_t convergencedots_map_Map_YatssdLayers[] = {
+	{{0,0},{65536,65536},NULL,(uint16_t *)convergencedots_map_Tiles_Tile_Layer_1,0}
+};
+
+const dtilemap_t convergencedots_map_Map = {
+	16,16,
+	20,14,
+	1,
+	0,0,
+	(dtilelayer_t *)convergencedots_map_Map_YatssdLayers,
+	0,
+	{{0,0}},
+	{{0,0}}
+};
 
 #endif

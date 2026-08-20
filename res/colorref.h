@@ -537,6 +537,7 @@ const uint8_t colorref_Res27[] __attribute__((aligned(16))) = {
 
 
 const uint8_t * colorref_Reslist[] = {
+yatssd_empty_tile,
 colorref_Res0,
 colorref_Res1,
 colorref_Res2,

@@ -24,6 +24,19 @@ const uint16_t *horiz_map_Layers[] = {horiz_map_Tiles_Tile_Layer_1};
 
 const int horiz_map_Parallax[][2] = {{65536,65536}};
 
-const dtilemap_t horiz_map_Map = {16,16,20,14,1,0,0,(int *)horiz_map_Parallax,(uint16_t **)horiz_map_Layers};
+const dtilelayer_t horiz_map_Map_YatssdLayers[] = {
+	{{0,0},{65536,65536},NULL,(uint16_t *)horiz_map_Tiles_Tile_Layer_1,0}
+};
+
+const dtilemap_t horiz_map_Map = {
+	16,16,
+	20,14,
+	1,
+	0,0,
+	(dtilelayer_t *)horiz_map_Map_YatssdLayers,
+	0,
+	{{0,0}},
+	{{0,0}}
+};
 
 #endif

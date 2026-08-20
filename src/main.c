@@ -1,7 +1,7 @@
 /*
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
- * Copyright (C)2011-2023 Artemio Urbina
+ * Copyright (C)2011-2026 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
  *
@@ -601,9 +601,10 @@ void menu_vt()
 		drawTextwHighlight("Checkerboard", 40, pos += 8, curse == 8 ? fontColorRed : fontColorWhite, curse == 8 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		drawTextwHighlight("Backlit Zone Test", 40, pos += 8, curse == 9 ? fontColorRed : fontColorWhite, curse == 9 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		drawTextwHighlight("Disappearing Logo", 40, pos += 8, curse == 10 ? fontColorRed : fontColorWhite, curse == 10 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Layers Test", 40, pos += 8, curse == 11 ? fontColorRed : fontColorWhite, curse == 11 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		pos += 8;
-		drawTextwHighlight("Help", 40, pos += 8, curse == 11 ? fontColorRed : fontColorWhite, curse == 11 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("Back to Main Menu", 40, pos += 8, curse == 12 ? fontColorRed : fontColorWhite, curse == 12 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Help", 40, pos += 8, curse == 12 ? fontColorRed : fontColorWhite, curse == 12 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Back to Main Menu", 40, pos += 8, curse == 13 ? fontColorRed : fontColorWhite, curse == 13 ? fontColorRedHighlight : fontColorWhiteHighlight);
 
 		drawResolution();
 
@@ -618,7 +619,7 @@ void menu_vt()
 		if (pressedButton & SEGA_CTRL_DOWN)
 		{
 			curse++;
-			if (curse > 12)
+			if (curse > 13)
 				curse = 1;
 		}
 
@@ -626,7 +627,7 @@ void menu_vt()
 		{
 			curse--;
 			if (curse < 1)
-				curse = 12;
+				curse = 13;
 		}
 
 		if (pressedButton & SEGA_CTRL_B)
@@ -760,11 +761,20 @@ void menu_vt()
 
 				case 11:
 					screenFadeOut(1);
-					DrawHelp(HELP_GENERAL);
+					canvas_rebuild_id++;
+					vt_layers_test();
+					initMainBG();
+					marsVDP256Start();
 					redrawBGwGil();
 					break;
 
 				case 12:
+					screenFadeOut(1);
+					DrawHelp(HELP_GENERAL);
+					redrawBGwGil();
+					break;
+
+				case 13:
 					screenFadeOut(1);
 					done = 1;
 					break;
@@ -1049,8 +1059,8 @@ void credits()
 		drawMainBG();
 		loadTextPalette();
 
-		drawTextwHighlight("Ver. 1.10", 80, 35, fontColorGreen, fontColorGreenHighlight);
-		drawTextwHighlight("07/10/2023", 166, 35, fontColorWhite, fontColorWhiteHighlight);
+		drawTextwHighlight("Ver. 1.5", 80, 35, fontColorGreen, fontColorGreenHighlight);
+		drawTextwHighlight("08/20/2026", 166, 35, fontColorWhite, fontColorWhiteHighlight);
 
 		drawTextwHighlight("Code and Port by:", 35, 50, fontColorGreen, fontColorGreenHighlight);
 		drawTextwHighlight("Dustin Dembrosky (@Dasutin)", 43, 58, fontColorWhite, fontColorWhiteHighlight);

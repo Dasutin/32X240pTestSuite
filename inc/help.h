@@ -1,7 +1,7 @@
 /*
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin(Dustin Dembrosky)
- * Copyright (C)2011-2023 Artemio Urbina
+ * Copyright (C)2011-2026 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
  *
@@ -55,6 +55,7 @@
 #define HELP_SEGACD			30
 #define HELP_MEMVIEW		31
 #define HELP_DISAPPEAR		32
+#define HELP_LAYERS		33
 
 void DrawHelp(int option);
 

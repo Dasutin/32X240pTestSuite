@@ -537,6 +537,7 @@ const uint8_t convergencewrgbborder_Res27[] __attribute__((aligned(16))) = {
 
 
 const uint8_t * convergencewrgbborder_Reslist[] = {
+yatssd_empty_tile,
 convergencewrgbborder_Res0,
 convergencewrgbborder_Res1,
 convergencewrgbborder_Res2,

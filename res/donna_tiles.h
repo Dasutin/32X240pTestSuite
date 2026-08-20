@@ -22,4 +22,17 @@ donna_layer00,
 const int donna_tmxlplx[][2] = {
 {65536,65536},
 };
-const dtilemap_t donna_tmx = {16,16,20,14,1,0,0,(int *)&donna_tmxlplx[0][0],(uint16_t **)donna_tmxl};
+const dtilelayer_t donna_tmx_YatssdLayers[] = {
+	{{0,0},{65536,65536},NULL,(uint16_t *)donna_layer00,0}
+};
+
+const dtilemap_t donna_tmx = {
+	16,16,
+	20,14,
+	1,
+	0,0,
+	(dtilelayer_t *)donna_tmx_YatssdLayers,
+	0,
+	{{0,0}},
+	{{0,0}}
+};

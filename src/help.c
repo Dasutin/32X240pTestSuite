@@ -1,7 +1,7 @@
 /*
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
- * Copyright (C)2011-2023 Artemio Urbina
+ * Copyright (C)2011-2026 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
  *
@@ -391,6 +391,20 @@ void DrawHelp(int option)
 				drawTextwHighlight("and press 'C', to turn the", 32, 112, fontColorWhite, fontColorWhiteHighlight);
 				drawTextwHighlight("whole background white for", 32, 120, fontColorWhite, fontColorWhiteHighlight);
 				drawTextwHighlight("2 frames.", 32, 128, fontColorWhite, fontColorWhiteHighlight);
+				break;
+
+			case HELP_LAYERS:
+				drawTextwHighlight("LAYERS TEST", 110, 35, fontColorGreen, fontColorGreenHighlight);
+				drawTextwHighlight("This test demonstrates how the", 32, 56, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("Mega Drive and 32X video layers", 32, 64, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("are combined on screen.", 32, 72, fontColorWhite, fontColorWhiteHighlight);
+
+				drawTextwHighlight("One Seed head moves in front of", 32, 88, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("the 32X image while the other", 32, 96, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("moves behind it.", 32, 104, fontColorWhite, fontColorWhiteHighlight);
+
+				drawTextwHighlight("Press A to toggle the 32X layer.", 32, 120, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("Press B to cycle the MD layers.", 32, 128, fontColorWhite, fontColorWhiteHighlight);
 				break;
 
 			case HELP_CHECK:

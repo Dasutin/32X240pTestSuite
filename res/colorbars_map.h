@@ -38,6 +38,19 @@ const uint16_t *colorbars_Layers[] = {colorbars_Tiles_Tile_Layer_1};
 
 const int colorbars_Parallax[][2] = {{65536,65536}};
 
-const dtilemap_t colorbars_Map = {8,8,40,28,1,0,0,(int *)colorbars_Parallax,(uint16_t **)colorbars_Layers};
+const dtilelayer_t colorbars_Map_YatssdLayers[] = {
+	{{0,0},{65536,65536},NULL,(uint16_t *)colorbars_Tiles_Tile_Layer_1,0}
+};
+
+const dtilemap_t colorbars_Map = {
+	8,8,
+	40,28,
+	1,
+	0,0,
+	(dtilelayer_t *)colorbars_Map_YatssdLayers,
+	0,
+	{{0,0}},
+	{{0,0}}
+};
 
 #endif

@@ -233,6 +233,7 @@ const uint8_t ebu_Res11[] __attribute__((aligned(16))) = {
 
 
 const uint8_t * ebu_Reslist[] = {
+yatssd_empty_tile,
 ebu_Res0,
 ebu_Res1,
 ebu_Res2,

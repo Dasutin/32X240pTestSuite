@@ -32,6 +32,7 @@ const uint8_t checkerboard_res00[] __attribute__((aligned(16))) = {
 };
 
 const uint8_t * checkerboard_reslist[] = {
+yatssd_empty_tile,
 checkerboard_res00
 };
 
@@ -56,6 +57,19 @@ const uint16_t *checkerboard_tmxl[] = {checkerboard_layer00,};
 
 const int checkerboard_tmxlplx[][2] = {{65536,65536},};
 
-const dtilemap_t checkerboard_tmx = {16,16,20,14,1,0,0,(int *)&checkerboard_tmxlplx[0][0],(uint16_t **)checkerboard_tmxl};
+const dtilelayer_t checkerboard_tmx_YatssdLayers[] = {
+	{{0,0},{65536,65536},NULL,(uint16_t *)checkerboard_layer00,0}
+};
+
+const dtilemap_t checkerboard_tmx = {
+	16,16,
+	20,14,
+	1,
+	0,0,
+	(dtilelayer_t *)checkerboard_tmx_YatssdLayers,
+	0,
+	{{0,0}},
+	{{0,0}}
+};
 
 #endif

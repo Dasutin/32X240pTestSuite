@@ -1,7 +1,7 @@
 ROOTDIR = $(MARSDEV)
 
 LIBPATH = -L$(ROOTDIR)/m68k-elf/lib -L$(ROOTDIR)/m68k-elf/lib/gcc/m68k-elf/4.6.2 -L$(ROOTDIR)/m68k-elf/m68k-elf/lib
-INCPATH = -I$. -I$(ROOTDIR)/m68k-elf/include -I$(ROOTDIR)/m68k-elf/m68k-elf/include -I../liblzss
+INCPATH = -I. -I$(ROOTDIR)/m68k-elf/include -I$(ROOTDIR)/m68k-elf/m68k-elf/include -I../liblzss
 
 CCFLAGS = -m68000 -Wall -c -fomit-frame-pointer
 ASFLAGS = -m68000 --register-prefix-optional
@@ -20,9 +20,9 @@ RM = rm -f
 
 TARGET = m68k
 LIBS = $(LIBPATH) -lc -lgcc -lnosys
-OBJS = crt0.o font.o pal.o psg.o main.o kos.o cd.o lzss.o vgm.o vgm_player.o xvprintf.o
+OBJS = crt0.o font.o pal.o psg.o main.o kos.o cd.o lzss.o vgm.o vgm_player.o xvprintf.o planeb.o planeb_asm.o
 
-.PHONY: all release debug
+.PHONY: all release debug clean
 
 release: EXTRA = -Os
 release: $(TARGET).bin
@@ -33,7 +33,7 @@ debug: $(TARGET).bin
 $(TARGET).bin: $(TARGET).elf
 	$(OBJC) -O binary $< $(TARGET).bin
 
-$(TARGET).elf: $(OBJS)
+$(TARGET).elf: $(OBJS) Makefile mars-md.ld
 	$(CC) $(LINKFLAGS) $(OBJS) $(LIBS) -o $(TARGET).elf
 
 %.o: %.c

@@ -36,10 +36,11 @@ void init_tilemap(tilemap_t *tm, const dtilemap_t *dtm, uint8_t **reslist);
 
 void set_tilemap_wrap(tilemap_t *tm, fixed_t wrapX, fixed_t wrapY);
 
-void draw_handle_layercmd(drawtilelayerscmd_t* cmd)
+int draw_handle_layercmd(drawtilelayerscmd_t* cmd)
 ATTR_DATA_ALIGNED;
 
-int draw_tilemap(tilemap_t* tm, int fpcamera_x, int fpcamera_y, int *cameraclip)
+int draw_tilemap(tilemap_t *tm, int fpcamera_x, int fpcamera_y, int *cameraclip,
+	void (*drawspr)(int layer, void *param), void *sprp)
 ATTR_DATA_ALIGNED;
 
 void draw_dirtyrect(tilemap_t* tm, int x, int y, int w, int h)
@@ -47,6 +48,7 @@ ATTR_DATA_ALIGNED;
 
 extern tilemap_t tm;
 
+// Compatibility invalidation generation used by the suite's existing redraw paths.
 extern uint16_t canvas_rebuild_id;
 extern int window_canvas_x, window_canvas_y;
 extern int32_t canvas_width, canvas_height;

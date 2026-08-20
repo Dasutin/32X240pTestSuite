@@ -23,7 +23,8 @@ uint8_t horiz_Res0[] __attribute__((aligned(16))) = {
 };
 
 
-uint8_t * horiz_Reslist[] = {
+const uint8_t * horiz_Reslist[] = {
+yatssd_empty_tile,
 horiz_Res0
 };
 

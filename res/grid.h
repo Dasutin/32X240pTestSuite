@@ -43,6 +43,7 @@ const uint8_t grid_Res1[] __attribute__((aligned(16))) = {
 
 
 const uint8_t * grid_Reslist[] = {
+yatssd_empty_tile,
 grid_Res0,
 grid_Res1
 };

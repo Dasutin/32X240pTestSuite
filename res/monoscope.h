@@ -1981,6 +1981,7 @@ const uint8_t monoscope_Res103[] __attribute__((aligned(16))) = {
 
 
 const uint8_t * monoscope_Reslist[] = {
+yatssd_empty_tile,
 monoscope_Res0,
 monoscope_Res1,
 monoscope_Res2,

@@ -2474,7 +2474,8 @@ uint8_t sonic_tileset_Res129[] __attribute__((aligned(16))) = {
 };
 
 
-uint8_t * sonic_tileset_Reslist[] = {
+const uint8_t * sonic_tileset_Reslist[] = {
+yatssd_empty_tile,
 sonic_tileset_Res0,
 sonic_tileset_Res1,
 sonic_tileset_Res2,

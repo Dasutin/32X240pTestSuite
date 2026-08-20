@@ -1145,6 +1145,7 @@ const uint8_t bg_Res59[] __attribute__((aligned(16))) = {
 
 
 const uint8_t * bg_Reslist[] = {
+yatssd_empty_tile,
 bg_Res0,
 bg_Res1,
 bg_Res2,

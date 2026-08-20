@@ -1,0 +1,8 @@
+services:
+  build:
+    build:
+      context: .
+    image: 32x240p-build:20220418
+    volumes:
+      - .:/workspace
+    command: make release

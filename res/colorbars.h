@@ -1765,6 +1765,7 @@ const uint8_t colorbars_Res159[] __attribute__((aligned(16))) = {
 
 
 const uint8_t * colorbars_Reslist[] = {
+yatssd_empty_tile,
 colorbars_Res0,
 colorbars_Res1,
 colorbars_Res2,

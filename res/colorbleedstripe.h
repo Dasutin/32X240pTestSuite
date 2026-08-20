@@ -176,6 +176,7 @@ const uint8_t colorbleedstripe_Res8[] __attribute__((aligned(16))) = {
 
 
 const uint8_t * colorbleedstripe_Reslist[] = {
+yatssd_empty_tile,
 colorbleedstripe_Res0,
 colorbleedstripe_Res1,
 colorbleedstripe_Res2,

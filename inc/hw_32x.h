@@ -1,7 +1,7 @@
 /*
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
- * Copyright (C)2011-2023 Artemio Urbina
+ * Copyright (C)2011-2026 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
  *
@@ -44,9 +44,16 @@
 
 #define HW32X_ATTR_DATA_ALIGNED __attribute__((section(".data"), aligned(16)))
 
+#define MARS_SEC_CMD_SDRAM_PARK   9
+#define MARS_SEC_CMD_SDRAM_RESUME 10
+#define MARS_SEC_SDRAM_PARKED     0x5350
+
 extern int Hw32xDetectPAL();
 extern void Hw32xSetFGColor(int s, int r, int g, int b);
 extern void Hw32xSetBGColor(int s, int r, int g, int b);
+extern void Hw32xSetFGOverlayPriorityBit(int priority);
+extern void Hw32xSetBGOverlayPriorityBit(int priority);
+extern void Hw32xSetPalettePriorityAliases(int destination, int source, int count, int priority);
 extern void Hw32xSetPalette(const uint8_t *palette) HW32X_ATTR_DATA_ALIGNED;
 extern void Hw32xInit(int vmode, int lineskip);
 extern int Hw32xScreenGetX();
@@ -88,6 +95,10 @@ extern void HwMdPSGSetFrequency(u8 channel, u16 value);
 extern void HwMdPSGSetTone(u8 channel, u16 value);
 extern void HwMdPSGSetNoise(u8 type, u8 frequency);
 extern void HwMdPSGSetEnvelope(u8 channel, u8 value);
+extern void HwMdSetPlaneBitmap(char plane, void *data);
+extern void HwMdClearPlanes(void);
+extern void HwMdHScrollPlane(char plane, int hscroll);
+extern void HwMdVScrollPlane(char plane, int vscroll);
 
 void Hw32xUpdateLineTable(int hscroll, int vscroll, int lineskip) HW32X_ATTR_DATA_ALIGNED;
 
@@ -121,6 +132,22 @@ extern void Hw32xSecWait(void);
 
 extern int Hw32xInitSoundDMA(void);
 extern void Hw32xSecondaryBIOS(void);
+extern unsigned long Hw32xTestSdramAddressLines(void);
+extern unsigned long Hw32xTestSdramPattern(unsigned short pattern);
+extern void Hw32xSecondaryPark(void);
+
+static inline void Mars_ParkSecondaryForSdramTest(void)
+{
+	Mars_R_SecWait();
+	MARS_SYS_COMM4 = MARS_SEC_CMD_SDRAM_PARK;
+	while (MARS_SYS_COMM4 != MARS_SEC_SDRAM_PARKED);
+}
+
+static inline void Mars_ResumeSecondaryAfterSdramTest(void)
+{
+	MARS_SYS_COMM4 = MARS_SEC_CMD_SDRAM_RESUME;
+	Mars_R_SecWait();
+}
 
 void pri_vbi_handler(void) HW32X_ATTR_DATA_ALIGNED;
 void pri_dma1_handler(void) HW32X_ATTR_DATA_ALIGNED;

@@ -1,7 +1,7 @@
 /*
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
- * Copyright (C)2011-2023 Artemio Urbina
+ * Copyright (C)2011-2026 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
  *
@@ -29,7 +29,9 @@
 
 #include "fixed.h"
 
+#ifndef NULL
 #define NULL 0
+#endif
 
 #define ATTR_CACHE_ALIGNED  __attribute__((aligned(16)))
 #define ATTR_DATA_ALIGNED   __attribute__((section(".data"), aligned(16)))
@@ -54,26 +56,38 @@ typedef struct {
 	int16_t x2, y2;
 } rect_t;
 
+typedef struct {
+	int offset[2];
+	fixed_t parallax[2];
+	char *bitmap;
+	uint16_t *tiles;
+	int objectLayer;
+} dtilelayer_t;
+
 // "on-disk" tilemap
 typedef struct {
 	int tilew, tileh;
 	int numtw, numth;
 	int numlayers;
 	int wrapX, wrapY;
-	int *layerplx;
-	uint16_t **layers;
+	dtilelayer_t *layers;
+	int mdPriority;
+	dtilelayer_t mdPlaneA, mdPlaneB;
 } dtilemap_t;
 
 // in-memory tilemap
 typedef struct {
 	unsigned tw, th;
-
-	int numlayers;
-	int numtiles;
-	uint16_t** layers;
-	uint8_t **reslist;
-	int* lplx;
 	fixed_t wrapX, wrapY;
+
+	int numtiles;
+	uint16_t id;
+	uint16_t numlayers;
+
+	dtilelayer_t *layers;
+	dtilelayer_t *mdPlane[2];
+
+	uint8_t **reslist;
 
 	unsigned tiles_hor, tiles_ver;
 	unsigned canvas_tiles_hor, canvas_tiles_ver;
@@ -107,17 +121,18 @@ typedef struct {
 typedef struct {
 	tilemap_t* tm;
 	int16_t startlayer;
-	int16_t numlayers;
+	uint16_t parallax;
 	int32_t camera_x, camera_y;
 	int16_t x, y;
 	uint16_t start_tile, end_tile;
 	uint16_t scroll_tile_id;
 	uint16_t num_tiles_x;
 	uint16_t drawmode;
-	uint16_t drawcnt;
 } drawtilelayerscmd_t;
 
 typedef void(*draw_spritefn_t)(void *dst, drawsprcmd_t* cmd);
+
+extern const uint8_t yatssd_empty_tile[32 * 32];
 
 //typedef unsigned long int size_t;
 

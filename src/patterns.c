@@ -1,7 +1,7 @@
 /*
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
- * Copyright (C)2011-2023 Artemio Urbina
+ * Copyright (C)2011-2026 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
  *
@@ -175,7 +175,7 @@ void tp_pluge()
 			draw = 1;
 		}
 
-		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
 		draw_setScissor(0, 0, 320, 224);
 
 		Hw32xScreenFlip(0);
@@ -230,7 +230,7 @@ void tp_colorchart()
 			done = 1;
 		}
 
-		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
 		draw_setScissor(0, 0, 320, 224);
 
 		Hw32xScreenFlip(0);
@@ -287,8 +287,8 @@ void tp_colorbars()
 			} else {
 				drawTextwHighlight(" 75%", 256, 8, fontColorWhite, fontColorWhiteHighlight);
 			}
-		} else if (!text) {
-			canvas_rebuild_id++;
+			if (!text)
+				canvas_rebuild_id++;
 		}
 
 		if (pressedButton & SEGA_CTRL_A)
@@ -330,7 +330,7 @@ void tp_colorbars()
 			draw = 1;
 		}
 
-		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
 		draw_setScissor(0, 0, 320, 224);
 
 		Hw32xScreenFlip(0);
@@ -390,8 +390,8 @@ void tp_smpte_color_bars()
 			} else {
 				drawTextwHighlight(" 75%", 256, 8, fontColorWhite, fontColorWhiteHighlight);
 			}
-		} else if (!text) {
-			canvas_rebuild_id++;
+			if (!text)
+				canvas_rebuild_id++;
 		}
 
 		if (pressedButton & SEGA_CTRL_A)
@@ -433,7 +433,7 @@ void tp_smpte_color_bars()
 			draw = 1;
 		}
 
-		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
 		draw_setScissor(0, 0, 320, 224);
 
 		Hw32xScreenFlip(0);
@@ -447,15 +447,14 @@ void tp_ref_color_bars()
 	u16 button, pressedButton, oldButton = 0xFFFF;
 
 	Hw32xSetPalette(colorref_Palette);
+	init_tilemap(&tm, &colorref_map_Map, (uint8_t **)colorref_Reslist);
+	canvas_rebuild_id++;
 
 	Hw32xScreenFlip(0);
 
 	while (!done)
 	{
 		Hw32xFlipWait();
-
-		init_tilemap(&tm, &colorref_map_Map, (uint8_t **)colorref_Reslist);
-		canvas_rebuild_id++;
 
 		button = MARS_SYS_COMM8;
 
@@ -469,6 +468,7 @@ void tp_ref_color_bars()
 		{
 			screenFadeOut(1);
 			done = 1;
+			continue;
 		}
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
@@ -486,7 +486,7 @@ void tp_ref_color_bars()
 			Hw32xSetPalette(colorref_Palette);
 		}
 
-		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
 		draw_setScissor(0, 0, 320, 224);
 
 		Hw32xScreenFlip(0);
@@ -558,7 +558,7 @@ void tp_color_bleed_check()
 				break;
 		}
 
-		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
 		draw_setScissor(0, 0, 320, 224);
 
 		Hw32xScreenFlip(0);
@@ -635,7 +635,7 @@ void tp_grid()
 			canvas_rebuild_id++;
 		}
 
-		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
 		draw_setScissor(0, 0, 320, 224);
 
 		Hw32xScreenFlip(0);
@@ -735,7 +735,7 @@ void tp_monoscope()
 			done = 1;
 		}
 
-		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
 		draw_setScissor(0, 0, 320, 224);
 
 		Hw32xScreenFlip(0);
@@ -790,7 +790,7 @@ void tp_gray_ramp()
 			canvas_rebuild_id++;
 		}
 
-		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
 		draw_setScissor(0, 0, 320, 224);
 
 		Hw32xScreenFlip(0);
@@ -801,10 +801,10 @@ void tp_gray_ramp()
 void tp_white_rgb()
 {
 	u16 done = 0, color = 1, sel = 1, custom = 0, r = 31, g = 31, b = 31;
-	int l = 320 * 224;
+	const int framebuffer_words = ((320 + 16) * 224) / 2;
 	char str[20], num[4];
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER;
+	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER + 0x100;
 
 	setColor(0, r, g, b);
 	setColor(1, 0, 0, 0);
@@ -839,7 +839,20 @@ void tp_white_rgb()
 		{
 			HwMdClearScreen();
 			DrawHelp(HELP_WHITE);
-			tp_white_rgb();
+
+			setColor(0, r, g, b);
+			setColor(1, 0, 0, 0);
+			setColor(2, 31, 0, 0);
+			setColor(3, 0, 31, 0);
+			setColor(4, 0, 0, 31);
+			MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X | MARS_224_LINES | MARS_VDP_MODE_256;
+			Hw32xScreenFlip(0);
+
+			button = MARS_SYS_COMM8;
+			if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
+				button = MARS_SYS_COMM10;
+			oldButton = button;
+			pressedButton = 0;
 		}
 
 		if (pressedButton & SEGA_CTRL_C)
@@ -856,27 +869,27 @@ void tp_white_rgb()
 		switch (color)
 		{
 			case 1:
-				for (int i = 0; i <= l; i++)
+				for (int i = 0; i < framebuffer_words; i++)
 					frameBuffer16[i] = 0x0000;
 				break;
 
 			case 2:
-				for (int i = 0; i <= l; i++)
+				for (int i = 0; i < framebuffer_words; i++)
 					frameBuffer16[i] = 0x0101;
 				break;
 
 			case 3:
-				for (int i = 0; i <= l; i++)
+				for (int i = 0; i < framebuffer_words; i++)
 					frameBuffer16[i] = 0x0202;
 				break;
 
 			case 4:
-				for (int i = 0; i <= l; i++)
+				for (int i = 0; i < framebuffer_words; i++)
 					frameBuffer16[i] = 0x0303;
 				break;
 
 			case 5:
-				for (int i = 0; i <= l; i++)
+				for (int i = 0; i < framebuffer_words; i++)
 					frameBuffer16[i] = 0x0404;
 				break;
 		}
@@ -1097,7 +1110,7 @@ void tp_100_ire()
 			canvas_rebuild_id++;
 		}
 
-		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
 		draw_setScissor(0, 0, 320, 224);
 
 		Hw32xScreenFlip(0);
@@ -1198,7 +1211,7 @@ void tp_sharpness()
 			done = 1;
 		}
 
-		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
 		draw_setScissor(0, 0, 320, 224);
 
 		Hw32xScreenFlip(0);
@@ -1208,12 +1221,13 @@ void tp_sharpness()
 
 void tp_overscan()
 {
-	u16 done = 0, sel = 0;
+	u16 done = 0;
+	int sel = 0;
 	int left = 0, right = 320, top = 0, bottom = 223;
 	u16 button = 0, pressedButton = 0, oldButton = 0xFFFF;
 	//u16 displayBottom, displayRight;
 
-	setColor(0, 31, 31, 31);
+	setColor(2, 31, 31, 31);
 	setColor(1, 15, 15, 15);
 
 	Hw32xScreenFlip(0);
@@ -1222,7 +1236,10 @@ void tp_overscan()
 	{
 		Hw32xFlipWait();
 		loadTextPalette();
-		clearScreen_Fill16bit();
+
+		setColor(2, 31, 31, 31);
+		setColor(1, 15, 15, 15);
+		clearScreen_Fill16bit(2);
 
 		char datat[10];
 		char datal[10];
@@ -1236,7 +1253,7 @@ void tp_overscan()
 		b = bottom;
 
 		for (int i = t; i <= b; i++)
-			drawLine(l, i, r, 1);
+			drawLine(l, i, r - l, 1);
 
 		// Text
 		intToStr(top, datat, 1);
@@ -1272,7 +1289,7 @@ void tp_overscan()
 			if (pressedButton & SEGA_CTRL_C)
 			{
 				DrawHelp(HELP_OVERSCAN);
-				setColor(0, 31, 31, 31);
+				setColor(2, 31, 31, 31);
 				setColor(1, 15, 15, 15);
 			}
 		}
@@ -1280,7 +1297,7 @@ void tp_overscan()
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			DrawHelp(HELP_OVERSCAN);
-			setColor(0, 31, 31, 31);
+			setColor(2, 31, 31, 31);
 			setColor(1, 15, 15, 15);
 		}
 
@@ -1324,7 +1341,7 @@ void tp_overscan()
 
 				case 2:
 					datal = &left;
-					(*datal)--; right++;
+					(*datal)--;
 					if (*datal < 0)
 						*datal = 0;
 					break;
@@ -1363,9 +1380,9 @@ void tp_overscan()
 
 				case 2:
 					datal = &left;
-					(*datal)++; right--;
-					if (*datal < 0)
-						*datal = 0;
+					(*datal)++;
+					if (*datal > 99)
+						*datal = 99;
 					break;
 
 				case 3:
@@ -1481,7 +1498,7 @@ void tp_convergence()
 			done = 1;
 		}
 
-		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
 		draw_setScissor(0, 0, 320, 224);
 
 		Hw32xScreenFlip(0);

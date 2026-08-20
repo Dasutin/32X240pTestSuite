@@ -1,7 +1,7 @@
 /*
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
- * Copyright (C)2011-2023 Artemio Urbina
+ * Copyright (C)2011-2026 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
  *
@@ -62,7 +62,7 @@ typedef void *sound_file_t;
 
 void sound_toggleMute(void);
 void sound_volume(char d);
-char sound_play(sound_t *sound, char loop, char selectch);
+signed char sound_play(sound_t *sound, char loop, char selectch);
 void sound_pause(char pause);
 void sound_stopChannel(unsigned char chan);
 void sound_stopSound(sound_t *sound);
@@ -71,6 +71,7 @@ void sound_stopAllChannels(void);
 void sound_load(sound_t *snd, char *name);
 void sound_free(sound_t *s);
 void sound_fillBuffer(unsigned long buffer);
+int sound_isInitialized(void);
 
 extern int16_t snd_buffer[];
 

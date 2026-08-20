@@ -62,6 +62,19 @@ const uint16_t* grid_tmxl[] = {grid_layer00,};
 
 const int grid_tmxlplx[][2] = {{65536,65536},};
 
-const dtilemap_t grid_tmx = {16,16,53,52,1,512,512,(int *)&grid_tmxlplx[0][0],(uint16_t **)grid_tmxl};
+const dtilelayer_t grid_tmx_YatssdLayers[] = {
+	{{0,0},{65536,65536},NULL,(uint16_t *)grid_layer00,0}
+};
+
+const dtilemap_t grid_tmx = {
+	16,16,
+	53,52,
+	1,
+	512,512,
+	(dtilelayer_t *)grid_tmx_YatssdLayers,
+	0,
+	{{0,0}},
+	{{0,0}}
+};
 
 #endif

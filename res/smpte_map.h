@@ -24,6 +24,19 @@ const uint16_t *smpte_map_Layers[] = {smpte_map_Tiles_Tile_Layer_1};
 
 const int smpte_map_Parallax[][2] = {{65536,65536}};
 
-const dtilemap_t smpte_map_Map = {16,16,20,14,1,0,0,(int *)smpte_map_Parallax,(uint16_t **)smpte_map_Layers};
+const dtilelayer_t smpte_map_Map_YatssdLayers[] = {
+	{{0,0},{65536,65536},NULL,(uint16_t *)smpte_map_Tiles_Tile_Layer_1,0}
+};
+
+const dtilemap_t smpte_map_Map = {
+	16,16,
+	20,14,
+	1,
+	0,0,
+	(dtilelayer_t *)smpte_map_Map_YatssdLayers,
+	0,
+	{{0,0}},
+	{{0,0}}
+};
 
 #endif

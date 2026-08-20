@@ -1202,6 +1202,7 @@ const uint8_t smpte_Res62[] __attribute__((aligned(16))) = {
 
 
 const uint8_t * smpte_Reslist[] = {
+yatssd_empty_tile,
 smpte_Res0,
 smpte_Res1,
 smpte_Res2,

@@ -24,6 +24,7 @@ const uint8_t convergencedots_Res0[] __attribute__((aligned(16))) = {
 
 
 const uint8_t * convergencedots_Reslist[] = {
+yatssd_empty_tile,
 convergencedots_Res0
 };
 

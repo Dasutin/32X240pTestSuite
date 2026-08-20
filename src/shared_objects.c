@@ -1,7 +1,7 @@
 /*
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
- * Copyright (C)2011-2023 Artemio Urbina
+ * Copyright (C)2011-2026 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
  *
@@ -74,7 +74,7 @@ void drawMainBG()
 	int fpcamera_y = 0;
 
 	canvas_rebuild_id++;
-	draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+	draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
 	draw_setScissor(0, 0, 320, 224);
 }
 
@@ -84,7 +84,7 @@ void drawBGwGil()
 	int fpcamera_y = 0;
 
 	canvas_rebuild_id++;
-	draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+	draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
 	draw_setScissor(0, 0, 320, 224);
 
 	draw_sprite(216, 72, 64, 128, sd_sprite, DRAWSPR_OVERWRITE, 1);
@@ -99,7 +99,7 @@ void redrawBGwGil()
 	int fpcamera_y = 0;
 
 	canvas_rebuild_id++;
-	draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0);
+	draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
 	draw_setScissor(0, 0, 320, 224);
 
 	draw_sprite(216, 72, 64, 128, sd_sprite, DRAWSPR_OVERWRITE, 1);
@@ -238,7 +238,7 @@ void setRandomSeed(u16 seed)
 	randbase = seed ^ 0xD94B;
 }
 
-u16 random()
+u16 random16(void)
 {
 	randbase ^= (randbase >> 1) ^ MARS_SYS_COMM12;
 	randbase ^= (randbase << 1);

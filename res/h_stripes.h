@@ -39,6 +39,7 @@ const uint8_t h_stripes_res00[] __attribute__((aligned(16))) = {
 };
 
 const uint8_t * h_stripes_reslist[] = {
+yatssd_empty_tile,
 h_stripes_res00
 };
 
@@ -56,6 +57,19 @@ const uint16_t* h_stripes_tmxl[] = {h_stripes_layer00,};
 
 const int h_stripes_tmxlplx[][2] = {{65536,65536},};
 
-const dtilemap_t h_stripes_tmx = {32,32,10,7,1,0,0,(int *)&h_stripes_tmxlplx[0][0],(uint16_t **)h_stripes_tmxl};
+const dtilelayer_t h_stripes_tmx_YatssdLayers[] = {
+	{{0,0},{65536,65536},NULL,(uint16_t *)h_stripes_layer00,0}
+};
+
+const dtilemap_t h_stripes_tmx = {
+	32,32,
+	10,7,
+	1,
+	0,0,
+	(dtilelayer_t *)h_stripes_tmx_YatssdLayers,
+	0,
+	{{0,0}},
+	{{0,0}}
+};
 
 #endif

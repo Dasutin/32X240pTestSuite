@@ -1,7 +1,7 @@
 /*
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
- * Copyright (C)2011-2023 Artemio Urbina
+ * Copyright (C)2011-2026 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
  *
@@ -32,8 +32,12 @@
 
 int sysarg_args_vol = 0;
 
-// Two buffers of MIXSAMPLES words of stereo pwm audio
-int16_t __attribute__((aligned(16))) snd_buffer[MIXSAMPLES * 2 * 2];
+#define SND_BUFFER_COUNT 2
+#define SND_BUFFER_STRIDE (MIXSAMPLES * 2)
+#define SND_DMA_TRANSFER_COUNT (SND_BUFFER_STRIDE / 2)
+
+// Two buffers of MIXSAMPLES 32-bit stereo PWM samples
+int16_t __attribute__((aligned(16))) snd_buffer[SND_BUFFER_STRIDE * SND_BUFFER_COUNT];
 
 static channel_t __attribute__((aligned(16))) channel[MIXCHANNELS];
 
@@ -41,6 +45,11 @@ static uint8_t snd_bufidx = 0;
 static uint8_t snd_init = 0, snd_stopmix = 0;
 
 static unsigned char isAudioActive = 0;
+
+int sound_isInitialized(void)
+{
+	return snd_init != 0;
+}
 // Mute flag
 static unsigned char sndMute = 0;
 // Internal volume
@@ -52,32 +61,26 @@ static void end_channel(unsigned char);
 
 void sec_dma1_handler(void)
 {
-	static int32_t which = 0;
+	uint32_t dma_buffer;
+	uint32_t mix_buffer;
+
 	// Read TE
 	SH2_DMA_CHCR1;
 	// Clear TE
 	SH2_DMA_CHCR1 = 0;
 
-	if (which)
-	{
-		SH2_DMA_SAR1 = ((uint32_t)&snd_buffer[0]) | 0x20000000;
-		// Number longs
-		SH2_DMA_TCR1 = 1024;
-		// Dest fixed, src incr, size long, ext req, dack mem to dev, dack hi, dack edge, dreq rising edge, cycle-steal, dual addr, intr disabled, clear TE, dma enabled
-		SH2_DMA_CHCR1 = 0x18E5;
+	dma_buffer = (uint32_t)&snd_buffer[snd_bufidx * SND_BUFFER_STRIDE];
+	mix_buffer = (uint32_t)&snd_buffer[(snd_bufidx ^ 1) * SND_BUFFER_STRIDE];
 
-		sound_fillBuffer((uint32_t)&snd_buffer[0]);
-	} else {
-		SH2_DMA_SAR1 = ((uint32_t)&snd_buffer[0]) | 0x20000000;
-		// Number longs
-		SH2_DMA_TCR1 = 1023;
-		// Dest fixed, src incr, size long, ext req, dack mem to dev, dack hi, dack edge, dreq rising edge, cycle-steal, dual addr, intr disabled, clear TE, dma enabled
-		SH2_DMA_CHCR1 = 0x18E5;
+	SH2_DMA_SAR1 = dma_buffer | 0x20000000;
+	// Number of 32-bit stereo PWM samples in one buffer
+	SH2_DMA_TCR1 = SND_DMA_TRANSFER_COUNT;
+	// Dest fixed, src incr, size long, ext req, dack mem to dev, dack hi, dack edge, dreq rising edge, cycle-steal, dual addr, intr disabled, clear TE, dma enabled
+	SH2_DMA_CHCR1 = 0x18E5;
 
-		sound_fillBuffer((uint32_t)&snd_buffer[0]);
-	}
-	// Flip audio buffer
-	which ^= 1;
+	// Refill only the half not currently owned by DMA.
+	sound_fillBuffer(mix_buffer);
+	snd_bufidx ^= 1;
 }
 
 void Mars_Sec_InitSoundDMA(void)
@@ -149,9 +152,9 @@ void Mars_Sec_StopSoundMixer(void)
 void Mars_Sec_StartSoundMixer(void)
 {
 	snd_stopmix = 0;
+	snd_bufidx = 0;
 
 	// Fill first buffer
-	//Hw32xAudioCallback((unsigned long)&snd_buffer);
 	sound_fillBuffer((uint32_t)&snd_buffer[0]);
 
 	// Start DMA
@@ -234,9 +237,9 @@ void sound_volume(char d)
 	}
 }
 
-char sound_play(sound_t *sound, char loop, char selectch)
+signed char sound_play(sound_t *sound, char loop, char selectch)
 {
-	unsigned char c;
+	signed char c;
 
 	switch (selectch)
 	{
@@ -260,25 +263,23 @@ char sound_play(sound_t *sound, char loop, char selectch)
 	//while (MARS_SYS_COMM6 == 3);
 	Mars_StartSoundMixer();
 
-	c = 0;
-	CacheClearLine(&channel[0]);
-
-	while ((channel[c].snd != sound || channel[c].loop == 0) && channel[c].loop != 0 && c < MIXCHANNELS)
+	for (c = 0; c < MIXCHANNELS; c++)
 	{
-		c++;
 		CacheClearLine(&channel[c]);
+		if (channel[c].loop == 0 || channel[c].snd == sound)
+			break;
 	}
 
 	if (c == MIXCHANNELS)
-		c = -1;
-
-	if (c >= 0)
 	{
-		channel[c].loop = loop;
-		channel[c].snd = sound;
-		channel[c].buf = sound->buf;
-		channel[c].len = sound->len;
+		MARS_SYS_COMM6 = 1;
+		return -1;
 	}
+
+	channel[c].loop = loop;
+	channel[c].snd = sound;
+	channel[c].buf = sound->buf;
+	channel[c].len = sound->len;
 
 	MARS_SYS_COMM6 = 1;
 
@@ -295,7 +296,7 @@ void sound_pause(char pause)
 
 void sound_stopChannel(unsigned char chan)
 {
-	if (chan < 0 || chan > MIXCHANNELS)
+	if (chan >= MIXCHANNELS)
 		return;
 
 	while (MARS_SYS_COMM6 == 3);

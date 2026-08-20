@@ -40,6 +40,20 @@ const uint16_t *sonic_tilemap_Layers[] = {sonic_tilemap_Tiles_Background,sonic_t
 
 const int sonic_tilemap_Parallax[][2] = {{32768,65536},{65536,65536}};
 
-const dtilemap_t sonic_tilemap_Map = {16,16,53,14,2,512,0,(int *)sonic_tilemap_Parallax,(uint16_t **)sonic_tilemap_Layers};
+const dtilelayer_t sonic_tilemap_Map_YatssdLayers[] = {
+	{{0,0},{32768,65536},NULL,(uint16_t *)sonic_tilemap_Tiles_Background,0},
+	{{0,0},{65536,65536},NULL,(uint16_t *)sonic_tilemap_Tiles_Foreground,0}
+};
+
+const dtilemap_t sonic_tilemap_Map = {
+	16,16,
+	53,14,
+	2,
+	512,0,
+	(dtilelayer_t *)sonic_tilemap_Map_YatssdLayers,
+	0,
+	{{0,0}},
+	{{0,0}}
+};
 
 #endif

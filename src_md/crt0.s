@@ -238,7 +238,7 @@ handle_req:
         cmpi.w  #0x08FF,d0
         bls     set_ntable
         cmpi.w  #0x09FF,d0
-        bls     set_vram
+        bls     set_vram_command
         cmpi.w  #0x0AFF,d0
         bls     set_pal
         cmpi.w  #0x0BFF,d0
@@ -253,8 +253,14 @@ handle_req:
         bls     set_psg_tone2
         cmpi.w  #0x10FF,d0
         bls     set_psg_noise
-        cmpi.w  #0x10FF,d0
+        cmpi.w  #0x11FF,d0
         bls     set_psg_envelope
+        cmpi.w  #0x12FF,d0
+        bls     handle_clrplanes
+        cmpi.w  #0x13FF,d0
+        bls     handle_planeBitmap
+        cmpi.w  #0x14FF,d0
+        bls     handle_scroll
 
 
 # Unknown command
@@ -432,7 +438,7 @@ set_ntable:
         move.w  #0,0xA15120         /* Done */
         bra     main_loop
 
-set_vram:
+set_vram_command:
         lea     0xC00000,a1
         move.w  #0x8F02,4(a1)       /* Set INC to 2 */
         move.l  d7,d2               /* VRAM offset */
@@ -557,6 +563,48 @@ set_psg_envelope:
         move.b  d5,d5                   /* Convert word to byte */
         move.b  d5, (0xC00011)          /* Set envelope value to PSG port */
         move.w  #0,0xA15120             /* Tell 32X we are done here */
+        bra     main_loop
+
+handle_planeBitmap:
+        andi.l  #0x0001,d0
+        move.l  0xA1512C,d1
+        andi.l  #0x0FFFFF,d1
+        move.l  d1,a0
+        bsr     set_rom_bank
+        move.l  a1,-(sp)
+        move.l  d0,-(sp)
+        jsr     set_planeBitmap
+        lea     4(sp),sp
+        movea.l (sp)+,a1
+        move.w  #0,0xA15120
+        bra     main_loop
+
+handle_clrplanes:
+        jsr     clear_planes
+        move.w  #0,0xA15120
+        bra     main_loop
+
+handle_scroll:
+        moveq   #0,d1
+        andi.l  #0x0003,d0
+        move.w  0xA15122,d1
+        btst    #1,d0
+        bne     2f
+1:
+        andi.l  #0x0001,d0
+        move.l  d1,-(sp)
+        move.l  d0,-(sp)
+        jsr     hscroll_plane
+        lea     8(sp),sp
+        move.w  #0,0xA15120
+        bra     main_loop
+2:
+        andi.l  #0x0001,d0
+        move.l  d1,-(sp)
+        move.l  d0,-(sp)
+        jsr     vscroll_plane
+        lea     8(sp),sp
+        move.w  #0,0xA15120
         bra     main_loop
 
 vert_blank:

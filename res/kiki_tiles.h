@@ -460,7 +460,8 @@ uint8_t kiki_tiles_Res23[] __attribute__((aligned(16))) = {
 };
 
 
-uint8_t * kiki_tiles_Reslist[] = {
+const uint8_t * kiki_tiles_Reslist[] = {
+yatssd_empty_tile,
 kiki_tiles_Res0,
 kiki_tiles_Res1,
 kiki_tiles_Res2,

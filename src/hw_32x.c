@@ -1,7 +1,7 @@
 /*
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
- * Copyright (C)2011-2023 Artemio Urbina
+ * Copyright (C)2011-2026 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
  *
@@ -37,6 +37,10 @@
 #include "draw.h"
 #include "sound.h"
 
+#define COLOR_BITS 15
+#define COLOR_PRI  (1 << COLOR_BITS)
+#define COLOR_MASK (COLOR_PRI - 1)
+
 int old_camera_x, old_camera_y;
 int main_camera_x, main_camera_y;
 int camera_x, camera_y;
@@ -45,9 +49,15 @@ static int X = 0, Y = 0;
 static int MX = 40, MY = 25;
 static int init = 0;
 static unsigned short fgc = 0, bgc = 0;
-static unsigned char fgs = 0, bgs = 0;
+static short fgs = -1, bgs = -1;
+static unsigned short fgp = COLOR_PRI, bgp = COLOR_PRI;
 
 static volatile const uint8_t *new_palette;
+static volatile char new_pri;
+static volatile short new_alias_destination = -1;
+static volatile short new_alias_source;
+static volatile short new_alias_count;
+static volatile unsigned short new_alias_priority;
 
 int nodraw = 0;
 
@@ -68,24 +78,49 @@ volatile unsigned short dmaDone = 1;
 
 void pri_vbi_handler(void)
 {
+	int i;
+	volatile unsigned short *palette = &MARS_CRAM;
+
 	mars_vblank_count++;
+
+	if ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0)
+		return;
 
 	if (new_palette)
 	{
-		int i;
-		volatile unsigned short *palette = &MARS_CRAM;
-
-		if ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0)
-			return;
-
 		for (i = 0; i < 256; i++)
 		{
-			 palette[i] = COLOR(new_palette[0] >> 3, new_palette[1] >> 3, new_palette[2] >> 3);
-			 new_palette += 3;
+			unsigned short priority = (i == bgs) ? bgp : fgp;
+			palette[i] = (COLOR(new_palette[0] >> 3, new_palette[1] >> 3, new_palette[2] >> 3) & COLOR_MASK) | priority;
+			new_palette += 3;
 		}
 
-		new_palette = NULL;
+		if (fgs >= 0)
+			fgc = palette[fgs] | (fgc & COLOR_PRI);
+		if (bgs >= 0)
+			bgc = palette[bgs] | (bgc & COLOR_PRI);
 	}
+	else if (new_pri)
+	{
+		for (i = 0; i < 256; i++)
+			palette[i] = (palette[i] & COLOR_MASK) | (i == bgs ? bgp : fgp);
+	}
+
+	if (fgs >= 0)
+		palette[fgs] = fgc;
+	if (bgs >= 0)
+		palette[bgs] = bgc;
+
+	if (new_alias_destination >= 0)
+	{
+		for (i = 0; i < new_alias_count; i++)
+			palette[new_alias_destination + i] =
+				(palette[new_alias_source + i] & COLOR_MASK) | new_alias_priority;
+		new_alias_destination = -1;
+	}
+
+	new_palette = NULL;
+	new_pri = 0;
 }
 
 unsigned Hw32xGetTicks(void)
@@ -109,21 +144,53 @@ void Hw32xSetFGColor(int s, int r, int g, int b)
 {
 	volatile unsigned short *palette = &MARS_CRAM;
 	fgs = s;
-	fgc = COLOR(r, g, b);
+	if (s < 0)
+		return;
+	fgc = (COLOR(r, g, b) & COLOR_MASK) | fgp;
 	palette[fgs] = fgc;
+	new_pri = 1;
 }
 
 void Hw32xSetBGColor(int s, int r, int g, int b)
 {
 	volatile unsigned short *palette = &MARS_CRAM;
 	bgs = s;
-	bgc = COLOR(r, g, b);
+	if (s < 0)
+		return;
+	bgc = (COLOR(r, g, b) & COLOR_MASK) | bgp;
 	palette[bgs] = bgc;
+	new_pri = 1;
 }
 
 void Hw32xSetPalette(const uint8_t *palette)
 {
 	new_palette = palette;
+}
+
+void Hw32xSetFGOverlayPriorityBit(int priority)
+{
+	fgp = priority ? COLOR_PRI : 0;
+	fgc = (fgc & COLOR_MASK) | fgp;
+	new_pri = 1;
+}
+
+void Hw32xSetBGOverlayPriorityBit(int priority)
+{
+	bgp = priority ? COLOR_PRI : 0;
+	bgc = (bgc & COLOR_MASK) | bgp;
+	new_pri = 1;
+}
+
+void Hw32xSetPalettePriorityAliases(int destination, int source, int count, int priority)
+{
+	if (destination < 0 || source < 0 || count <= 0 ||
+		destination + count > 256 || source + count > 256)
+		return;
+
+	new_alias_source = source;
+	new_alias_count = count;
+	new_alias_priority = priority ? COLOR_PRI : 0;
+	new_alias_destination = destination;
 }
 
 void Hw32xUpdateLineTable(int hscroll, int vscroll, int lineskip)
@@ -181,15 +248,17 @@ void Hw32xUpdateLineTable(int hscroll, int vscroll, int lineskip)
 void Hw32xInit(int vmode, int lineskip)
 {
 	volatile unsigned short *frameBuffer16 = &MARS_FRAMEBUFFER;
+	int priority = vmode & (MARS_VDP_PRIO_32X | MARS_VDP_PRIO_68K);
 	int i;
 
 	// Wait for the SH2 to gain access to the VDP
 	while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
 
+	vmode &= ~(MARS_VDP_PRIO_32X | MARS_VDP_PRIO_68K);
 	if (vmode == MARS_VDP_MODE_256)
 	{
 		// Set 8-bit paletted mode, 224 lines
-		MARS_VDP_DISPMODE = MARS_224_LINES | MARS_VDP_MODE_256;
+		MARS_VDP_DISPMODE = MARS_224_LINES | MARS_VDP_MODE_256 | priority;
 
 		// Initialize both framebuffers
 
@@ -219,7 +288,7 @@ void Hw32xInit(int vmode, int lineskip)
 	else if (vmode == MARS_VDP_MODE_32K)
 	{
 		// Set 16-bit direct mode, 224 lines
-		MARS_VDP_DISPMODE = MARS_224_LINES | MARS_VDP_MODE_32K;
+		MARS_VDP_DISPMODE = MARS_224_LINES | MARS_VDP_MODE_32K | priority;
 
 		// Initialize both framebuffers
 
@@ -741,37 +810,70 @@ void HwMdPSGSetEnvelope(u8 channel, u8 value)
 	HwMdPSGSendEnvelope(data);
 }
 
+#define HwMDPlaneNum(plane) ((plane) >= 'A' && (plane) <= 'B' ? (plane) - 'A' : ((plane) >= 'a' && (plane) <= 'b' ? (plane) - 'a' : (plane) & 1))
+
+void HwMdClearPlanes(void)
+{
+	while (MARS_SYS_COMM0);
+	MARS_SYS_COMM0 = 0x1200;
+	while (MARS_SYS_COMM0);
+}
+
+void HwMdSetPlaneBitmap(char plane, void *data)
+{
+	while (MARS_SYS_COMM0);
+	*(volatile uintptr_t *)&MARS_SYS_COMM12 = (uintptr_t)data;
+	MARS_SYS_COMM0 = 0x1300 + HwMDPlaneNum(plane);
+	while (MARS_SYS_COMM0);
+}
+
+void HwMdHScrollPlane(char plane, int hscroll)
+{
+	while (MARS_SYS_COMM0);
+	MARS_SYS_COMM2 = hscroll;
+	MARS_SYS_COMM0 = 0x1400 + HwMDPlaneNum(plane);
+	while (MARS_SYS_COMM0);
+}
+
+void HwMdVScrollPlane(char plane, int vscroll)
+{
+	while (MARS_SYS_COMM0);
+	MARS_SYS_COMM2 = vscroll;
+	MARS_SYS_COMM0 = 0x1402 + HwMDPlaneNum(plane);
+	while (MARS_SYS_COMM0);
+}
+
 // Put Secondary Calls here
 
 int secondary_task(int cmd)
 {
+	int drawcnt;
+
 	switch (cmd)
 	{
 	case 1:
 		return 1;
 	case 2:
-		return 1;
-	case 3:
 		ClearCacheLines(&slave_drawsprcmd, (sizeof(drawsprcmd_t) + 15) / 16);
 		draw_handle_drawspritecmd(&slave_drawsprcmd);
 		return 1;
-	case 4:
-		return 1;
-	case 5:
+	case 3:
 		ClearCacheLines((uintptr_t)&canvas_width & ~15, 1);
 		ClearCacheLines((uintptr_t)&canvas_height & ~15, 1);
 		ClearCacheLines((uintptr_t)&window_canvas_x & ~15, 1);
 		ClearCacheLines((uintptr_t)&window_canvas_y & ~15, 1);
-		ClearCacheLines((uintptr_t)&old_camera_x & ~15, 1);
-		ClearCacheLines((uintptr_t)&old_camera_x & ~15, 1);
 		ClearCacheLines((uintptr_t)&canvas_pitch & ~15, 1);
 		ClearCacheLines((uintptr_t)&canvas_yaw & ~15, 1);
-		ClearCacheLines((uintptr_t)&camera_x & ~15, 1);
-		ClearCacheLines((uintptr_t)&camera_y & ~15, 1);
 		ClearCacheLines((uintptr_t)&nodraw & ~15, 1);
 		ClearCacheLines(&slave_drawtilelayerscmd, (sizeof(drawtilelayerscmd_t) + 15) / 16);
 		ClearCacheLines(&tm, (sizeof(tilemap_t) + 15) / 16);
-		draw_handle_layercmd(&slave_drawtilelayerscmd);
+		drawcnt = draw_handle_layercmd(&slave_drawtilelayerscmd);
+		drawcnt = ((drawcnt + 1) << 2) | MARS_SYS_COMM4;
+		MARS_SYS_COMM4 = drawcnt;
+		while (MARS_SYS_COMM4 == drawcnt);
+		return 1;
+	case 4:
+	case 5:
 		return 1;
 	case 6:
 		Mars_Sec_InitSoundDMA();
@@ -781,6 +883,9 @@ int secondary_task(int cmd)
 		return 1;
 	case 8:
 		Mars_Sec_StartSoundMixer();
+		return 1;
+	case MARS_SEC_CMD_SDRAM_PARK:
+		Hw32xSecondaryPark();
 		return 1;
 	default:
 		break;

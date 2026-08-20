@@ -17,6 +17,19 @@ const uint16_t *lagtest_Layers[] = {lagtest_Tiles_Tile_Layer_1};
 
 const int lagtest_Parallax[][2] = {{65536,65536}};
 
-const dtilemap_t lagtest_Map = {32,32,10,7,1,0,0,(int *)lagtest_Parallax,(uint16_t **)lagtest_Layers};
+const dtilelayer_t lagtest_Map_YatssdLayers[] = {
+	{{0,0},{65536,65536},NULL,(uint16_t *)lagtest_Tiles_Tile_Layer_1,0}
+};
+
+const dtilemap_t lagtest_Map = {
+	32,32,
+	10,7,
+	1,
+	0,0,
+	(dtilelayer_t *)lagtest_Map_YatssdLayers,
+	0,
+	{{0,0}},
+	{{0,0}}
+};
 
 #endif

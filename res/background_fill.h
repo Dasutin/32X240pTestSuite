@@ -58,6 +58,7 @@ const uint8_t background_fill_res00[] __attribute__((aligned(16))) = {
 };
 
 const uint8_t * background_fill_reslist[] = {
+yatssd_empty_tile,
 background_fill_res00
 };
 
@@ -82,6 +83,19 @@ const uint16_t* background_fill_tmxl[] = {background_fill_layer00,};
 
 const int background_fill_tmxlplx[][2] = {{65536,65536},};
 
-const dtilemap_t background_fill_tmx = {16,16,20,14,1,0,0,(int *)&background_fill_tmxlplx[0][0],(uint16_t **)background_fill_tmxl};
+const dtilelayer_t background_fill_tmx_YatssdLayers[] = {
+	{{0,0},{65536,65536},NULL,(uint16_t *)background_fill_layer00,0}
+};
+
+const dtilemap_t background_fill_tmx = {
+	16,16,
+	20,14,
+	1,
+	0,0,
+	(dtilelayer_t *)background_fill_tmx_YatssdLayers,
+	0,
+	{{0,0}},
+	{{0,0}}
+};
 
 #endif

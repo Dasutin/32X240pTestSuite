@@ -1,0 +1,12 @@
+.git
+.vscode
+build/*
+src/*.o
+src_md/*.o
+src_md/*.bin
+src_md/*.elf
+src_md/output.map
+*.o
+*.map
+*.elf
+*.32x

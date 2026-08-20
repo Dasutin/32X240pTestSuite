@@ -23,7 +23,8 @@ uint8_t vert_Res0[] __attribute__((aligned(16))) = {
 };
 
 
-uint8_t * vert_Reslist[] = {
+const uint8_t * vert_Reslist[] = {
+yatssd_empty_tile,
 vert_Res0
 };
 

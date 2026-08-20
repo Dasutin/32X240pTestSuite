@@ -5321,6 +5321,7 @@ const uint8_t donna_res279[] __attribute__((aligned(16))) = {
 };
 
 const uint8_t * donna_reslist[] = {
+yatssd_empty_tile,
 donna_res00,
 donna_res01,
 donna_res02,

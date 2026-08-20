@@ -18,6 +18,19 @@ const uint16_t *sd_Layers[] = {sd_Tiles_Tile_Layer_1};
 
 const int sd_Parallax[][2] = {{65536,65536}};
 
-const dtilemap_t sd_Map = {16,16,4,8,1,0,0,(int *)sd_Parallax,(uint16_t **)sd_Layers};
+const dtilelayer_t sd_Map_YatssdLayers[] = {
+	{{0,0},{65536,65536},NULL,(uint16_t *)sd_Tiles_Tile_Layer_1,0}
+};
+
+const dtilemap_t sd_Map = {
+	16,16,
+	4,8,
+	1,
+	0,0,
+	(dtilelayer_t *)sd_Map_YatssdLayers,
+	0,
+	{{0,0}},
+	{{0,0}}
+};
 
 #endif

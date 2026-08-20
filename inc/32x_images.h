@@ -1,7 +1,7 @@
 /*
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
- * Copyright (C)2011-2023 Artemio Urbina
+ * Copyright (C)2011-2026 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
  *
@@ -93,7 +93,7 @@ void drawTextwHighlight(const char *str, int x, int y, int textpalOffs, int shad
 void drawTextwBackground(const char *str, int x, int y, int palOffs);
 void screenFadeOut(int fadeSpeed);
 void clearScreen_Fill8bit();
-void clearScreen_Fill16bit();
+void clearScreen_Fill16bit(u16 color);
 void setColor(int index, int r, int g, int b);
 
 #endif // _32X_IMAGES_H_

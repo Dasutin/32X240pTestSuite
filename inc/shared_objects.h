@@ -1,7 +1,7 @@
 /*
  * 240p Test Suite for the Sega 32X
  * Port by Dasutin (Dustin Dembrosky)
- * Copyright (C)2011-2023 Artemio Urbina
+ * Copyright (C)2011-2026 Artemio Urbina
  *
  * This file is part of the 240p Test Suite
  *
@@ -78,6 +78,6 @@ extern uint32_t canvas_pitch;
 extern uint32_t canvas_yaw;
 
 void setRandomSeed(u16 seed);
-u16 random();
+u16 random16(void);
 
 #endif // _SHARED_OBJECTS_
