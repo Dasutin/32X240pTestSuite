@@ -95,6 +95,7 @@ int main(void)
 			{
 				screenFadeOut(1);
 				DrawHelp(HELP_GENERAL);
+				redrawBGwGil();
 			}
 		}
 
@@ -102,6 +103,7 @@ int main(void)
 		{
 			screenFadeOut(1);
 			DrawHelp(HELP_GENERAL);
+			redrawBGwGil();
 		}
 
 		if (pressedButton & SEGA_CTRL_A)
@@ -216,6 +218,7 @@ void menu_tp()
 			{
 				screenFadeOut(1);
 				DrawHelp(HELP_GENERAL);
+				redrawBGwGil();
 			}
 		}
 
@@ -223,6 +226,7 @@ void menu_tp()
 		{
 			screenFadeOut(1);
 			DrawHelp(HELP_GENERAL);
+			redrawBGwGil();
 		}
 
 		if (pressedButton & SEGA_CTRL_A)
@@ -330,6 +334,7 @@ void menu_color_black_levels()
 			{
 				screenFadeOut(1);
 				DrawHelp(HELP_GENERAL);
+				redrawBGwGil();
 			}
 		}
 
@@ -337,6 +342,7 @@ void menu_color_black_levels()
 		{
 			screenFadeOut(1);
 			DrawHelp(HELP_GENERAL);
+			redrawBGwGil();
 		}
 
 		if (pressedButton & SEGA_CTRL_A)
@@ -509,6 +515,7 @@ void menu_geo()
 			{
 				screenFadeOut(1);
 				DrawHelp(HELP_GENERAL);
+				redrawBGwGil();
 			}
 		}
 
@@ -516,6 +523,7 @@ void menu_geo()
 		{
 			screenFadeOut(1);
 			DrawHelp(HELP_GENERAL);
+			redrawBGwGil();
 		}
 
 		if (pressedButton & SEGA_CTRL_A)
@@ -599,12 +607,13 @@ void menu_vt()
 		drawTextwHighlight("Grid Scroll Test", 40, pos += 8, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		drawTextwHighlight("Horiz/Vert Stripes", 40, pos += 8, curse == 7 ? fontColorRed : fontColorWhite, curse == 7 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		drawTextwHighlight("Checkerboard", 40, pos += 8, curse == 8 ? fontColorRed : fontColorWhite, curse == 8 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("Backlit Zone Test", 40, pos += 8, curse == 9 ? fontColorRed : fontColorWhite, curse == 9 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("Disappearing Logo", 40, pos += 8, curse == 10 ? fontColorRed : fontColorWhite, curse == 10 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("Layers Test", 40, pos += 8, curse == 11 ? fontColorRed : fontColorWhite, curse == 11 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Phase Check", 40, pos += 8, curse == 9 ? fontColorRed : fontColorWhite, curse == 9 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Backlit Zone Test", 40, pos += 8, curse == 10 ? fontColorRed : fontColorWhite, curse == 10 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Disappearing Logo", 40, pos += 8, curse == 11 ? fontColorRed : fontColorWhite, curse == 11 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Layers Test", 40, pos += 8, curse == 12 ? fontColorRed : fontColorWhite, curse == 12 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		pos += 8;
-		drawTextwHighlight("Help", 40, pos += 8, curse == 12 ? fontColorRed : fontColorWhite, curse == 12 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("Back to Main Menu", 40, pos += 8, curse == 13 ? fontColorRed : fontColorWhite, curse == 13 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Help", 40, pos += 8, curse == 13 ? fontColorRed : fontColorWhite, curse == 13 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Back to Main Menu", 40, pos += 8, curse == 14 ? fontColorRed : fontColorWhite, curse == 14 ? fontColorRedHighlight : fontColorWhiteHighlight);
 
 		drawResolution();
 
@@ -619,7 +628,7 @@ void menu_vt()
 		if (pressedButton & SEGA_CTRL_DOWN)
 		{
 			curse++;
-			if (curse > 13)
+			if (curse > 14)
 				curse = 1;
 		}
 
@@ -627,7 +636,7 @@ void menu_vt()
 		{
 			curse--;
 			if (curse < 1)
-				curse = 13;
+				curse = 14;
 		}
 
 		if (pressedButton & SEGA_CTRL_B)
@@ -648,6 +657,7 @@ void menu_vt()
 			{
 				screenFadeOut(1);
 				DrawHelp(HELP_GENERAL);
+				redrawBGwGil();
 			}
 		}
 
@@ -655,6 +665,7 @@ void menu_vt()
 		{
 			screenFadeOut(1);
 			DrawHelp(HELP_GENERAL);
+			redrawBGwGil();
 		}
 
 		if (pressedButton & SEGA_CTRL_A)
@@ -743,8 +754,7 @@ void menu_vt()
 
 				case 9:
 					screenFadeOut(1);
-					canvas_rebuild_id++;
-					vt_backlitzone_test();
+					vt_phase_check();
 					initMainBG();
 					marsVDP256Start();
 					redrawBGwGil();
@@ -753,7 +763,7 @@ void menu_vt()
 				case 10:
 					screenFadeOut(1);
 					canvas_rebuild_id++;
-					vt_DisappearingLogo();
+					vt_backlitzone_test();
 					initMainBG();
 					marsVDP256Start();
 					redrawBGwGil();
@@ -762,7 +772,7 @@ void menu_vt()
 				case 11:
 					screenFadeOut(1);
 					canvas_rebuild_id++;
-					vt_layers_test();
+					vt_DisappearingLogo();
 					initMainBG();
 					marsVDP256Start();
 					redrawBGwGil();
@@ -770,11 +780,20 @@ void menu_vt()
 
 				case 12:
 					screenFadeOut(1);
-					DrawHelp(HELP_GENERAL);
+					canvas_rebuild_id++;
+					vt_layers_test();
+					initMainBG();
+					marsVDP256Start();
 					redrawBGwGil();
 					break;
 
 				case 13:
+					screenFadeOut(1);
+					DrawHelp(HELP_GENERAL);
+					redrawBGwGil();
+					break;
+
+				case 14:
 					screenFadeOut(1);
 					done = 1;
 					break;
@@ -859,11 +878,16 @@ void menu_at()
 			{
 				screenFadeOut(1);
 				DrawHelp(HELP_GENERAL);
+				redrawBGwGil();
 			}
 		}
 
 		if (pressedButton & SEGA_CTRL_Z)
+		{
+			screenFadeOut(1);
 			DrawHelp(HELP_GENERAL);
+			redrawBGwGil();
+		}
 
 		if (pressedButton & SEGA_CTRL_A)
 		{
@@ -975,6 +999,7 @@ void menu_ht()
 			{
 				screenFadeOut(1);
 				DrawHelp(HELP_GENERAL);
+				redrawBGwGil();
 			}
 		}
 
@@ -982,6 +1007,7 @@ void menu_ht()
 		{
 			screenFadeOut(1);
 			DrawHelp(HELP_GENERAL);
+			redrawBGwGil();
 		}
 
 		if (pressedButton & SEGA_CTRL_A)

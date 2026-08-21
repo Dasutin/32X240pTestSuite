@@ -18,13 +18,28 @@ This software is open source and free.
 
 The container uses the prebuilt Linux toolchain from the
 [32XDK 20220418 release](https://github.com/viciious/32XDK/releases/tag/20220418).
+It also installs the SGDK 1.11-compatible Genesis toolchain recorded in the
+Dockerfile. The Genesis source is fetched at build time rather than stored in
+the container image.
 Docker Desktop (or another Docker installation with Compose support) is the only
 host dependency.
 
-Build the image and release ROM:
+Build or refresh the toolchain image after cloning or updating the repository:
 
 ```sh
-docker compose run --rm build
+docker compose build
+```
+
+Build the standalone ROM:
+
+```sh
+docker compose run --rm build make release
+```
+
+Build the combined Genesis / 32X ROM with the newest Genesis source:
+
+```sh
+docker compose run --rm build make combined
 ```
 
 The resulting ROM is written to `build/240pMars.32x`. Docker Compose bind-mounts

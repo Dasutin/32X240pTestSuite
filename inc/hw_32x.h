@@ -97,6 +97,7 @@ extern void HwMdPSGSetNoise(u8 type, u8 frequency);
 extern void HwMdPSGSetEnvelope(u8 channel, u8 value);
 extern void HwMdSetPlaneBitmap(char plane, void *data);
 extern void HwMdClearPlanes(void);
+extern void HwMdReloadFont(void);
 extern void HwMdHScrollPlane(char plane, int hscroll);
 extern void HwMdVScrollPlane(char plane, int vscroll);
 

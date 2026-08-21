@@ -10,6 +10,11 @@
         .global _start
 
 _start:
+        .ifdef  COMBINED_ROM
+        tst.b   0xA1000B                 /* Cleared by dual_boot.s when B button is held */
+        beq.b   genesis_override
+        .endif
+
         moveq   #0,d0                   /* Clear Work RAM */
         move.w  #0x3FFF,d1
         suba.l  a1,a1
@@ -48,6 +53,11 @@ _start:
         move.l  (sp)+,d0
         addq.l  #4,sp               /* Pop jump table return address */
         rte
+
+        .ifdef  COMBINED_ROM
+genesis_override:
+        bra.w   copy_genesis_stub
+        .endif
 
         .align  64
 
@@ -192,6 +202,28 @@ read_long:
         move.l  (a0),d0
         rts
 
+        .ifdef  COMBINED_ROM
+# Return the adapter to Mega Drive-Genesis pass-through mode while executing from RAM.
+copy_genesis_stub:
+        move.w  #0x2700,sr
+        lea     genesis_stub(pc),a0
+        lea     0xFF0000,a1
+        move.w  #((genesis_stub_end-genesis_stub)/2)-1,d0
+1:
+        move.w  (a0)+,(a1)+
+        dbra    d0,1b
+        jmp     0xFF0000
+
+genesis_stub:
+        move.w  #0x2700,sr
+        move.w  #0,0xA15100              /* Reset SH-2s and clear ADEN */
+        clr.b   0xA10009                  /* Force a full Genesis cold start */
+        clr.b   0xA1000B
+        clr.b   0xA1000D
+        jmp     0x000A0200
+genesis_stub_end:
+        .endif
+
 
         .data
 
@@ -261,6 +293,8 @@ handle_req:
         bls     handle_planeBitmap
         cmpi.w  #0x14FF,d0
         bls     handle_scroll
+        cmpi.w  #0x15FF,d0
+        bls     handle_reload_font
 
 
 # Unknown command
@@ -581,6 +615,11 @@ handle_planeBitmap:
 
 handle_clrplanes:
         jsr     clear_planes
+        move.w  #0,0xA15120
+        bra     main_loop
+
+handle_reload_font:
+        jsr     reload_font
         move.w  #0,0xA15120
         bra     main_loop
 
@@ -922,7 +961,7 @@ load_font:
         move.w  #0x0E00,0xC00000
         move.w  #0x0E00,0xC00000
 
-        move.w  #0x8174,(a4)            /* Display on, VBlank enabled */
+        move.w  #0x8174,0xC00004        /* Display on, VBlank enabled */
         rts
 
 # Global variables for 68000

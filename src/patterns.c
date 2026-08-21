@@ -598,7 +598,7 @@ void tp_grid()
 				break;
 
 			case 2:
-				setColor(0, 6, 6, 6);
+				setColor(0, 12, 12, 12);
 				break;
 		}
 
@@ -648,6 +648,7 @@ void tp_monoscope()
 {
 	u16 done = 0, pattern = 1, gray = 0, fpcamera_x = 0, fpcamera_y = 0;
 	u16 button, pressedButton, oldButton = 0xFFFF;
+	static const u16 ire_levels[] = {29, 25, 21, 17, 12, 8, 4};
 
 	Hw32xSetPalette(monoscope_Palette);
 
@@ -671,7 +672,7 @@ void tp_monoscope()
 		if (!gray)
 			setColor(0, 0, 0, 0);
 		else
-			setColor(0, 13, 13, 13);
+			setColor(0, 12, 12, 12);
 
 		if (pressedButton & SEGA_CTRL_A)
 		{
@@ -698,36 +699,7 @@ void tp_monoscope()
 			Hw32xSetPalette(monoscope_Palette);
 		}
 
-		switch (pattern)
-		{
-			case 1:
-				setColor(2, 30, 30, 30);
-				break;
-
-			case 2:
-				setColor(2, 26, 26, 26);
-				break;
-
-			case 3:
-				setColor(2, 21, 21, 21);
-				break;
-
-			case 4:
-				setColor(2, 17, 17, 17);
-				break;
-
-			case 5:
-				setColor(2, 13, 13, 13);
-				break;
-
-			case 6:
-				setColor(2, 8, 8, 8);
-				break;
-
-			case 7:
-				setColor(2, 4, 4, 4);
-				break;
-		}
+		setColor(2, ire_levels[pattern - 1], ire_levels[pattern - 1], ire_levels[pattern - 1]);
 
 		if (pressedButton & SEGA_CTRL_START)
 		{

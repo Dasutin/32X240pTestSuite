@@ -3,6 +3,8 @@
 *.o
 build/*.32x
 build/*.elf
+build/*.bin
+build/*.map
 symbol.txt
 m68k_crt0.bin
 m68k_crt1.bin
@@ -10,5 +12,10 @@ output.map
 src_md/output.map
 src_md/m68k.bin
 src_md/m68k.elf
+src_md/m68k-combined.bin
+src_md/m68k-combined.elf
+src_md/m68k-combined.map
+dual_boot.bin
+/genesis/
 .vscode/dryrun.log
 .vscode/targets.log

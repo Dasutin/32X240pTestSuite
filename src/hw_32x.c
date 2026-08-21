@@ -819,6 +819,13 @@ void HwMdClearPlanes(void)
 	while (MARS_SYS_COMM0);
 }
 
+void HwMdReloadFont(void)
+{
+	while (MARS_SYS_COMM0);
+	MARS_SYS_COMM0 = 0x1500;
+	while (MARS_SYS_COMM0);
+}
+
 void HwMdSetPlaneBitmap(char plane, void *data)
 {
 	while (MARS_SYS_COMM0);

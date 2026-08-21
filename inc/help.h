@@ -55,7 +55,8 @@
 #define HELP_SEGACD			30
 #define HELP_MEMVIEW		31
 #define HELP_DISAPPEAR		32
-#define HELP_LAYERS		33
+#define HELP_LAYERS		    33
+#define HELP_PHASE			34
 
 void DrawHelp(int option);
 

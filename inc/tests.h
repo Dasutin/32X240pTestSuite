@@ -40,6 +40,7 @@ void vt_scroll_test(void);
 void vt_gridscroll_test(void);
 void vt_stripes(void);
 void vt_checkerboard(void);
+void vt_phase_check(void);
 void vt_backlitzone_test(void);
 void vt_DisappearingLogo(void);
 void vt_layers_test(void);

@@ -27,6 +27,14 @@
 #include "shared_objects.h"
 #include "help.h"
 
+static void DrawHelpExitPrompt(u16 button)
+{
+	if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
+		drawTextwHighlight("Press C to exit help", 91, 193, fontColorWhite, fontColorWhiteHighlight);
+	else
+		drawTextwHighlight("Press Z to exit help", 91, 193, fontColorWhite, fontColorWhiteHighlight);
+}
+
 void DrawHelp(int option)
 {
 	u16 button, pressedButton, oldButton = 0xFFFF;
@@ -49,8 +57,10 @@ void DrawHelp(int option)
 			totalpages = 2;
 			break;
 		case HELP_PLUGE:
-		case HELP_MONOSCOPE:
 			totalpages = 3;
+			break;
+		case HELP_MONOSCOPE:
+			totalpages = 4;
 			break;
 	}
 
@@ -94,10 +104,6 @@ void DrawHelp(int option)
 						drawTextwHighlight("any test.", 35, 154, fontColorGreen, fontColorGreenHighlight);
 
 						drawTextwHighlight("(cont...)", 207, 178, fontColorWhite, fontColorWhiteHighlight);
-						if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
-							drawTextwHighlight("Press C to exit help", 91, 193, fontColorWhite, fontColorWhiteHighlight);
-						else
-							drawTextwHighlight("Press Z to exit help", 91, 193, fontColorWhite, fontColorWhiteHighlight);
 						break;
 
 					case 2:
@@ -113,11 +119,6 @@ void DrawHelp(int option)
 						drawTextwHighlight("for more information.", 35, 106, fontColorWhite, fontColorWhiteHighlight);
 
 						drawQRCode(256, 122, 32, 32);
-
-						if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
-							drawTextwHighlight("Press C to exit help", 91, 193, fontColorWhite, fontColorWhiteHighlight);
-						else
-							drawTextwHighlight("Press Z to exit help", 91, 193, fontColorWhite, fontColorWhiteHighlight);
 						break;
 				}
 				break;
@@ -200,21 +201,22 @@ void DrawHelp(int option)
 				drawTextwHighlight("This grid uses the full 320x224", 32, 57, fontColorWhite, fontColorWhiteHighlight);
 				drawTextwHighlight("resolution.", 32, 65, fontColorWhite, fontColorWhiteHighlight);
 
-				drawTextwHighlight("You can use it to verify that", 32, 82, fontColorWhite, fontColorWhiteHighlight);
-				drawTextwHighlight("all the visible area is being", 32, 90, fontColorWhite, fontColorWhiteHighlight);
-				drawTextwHighlight("displayed, and that there is no", 32, 98, fontColorWhite, fontColorWhiteHighlight);
-				drawTextwHighlight("distortion present.", 32, 106, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("You should target the green", 32, 82, fontColorGreen, fontColorGreenHighlight);
+				drawTextwHighlight("borders on CRTs.", 32, 90, fontColorGreen, fontColorGreenHighlight);
 
-				drawTextwHighlight("The full active video signal can", 32, 123, fontColorWhite, fontColorWhiteHighlight);
-				drawTextwHighlight("be filled with gray by pressing", 32, 131, fontColorWhite, fontColorWhiteHighlight);
-				drawTextwHighlight("the 'A' button.", 32, 139, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("White   90%      Green 91%", 48, 107, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("Magenta 95%", 104, 115, fontColorWhite, fontColorWhiteHighlight);
+
+				drawTextwHighlight("The full active video signal can", 32, 132, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("be filled with gray by pressing", 32, 140, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("the 'A' button.", 32, 148, fontColorWhite, fontColorWhiteHighlight);
 				break;
 
 			case HELP_MONOSCOPE:
 				switch (page)
 				{
 					case 1:
-						drawTextwHighlight("MONOSCOPE (1/3)", 95, 35, fontColorGreen, fontColorGreenHighlight);
+						drawTextwHighlight("MONOSCOPE (1/4)", 95, 35, fontColorGreen, fontColorGreenHighlight);
 
 						drawTextwHighlight("This pattern contains elements", 32, 57, fontColorWhite, fontColorWhiteHighlight);
 						drawTextwHighlight("to calibrate multiple aspects", 32, 65, fontColorWhite, fontColorWhiteHighlight);
@@ -224,50 +226,62 @@ void DrawHelp(int option)
 						drawTextwHighlight("manual to learn how, and use", 32, 98, fontColorWhite, fontColorWhiteHighlight);
 						drawTextwHighlight("'A' button to change IRE.", 32, 106, fontColorWhite, fontColorWhiteHighlight);
 
-						drawTextwHighlight("Brightness adjustment: Adjust", 32, 123, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("convergence at low brightness", 32, 131, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("(13/25 IRE). An overly bright", 32, 139, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("pattern can mask convergence.", 32, 147, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("issues.", 32, 155, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("You should target the green", 32, 123, fontColorGreen, fontColorGreenHighlight);
+						drawTextwHighlight("borders on CRTs.", 32, 131, fontColorGreen, fontColorGreenHighlight);
+
+						drawTextwHighlight("White   90%      Green 91%", 48, 148, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("Magenta 95%", 104, 156, fontColorWhite, fontColorWhiteHighlight);
 
 						drawTextwHighlight("(cont...)", 207, 178, fontColorWhite, fontColorWhiteHighlight);
 						break;
 
 					case 2:
-						drawTextwHighlight("MONOSCOPE (2/3)", 95, 35, fontColorGreen, fontColorGreenHighlight);
+						drawTextwHighlight("MONOSCOPE (2/4)", 95, 35, fontColorGreen, fontColorGreenHighlight);
 
-						drawTextwHighlight("Convergence: Use the center", 32, 57, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("crosshair to check static", 32, 65, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("(center of screen) convergence.", 32, 73, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("Use the patterns at the sides", 32, 81, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("to check dynamic (edge)", 32, 89, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("convergence.", 32, 97, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("Brightness adjustment: Adjust", 32, 57, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("convergence at low brightness", 32, 65, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("(13/25 IRE). An overly bright", 32, 73, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("pattern can mask convergence", 32, 81, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("issues.", 32, 89, fontColorWhite, fontColorWhiteHighlight);
 
-						drawTextwHighlight("Corners: After setting center", 32, 114, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("and edge convergence, use", 32, 122, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("magnets to adjust corner purity", 32, 130, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("and geometry.", 32, 138, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("Convergence: Use the center", 32, 106, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("crosshair to check static", 32, 114, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("(center of screen) convergence.", 32, 122, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("Use the patterns at the sides", 32, 130, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("to check dynamic (edge)", 32, 138, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("convergence.", 32, 146, fontColorWhite, fontColorWhiteHighlight);
 
 						drawTextwHighlight("(cont...)", 207, 178, fontColorWhite, fontColorWhiteHighlight);
 						break;
 
 					case 3:
-						drawTextwHighlight("MONOSCOPE (3/3)", 95, 35, fontColorGreen, fontColorGreenHighlight);
+						drawTextwHighlight("MONOSCOPE (3/4)", 95, 35, fontColorGreen, fontColorGreenHighlight);
 
-						drawTextwHighlight("Size and aspect ratio: If", 32, 57, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("vertical and horizontal size are", 32, 65, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("correct, the red squares in the", 32, 73, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("pattern will be perfect squares.", 32, 81, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("After setting H size, use a tape", 32, 89, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("measure to adjust V size to", 32, 97, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("match it.", 32, 105, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("Corners: After setting center", 32, 57, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("and edge convergence, use", 32, 65, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("magnets to adjust corner purity", 32, 73, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("and geometry.", 32, 81, fontColorWhite, fontColorWhiteHighlight);
 
-						drawTextwHighlight("Linearity: The squares in each", 32, 122, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("corner should get you started.", 32, 130, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("Confirm your adjustment using", 32, 138, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("the scroll tests.", 32, 146, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("Size and aspect ratio: If", 32, 98, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("vertical and horizontal size are", 32, 106, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("correct, the red squares in the", 32, 114, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("pattern will be perfect squares.", 32, 122, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("After setting H size, use a tape", 32, 130, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("measure to adjust V size to", 32, 138, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("match it.", 32, 146, fontColorWhite, fontColorWhiteHighlight);
 
-						drawTextwHighlight("Designed by Keith Raney.", 32, 164, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("(cont...)", 207, 178, fontColorWhite, fontColorWhiteHighlight);
+						break;
+
+					case 4:
+						drawTextwHighlight("MONOSCOPE (4/4)", 95, 35, fontColorGreen, fontColorGreenHighlight);
+
+						drawTextwHighlight("Linearity: The squares in each", 32, 57, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("corner should get you started.", 32, 65, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("Confirm your adjustment using", 32, 73, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("the scroll tests.", 32, 81, fontColorWhite, fontColorWhiteHighlight);
+
+						drawTextwHighlight("Designed by Keith Raney.", 32, 106, fontColorGreen, fontColorGreenHighlight);
 						break;
 				}
 				break;
@@ -415,10 +429,23 @@ void DrawHelp(int option)
 				drawTextwHighlight("grid array.", 32, 81, fontColorWhite, fontColorWhiteHighlight);
 
 				drawTextwHighlight("You can toggle the pattern with", 32, 98, fontColorWhite, fontColorWhiteHighlight);
-				drawTextwHighlight("button 'Up', or turn on", 32, 106, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("'UP' or 'DOWN', or turn on", 32, 106, fontColorWhite, fontColorWhiteHighlight);
 				drawTextwHighlight("auto-toggle each frame with the", 32, 114, fontColorWhite, fontColorWhiteHighlight);
 				drawTextwHighlight("'A' button. A frame counter is", 32, 122, fontColorWhite, fontColorWhiteHighlight);
 				drawTextwHighlight("also available with 'B'.", 32, 130, fontColorWhite, fontColorWhiteHighlight);
+				break;
+
+			case HELP_PHASE:
+				drawTextwHighlight("PHASE CHECK", 115, 35, fontColorGreen, fontColorGreenHighlight);
+				drawTextwHighlight("This test allows you to check", 32, 57, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("phase alignment in upscalers.", 32, 65, fontColorWhite, fontColorWhiteHighlight);
+
+				drawTextwHighlight("Press Left or Right to move the", 32, 82, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("foreground pattern one pixel.", 32, 90, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("Press A to reset its alignment.", 32, 106, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("Press B for a checkerboard bg.", 32, 114, fontColorWhite, fontColorWhiteHighlight);
+
+				drawTextwHighlight("Designed by FirebrandX", 32, 138, fontColorWhite, fontColorWhiteHighlight);
 				break;
 
 			case HELP_STRIPES:
@@ -431,7 +458,7 @@ void DrawHelp(int option)
 						drawTextwHighlight("starting with a white one.", 32, 73, fontColorWhite, fontColorWhiteHighlight);
 
 						drawTextwHighlight("You can toggle the pattern with", 32, 90, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("button 'UP', or turn on", 32, 98, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("'UP' or 'DOWN', or turn on", 32, 98, fontColorWhite, fontColorWhiteHighlight);
 						drawTextwHighlight("auto-toggle each frame with the", 32, 106, fontColorWhite, fontColorWhiteHighlight);
 						drawTextwHighlight("'A' button. A frame counter is", 32, 114, fontColorWhite, fontColorWhiteHighlight);
 						drawTextwHighlight("also available with 'B'.", 32, 122, fontColorWhite, fontColorWhiteHighlight);
@@ -445,8 +472,8 @@ void DrawHelp(int option)
 					case 2:
 						drawTextwHighlight("HOR/VER STRIPES (2/2)", 75, 35, fontColorGreen, fontColorGreenHighlight);
 						drawTextwHighlight("You can also display vertical", 32, 57, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("bars by pressing 'LEFT'. That", 32, 65, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("pattern will help you", 32, 73, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("bars with 'LEFT' or 'RIGHT'.", 32, 65, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("That pattern will help you", 32, 73, fontColorWhite, fontColorWhiteHighlight);
 						drawTextwHighlight("evaluate if the signal is not", 32, 81, fontColorWhite, fontColorWhiteHighlight);
 						drawTextwHighlight("distorted horizontaly, since", 32, 89, fontColorWhite, fontColorWhiteHighlight);
 						drawTextwHighlight("all lines should be one pixel", 32, 97, fontColorWhite, fontColorWhiteHighlight);
@@ -723,6 +750,10 @@ void DrawHelp(int option)
 			exit = 1;
 			break;
 	}
+
+		if (!exit)
+			DrawHelpExitPrompt(button);
+
 		if (pressedButton & SEGA_CTRL_RIGHT)
 		{
 			if (page + 1 <= totalpages)

@@ -10,12 +10,16 @@
 
 #-----------------------------------------------------------------------
 # Initial exception vectors - when the console is first turned on, it is
-# in MegaDrive mode. All vectors just point to the code to start up the
-# Mars adapter. After the adapter is enabled, none of these vectors will
-# appear as the adapter uses its own vector table to route exceptions to
-# the jump table at 0x200.
+# in MegaDrive mode. The combined build dispatches between the relocated
+# Genesis payload and the 32X startup. The standalone build uses the original
+# 32X startup vectors.
 #-----------------------------------------------------------------------
 
+        .ifdef  COMBINED_ROM
+        .long   0x00FFFE00
+        .long   0x0000031A              /* Pre-32X dual-boot dispatcher */
+        .incbin "genesis/240psuite/Genesis/240p/out/genesis-vectors.bin"
+        .else
         .long   0x01000000,0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0
         .long   0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0
         .long   0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0
@@ -24,21 +28,35 @@
         .long   0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0
         .long   0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0
         .long   0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0
+        .endif
 
 # Standard MegaDrive ROM Header at 0x100
 
         .ascii  "SEGA 32X        "
         .ascii  "                "
+        .ifdef  COMBINED_ROM
+        .ascii  "240p Test Suite "
+        .ascii  "Genesis / 32X   "
+        .ascii  "                "
+        .ascii  "240p Test Suite "
+        .ascii  "Genesis / 32X   "
+        .ascii  "                "
+        .else
         .ascii  "32X 240p Test Su"
         .ascii  "ite             "
         .ascii  "                "
         .ascii  "32X 240p Test Su"
         .ascii  "ite             "
         .ascii  "                "
+        .endif
         .ascii  "GM 20220208-00"
         .word   0x0000
         .ascii  "J6              "
+        .ifdef  COMBINED_ROM
+        .long   0x00000000,0x000DFFFF   /* ROM start, end */
+        .else
         .long   0x00000000,0x003FFFFF   /* ROM start, end */
+        .endif
         .long   0x00FF0000,0x00FFFFFF   /* RAM start, end */
 
 # 2KB of Save RAM on odd byte lane
@@ -101,7 +119,14 @@
         call    0x880840    /* EX_TrapD */
         call    0x880840    /* EX_TrapE */
         call    0x880840    /* EX_TrapF */
-        .space  166         /* Reserved */
+        .ifdef  COMBINED_ROM
+dual_boot_embed_start:
+        .incbin "dual_boot.bin"         /* 0x31A: adapter/B-button dispatcher */
+dual_boot_embed_end:
+        .space  166-(dual_boot_embed_end-dual_boot_embed_start)
+        .else
+        .space  166                     /* Reserved */
+        .endif
 
 # Standard Mars Header at 0x3C0
 
@@ -193,7 +218,12 @@
 # entered.
 #-----------------------------------------------------------------------
 
-        .incbin "src_md/m68k.bin"       /* All 68000 Code & Data, Compiled to 0x880800/0xFF0000 */
+        .ifdef  COMBINED_ROM
+        .incbin "src_md/m68k-combined.bin"
+        .else
+        .incbin "src_md/m68k.bin"
+        .endif
+                                                /* 68000 code at 0x880800/0xFF0000 */
 
         .data
 
