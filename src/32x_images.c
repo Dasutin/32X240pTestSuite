@@ -476,7 +476,7 @@ void drawTextwHighlight(const char *str, int x, int y, int textpalOffs, int shad
 void screenFadeOut(int fadeSpeed)
 {
 	u16 frameDelay = fadeSpeed;
-	u16 len = 31;
+	u16 len = 16;
 	u16 r, g, b;
 	u16 tempcolor;
 	vu16 temppal[256];
@@ -495,12 +495,9 @@ void screenFadeOut(int fadeSpeed)
 				r = tempcolor & 0x1F;
 				g = tempcolor>>5 & 0x1F;
 				b = tempcolor>>10 & 0x1F;
-				if (r != 0x0000)
-					r--;
-				if (g != 0x0000)
-					g--;
-				if (b != 0x0000)
-					b--;
+				r = r > 1 ? r - 2 : 0;
+				g = g > 1 ? g - 2 : 0;
+				b = b > 1 ? b - 2 : 0;
 				tempcolor = COLOR(r,g,b) & 0x7FFF;
 				temppal[i] = tempcolor | priority;
 			}

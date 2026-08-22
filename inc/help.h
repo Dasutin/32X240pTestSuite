@@ -57,6 +57,7 @@
 #define HELP_DISAPPEAR		32
 #define HELP_LAYERS		    33
 #define HELP_PHASE			34
+#define HELP_SEGACD32X		35
 
 void DrawHelp(int option);
 

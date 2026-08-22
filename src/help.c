@@ -62,6 +62,9 @@ void DrawHelp(int option)
 		case HELP_MONOSCOPE:
 			totalpages = 4;
 			break;
+		case HELP_SEGACD32X:
+			totalpages = 3;
+			break;
 	}
 
 	Hw32xScreenFlip(0);
@@ -724,6 +727,54 @@ void DrawHelp(int option)
 				drawTextwHighlight("contrast and brightness.", 32, 114, fontColorWhite, fontColorWhiteHighlight);
 
 				drawTextwHighlight("The C button returns to PLUGE.", 32, 131, fontColorWhite, fontColorWhiteHighlight);
+				break;
+
+			case HELP_SEGACD:
+				drawTextwHighlight("Sega CD", 128, 32, fontColorGreen, fontColorGreenHighlight);
+				drawTextwHighlight("You can identify some issues", 32, 56, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("on non booting systems with", 32, 64, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("these.", 32, 72, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("Special thanks to Leo Oliveira.", 32, 88, fontColorWhite, fontColorWhiteHighlight);
+				break;
+
+			case HELP_SEGACD32X:
+				switch (page)
+				{
+					case 1:
+						drawTextwHighlight("SEGA CD 32X TESTS (1/3)", 68, 35, fontColorGreen, fontColorGreenHighlight);
+						drawTextwHighlight("Integrity compares CRC32 values", 32, 56, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("from the Sub-CPU, 68000 and SH2.", 32, 64, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("Streaming Bandwidth measures a", 32, 80, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("64-sector read through all CPUs.", 32, 88, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("CD Streaming Overlay reads sectors", 32, 104, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("while 32X and MD rendering run.", 32, 112, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("(cont...)", 216, 176, fontColorWhite, fontColorWhiteHighlight);
+						break;
+					case 2:
+						drawTextwHighlight("SEGA CD 32X TESTS (2/3)", 68, 35, fontColorGreen, fontColorGreenHighlight);
+						drawTextwHighlight("Combined Audio Mixer selects", 32, 56, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("CD PCM, CD-DA, 32X PWM, PSG or", 32, 64, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("YM2612 for source comparison.", 32, 72, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("A/V Sync flashes the 32X image", 32, 88, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("against a selected CD-DA track.", 32, 96, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("Word RAM Stress repeatedly hands", 32, 112, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("memory between both CD CPUs.", 32, 120, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("Latency measures SH2-to-Sub-CPU", 32, 136, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("command round trips.", 32, 144, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("(cont...)", 216, 176, fontColorWhite, fontColorWhiteHighlight);
+						break;
+					case 3:
+						drawTextwHighlight("SEGA CD 32X TESTS (3/3)", 68, 35, fontColorGreen, fontColorGreenHighlight);
+						drawTextwHighlight("Disc tests require a data or", 32, 56, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("audio track as indicated onscreen.", 32, 64, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("The default data LBA is sector 16", 32, 80, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("of a Mode 1 data track.", 32, 88, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("Word RAM Handoff Stress writes", 32, 104, fontColorRed, fontColorRedHighlight);
+						drawTextwHighlight("patterns into its test window.", 32, 112, fontColorRed, fontColorRedHighlight);
+						drawTextwHighlight("The Sega CD is reinitialized when", 32, 128, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("a playback or streaming test starts.", 32, 136, fontColorWhite, fontColorWhiteHighlight);
+						break;
+				}
 				break;
 
 			case HELP_MEMVIEW:

@@ -296,6 +296,9 @@ handle_req:
         cmpi.w  #0x15FF,d0
         bls     handle_reload_font
 
+        jsr     segacd_dispatch
+        bra     main_loop
+
 
 # Unknown command
         move.w  #0,0xA15120         /* Done */

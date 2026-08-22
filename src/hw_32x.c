@@ -136,8 +136,7 @@ void pri_dma1_handler(void)
 
 int Hw32xDetectPAL()
 {
-	int PAL_MODE = 1;
-	return PAL_MODE;
+	return (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT) == 0;
 }
 
 void Hw32xSetFGColor(int s, int r, int g, int b)
@@ -774,9 +773,10 @@ void HwMdPSGSetFrequency(u8 channel, u16 value)
 
 	if (value)
 	{
-		if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT) data = 3579545 / (value * 32);
-		else data = 3546893 / (value * 32);
-		data = 3579545 / (value * 32);
+		if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT)
+			data = 3579545 / (value * 32);
+		else
+			data = 3546893 / (value * 32);
 	}
 	else data = 0;
 

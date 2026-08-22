@@ -74,7 +74,6 @@
 #include "phase_check.h"
 #include "phase_check_map.h"
 #include "phase_check_palette.h"
-#include "phase_check_gillian.h"
 
 extern u32 schecksum;
 unsigned mars_frtc2msec_frac = 0;
@@ -86,6 +85,16 @@ const int NTSC_CLOCK_SPEED = 23011360; // HZ
 const int PAL_CLOCK_SPEED = 22801467; // HZ
 int sec;
 tilemap_t tm;
+
+static int video_refresh_rate(void)
+{
+	return Hw32xDetectPAL() ? 50 : 60;
+}
+
+static int scale_ntsc_frames(int frames)
+{
+	return (frames * video_refresh_rate() + 30) / 60;
+}
 
 int Mars_FRTCounter2Msec(int c)
 {
@@ -803,7 +812,7 @@ void vt_lag_test()
 				framecnt = 1;
 		}
 
-		if (frames > 59)
+		if (frames >= video_refresh_rate())
 		{
 			frames = 0;
 			seconds ++;
@@ -1936,9 +1945,9 @@ void vt_phase_check(void)
 		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
 		draw_setScissor(0, 0, 320, 224);
 
+		updateGillianBlink();
 		for (int figure = 0; figure < 5; figure++)
-			draw_sprite(24 + figure * 56 + align, 64, 56, 104,
-				phase_check_gillian, DRAWSPR_OVERWRITE | DRAWSPR_PRECISE, 1);
+			drawGillian(24 + figure * 56 + align, 64);
 
 		Hw32xScreenFlip(0);
 	}
@@ -2141,7 +2150,7 @@ void vt_DisappearingLogo()
 		frames ++;
 		framecnt ++;
 
-		if (frames > 59)
+		if (frames >= video_refresh_rate())
 		{
 			frames = 0;
 			seconds ++;
@@ -2382,6 +2391,7 @@ void vt_layers_test(void)
 void at_sound_test()
 {
 	u16 done = 0, xcurse = 2, ycurse = 1, psgoff = 0;
+	u16 toneFrames = scale_ntsc_frames(30);
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	sound_t JUMP;
 
@@ -2504,21 +2514,21 @@ void at_sound_test()
 				HwMdPSGSetChandVol(0, 0);
 				HwMdPSGSetFrequency(0, 200);
 				if (psgoff == 0)
-					psgoff = 30;
+					psgoff = toneFrames;
 			}
 			if (xcurse == 2 && ycurse == 2)
 			{
 				HwMdPSGSetChandVol(1, 0);
 				HwMdPSGSetFrequency(1, 2000);
 				if (psgoff == 0)
-					psgoff = 30;
+					psgoff = toneFrames;
 			}
 			if (xcurse == 3 && ycurse == 2)
 			{
 				HwMdPSGSetChandVol(2, 0);
 				HwMdPSGSetFrequency(2, 4095);
 				if (psgoff == 0)
-					psgoff = 30;
+					psgoff = toneFrames;
 			}
 			if (xcurse == 4 && ycurse == 2)
 			{
@@ -2526,7 +2536,7 @@ void at_sound_test()
 				HwMdPSGSetNoise(PSG_NOISE_TYPE_WHITE, PSG_NOISE_FREQ_TONE3);
 				HwMdPSGSetFrequency(3, 500);
 				if (psgoff == 0)
-					psgoff = 30;
+					psgoff = toneFrames;
 			}
 		}
 
@@ -2552,8 +2562,14 @@ void at_sound_test()
 
 void at_audiosync_test()
 {
-	int done = 0, cycle = 0, x = 160, y = 160;
-	s16 acc = 1, status = -1;
+	int done = 0, cycle = 1, x = 160, y = 160;
+	int refreshRate = video_refresh_rate();
+	int sync40 = scale_ntsc_frames(40);
+	int sync60 = scale_ntsc_frames(60);
+	int sync80 = scale_ntsc_frames(80);
+	int sync100 = scale_ntsc_frames(100);
+	int syncEnd = scale_ntsc_frames(120);
+	s16 status = -1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 
 	marsVDP256Start();
@@ -2561,7 +2577,7 @@ void at_audiosync_test()
 	MDPSG_init();
 	HwMdPSGSetFrequency(0, 1000);
 
-	setColor(0, 0, 0, 0);
+	Hw32xSetBGColor(0, 0, 0, 0);
 	setColor(1, 31, 31, 31);
 	setColor(2, 0, 0, 0);
 	setColor(3, 0, 0, 0);
@@ -2574,18 +2590,20 @@ void at_audiosync_test()
 	{
 		Hw32xFlipWait();
 
-		if (status == 120)
+		if (status == syncEnd)
 		{
 			HwMdPSGSetChandVol(0, 0);
 			HwMdPSGSetFrequency(0, 1000);
 			Hw32xSetBGColor(0, 31, 31, 31);
 		}
 
-		if (status == 121)
+		if (status == syncEnd + 1)
 		{
 			MDPSG_stop();
 
-			setColor(0, 0, 0, 0);
+			 * A direct setColor() here is overwritten by the cached white
+			 * flash color on every following VBlank. */
+			Hw32xSetBGColor(0, 0, 0, 0);
 			setColor(2, 0, 0, 0);
 			setColor(3, 0, 0, 0);
 			setColor(4, 0, 0, 0);
@@ -2614,14 +2632,15 @@ void at_audiosync_test()
 			MDPSG_init();
 			HwMdPSGSetFrequency(0, 1000);
 
-			setColor(0, status == 120 ? 31 : 0, status == 120 ? 31 : 0, status == 120 ? 31 : 0);
+			Hw32xSetBGColor(0, status == syncEnd ? 31 : 0,
+				status == syncEnd ? 31 : 0, status == syncEnd ? 31 : 0);
 			setColor(1, 31, 31, 31);
-			setColor(2, status >= 40 ? 31 : 0, status >= 40 ? 31 : 0, status >= 40 ? 31 : 0);
-			setColor(3, status >= 60 ? 31 : 0, status >= 60 ? 31 : 0, status >= 60 ? 31 : 0);
-			setColor(4, status >= 80 ? 31 : 0, status >= 80 ? 31 : 0, status >= 80 ? 31 : 0);
-			setColor(5, status >= 100 ? 31 : 0, status >= 100 ? 31 : 0, status >= 100 ? 31 : 0);
+			setColor(2, status >= sync40 ? 31 : 0, status >= sync40 ? 31 : 0, status >= sync40 ? 31 : 0);
+			setColor(3, status >= sync60 ? 31 : 0, status >= sync60 ? 31 : 0, status >= sync60 ? 31 : 0);
+			setColor(4, status >= sync80 ? 31 : 0, status >= sync80 ? 31 : 0, status >= sync80 ? 31 : 0);
+			setColor(5, status >= sync100 ? 31 : 0, status >= sync100 ? 31 : 0, status >= sync100 ? 31 : 0);
 
-			if (status == 120)
+			if (status == syncEnd)
 				HwMdPSGSetChandVol(0, 0);
 
 			Hw32xScreenFlip(0);
@@ -2637,7 +2656,7 @@ void at_audiosync_test()
 		{
 			cycle = !cycle;
 			if (!cycle)
-				status = 121;
+				status = syncEnd;
 			else
 				y = 160;
 		}
@@ -2645,15 +2664,15 @@ void at_audiosync_test()
 		if (cycle == 1 && status == -1)
 		{
 			status = 0;
-			acc = -1;
 		}
 
 		if (status > -1)
 		{
 			status++;
-			if (status <= 120)
+			if (status <= syncEnd)
 			{
-				y += acc;
+				int nominalStatus = (status * 60 + refreshRate / 2) / refreshRate;
+				y = nominalStatus <= 60 ? 160 - nominalStatus : 40 + nominalStatus;
 				drawSprite(block_2x2_tile, x, y, 8, 8, 0, 0);
 			}
 		}
@@ -2673,34 +2692,14 @@ void at_audiosync_test()
 		for (int i = 0; i <= 320; i = i + 8)
 			drawSprite(block_8x8_tile, i, 160, 8, 8, 0, 0);
 
-		if (status >= 20 && status <= 120)
-		{
-			switch (status)
-			{
-				case 20:
-					break;
-
-				case 40:
-					setColor(2, 31, 31, 31);
-					break;
-
-				case 60:
-					acc = 1;
-					setColor(3, 31, 31, 31);
-					break;
-
-				case 80:
-					setColor(4, 31, 31, 31);
-					break;
-
-				case 100:
-					setColor(5, 31, 31, 31);
-					break;
-
-				case 120:
-					break;
-			}
-		}
+		if (status == sync40)
+			setColor(2, 31, 31, 31);
+		if (status == sync60)
+			setColor(3, 31, 31, 31);
+		if (status == sync80)
+			setColor(4, 31, 31, 31);
+		if (status == sync100)
+			setColor(5, 31, 31, 31);
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
@@ -2759,28 +2758,28 @@ void ht_controller_test()
 		// Controller 1
 		if ((button & SEGA_CTRL_TYPE) != SEGA_CTRL_NONE)
 		{
-			drawTextwHighlight("Up", 74, 80, pressedButton & SEGA_CTRL_UP ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_UP ? fontColorRedHighlight : fontColorWhiteHighlight);
-			drawTextwHighlight("Left", 44, 90, pressedButton & SEGA_CTRL_LEFT ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_LEFT ? fontColorRedHighlight : fontColorWhiteHighlight);
-			drawTextwHighlight("Right", 89, 90, pressedButton & SEGA_CTRL_RIGHT ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_RIGHT ? fontColorRedHighlight : fontColorWhiteHighlight);
-			drawTextwHighlight("Down", 68, 100, pressedButton & SEGA_CTRL_DOWN ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_DOWN ? fontColorRedHighlight : fontColorWhiteHighlight);
+			drawTextwHighlight("Up", 74, 80, button & SEGA_CTRL_UP ? fontColorRed : fontColorWhite, button & SEGA_CTRL_UP ? fontColorRedHighlight : fontColorWhiteHighlight);
+			drawTextwHighlight("Left", 44, 90, button & SEGA_CTRL_LEFT ? fontColorRed : fontColorWhite, button & SEGA_CTRL_LEFT ? fontColorRedHighlight : fontColorWhiteHighlight);
+			drawTextwHighlight("Right", 89, 90, button & SEGA_CTRL_RIGHT ? fontColorRed : fontColorWhite, button & SEGA_CTRL_RIGHT ? fontColorRedHighlight : fontColorWhiteHighlight);
+			drawTextwHighlight("Down", 68, 100, button & SEGA_CTRL_DOWN ? fontColorRed : fontColorWhite, button & SEGA_CTRL_DOWN ? fontColorRedHighlight : fontColorWhiteHighlight);
 
-			drawTextwHighlight("Start", 149, 90, pressedButton & SEGA_CTRL_START ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_START ? fontColorRedHighlight : fontColorWhiteHighlight);
+			drawTextwHighlight("Start", 149, 90, button & SEGA_CTRL_START ? fontColorRed : fontColorWhite, button & SEGA_CTRL_START ? fontColorRedHighlight : fontColorWhiteHighlight);
 
 			if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
 			{
-				drawTextwHighlight("A", 219, 90, pressedButton & SEGA_CTRL_A ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_A ? fontColorRedHighlight : fontColorWhiteHighlight);
-				drawTextwHighlight("B", 239, 90, pressedButton & SEGA_CTRL_B ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_B ? fontColorRedHighlight : fontColorWhiteHighlight);
-				drawTextwHighlight("C", 259, 90, pressedButton & SEGA_CTRL_C ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_C ? fontColorRedHighlight : fontColorWhiteHighlight);
+				drawTextwHighlight("A", 219, 90, button & SEGA_CTRL_A ? fontColorRed : fontColorWhite, button & SEGA_CTRL_A ? fontColorRedHighlight : fontColorWhiteHighlight);
+				drawTextwHighlight("B", 239, 90, button & SEGA_CTRL_B ? fontColorRed : fontColorWhite, button & SEGA_CTRL_B ? fontColorRedHighlight : fontColorWhiteHighlight);
+				drawTextwHighlight("C", 259, 90, button & SEGA_CTRL_C ? fontColorRed : fontColorWhite, button & SEGA_CTRL_C ? fontColorRedHighlight : fontColorWhiteHighlight);
 			} else {
-				drawTextwHighlight("M", 275, 72, pressedButton & SEGA_CTRL_MODE ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_MODE ? fontColorRedHighlight : fontColorWhiteHighlight);
+				drawTextwHighlight("M", 275, 72, button & SEGA_CTRL_MODE ? fontColorRed : fontColorWhite, button & SEGA_CTRL_MODE ? fontColorRedHighlight : fontColorWhiteHighlight);
 
-				drawTextwHighlight("X", 219, 80, pressedButton & SEGA_CTRL_X ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_X ? fontColorRedHighlight : fontColorWhiteHighlight);
-				drawTextwHighlight("Y", 239, 80, pressedButton & SEGA_CTRL_Y ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_Y ? fontColorRedHighlight : fontColorWhiteHighlight);
-				drawTextwHighlight("Z", 259, 80, pressedButton & SEGA_CTRL_Z ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_Z ? fontColorRedHighlight : fontColorWhiteHighlight);
+				drawTextwHighlight("X", 219, 80, button & SEGA_CTRL_X ? fontColorRed : fontColorWhite, button & SEGA_CTRL_X ? fontColorRedHighlight : fontColorWhiteHighlight);
+				drawTextwHighlight("Y", 239, 80, button & SEGA_CTRL_Y ? fontColorRed : fontColorWhite, button & SEGA_CTRL_Y ? fontColorRedHighlight : fontColorWhiteHighlight);
+				drawTextwHighlight("Z", 259, 80, button & SEGA_CTRL_Z ? fontColorRed : fontColorWhite, button & SEGA_CTRL_Z ? fontColorRedHighlight : fontColorWhiteHighlight);
 
-				drawTextwHighlight("A", 219, 100, pressedButton & SEGA_CTRL_A ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_A ? fontColorRedHighlight : fontColorWhiteHighlight);
-				drawTextwHighlight("B", 239, 100, pressedButton & SEGA_CTRL_B ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_B ? fontColorRedHighlight : fontColorWhiteHighlight);
-				drawTextwHighlight("C", 259, 100, pressedButton & SEGA_CTRL_C ? fontColorRed : fontColorWhite, pressedButton & SEGA_CTRL_C ? fontColorRedHighlight : fontColorWhiteHighlight);
+				drawTextwHighlight("A", 219, 100, button & SEGA_CTRL_A ? fontColorRed : fontColorWhite, button & SEGA_CTRL_A ? fontColorRedHighlight : fontColorWhiteHighlight);
+				drawTextwHighlight("B", 239, 100, button & SEGA_CTRL_B ? fontColorRed : fontColorWhite, button & SEGA_CTRL_B ? fontColorRedHighlight : fontColorWhiteHighlight);
+				drawTextwHighlight("C", 259, 100, button & SEGA_CTRL_C ? fontColorRed : fontColorWhite, button & SEGA_CTRL_C ? fontColorRedHighlight : fontColorWhiteHighlight);
 			}
 		} else {
 			drawTextwHighlight("Controller 1 not detected", 60, 90, fontColorRed, fontColorRedHighlight);
@@ -2789,28 +2788,28 @@ void ht_controller_test()
 		// Controller 2
 		if ((button2 & SEGA_CTRL_TYPE) != SEGA_CTRL_NONE)
 		{
-			drawTextwHighlight("Up", 74, 130, pressedButton2 & SEGA_CTRL_UP ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_UP ? fontColorRedHighlight : fontColorWhiteHighlight);
-			drawTextwHighlight("Left", 44, 140, pressedButton2 & SEGA_CTRL_LEFT ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_LEFT ? fontColorRedHighlight : fontColorWhiteHighlight);
-			drawTextwHighlight("Right", 89, 140, pressedButton2 & SEGA_CTRL_RIGHT ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_RIGHT ? fontColorRedHighlight : fontColorWhiteHighlight);
-			drawTextwHighlight("Down", 68, 150, pressedButton2 & SEGA_CTRL_DOWN ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_DOWN ? fontColorRedHighlight : fontColorWhiteHighlight);
+			drawTextwHighlight("Up", 74, 130, button2 & SEGA_CTRL_UP ? fontColorRed : fontColorWhite, button2 & SEGA_CTRL_UP ? fontColorRedHighlight : fontColorWhiteHighlight);
+			drawTextwHighlight("Left", 44, 140, button2 & SEGA_CTRL_LEFT ? fontColorRed : fontColorWhite, button2 & SEGA_CTRL_LEFT ? fontColorRedHighlight : fontColorWhiteHighlight);
+			drawTextwHighlight("Right", 89, 140, button2 & SEGA_CTRL_RIGHT ? fontColorRed : fontColorWhite, button2 & SEGA_CTRL_RIGHT ? fontColorRedHighlight : fontColorWhiteHighlight);
+			drawTextwHighlight("Down", 68, 150, button2 & SEGA_CTRL_DOWN ? fontColorRed : fontColorWhite, button2 & SEGA_CTRL_DOWN ? fontColorRedHighlight : fontColorWhiteHighlight);
 
-			drawTextwHighlight("Start", 149, 140, pressedButton2 & SEGA_CTRL_START ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_START ? fontColorRedHighlight : fontColorWhiteHighlight);
+			drawTextwHighlight("Start", 149, 140, button2 & SEGA_CTRL_START ? fontColorRed : fontColorWhite, button2 & SEGA_CTRL_START ? fontColorRedHighlight : fontColorWhiteHighlight);
 
 			if ((button2 & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
 			{
-				drawTextwHighlight("A", 219, 140, pressedButton2 & SEGA_CTRL_A ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_A ? fontColorRedHighlight : fontColorWhiteHighlight);
-				drawTextwHighlight("B", 239, 140, pressedButton2 & SEGA_CTRL_B ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_B ? fontColorRedHighlight : fontColorWhiteHighlight);
-				drawTextwHighlight("C", 259, 140, pressedButton2 & SEGA_CTRL_C ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_C ? fontColorRedHighlight : fontColorWhiteHighlight);
+				drawTextwHighlight("A", 219, 140, button2 & SEGA_CTRL_A ? fontColorRed : fontColorWhite, button2 & SEGA_CTRL_A ? fontColorRedHighlight : fontColorWhiteHighlight);
+				drawTextwHighlight("B", 239, 140, button2 & SEGA_CTRL_B ? fontColorRed : fontColorWhite, button2 & SEGA_CTRL_B ? fontColorRedHighlight : fontColorWhiteHighlight);
+				drawTextwHighlight("C", 259, 140, button2 & SEGA_CTRL_C ? fontColorRed : fontColorWhite, button2 & SEGA_CTRL_C ? fontColorRedHighlight : fontColorWhiteHighlight);
 			} else {
-				drawTextwHighlight("M", 275, 122, pressedButton2 & SEGA_CTRL_MODE ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_MODE ? fontColorRedHighlight : fontColorWhiteHighlight);
+				drawTextwHighlight("M", 275, 122, button2 & SEGA_CTRL_MODE ? fontColorRed : fontColorWhite, button2 & SEGA_CTRL_MODE ? fontColorRedHighlight : fontColorWhiteHighlight);
 
-				drawTextwHighlight("X", 219, 130, pressedButton2 & SEGA_CTRL_X ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_X ? fontColorRedHighlight : fontColorWhiteHighlight);
-				drawTextwHighlight("Y", 239, 130, pressedButton2 & SEGA_CTRL_Y ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_Y ? fontColorRedHighlight : fontColorWhiteHighlight);
-				drawTextwHighlight("Z", 259, 130, pressedButton2 & SEGA_CTRL_Z ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_Z ? fontColorRedHighlight : fontColorWhiteHighlight);
+				drawTextwHighlight("X", 219, 130, button2 & SEGA_CTRL_X ? fontColorRed : fontColorWhite, button2 & SEGA_CTRL_X ? fontColorRedHighlight : fontColorWhiteHighlight);
+				drawTextwHighlight("Y", 239, 130, button2 & SEGA_CTRL_Y ? fontColorRed : fontColorWhite, button2 & SEGA_CTRL_Y ? fontColorRedHighlight : fontColorWhiteHighlight);
+				drawTextwHighlight("Z", 259, 130, button2 & SEGA_CTRL_Z ? fontColorRed : fontColorWhite, button2 & SEGA_CTRL_Z ? fontColorRedHighlight : fontColorWhiteHighlight);
 
-				drawTextwHighlight("A", 219, 150, pressedButton2 & SEGA_CTRL_A ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_A ? fontColorRedHighlight : fontColorWhiteHighlight);
-				drawTextwHighlight("B", 239, 150, pressedButton2 & SEGA_CTRL_B ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_B ? fontColorRedHighlight : fontColorWhiteHighlight);
-				drawTextwHighlight("C", 259, 150, pressedButton2 & SEGA_CTRL_C ? fontColorRed : fontColorWhite, pressedButton2 & SEGA_CTRL_C ? fontColorRedHighlight : fontColorWhiteHighlight);
+				drawTextwHighlight("A", 219, 150, button2 & SEGA_CTRL_A ? fontColorRed : fontColorWhite, button2 & SEGA_CTRL_A ? fontColorRedHighlight : fontColorWhiteHighlight);
+				drawTextwHighlight("B", 239, 150, button2 & SEGA_CTRL_B ? fontColorRed : fontColorWhite, button2 & SEGA_CTRL_B ? fontColorRedHighlight : fontColorWhiteHighlight);
+				drawTextwHighlight("C", 259, 150, button2 & SEGA_CTRL_C ? fontColorRed : fontColorWhite, button2 & SEGA_CTRL_C ? fontColorRedHighlight : fontColorWhiteHighlight);
 			}
 		} else {
 			drawTextwHighlight("Controller 2 not detected", 60, 140, fontColorRed, fontColorRedHighlight);
@@ -3125,13 +3124,11 @@ void ht_test_32x_sdram()
 	HwMdPuts("32X SDRAM 0x6000000", 0x4000, 10, 4);
 	Hw32xScreenFlip(1);
 
-	/* Stop all secondary SDRAM users before its cache and stack are parked. */
 	restartSound = sound_isInitialized();
 	if (restartSound)
 		Mars_StopSoundMixer();
 	Mars_ParkSecondaryForSdramTest();
 
-	/* Run the address-line probe, then reveal and execute one pattern at a time. */
 	memoryFail = Hw32xTestSdramAddressLines();
 	patternFail = Check32XSdramPattern("Setting to 0x00", 0x0000, 10, 60);
 	if (memoryFail == MEMORY_OK && patternFail != MEMORY_OK)

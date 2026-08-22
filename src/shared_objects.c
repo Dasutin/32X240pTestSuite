@@ -29,8 +29,9 @@
 #include "bg_tiles.h"
 #include "bg_map.h"
 #include "bg_palette.h"
-#include "sd_pal.h"
-#include "sd_tile.h"
+#include "phase_check_gillian.h"
+#include "gillian_blink.h"
+#include "gillian_menu_palette.h"
 #include "qrcode_tiles.h"
 
 u8 paused = PAUSED;
@@ -38,6 +39,18 @@ u16 currentFB = 0;
 vu16 overwriteImg16;
 u32 _state = ~0L;
 u16 randbase;
+
+#define GILLIAN_WIDTH 56
+#define GILLIAN_HEIGHT 104
+#define GILLIAN_EYES_X 16
+#define GILLIAN_EYES_Y 32
+#define GILLIAN_EYES_WIDTH 24
+#define GILLIAN_EYES_HEIGHT 8
+
+static u16 gillian_blink_count = 0;
+static u8 gillian_is_blinking = 0;
+static u16 gillian_random_state = 0xACE1;
+static const u8 *gillian_blink_frame = NULL;
 
 volatile unsigned mars_pwdt_ovf_count = 0;
 volatile unsigned mars_swdt_ovf_count = 0;
@@ -64,8 +77,56 @@ void initMainBG()
 void initMainBGwGil()
 {
 	init_tilemap(&tm, &bg_map_Map, (uint8_t **)bg_Reslist);
-	Hw32xSetPalette(bg_Palette);
-	Hw32xSetPalette(sd_palette);
+	Hw32xSetPalette(gillian_menu_palette);
+}
+
+static u16 gillianRandom16(void)
+{
+	u16 carry = gillian_random_state & 1;
+	gillian_random_state >>= 1;
+	if (carry)
+		gillian_random_state ^= 0xB400;
+	return gillian_random_state;
+}
+
+void updateGillianBlink(void)
+{
+	gillian_blink_count++;
+	if (gillian_blink_count <= 230)
+		return;
+
+	if (!gillian_is_blinking)
+	{
+		if (gillianRandom16() % 10 == 7)
+		{
+			gillian_blink_frame = gillian_blink_half;
+			gillian_is_blinking = 1;
+			gillian_blink_count = 230;
+		}
+		return;
+	}
+
+	if (gillian_blink_count == 232)
+		gillian_blink_frame = gillian_blink_half;
+	else if (gillian_blink_count == 234)
+		gillian_blink_frame = gillian_blink_closed;
+	else if (gillian_blink_count >= 236)
+	{
+		gillian_blink_frame = NULL;
+		gillian_blink_count = 0;
+		gillian_is_blinking = 0;
+	}
+}
+
+void drawGillian(s16 x, s16 y)
+{
+	draw_sprite(x, y, GILLIAN_WIDTH, GILLIAN_HEIGHT,
+		phase_check_gillian, DRAWSPR_OVERWRITE | DRAWSPR_PRECISE, 1);
+
+	if (gillian_blink_frame)
+		draw_sprite(x + GILLIAN_EYES_X, y + GILLIAN_EYES_Y,
+			GILLIAN_EYES_WIDTH, GILLIAN_EYES_HEIGHT, gillian_blink_frame,
+			DRAWSPR_OVERWRITE | DRAWSPR_PRECISE, 1);
 }
 
 void drawMainBG()
@@ -83,26 +144,27 @@ void drawBGwGil()
 	int fpcamera_x = 0;
 	int fpcamera_y = 0;
 
+	updateGillianBlink();
 	canvas_rebuild_id++;
 	draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
 	draw_setScissor(0, 0, 320, 224);
 
-	draw_sprite(216, 72, 64, 128, sd_sprite, DRAWSPR_OVERWRITE, 1);
+	drawGillian(216, 72);
 }
 
 void redrawBGwGil()
 {
-	Hw32xSetPalette(bg_Palette);
-	Hw32xSetPalette(sd_palette);
+	Hw32xSetPalette(gillian_menu_palette);
 
 	int fpcamera_x = 0;
 	int fpcamera_y = 0;
 
+	updateGillianBlink();
 	canvas_rebuild_id++;
 	draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
 	draw_setScissor(0, 0, 320, 224);
 
-	draw_sprite(216, 72, 64, 128, sd_sprite, DRAWSPR_OVERWRITE, 1);
+	drawGillian(216, 72);
 }
 
 void drawQRCode(u16 x, u16 y, u16 xWidth, u16 yWidth)
@@ -145,8 +207,7 @@ void loadTextPalette()
 
 void loadMainBGwGilPalette()
 {
-	Hw32xSetPalette(bg_Palette);
-	Hw32xSetPalette(sd_palette);
+	Hw32xSetPalette(gillian_menu_palette);
 }
 
 void cleanup()

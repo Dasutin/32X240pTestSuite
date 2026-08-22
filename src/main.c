@@ -29,6 +29,7 @@
 #include "patterns.h"
 #include "tests.h"
 #include "help.h"
+#include "segacd.h"
 
 // canvas_width + scrollwidth
 uint32_t canvas_pitch = 320;
@@ -950,12 +951,13 @@ void menu_ht()
 		pos = 72;
 		drawTextwHighlight("Controller Test", 40, pos += 8, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		drawTextwHighlight("SDRAM Check", 40, pos += 8, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("Memory Viewer", 40, pos += 8, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("BIOS Info", 40, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Sega CD Tests", 40, pos += 8, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Memory Viewer", 40, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("BIOS Info", 40, pos += 8, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		pos += 8;
 		pos += 8;
-		drawTextwHighlight("Help", 40, pos += 8, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("Back to Main Menu", 40, pos += 8, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Help", 40, pos += 8, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Back to Main Menu", 40, pos += 8, curse == 7 ? fontColorRed : fontColorWhite, curse == 7 ? fontColorRedHighlight : fontColorWhiteHighlight);
 
 		drawResolution();
 
@@ -970,7 +972,7 @@ void menu_ht()
 		if (pressedButton & SEGA_CTRL_DOWN)
 		{
 			curse++;
-			if (curse > 6)
+			if (curse > 7)
 				curse = 1;
 		}
 
@@ -978,7 +980,7 @@ void menu_ht()
 		{
 			curse--;
 			if (curse < 1)
-				curse = 6;
+				curse = 7;
 		}
 
 		if (pressedButton & SEGA_CTRL_B)
@@ -1030,15 +1032,14 @@ void menu_ht()
 
 				case 3:
 					screenFadeOut(1);
-					ht_memory_viewer(0);
-					HwMdClearScreen();
+					menu_segacd();
 					marsVDP256Start();
 					redrawBGwGil();
 					break;
 
 				case 4:
 					screenFadeOut(1);
-					ht_check_32x_bios_crc(0);
+					ht_memory_viewer(0);
 					HwMdClearScreen();
 					marsVDP256Start();
 					redrawBGwGil();
@@ -1046,11 +1047,19 @@ void menu_ht()
 
 				case 5:
 					screenFadeOut(1);
-					DrawHelp(HELP_GENERAL);
+					ht_check_32x_bios_crc(0);
+					HwMdClearScreen();
+					marsVDP256Start();
 					redrawBGwGil();
 					break;
 
 				case 6:
+					screenFadeOut(1);
+					DrawHelp(HELP_GENERAL);
+					redrawBGwGil();
+					break;
+
+				case 7:
 					screenFadeOut(1);
 					done = 1;
 					break;

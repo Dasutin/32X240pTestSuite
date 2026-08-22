@@ -52,6 +52,8 @@ extern unsigned short int currentFB;
 extern void drawMainBG(void);
 extern void drawBGwGil(void);
 extern void redrawBGwGil(void);
+extern void updateGillianBlink(void);
+extern void drawGillian(s16 x, s16 y);
 extern void drawQRCode(u16 x, u16 y, u16 xWidth, u16 yWidth);
 extern void loadTextPalette(void);
 extern void drawResolution(void);

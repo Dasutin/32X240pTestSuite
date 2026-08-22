@@ -27,6 +27,7 @@ extern void do_main(void);
 uint16_t InitCD(void)
 {
     char *bios;
+    int timeout = 0;
 
     /*
      * Check for CD BIOS
@@ -99,7 +100,6 @@ uint16_t InitCD(void)
      */
     while (read_byte(0xA1200F) != 'I')
     {
-        static int timeout = 0;
         timeout++;
         if (timeout > 2000000)
         {

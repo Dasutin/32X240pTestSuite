@@ -34,6 +34,7 @@ SPInit:
 # Sub-CPU Program Main Entry Point (VBlank now enabled)
 
 SPMain:
+        bsr     InitPCM
         move.w  #0x0081,d0              /* CDBSTAT */
         jsr     0x5F22.w                /* Call CDBIOS function */
         move.w  0(a0),d0                /* BIOS status word */
@@ -70,12 +71,26 @@ WaitCmd:
         beq     PauseResume
         cmpi.b  #'C,0x800E.w
         beq     CheckDisc
+        cmpi.b  #'O,0x800E.w
+        beq     OpenTray
+        cmpi.b  #'F,0x800E.w
+        beq     FillPCMRAM
+        cmpi.b  #'M,0x800E.w
+        beq     CheckPCMRAM
+        cmpi.b  #'A,0x800E.w
+        beq     ControlPCM
+        cmpi.b  #'R,0x800E.w
+        beq     ReadSectors
+        cmpi.b  #'W,0x800E.w
+        beq     FillWordRAM
+        cmpi.b  #'Q,0x800E.w
+        beq     PingSubCPU
         move.b  #'E,0x800F.w            /* Sub COMM Port = ERROR */
 WaitAck:
         tst.b   0x800E.w
         bne.b   WaitAck                 /* Wait for result acknowledged */
         move.b  #0,0x800F.w             /* Sub COMM Port = READY */
-        bra.b   WaitCmd
+        bra     WaitCmd
 
 GetDiscInfo:
         move.w  #0x0081,d0              /* CDBSTAT */
@@ -160,6 +175,322 @@ CheckDisc:
         move.b  #'D,0x800F.w            /* Sub COMM Port = DONE */
         bra     WaitAck
 
+OpenTray:
+        move.w  #0x000A,d0              /* DRVOPEN - open loading tray */
+        jsr     0x5F22.w                /* Call CDBIOS function */
+
+        move.b  #'D,0x800F.w            /* Sub COMM Port = DONE */
+        bra     WaitAck
+
+# RF5C164 register addresses in Sub-CPU space
+ENVdat  = 0xFF0001
+PANdat  = 0xFF0003
+FDLdat  = 0xFF0005
+FDHdat  = 0xFF0007
+LSLdat  = 0xFF0009
+LSHdat  = 0xFF000B
+STdat   = 0xFF000D
+CTRLdat = 0xFF000F
+ONOFFdat = 0xFF0011
+WAVEdat = 0xFF2001
+
+PCMWait:
+        nop
+        nop
+        nop
+        nop
+        nop
+        rts
+
+InitPCM:
+        move.b  #0xFF,ONOFFdat
+        bsr     PCMWait
+        move.b  #0x80,CTRLdat             /* Write bank 0 */
+        bsr     PCMWait
+        lea     pcm_sample(pc),a1
+        movea.l #WAVEdat,a0
+        move.w  #4094,d0
+        moveq   #0,d1
+1:
+        move.b  0(a1,d1.w),(a0)
+        addq.l  #2,a0
+        addq.w  #1,d1
+        andi.w  #31,d1
+        dbra    d0,1b
+        move.b  #0xFF,(a0)                 /* Loop marker */
+
+        move.b  #0xC0,CTRLdat              /* Enable PCM, channel 1 */
+        bsr     PCMWait
+        move.b  #0xFF,PANdat
+        bsr     PCMWait
+        move.b  #0x00,ENVdat
+        bsr     PCMWait
+        move.b  #0x00,STdat
+        bsr     PCMWait
+        move.b  #0x00,LSHdat
+        bsr     PCMWait
+        move.b  #0x00,LSLdat
+        bsr     PCMWait
+        move.b  #0x08,FDHdat
+        bsr     PCMWait
+        move.b  #0x00,FDLdat
+        bsr     PCMWait
+        rts
+
+ControlPCM:
+        move.w  0x8010.w,d0
+        tst.w   d0
+        beq     StopPCM
+        cmpi.w  #1,d0
+        bne.b   1f
+        move.b  #0x0F,PANdat               /* Left */
+        bra.b   3f
+1:
+        cmpi.w  #3,d0
+        bne.b   2f
+        move.b  #0xF0,PANdat               /* Right */
+        bra.b   3f
+2:
+        move.b  #0xFF,PANdat               /* Center */
+3:
+        bsr     PCMWait
+        move.b  #0x08,FDHdat
+        bsr     PCMWait
+        move.b  #0x00,FDLdat
+        bsr     PCMWait
+        move.b  #0xFF,ENVdat
+        bsr     PCMWait
+        move.b  #0x00,STdat
+        bsr     PCMWait
+        move.b  #0xFE,ONOFFdat
+        bsr     PCMWait
+        clr.l   0x8020.w
+        clr.w   0x8024.w
+        move.b  #'D,0x800F.w
+        bra     WaitAck
+
+StopPCM:
+        move.b  #0xFF,ONOFFdat
+        bsr     PCMWait
+        move.b  #0x00,ENVdat
+        bsr     PCMWait
+        clr.l   0x8020.w
+        clr.w   0x8024.w
+        move.b  #'D,0x800F.w
+        bra     WaitAck
+
+FillPCMRAM:
+        move.b  #0xFF,ONOFFdat
+        bsr     PCMWait
+        move.b  0x8011.w,d4                /* Test value */
+        move.w  0x8012.w,d6                /* Bank, or 0xFF for all */
+        cmpi.w  #0x00FF,d6
+        beq.b   1f
+        move.w  d6,d5
+        bra.b   2f
+1:
+        moveq   #0,d5
+2:
+        move.b  d5,d0
+        ori.b   #0x80,d0
+        move.b  d0,CTRLdat
+        bsr     PCMWait
+        movea.l #WAVEdat,a0
+        move.w  #4095,d1
+3:
+        move.b  d4,(a0)
+        addq.l  #2,a0
+        dbra    d1,3b
+
+        cmpi.w  #0x00FF,d6
+        bne.b   PCMFillDone
+        addq.w  #1,d5
+        cmpi.w  #16,d5
+        bne.b   2b
+
+PCMFillDone:
+        clr.l   0x8020.w
+        clr.w   0x8024.w
+        move.b  #'D,0x800F.w
+        bra     WaitAck
+
+CheckPCMRAM:
+        move.b  #0xFF,ONOFFdat
+        bsr     PCMWait
+        move.b  0x8011.w,d4                /* Test value */
+        move.w  0x8012.w,d6                /* Bank, or 0xFF for all */
+        cmpi.w  #0x00FF,d6
+        beq.b   4f
+        move.w  d6,d5
+        bra.b   5f
+4:
+        moveq   #0,d5
+5:
+        move.b  d5,d0
+        ori.b   #0x80,d0
+        move.b  d0,CTRLdat
+        bsr     PCMWait
+
+        movea.l #WAVEdat,a0
+        move.w  #4095,d1
+        moveq   #0,d2
+6:
+        move.b  (a0),d3
+        cmp.b   d4,d3
+        bne.b   PCMFail
+        addq.l  #2,a0
+        addq.w  #1,d2
+        dbra    d1,6b
+
+        cmpi.w  #0x00FF,d6
+        bne.b   PCMCompareDone
+        addq.w  #1,d5
+        cmpi.w  #16,d5
+        bne.b   5b
+
+PCMCompareDone:
+        bsr     InitPCM
+        clr.l   0x8020.w
+        clr.w   0x8024.w
+        move.b  #'D,0x800F.w
+        bra     WaitAck
+
+PCMFail:
+        move.w  d5,0x8020.w                /* Failed bank */
+        move.w  d2,0x8022.w                /* Failed offset */
+        moveq   #0,d0
+        move.b  d3,d0
+        move.w  d0,0x8024.w                /* Read value */
+        bsr     InitPCM
+        move.b  #'E,0x800F.w
+        bra     WaitAck
+
+# Read one or more Mode 1 sectors into 2M Word RAM and calculate a CRC32.
+ReadSectors:
+        bclr    #0,0x8003.w                 /* Sub-CPU owns Word RAM */
+        moveq   #0,d0
+        move.w  0x8010.w,d0                /* Starting LBA */
+        moveq   #0,d1
+        move.w  0x8012.w,d1                /* Sector count */
+        beq     SectorReadFail
+        lea     bios_packet(pc),a5
+        move.l  d0,(a5)
+        move.l  d1,4(a5)
+        move.l  #0x00080000,8(a5)
+        movea.l a5,a0
+        move.w  #0x0089,d0                 /* CDCSTOP */
+        jsr     0x5F22.w
+        moveq   #0,d1                      /* Mode 1, 2048-byte sectors */
+        move.w  #0x0096,d0                 /* CDCSETMODE */
+        jsr     0x5F22.w
+        andi.w  #0xF8FF,0x8004.w
+        ori.w   #0x0300,0x8004.w            /* CDC destination: Sub-CPU read */
+        movea.l a5,a0
+        move.w  #0x0020,d0                 /* ROMREADN */
+        jsr     0x5F22.w
+
+SectorWaitStat:
+        move.l  #0x00200000,d7
+1:
+        move.w  #0x008A,d0                 /* CDCSTAT */
+        jsr     0x5F22.w
+        bcc.b   2f
+        subq.l  #1,d7
+        bne.b   1b
+        bra     SectorReadFail
+2:
+        move.l  #0x00200000,d7
+3:
+        move.w  #0x008B,d0                 /* CDCREAD */
+        jsr     0x5F22.w
+        bcc.b   4f
+        subq.l  #1,d7
+        bne.b   3b
+        bra     SectorReadFail
+4:
+        movea.l 8(a5),a0
+        lea     12(a5),a1
+        move.l  #0x00200000,d7
+5:
+        move.w  #0x008C,d0                 /* CDCTRN */
+        jsr     0x5F22.w
+        bcc.b   6f
+        subq.l  #1,d7
+        bne.b   5b
+        bra     SectorReadFail
+6:
+        move.w  #0x008D,d0                 /* CDCACK */
+        jsr     0x5F22.w
+        addq.l  #1,(a5)
+        addi.l  #0x0800,8(a5)
+        subq.l  #1,4(a5)
+        bne     SectorWaitStat
+
+        moveq   #0,d1
+        move.w  0x8012.w,d1
+        lsl.l   #8,d1
+        lsl.l   #3,d1                      /* Sectors * 2048 */
+        movea.l #0x00080000,a0
+        bsr     CRC32
+        move.l  d0,0x8020.w
+        move.w  0x8012.w,0x8024.w
+        bset    #0,0x8003.w                 /* Give Word RAM to Main CPU */
+        move.b  #'D,0x800F.w
+        bra     WaitAck
+
+SectorReadFail:
+        move.w  #1,0x8024.w
+        bset    #0,0x8003.w
+        move.b  #'E,0x800F.w
+        bra     WaitAck
+
+# d1.l bytes at a0, result in d0.l
+CRC32:
+        move.l  #0xFFFFFFFF,d0
+        tst.l   d1
+        beq.b   4f
+1:
+        moveq   #0,d2
+        move.b  (a0)+,d2
+        eor.l   d2,d0
+        moveq   #7,d3
+2:
+        lsr.l   #1,d0
+        bcc.b   3f
+        eori.l  #0xEDB88320,d0
+3:
+        dbra    d3,2b
+        subq.l  #1,d1
+        bne.b   1b
+4:
+        not.l   d0
+        rts
+
+FillWordRAM:
+        bclr    #0,0x8003.w
+        move.w  0x8010.w,d4
+        movea.l #0x00080000,a0
+        move.w  #4095,d0
+        moveq   #0,d1
+1:
+        move.w  d4,d2
+        eor.w   d1,d2
+        move.w  d2,(a0)+
+        addq.w  #1,d1
+        dbra    d0,1b
+        bset    #0,0x8003.w
+        clr.l   0x8020.w
+        clr.w   0x8024.w
+        move.b  #'D,0x800F.w
+        bra     WaitAck
+
+PingSubCPU:
+        move.w  0x8010.w,0x8020.w
+        move.w  #0xE715,0x8022.w
+        clr.w   0x8024.w
+        move.b  #'D,0x800F.w
+        bra     WaitAck
+
 
 | Sub-CPU Program VBlank (INT02) Service Handler
 
@@ -180,6 +511,17 @@ drive_init_parms:
 
 track_number:
         .word   0
+
+        .align  2
+pcm_sample:
+        .byte   0x80,0x98,0xB0,0xC6,0xD9,0xE9,0xF4,0xFC
+        .byte   0xFE,0xFC,0xF4,0xE9,0xD9,0xC6,0xB0,0x98
+        .byte   0x80,0x18,0x30,0x46,0x59,0x69,0x74,0x7C
+        .byte   0x7E,0x7C,0x74,0x69,0x59,0x46,0x30,0x18
+
+        .align  2
+bios_packet:
+        .long   0,0,0,0,0
 
 
         .global Sub_End
