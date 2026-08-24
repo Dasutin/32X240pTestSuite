@@ -396,9 +396,6 @@ void screenFadeOut(int fadeSpeed)
 
 		Hw32xDelay(frameDelay);
 
-		currentFB ^= 1;
-		MARS_VDP_FBCTL = currentFB;
-
 		len--;
 	}
 	Hw32xScreenClear();

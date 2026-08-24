@@ -34,6 +34,7 @@
 #include "gillian_menu_palette.h"
 #include "qrcode_tiles.h"
 #include "perf.h"
+#include "tests.h"
 
 u8 paused = PAUSED;
 u8 segaCDDetectedAtBoot = 0;
@@ -410,9 +411,39 @@ void marsVDP32KStart(void)
 
 void swapBuffers()
 {
-	MARS_VDP_FBCTL = currentFB ^ 1;
-	while ((MARS_VDP_FBCTL & MARS_VDP_FS) == currentFB) {}
-	currentFB ^= 1;
+	MARS_VDP_FBCTL = UNCACHED_CURRENT_FB ^ 1;
+	while ((MARS_VDP_FBCTL & MARS_VDP_FS) == UNCACHED_CURRENT_FB) {}
+	UNCACHED_CURRENT_FB ^= 1;
+}
+
+int optionsShortcutPressed(u16 button, u16 pressedButton)
+{
+	u16 controllerType = button & SEGA_CTRL_TYPE;
+
+	return
+		(controllerType == SEGA_CTRL_SIX &&
+			(pressedButton & SEGA_CTRL_Y)) ||
+		(controllerType != SEGA_CTRL_SIX &&
+			(button & (SEGA_CTRL_UP | SEGA_CTRL_START)) ==
+				(SEGA_CTRL_UP | SEGA_CTRL_START));
+}
+
+int openOptionsShortcut(u16 *button, u16 *pressedButton)
+{
+	if (!optionsShortcutPressed(*button, *pressedButton))
+		return 0;
+
+	*button = 0;
+	*pressedButton = 0;
+	screenFadeOut(1);
+	canvas_pitch = 320;
+	canvas_yaw = 224;
+	window_canvas_x = 0;
+	window_canvas_y = 0;
+	draw_setScissor(0, 0, 320, 224);
+	marsVDP256Start();
+	controller_options_menu();
+	return 1;
 }
 
 /*

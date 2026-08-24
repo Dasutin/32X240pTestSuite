@@ -2993,6 +2993,13 @@ void menu_segacd32x(void)
 		button = scd_pad();
 		pressed = button & ~old;
 		old = button;
+		if (openOptionsShortcut(&button, &pressed))
+		{
+			perf_set_scene(PERF_SCENE_MENU);
+			initMainBGwGil();
+			Hw32xScreenFlip(0);
+			old = scd_pad();
+		}
 		if (pressed & SEGA_CTRL_DOWN) selection = selection == 9 ? 0 : selection + 1;
 		if (pressed & SEGA_CTRL_UP) selection = selection ? selection - 1 : 9;
 		if (pressed & (SEGA_CTRL_B | SEGA_CTRL_START)) done = 1;
@@ -3073,6 +3080,12 @@ void menu_segacd(void)
 		button = scd_pad();
 		pressed = button & ~old;
 		old = button;
+		if (openOptionsShortcut(&button, &pressed))
+		{
+			initMainBGwGil();
+			Hw32xScreenFlip(0);
+			old = scd_pad();
+		}
 		if (pressed & SEGA_CTRL_DOWN) selection = selection == 11 ? 0 : selection + 1;
 		if (pressed & SEGA_CTRL_UP) selection = selection ? selection - 1 : 11;
 		if (pressed & (SEGA_CTRL_B | SEGA_CTRL_START)) done = 1;

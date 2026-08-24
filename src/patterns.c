@@ -111,6 +111,16 @@ void tp_pluge()
 		pressedButton = button & ~oldButton;
 		oldButton = button;
 
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			init_tilemap(&tm, &pluge_map_Map,
+				(const uint8_t * const *)pluge_Reslist);
+			set_pattern_palette_with_text(IsNTSC ?
+				plugentsc_Palette : plugergb_Palette);
+			canvas_rebuild_id++;
+			draw = 1;
+		}
+
 		if (draw)
 		{
 			if (!IsNTSC)
@@ -200,6 +210,8 @@ void tp_colorchart()
 
 	while (!done)
 	{
+		Hw32xFlipWait();
+
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
@@ -207,6 +219,14 @@ void tp_colorchart()
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
+
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			Hw32xSetPalette(colorbars_Palette);
+			init_tilemap(&tm, &colorbars_Map,
+				(const uint8_t * const *)colorbars_Reslist);
+			canvas_rebuild_id++;
+		}
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
 		{
@@ -226,8 +246,6 @@ void tp_colorchart()
 			init_tilemap(&tm, &colorbars_Map, (const uint8_t * const *)colorbars_Reslist);
 			canvas_rebuild_id++;
 		}
-
-		Hw32xFlipWait();
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
@@ -264,6 +282,16 @@ void tp_colorbars()
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
+
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			set_pattern_palette_with_text(Is75 ?
+				ebu75_Palette : ebu_Palette);
+			init_tilemap(&tm, &ebu_map_Map,
+				(const uint8_t * const *)ebu_Reslist);
+			canvas_rebuild_id++;
+			draw = 1;
+		}
 
 		if (draw)
 		{
@@ -363,6 +391,16 @@ void tp_smpte_color_bars()
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
+
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			set_pattern_palette_with_text(Is75 ?
+				smpte75_Palette : smpte100_Palette);
+			init_tilemap(&tm, &smpte_map_Map,
+				(const uint8_t * const *)smpte_Reslist);
+			canvas_rebuild_id++;
+			draw = 1;
+		}
 
 		if (draw)
 		{
@@ -467,6 +505,14 @@ void tp_ref_color_bars()
 		pressedButton = button & ~oldButton;
 		oldButton = button;
 
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			Hw32xSetPalette(colorref_Palette);
+			init_tilemap(&tm, &colorref_map_Map,
+				(const uint8_t * const *)colorref_Reslist);
+			canvas_rebuild_id++;
+		}
+
 		if (pressedButton & SEGA_CTRL_START)
 		{
 			screenFadeOut(1);
@@ -480,6 +526,8 @@ void tp_ref_color_bars()
 			{
 				DrawHelp(HELP_601CB);
 				Hw32xSetPalette(colorref_Palette);
+				init_tilemap(&tm, &colorref_map_Map, (const uint8_t * const *)colorref_Reslist);
+				canvas_rebuild_id++;
 			}
 		}
 
@@ -487,6 +535,8 @@ void tp_ref_color_bars()
 		{
 			DrawHelp(HELP_601CB);
 			Hw32xSetPalette(colorref_Palette);
+			init_tilemap(&tm, &colorref_map_Map, (const uint8_t * const *)colorref_Reslist);
+			canvas_rebuild_id++;
 		}
 
 		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
@@ -518,6 +568,18 @@ void tp_color_bleed_check()
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
+
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			Hw32xSetPalette(colorbleedstripe_Palette);
+			if (pattern == 1)
+				init_tilemap(&tm, &colorbleedstripe_map_Map,
+					(const uint8_t * const *)colorbleedstripe_Reslist);
+			else
+				init_tilemap(&tm, &colorbleedcheck_map_Map,
+					(const uint8_t * const *)colorbleedcheck_Reslist);
+			canvas_rebuild_id++;
+		}
 
 		if (pressedButton & SEGA_CTRL_A)
 		{
@@ -592,6 +654,16 @@ void tp_grid()
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
+
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			init_tilemap(&tm, &grid_map_Map,
+				(const uint8_t * const *)grid_Reslist);
+			Hw32xSetPalette(grid_Palette);
+			setColor(0, pattern == 1 ? 0 : 12,
+				pattern == 1 ? 0 : 12, pattern == 1 ? 0 : 12);
+			canvas_rebuild_id++;
+		}
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
@@ -673,6 +745,16 @@ void tp_monoscope()
 		pressedButton = button & ~oldButton;
 		oldButton = button;
 
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			Hw32xSetPalette(monoscope_Palette);
+			init_tilemap(&tm, &monoscope_map_Map,
+				(const uint8_t * const *)monoscope_Reslist);
+			setColor(0, gray ? 12 : 0, gray ? 12 : 0, gray ? 12 : 0);
+			canvas_rebuild_id++;
+			palette_colors_pending = 1;
+		}
+
 		if (pressedButton & SEGA_CTRL_A)
 		{
 			pattern++;
@@ -747,6 +829,14 @@ void tp_gray_ramp()
 		pressedButton = button & ~oldButton;
 		oldButton = button;
 
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			Hw32xSetPalette(grayramp_Palette);
+			init_tilemap(&tm, &grayramp_map_Map,
+				(const uint8_t * const *)grayramp_Reslist);
+			canvas_rebuild_id++;
+		}
+
 		if (pressedButton & SEGA_CTRL_START)
 		{
 			screenFadeOut(1);
@@ -811,6 +901,20 @@ void tp_white_rgb()
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
+
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			HwMdClearScreen();
+			mdTextVisible = 0;
+			setColor(0, r, g, b);
+			setColor(1, 0, 0, 0);
+			setColor(2, 31, 0, 0);
+			setColor(3, 0, 31, 0);
+			setColor(4, 0, 0, 31);
+			MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X |
+				MARS_224_LINES | MARS_VDP_MODE_256;
+			page_color[0] = page_color[1] = -1;
+		}
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
@@ -993,6 +1097,15 @@ void tp_100_ire()
 		pressedButton = button & ~oldButton;
 		oldButton = button;
 
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			init_tilemap(&tm, &ire_map_Map,
+				(const uint8_t * const *)ire_Reslist);
+			canvas_rebuild_id++;
+			set_pattern_palette_with_text(ire_Palette);
+			draw = 1;
+		}
+
 		if (pressedButton & SEGA_CTRL_A)
 		{
 			if (ire != 0)
@@ -1127,6 +1240,12 @@ void tp_sharpness()
 		pressedButton = button & ~oldButton;
 		oldButton = button;
 
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			sharpness_set_pattern(pattern);
+			canvas_rebuild_id++;
+		}
+
 		if (pressedButton & SEGA_CTRL_A)
 		{
 			pattern++;
@@ -1225,6 +1344,13 @@ void tp_overscan()
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
+
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			setColor(2, 31, 31, 31);
+			setColor(1, 15, 15, 15);
+			loadTextPalette();
+		}
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
 		{
@@ -1400,6 +1526,12 @@ void tp_convergence()
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
+
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			convergence_set_pattern(pattern);
+			canvas_rebuild_id++;
+		}
 
 		if (pressedButton & SEGA_CTRL_A)
 		{

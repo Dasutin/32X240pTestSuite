@@ -70,6 +70,8 @@ extern void initMainBGwGil(void);
 extern void marsVDP256Start(void);
 extern void marsVDP32KStart(void);
 extern void swapBuffers(void);
+extern int optionsShortcutPressed(u16 button, u16 pressedButton);
+extern int openOptionsShortcut(u16 *button, u16 *pressedButton);
 void CRC32_reset();
 void CRC32_update(u8 data);
 u32 CRC32_finalize();

@@ -38,6 +38,13 @@ uint32_t canvas_pitch = 320;
 // canvas_height + scrollheight
 uint32_t canvas_yaw = 224;
 
+static void checkMenuOptionsShortcut(unsigned short *button,
+	unsigned short *pressedButton)
+{
+	if (openOptionsShortcut(button, pressedButton))
+		redrawBGwGil();
+}
+
 int main(void)
 {
 	int curse = 1, pos;
@@ -79,6 +86,8 @@ int main(void)
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
+
+		checkMenuOptionsShortcut(&button, &pressedButton);
 
 		if (pressedButton & SEGA_CTRL_DOWN)
 		{
@@ -184,7 +193,8 @@ void menu_tp()
 		pos += 8;
 		pos += 8;
 		drawTextwHighlight("Help", 40, pos += 8, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("Credits", 40, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Options", 40, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Credits", 40, pos += 8, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorRedHighlight : fontColorWhiteHighlight);
 
 		drawResolution();
 
@@ -195,11 +205,12 @@ void menu_tp()
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
+		checkMenuOptionsShortcut(&button, &pressedButton);
 
 		if (pressedButton & SEGA_CTRL_DOWN)
 		{
 			curse++;
-			if (curse > 4)
+			if (curse > 5)
 				curse = 1;
 		}
 
@@ -207,7 +218,7 @@ void menu_tp()
 		{
 			curse--;
 			if (curse < 1)
-				curse = 4;
+				curse = 5;
 		}
 
 		if (pressedButton & SEGA_CTRL_B)
@@ -263,6 +274,12 @@ void menu_tp()
 
 				case 4:
 					screenFadeOut(1);
+					controller_options_menu();
+					redrawBGwGil();
+					break;
+
+				case 5:
+					screenFadeOut(1);
 					credits();
 					redrawBGwGil();
 					break;
@@ -311,6 +328,7 @@ void menu_color_black_levels()
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
+		checkMenuOptionsShortcut(&button, &pressedButton);
 
 		if (pressedButton & SEGA_CTRL_DOWN)
 		{
@@ -492,6 +510,7 @@ void menu_geo()
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
+		checkMenuOptionsShortcut(&button, &pressedButton);
 
 		if (pressedButton & SEGA_CTRL_DOWN)
 		{
@@ -623,7 +642,8 @@ void menu_vt()
 		drawTextwHighlight("Layers Test", 40, pos += 8, curse == 12 ? fontColorRed : fontColorWhite, curse == 12 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		pos += 8;
 		drawTextwHighlight("Help", 40, pos += 8, curse == 13 ? fontColorRed : fontColorWhite, curse == 13 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("Back to Main Menu", 40, pos += 8, curse == 14 ? fontColorRed : fontColorWhite, curse == 14 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Options", 40, pos += 8, curse == 14 ? fontColorRed : fontColorWhite, curse == 14 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Back to Main Menu", 40, pos += 8, curse == 15 ? fontColorRed : fontColorWhite, curse == 15 ? fontColorRedHighlight : fontColorWhiteHighlight);
 
 		drawResolution();
 
@@ -634,11 +654,12 @@ void menu_vt()
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
+		checkMenuOptionsShortcut(&button, &pressedButton);
 
 		if (pressedButton & SEGA_CTRL_DOWN)
 		{
 			curse++;
-			if (curse > 14)
+			if (curse > 15)
 				curse = 1;
 		}
 
@@ -646,7 +667,7 @@ void menu_vt()
 		{
 			curse--;
 			if (curse < 1)
-				curse = 14;
+				curse = 15;
 		}
 
 		if (pressedButton & SEGA_CTRL_B)
@@ -805,6 +826,12 @@ void menu_vt()
 
 				case 14:
 					screenFadeOut(1);
+					controller_options_menu();
+					redrawBGwGil();
+					break;
+
+				case 15:
+					screenFadeOut(1);
 					done = 1;
 					break;
 			}
@@ -844,7 +871,8 @@ void menu_at()
 		pos += 8;
 		pos += 8;
 		drawTextwHighlight("Help", 40, pos += 8, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("Back to Main Menu", 40, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Options", 40, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Back to Main Menu", 40, pos += 8, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorRedHighlight : fontColorWhiteHighlight);
 
 		drawResolution();
 
@@ -855,11 +883,12 @@ void menu_at()
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
+		checkMenuOptionsShortcut(&button, &pressedButton);
 
 		if (pressedButton & SEGA_CTRL_DOWN)
 		{
 			curse++;
-			if (curse > 4)
+			if (curse > 5)
 				curse = 1;
 		}
 
@@ -873,7 +902,7 @@ void menu_at()
 		{
 			curse--;
 			if (curse < 1)
-				curse = 4;
+				curse = 5;
 		}
 
 		if (pressedButton & SEGA_CTRL_START)
@@ -925,6 +954,12 @@ void menu_at()
 
 				case 4:
 					screenFadeOut(1);
+					controller_options_menu();
+					redrawBGwGil();
+					break;
+
+				case 5:
+					screenFadeOut(1);
 					done = 1;
 					break;
 			}
@@ -967,7 +1002,8 @@ void menu_ht()
 		drawTextwHighlight("Sega CD 32X Tests", 40, pos += 8, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		pos += 8;
 		drawTextwHighlight("Help", 40, pos += 8, curse == 7 ? fontColorRed : fontColorWhite, curse == 7 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("Back to Main Menu", 40, pos += 8, curse == 8 ? fontColorRed : fontColorWhite, curse == 8 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Options", 40, pos += 8, curse == 8 ? fontColorRed : fontColorWhite, curse == 8 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Back to Main Menu", 40, pos += 8, curse == 9 ? fontColorRed : fontColorWhite, curse == 9 ? fontColorRedHighlight : fontColorWhiteHighlight);
 
 		drawResolution();
 
@@ -978,11 +1014,12 @@ void menu_ht()
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
+		checkMenuOptionsShortcut(&button, &pressedButton);
 
 		if (pressedButton & SEGA_CTRL_DOWN)
 		{
 			curse++;
-			if (curse > 8)
+			if (curse > 9)
 				curse = 1;
 		}
 
@@ -990,7 +1027,7 @@ void menu_ht()
 		{
 			curse--;
 			if (curse < 1)
-				curse = 8;
+				curse = 9;
 		}
 
 		if (pressedButton & SEGA_CTRL_B)
@@ -1077,6 +1114,12 @@ void menu_ht()
 					break;
 
 				case 8:
+					screenFadeOut(1);
+					controller_options_menu();
+					redrawBGwGil();
+					break;
+
+				case 9:
 					screenFadeOut(1);
 					done = 1;
 					break;

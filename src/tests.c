@@ -292,6 +292,8 @@ void vt_drop_shadow_test()
 
 	while (!done)
 	{
+		Hw32xFlipWait();
+
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
@@ -299,6 +301,19 @@ void vt_drop_shadow_test()
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
+
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			messageFrames = 0;
+			drop_shadow_clear_message();
+			set_md_text_priority(0);
+			canvas_pitch = otherTests ? 320 : 384;
+			canvas_yaw = 224;
+			Hw32xSetPalette(donna_palette);
+			if (background == 4)
+				otherTests = 1;
+			initTilemap = 1;
+		}
 
 		if (!otherTests)
 		{
@@ -411,10 +426,10 @@ void vt_drop_shadow_test()
 				canvas_pitch = 384;
 			Hw32xSetPalette(donna_palette);
 			set_md_text_priority(0);
+			if (background == 4)
+				otherTests = 1;
 			initTilemap = 1;
 		}
-
-		Hw32xFlipWait();
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
@@ -600,6 +615,16 @@ void vt_striped_sprite_test()
 
 		Hw32xFlipWait();
 
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			canvas_pitch = otherTests ? 320 : 384;
+			canvas_yaw = 224;
+			Hw32xSetPalette(donna_palette);
+			if (background == 4)
+				otherTests = 1;
+			initTilemap = 1;
+		}
+
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
 		{
 			if (pressedButton & SEGA_CTRL_C)
@@ -621,6 +646,8 @@ void vt_striped_sprite_test()
 				canvas_pitch = 384;
 
 			Hw32xSetPalette(donna_palette);
+			if (background == 4)
+				otherTests = 1;
 			initTilemap = 1;
 		}
 
@@ -721,6 +748,7 @@ void vt_lag_test()
 	while (!done)
 	{
 		wait_for_video_tick(&lastUpdateTick);
+		Hw32xFlipWait();
 
 		button = MARS_SYS_COMM8;
 
@@ -729,6 +757,18 @@ void vt_lag_test()
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
+
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			canvas_pitch = 320;
+			canvas_yaw = 224;
+			Hw32xSetPalette(lagtest_res_Palette);
+			loadTextPalette();
+			init_tilemap(&tm, &lagtest_Map,
+				(const uint8_t * const *)lagtest_res_Reslist);
+			canvas_rebuild_id++;
+			lastUpdateTick = Hw32xGetTicks();
+		}
 
 		if (framecnt > 8)
 			framecnt = 1;
@@ -815,8 +855,6 @@ void vt_lag_test()
 			frames = hours = minutes = seconds = 0;
 			framecnt = 1;
 		}
-
-		Hw32xFlipWait();
 
 		if (pressedButton & SEGA_CTRL_START)
 			done = 1;
@@ -991,6 +1029,33 @@ void vt_reflex_test()
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
+
+		if (optionsShortcutPressed(button, pressedButton))
+		{
+			HwMdClearScreen();
+			MDPSG_stop();
+		}
+
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			MDPSG_init();
+			HwMdPSGSetFrequency(0, 1000);
+			setColor(1, 0, 0, 0);
+			setColor(2, 31, 31, 31);
+			init_tilemap(&tm, &background_fill_tmx,
+				(const uint8_t * const *)background_fill_reslist);
+			canvas_rebuild_id++;
+			reflex_prepare_md_text();
+			lastUpdateTick = Hw32xGetTicks();
+			loadvram = 1;
+			draw = 1;
+
+			button = MARS_SYS_COMM8;
+			if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
+				button = MARS_SYS_COMM10;
+			oldButton = button;
+			pressedButton = 0;
+		}
 
 		if (pressedButton & SEGA_CTRL_Z)
 		{
@@ -1328,6 +1393,8 @@ void vt_scroll_test()
 
 	while (!done)
 	{
+		Hw32xFlipWait();
+
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
@@ -1335,6 +1402,28 @@ void vt_scroll_test()
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
+
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			if (!vertical)
+			{
+				canvas_pitch = 384;
+				canvas_yaw = 224;
+				Hw32xSetPalette(sonic_tileset_Palette);
+				init_tilemap(&tm, &sonic_tilemap_Map,
+					(const uint8_t * const *)sonic_tileset_Reslist);
+			}
+			else
+			{
+				canvas_pitch = 320;
+				canvas_yaw = 256;
+				Hw32xSetPalette(kiki_tiles_Palette);
+				init_tilemap(&tm, &kiki_Map,
+					(const uint8_t * const *)kiki_tiles_Reslist);
+			}
+			canvas_rebuild_id++;
+			initTilemap = 0;
+		}
 
 		if (!vertical)
 		{
@@ -1422,10 +1511,12 @@ void vt_scroll_test()
 					canvas_pitch = 320;
 					DrawHelp(HELP_HSCROLL);
 					canvas_pitch = 384;
+					initTilemap = 1;
 				} else {
 					canvas_yaw = 224;
 					DrawHelp(HELP_HSCROLL);
 					canvas_yaw = 256;
+					initTilemap = 1;
 				}
 			}
 		}
@@ -1452,8 +1543,6 @@ void vt_scroll_test()
 		} else {
 			if (fpcamera_y < 0) fpcamera_y = kiki_Map.wrapY*(1<<16);
 		}
-
-		Hw32xFlipWait();
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
@@ -1513,6 +1602,7 @@ void vt_gridscroll_test()
 	while (!done)
 	{
 		wait_for_video_tick(&lastUpdateTick);
+		Hw32xFlipWait();
 
 		button = MARS_SYS_COMM8;
 
@@ -1521,6 +1611,17 @@ void vt_gridscroll_test()
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
+
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			canvas_pitch = 384;
+			canvas_yaw = 256;
+			Hw32xSetPalette(grid_palette);
+			init_tilemap(&tm, &grid_tmx,
+				(const uint8_t * const *)grid_reslist);
+			canvas_rebuild_id++;
+			lastUpdateTick = Hw32xGetTicks();
+		}
 
 		if (!horizontal)
 		{
@@ -1595,8 +1696,6 @@ void vt_gridscroll_test()
 			fpcamera_x = grid_tmx.wrapX * (1 << 16);
 		if (fpcamera_y < 0)
 			fpcamera_y = grid_tmx.wrapY * (1 << 16);
-
-		Hw32xFlipWait();
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
@@ -1717,6 +1816,19 @@ void vt_stripes()
 		pressedButton = button & ~oldButton;
 		oldButton = button;
 
+		if (optionsShortcutPressed(button, pressedButton))
+			pattern_counter_set_visible(0);
+
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			canvas_pitch = 320;
+			canvas_yaw = 224;
+			Hw32xSetPalette(horiz_Palette);
+			stripes_set_orientation(vertical);
+			pattern_counter_prepare();
+			pattern_counter_set_visible(docounter);
+		}
+
 		if ((((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE) &&
 			(pressedButton & SEGA_CTRL_C)) || (pressedButton & SEGA_CTRL_Z))
 		{
@@ -1831,6 +1943,19 @@ void vt_checkerboard()
 		pressedButton = button & ~oldButton;
 		oldButton = button;
 
+		if (optionsShortcutPressed(button, pressedButton))
+			pattern_counter_set_visible(0);
+
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			canvas_pitch = 320;
+			canvas_yaw = 224;
+			Hw32xSetPalette(check_Palette);
+			checkerboard_init_pattern();
+			pattern_counter_prepare();
+			pattern_counter_set_visible(docounter);
+		}
+
 		if ((((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE) &&
 			(pressedButton & SEGA_CTRL_C)) || (pressedButton & SEGA_CTRL_Z))
 		{
@@ -1929,6 +2054,15 @@ void vt_phase_check(void)
 		pressedButton = button & ~oldButton;
 		oldButton = button;
 
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			canvas_pitch = 320;
+			canvas_yaw = 224;
+			window_canvas_x = 0;
+			window_canvas_y = 0;
+			phase_init_background(checkerboard);
+		}
+
 		if ((((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE) &&
 			(pressedButton & SEGA_CTRL_C)) || (pressedButton & SEGA_CTRL_Z))
 		{
@@ -1995,6 +2129,8 @@ void vt_backlitzone_test()
 
 	while (!done)
 	{
+		Hw32xFlipWait();
+
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
@@ -2002,6 +2138,14 @@ void vt_backlitzone_test()
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
+
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			Hw32xSetPalette(background_fill_palette);
+			init_tilemap(&tm, &background_fill_tmx,
+				(const uint8_t * const *)background_fill_reslist);
+			canvas_rebuild_id++;
+		}
 
 		if (pressedButton & SEGA_CTRL_A)
 		{
@@ -2057,8 +2201,6 @@ void vt_backlitzone_test()
 			if (x > 320)
 				x = 320;
 		}
-
-		Hw32xFlipWait();
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
@@ -2125,6 +2267,8 @@ void vt_DisappearingLogo()
 
 	while (!done)
 	{
+		Hw32xFlipWait();
+
 		button = MARS_SYS_COMM8;
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
@@ -2132,6 +2276,15 @@ void vt_DisappearingLogo()
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
+
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			Hw32xSetPalette(sd_palette_original);
+			init_tilemap(&tm, &background_fill_tmx,
+				(const uint8_t * const *)background_fill_reslist);
+			canvas_rebuild_id++;
+			logo_page_state[0] = logo_page_state[1] = 2;
+		}
 
 		if (pressedButton & SEGA_CTRL_Z)
 		{
@@ -2165,7 +2318,6 @@ void vt_DisappearingLogo()
 			}
 		}
 
-		Hw32xFlipWait();
 		draw_page = ((*(volatile u16 *)((uintptr_t)&currentFB |
 			0x20000000u)) ^ 1) & 1;
 		if (!draw && logo_page_state[draw_page] == 1)
@@ -2384,6 +2536,21 @@ void vt_layers_test(void)
 		pressedButton = button & ~oldButton;
 		oldButton = button;
 
+		if (optionsShortcutPressed(button, pressedButton))
+			HwMdClearPlanes();
+
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			layers_setup_video(show_32x, md_layer_state);
+			HwMdSetPlaneScrolls(front_x, -front_y, rear_x, -rear_y);
+
+			button = MARS_SYS_COMM8;
+			if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
+				button = MARS_SYS_COMM10;
+			oldButton = button;
+			pressedButton = 0;
+		}
+
 		if (pressedButton & SEGA_CTRL_START)
 		{
 			HwMdClearPlanes();
@@ -2543,6 +2710,9 @@ void at_sound_test()
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
+
+		if (openOptionsShortcut(&button, &pressedButton))
+			initMainBG();
 
 		if (pressedButton & SEGA_CTRL_RIGHT)
 		{
@@ -2808,6 +2978,40 @@ void at_audiosync_test()
 		pressedButton = button & ~oldButton;
 		oldButton = button;
 
+		if (optionsShortcutPressed(button, pressedButton))
+			MDPSG_stop();
+
+		if (openOptionsShortcut(&button, &pressedButton))
+		{
+			canvas_pitch = 336;
+			canvas_yaw = 224;
+			window_canvas_x = 8;
+			window_canvas_y = 0;
+			draw_setScissor(0, 0, 320, 224);
+			marsVDP256Start();
+			MDPSG_init();
+			HwMdPSGSetFrequency(0, 1000);
+
+			Hw32xSetBGColor(0, status == syncEnd ? 31 : 0,
+				status == syncEnd ? 31 : 0, status == syncEnd ? 31 : 0);
+			setColor(1, 31, 31, 31);
+			setColor(2, status >= sync40 ? 31 : 0,
+				status >= sync40 ? 31 : 0, status >= sync40 ? 31 : 0);
+			setColor(3, status >= sync60 ? 31 : 0,
+				status >= sync60 ? 31 : 0, status >= sync60 ? 31 : 0);
+			setColor(4, status >= sync80 ? 31 : 0,
+				status >= sync80 ? 31 : 0, status >= sync80 ? 31 : 0);
+			setColor(5, status >= sync100 ? 31 : 0,
+				status >= sync100 ? 31 : 0, status >= sync100 ? 31 : 0);
+
+			if (status == syncEnd)
+				HwMdPSGSetChandVol(0, 0);
+
+			audiosync_init_pages();
+			marker_y[0] = marker_y[1] = -1;
+			lastUpdateTick = Hw32xGetTicks();
+		}
+
 		if ((((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE) && (pressedButton & SEGA_CTRL_C)) ||
 			(pressedButton & SEGA_CTRL_Z))
 		{
@@ -2990,7 +3194,7 @@ void controller_options_menu(void)
 		}
 
 		if ((pressedButton & SEGA_CTRL_A && selection == 2) ||
-			(pressedButton & (SEGA_CTRL_B | SEGA_CTRL_START)))
+			(pressedButton & (SEGA_CTRL_B | SEGA_CTRL_START | SEGA_CTRL_Y)))
 			done = 1;
 
 		if (!done)

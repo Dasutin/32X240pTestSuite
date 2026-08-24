@@ -317,6 +317,8 @@ void Hw32xInit(int vmode, int lineskip)
 	// Wait for the SH2 to gain access to the VDP
 	while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
 
+	UNCACHED_CURFB = MARS_VDP_FBCTL & MARS_VDP_FS;
+
 	vmode &= ~(MARS_VDP_PRIO_32X | MARS_VDP_PRIO_68K);
 	if (vmode == MARS_VDP_MODE_256)
 	{
@@ -441,6 +443,9 @@ void Hw32xScreenClear()
 	int i;
 	int l = (init == MARS_VDP_MODE_256) ? canvas_pitch *224/2 + 0x100 : canvas_pitch * 200 + 0x100;
 	volatile unsigned short *frameBuffer16 = &MARS_FRAMEBUFFER;
+
+	// A caller may have requested an asynchronous flip since the last wait.
+	UNCACHED_CURFB = MARS_VDP_FBCTL & MARS_VDP_FS;
 
 	// Clear screen
 	for (i = 0x100; i < l; i++)
