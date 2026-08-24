@@ -2645,12 +2645,11 @@ void at_sound_test()
 	int done = 0, selection = 1, type = SOUND_TEST_PWM;
 	int octave = 24, fmPan = 1, fmChannel = 3;
 	int pwmPlaying = 0, pwmSelection = -1;
+	int initializePwm = 1;
 	u16 psgoff = 0;
 	u16 toneFrames = scale_ntsc_frames(120);
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	int i;
-
-	Mars_InitSoundDMA();
 
 	MDPSG_init();
 	HwMdSegaCDCommand(SCD_OP_YM_TEST, SCD_YM_TEST_INIT);
@@ -2850,6 +2849,12 @@ void at_sound_test()
 		}
 
 		Hw32xScreenFlip(0);
+
+		if (initializePwm)
+		{
+			Mars_InitSoundDMA();
+			initializePwm = 0;
+		}
 
 		if (psgoff)
 		{

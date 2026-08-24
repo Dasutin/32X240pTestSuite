@@ -36,6 +36,7 @@ int sysarg_args_vol = 0;
 #define SND_BUFFER_COUNT 2
 #define SND_BUFFER_STRIDE (MIXSAMPLES * 2)
 #define SND_DMA_TRANSFER_COUNT (SND_BUFFER_STRIDE / 2)
+#define PWM_STARTUP_RAMP_SAMPLES (SAMPLE_RATE / 4)
 #define MARS_SYS_INTMSK_BYTE (*(volatile uint8_t *)0x20004001u)
 
 // Two buffers of MIXSAMPLES 32-bit stereo PWM samples
@@ -169,6 +170,13 @@ void sec_dma1_handler(void)
 void Mars_Sec_InitSoundDMA(void)
 {
 	uint16_t sample, ix;
+	uint16_t rampSamplesPerStep;
+
+	if (snd_init) {
+		if (snd_stopmix)
+			Mars_Sec_StartSoundMixer();
+		return;
+	}
 
 	// Init DMA
 	SH2_DMA_SAR0 = 0;
@@ -203,11 +211,15 @@ void Mars_Sec_InitSoundDMA(void)
 	MARS_PWM_CTRL = 0x0185;
 
 	sample = SAMPLE_MIN;
+	rampSamplesPerStep = PWM_STARTUP_RAMP_SAMPLES /
+		(SAMPLE_CENTER - SAMPLE_MIN);
+	if (!rampSamplesPerStep)
+		rampSamplesPerStep = 1;
 
-	// Ramp up to SAMPLE_CENTER to avoid click in audio (real 32X)
+	// Briefly ramp to center to avoid a cold-start click on real hardware.
 	while (sample < SAMPLE_CENTER)
 	{
-		for (ix = 0; ix < (SAMPLE_RATE * 2) / (SAMPLE_CENTER - SAMPLE_MIN); ix++)
+		for (ix = 0; ix < rampSamplesPerStep; ix++)
 		{
 			// Wait while full
 			while (MARS_PWM_MONO & 0x8000);
