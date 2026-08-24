@@ -101,6 +101,8 @@ SECTIONS
     __data_start = .;
     *(.data)
     *(.data.*)
+    *(.ramcode)
+    *(.ramcode.*)
     *(.gnu.linkonce.d.*)
     CONSTRUCTORS
 

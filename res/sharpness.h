@@ -2227,7 +2227,7 @@ const uint8_t sharpness_Res116[] __attribute__((aligned(16))) = {
 };
 
 
-const uint8_t * sharpness_Reslist[] = {
+const uint8_t * const sharpness_Reslist[] = {
 yatssd_empty_tile,
 sharpness_Res0,
 sharpness_Res1,

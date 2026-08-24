@@ -33,6 +33,5 @@ double xSinTable(const int details);
 double ySinTable(const int details);
 
 // Draws an elipse
-void circle2(const s16 height, const s16 width, const s16 rx, const s16 ry, const s16 r, vu8 *spriteBuffer, s16 colorIndex);
 
 #endif /* _GRAPHICS_H_ */

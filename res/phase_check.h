@@ -478,7 +478,7 @@ const uint8_t phase_check_res24[] __attribute__((aligned(16))) = {
 0x41,0x4d,0x4d,0x41,0x48,0x4c,0x4f,0x4f,0x4f,0x4f,0x4c,0x48,0x41,0x4d,0x4d,0x41,
 };
 
-const uint8_t *phase_check_reslist[] = {
+const uint8_t * const phase_check_reslist[] = {
 yatssd_empty_tile,
 phase_check_res00,
 phase_check_res01,

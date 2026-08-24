@@ -24,8 +24,11 @@
 #include "32x.h"
 #include "hw_32x.h"
 #include "32x_images.h"
+#include "draw.h"
 #include "shared_objects.h"
 #include "help.h"
+
+#define drawTextwHighlight drawMenuTextwHighlight
 
 static void DrawHelpExitPrompt(u16 button)
 {
@@ -39,6 +42,7 @@ void DrawHelp(int option)
 {
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	u16 exit = 0, totalpages = 1, page = 1;
+	u16 renderedPage[2] = { 0, 0 };
 
 	marsVDP256Start();
 
@@ -81,8 +85,20 @@ void DrawHelp(int option)
 		pressedButton = button & ~oldButton;
 		oldButton = button & 0x0FFF;
 
+		{
+			int drawPage = ((*(volatile u16 *)((uintptr_t)&currentFB |
+				0x20000000u)) ^ 1) & 1;
+
+			if (renderedPage[drawPage] != page)
+			{
+				draw_dirtyrect(&tm, 0, 0, 320, 224);
+				draw_tilemap(&tm, 0, 0, 0, NULL, NULL);
+				invalidateMenuText();
+				renderedPage[drawPage] = page;
+			}
+		}
+
 		drawMainBG();
-		loadTextPalette();
 
 		switch (option)
 		{
@@ -596,17 +612,21 @@ void DrawHelp(int option)
 
 			case HELP_SOUND:
 				drawTextwHighlight("SOUND TEST", 125, 35, fontColorGreen, fontColorGreenHighlight);
-				drawTextwHighlight("You can test the sound from the", 32, 56, fontColorWhite, fontColorWhiteHighlight);
-				drawTextwHighlight("32X 2-channel PWM and", 32, 64, fontColorWhite, fontColorWhiteHighlight);
-				drawTextwHighlight("Genesis/Mega Drive PSG here.", 32, 72, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("You can test the 32X PWM,", 32, 56, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("Genesis YM 2612 FM and Genesis", 32, 64, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("PSG channels here.", 32, 72, fontColorWhite, fontColorWhiteHighlight);
 
-				drawTextwHighlight("Panning can be changed when", 32, 88, fontColorWhite, fontColorWhiteHighlight);
-				drawTextwHighlight("possible. This can help you", 32, 96, fontColorWhite, fontColorWhiteHighlight);
-				drawTextwHighlight("identify stereo cabling issues.", 32, 104, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("The FM octave and panning can be", 32, 88, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("changed. Choices 1 through C", 32, 96, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("select the twelve FM notes.", 32, 104, fontColorWhite, fontColorWhiteHighlight);
 
 				drawTextwHighlight("PSG has 200hz, 2khz and 4khz", 32, 120, fontColorWhite, fontColorWhiteHighlight);
 				drawTextwHighlight("tones on its channels and white", 32, 128, fontColorWhite, fontColorWhiteHighlight);
 				drawTextwHighlight("noise at 500hz.", 32, 136, fontColorWhite, fontColorWhiteHighlight);
+
+				drawTextwHighlight("D-Pad selects. 'A' plays/applies.", 32, 152, fontColorGreen, fontColorGreenHighlight);
+				drawTextwHighlight("PWM: press 'A' again to stop.", 32, 160, fontColorGreen, fontColorGreenHighlight);
+				drawTextwHighlight("On FM notes, 'B' changes octave.", 32, 168, fontColorGreen, fontColorGreenHighlight);
 				break;
 
 		case HELP_LED:
@@ -734,7 +754,9 @@ void DrawHelp(int option)
 				drawTextwHighlight("You can identify some issues", 32, 56, fontColorWhite, fontColorWhiteHighlight);
 				drawTextwHighlight("on non booting systems with", 32, 64, fontColorWhite, fontColorWhiteHighlight);
 				drawTextwHighlight("these.", 32, 72, fontColorWhite, fontColorWhiteHighlight);
-				drawTextwHighlight("Special thanks to Leo Oliveira.", 32, 88, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("Disc ID reads the game header", 32, 88, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("and track layout from the disc.", 32, 96, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("Special thanks to Leo Oliveira.", 32, 112, fontColorWhite, fontColorWhiteHighlight);
 				break;
 
 			case HELP_SEGACD32X:
@@ -742,25 +764,25 @@ void DrawHelp(int option)
 				{
 					case 1:
 						drawTextwHighlight("SEGA CD 32X TESTS (1/3)", 68, 35, fontColorGreen, fontColorGreenHighlight);
-						drawTextwHighlight("Integrity compares CRC32 values", 32, 56, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("from the Sub-CPU, 68000 and SH2.", 32, 64, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("Streaming Bandwidth measures a", 32, 80, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("64-sector read through all CPUs.", 32, 88, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("CD Streaming Overlay reads sectors", 32, 104, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("while 32X and MD rendering run.", 32, 112, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("Disc ID reads boot metadata and", 32, 56, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("the track layout from the disc.", 32, 64, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("CD Transfer Check compares CRC32", 32, 80, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("from the Sub-CPU, 68000 and SH2.", 32, 88, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("CD Streaming Test and CD Overlay", 32, 104, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("Test exercise reads while CPUs work.", 32, 112, fontColorWhite, fontColorWhiteHighlight);
 						drawTextwHighlight("(cont...)", 216, 176, fontColorWhite, fontColorWhiteHighlight);
 						break;
 					case 2:
 						drawTextwHighlight("SEGA CD 32X TESTS (2/3)", 68, 35, fontColorGreen, fontColorGreenHighlight);
-						drawTextwHighlight("Combined Audio Mixer selects", 32, 56, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("Audio Mixer Test selects", 32, 56, fontColorWhite, fontColorWhiteHighlight);
 						drawTextwHighlight("CD PCM, CD-DA, 32X PWM, PSG or", 32, 64, fontColorWhite, fontColorWhiteHighlight);
 						drawTextwHighlight("YM2612 for source comparison.", 32, 72, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("A/V Sync flashes the 32X image", 32, 88, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("CD-DA / 32X Sync Test flashes", 32, 88, fontColorWhite, fontColorWhiteHighlight);
 						drawTextwHighlight("against a selected CD-DA track.", 32, 96, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("Word RAM Stress repeatedly hands", 32, 112, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("Word RAM Stress Test repeatedly", 32, 112, fontColorWhite, fontColorWhiteHighlight);
 						drawTextwHighlight("memory between both CD CPUs.", 32, 120, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("Latency measures SH2-to-Sub-CPU", 32, 136, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("command round trips.", 32, 144, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("CPU Communication Test measures", 32, 136, fontColorWhite, fontColorWhiteHighlight);
+						drawTextwHighlight("SH2-to-Sub-CPU command round trips.", 32, 144, fontColorWhite, fontColorWhiteHighlight);
 						drawTextwHighlight("(cont...)", 216, 176, fontColorWhite, fontColorWhiteHighlight);
 						break;
 					case 3:
@@ -769,7 +791,7 @@ void DrawHelp(int option)
 						drawTextwHighlight("audio track as indicated onscreen.", 32, 64, fontColorWhite, fontColorWhiteHighlight);
 						drawTextwHighlight("The default data LBA is sector 16", 32, 80, fontColorWhite, fontColorWhiteHighlight);
 						drawTextwHighlight("of a Mode 1 data track.", 32, 88, fontColorWhite, fontColorWhiteHighlight);
-						drawTextwHighlight("Word RAM Handoff Stress writes", 32, 104, fontColorRed, fontColorRedHighlight);
+						drawTextwHighlight("Word RAM Stress Test writes", 32, 104, fontColorRed, fontColorRedHighlight);
 						drawTextwHighlight("patterns into its test window.", 32, 112, fontColorRed, fontColorRedHighlight);
 						drawTextwHighlight("The Sega CD is reinitialized when", 32, 128, fontColorWhite, fontColorWhiteHighlight);
 						drawTextwHighlight("a playback or streaming test starts.", 32, 136, fontColorWhite, fontColorWhiteHighlight);
@@ -844,6 +866,7 @@ void DrawHelp(int option)
 			exit = 1;
 		}
 
-		Hw32xScreenFlip(0);
+		if (!exit)
+			Hw32xScreenFlip(0);
 	}
 }

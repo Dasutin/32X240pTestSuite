@@ -80,7 +80,7 @@ const uint8_t ire_Res3[] __attribute__((aligned(16))) = {
 };
 
 
-const uint8_t * ire_Reslist[] = {
+const uint8_t * const ire_Reslist[] = {
 yatssd_empty_tile,
 ire_Res0,
 ire_Res1,

@@ -295,9 +295,60 @@ handle_req:
         bls     handle_scroll
         cmpi.w  #0x15FF,d0
         bls     handle_reload_font
+		cmpi.w  #0x16FF,d0
+		bls     handle_segacd
+		cmpi.w  #0x17FF,d0
+		bls     handle_text
+		cmpi.w  #0x18FF,d0
+		bls     handle_scroll_planes
+		cmpi.w  #0x19FF,d0
+		bls     handle_controllers
 
+        move.w  #0,0xA15120
+        bra     main_loop
+
+handle_segacd:
         jsr     segacd_dispatch
         bra     main_loop
+
+handle_controllers:
+		andi.w  #0x00FF,d0
+		cmpi.w  #1,d0
+		beq.w   controller_disable
+		cmpi.w  #2,d0
+		beq.w   controller_reset
+		cmpi.w  #3,d0
+		beq.w   controller_debug
+		move.w  #1,controller_mode
+		move.w  #1,controller_force_reset
+		move.w  #0,controller_debug_request
+		bra.w   controller_command_done
+controller_disable:
+		move.w  #0,controller_mode
+		move.w  #0,controller_force_reset
+		move.w  #0,controller_debug_request
+		move.b  #0x40,0xA10009
+		move.b  #0x40,0xA1000B
+		move.b  #0x40,0xA10003
+		move.b  #0x40,0xA10005
+		move.w  #0xF000,0xA15128
+		move.w  #0xF000,0xA1512A
+		cmpi.w  #3,0x85FFA0
+		bne.b   0f
+		move.w  #0xF001,0xA15128
+0:
+		cmpi.w  #3,0x85FFA2
+		bne.b   controller_command_done
+		move.w  #0xF001,0xA1512A
+		bra.b   controller_command_done
+controller_reset:
+		move.w  #1,controller_force_reset
+		bra.b   controller_command_done
+controller_debug:
+		move.w  #1,controller_debug_request
+controller_command_done:
+		move.w  #0,0xA15120
+		bra     main_loop
 
 
 # Unknown command
@@ -572,19 +623,18 @@ set_psg_volume:
         bra     main_loop
 
 set_psg_tone1:
-        moveq   #0,d5                   /* Clear register */
-        move.w  0xA15122,d5             /* Grab the first value from COMM Port 2 */
-        move.b  d5,d5                   /* Convert word to byte */
-        move.w  #0,0xA15120             /* Tell 32X we are done here */
-        bra     main_loop
+		move.w  0xA15122,d5             /* Both PSG bytes, in write order */
+		move.w  d5,d6
+		lsr.w   #8,d5
+		move.b  d5,(0xC00011)
+		move.b  d6,(0xC00011)
+		move.w  #0,0xA15120             /* Tell 32X we are done here */
+		bra     main_loop
 set_psg_tone2:
-        moveq   #0,d6                   /* Clear register */
-        move.w  0xA15122,d6             /* Grab the second value from COMM Port 2 */
-        move.b  d6,d6                   /* Convert word to byte */
-        move.b  d5, (0xC00011)          /* Set first value to PSG port */
-        move.b  d6, (0xC00011)          /* Set second value to PSG port */
-        move.w  #0,0xA15120             /* Tell 32X we are done here */
-        bra     main_loop
+		move.w  0xA15122,d6             /* Legacy single-byte second stage */
+		move.b  d6,(0xC00011)
+		move.w  #0,0xA15120             /* Tell 32X we are done here */
+		bra     main_loop
 
 set_psg_noise:
         moveq   #0,d5                   /* Clear register */
@@ -649,27 +699,98 @@ handle_scroll:
         move.w  #0,0xA15120
         bra     main_loop
 
+handle_text:
+		move.w  0xA15100,d1
+		move.w  d1,-(sp)
+		andi.w  #0x7FFF,d1
+		move.w  d1,0xA15100             /* 68000 owns the framebuffer window */
+
+		lea     0x85FF00,a0
+		moveq   #0,d7
+		move.w  (a0)+,d7
+		moveq   #0,d3
+		move.w  (a0)+,d3
+		moveq   #0,d0
+		move.w  (a0)+,d0
+
+		lea     0xC00000,a1
+		move.w  #0x8F02,4(a1)
+		move.l  d7,d2
+		swap    d2
+		ori.l   #0x60000003,d2
+		move.l  d2,4(a1)
+
+		tst.w   d0
+		beq.b   text_done
+		subq.w  #1,d0
+text_loop:
+		moveq   #0,d1
+		move.b  (a0)+,d1
+		subi.w  #0x20,d1
+		andi.w  #0x00FF,d1
+		or.w    d3,d1
+		move.w  d1,(a1)
+		addq.l  #2,d7
+		dbra    d0,text_loop
+
+text_done:
+		move.w  (sp)+,d1
+		move.w  d1,0xA15100
+		move.w  #0,0xA15120
+		bra     main_loop
+
+/* word 0/1 = plane A H/V, word 2/3 = plane B H/V */
+handle_scroll_planes:
+		move.w  0xA15100,d1
+		move.w  d1,-(sp)
+		andi.w  #0x7FFF,d1
+		move.w  d1,0xA15100
+
+		lea     0x85FF00,a0
+		lea     0xC00000,a1
+		move.w  #0x8F01,4(a1)
+		move.l  #0x6C000002,4(a1)       /* Plane A HScroll */
+		move.w  (a0)+,(a1)
+		move.l  #0x40000010,4(a1)       /* Plane A VScroll */
+		move.w  (a0)+,(a1)
+		move.l  #0x6C020002,4(a1)       /* Plane B HScroll */
+		move.w  (a0)+,(a1)
+		move.l  #0x40020010,4(a1)       /* Plane B VScroll */
+		move.w  (a0)+,(a1)
+
+		move.w  (sp)+,d1
+		move.w  d1,0xA15100
+		move.w  #0,0xA15120
+		bra     main_loop
+
 vert_blank:
         move.l  d1,-(sp)
         move.l  d2,-(sp)
 
         /* read controllers */
+		tst.w   controller_mode
+		beq.b   controller_direct_update
+		move.l  a1,-(sp)
+		jsr     controller_update
+		movea.l (sp)+,a1
+		bra.b   controller_update_done
+
+controller_direct_update:
         move.w  0xA15128,d0
-        andi.w  #0xF000,d0
-        cmpi.w  #0xF000,d0
-        beq.b   0f                  /* No controller or mouse in Port 1 */
+        cmpi.w  #0xF001,d0
+        beq.b   0f                  /* Mouse in Port 1 uses its own reader */
         lea     0xA10003,a0
         bsr.b   get_pad
         move.w  d2,0xA15128         /* Controller 1 current value */
 0:
         move.w  0xA1512A,d0
-        andi.w  #0xF000,d0
-        cmpi.w  #0xF000,d0
-        beq.b   1f                  /* No controller or mouse in Port 2 */
+        cmpi.w  #0xF001,d0
+        beq.b   1f                  /* Mouse in Port 2 uses its own reader */
         lea     0xA10005,a0
         bsr.b   get_pad
         move.w  d2,0xA1512A         /* Controller 2 current value */
 1:
+controller_update_done:
         tst.w   gen_lvl2
         beq.b   2f
         lea     0xA12000,a0

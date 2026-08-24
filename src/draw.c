@@ -18,13 +18,13 @@ draw_spritefn_t draw_spritefn(int flags)
     {
         draw8_spr8func_t* funcs = draw8spr8funcs;
         if (flags & DRAWSPR_SCALE) funcs += 4;
-        return (draw_spritefn_t)funcs[(flags & 3) ^ 3];
+        return (draw_spritefn_t)funcs[flags & 3];
     }
     else
     {
         draw16_spr8func_t* funcs = draw16spr8funcs;
         if (flags & DRAWSPR_SCALE) funcs += 4;
-        return (draw_spritefn_t)funcs[(flags & 3) ^ 3];
+        return (draw_spritefn_t)funcs[flags & 3];
     }
 }
 

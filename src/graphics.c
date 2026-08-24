@@ -22,7 +22,6 @@
 
 #include "graphics.h"
 
-const static vu8 blankArray[8] = {0};
 
 /*
 * For a given details value 0 - 63 returns the equivalent
@@ -162,7 +161,6 @@ double xSinTable(const int details)
 
 	return result;
 }
-
 
 /*
 * For a given details value 0 - 63 returns the equivalent
@@ -324,36 +322,5 @@ void circle(const int r, const int f, vu8 *spriteBuffer)
 			else
 				spriteBuffer[bufCnt] = 0;
 		}
-	}
-}
-
-/*
-* Draws an elipse
-*/
-void circle2(const s16 height, const s16 width, const s16 rx, const s16 ry, const s16 r, vu8 *spriteBuffer, s16 colorIndex)
-{
-	s16 x, y;
-	//int width = 64;
-	//int height = 32;
-	s16 size = width * height;
-	s16 bufCnt = 0;
-	s16 d = 0;//double d;//detail
-	//const double pi = 3.14159265; //more or less
-	//const double halfpi = pi/2;
-	//const double twopi = 2*pi;
-
-	//clear buffer 8 bytes at a time
-	for (bufCnt = 0; bufCnt < (width*height); bufCnt += 8)
-		//spriteBuffer[bufCnt] = 0;
-		word_8byte_copy((void *)(spriteBuffer+bufCnt), (void *)(blankArray), 8);
-
-	bufCnt=0;
-	for (d = 0; d <= 63; d++) //you can play with the value to be added to d
-	{
-		x = rx + (2 * xSinTable(d)) * r;
-		y = ry + (ySinTable(d)) * r;
-		bufCnt = (y * width) + x;
-		if (bufCnt < size)
-			spriteBuffer[bufCnt] = colorIndex;
 	}
 }

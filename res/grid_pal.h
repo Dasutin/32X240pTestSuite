@@ -1,4 +1,4 @@
-unsigned char grid_palette[] __attribute__((aligned(16))) = {
+const unsigned char grid_palette[] __attribute__((aligned(16))) = {
 0x00,0x00,0x00,
 0xff,0xff,0xff,
 };

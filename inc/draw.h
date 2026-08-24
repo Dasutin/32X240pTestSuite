@@ -27,12 +27,15 @@ void draw_pivot_stretch_sprite(int x, int y, int sw, int sh,
 void draw_setScissor(int16_t x, int16_t y, int16_t w, int16_t h)
 ATTR_DATA_ALIGNED;
 
+void sh2_fill16(uint16_t *destination, unsigned count, uint16_t value);
+
 
 int draw_clip(int x, int y, int w, int h, rect_t* cliprect)
 ATTR_DATA_ALIGNED;
 
 
-void init_tilemap(tilemap_t *tm, const dtilemap_t *dtm, uint8_t **reslist);
+void init_tilemap(tilemap_t *tm, const dtilemap_t *dtm,
+	const uint8_t * const *reslist);
 
 void set_tilemap_wrap(tilemap_t *tm, fixed_t wrapX, fixed_t wrapY);
 
@@ -50,11 +53,12 @@ extern tilemap_t tm;
 
 // Compatibility invalidation generation used by the suite's existing redraw paths.
 extern uint16_t canvas_rebuild_id;
+extern int nodraw;
 extern int window_canvas_x, window_canvas_y;
 extern int32_t canvas_width, canvas_height;
 extern uint32_t canvas_pitch, canvas_yaw;
 
-extern drawtilelayerscmd_t slave_drawtilelayerscmd
+extern drawtileslavecmd_t slave_drawtilecmd
 ATTR_CACHE_ALIGNED;
 
 #endif /* _DRAW_H_ */

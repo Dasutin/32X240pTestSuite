@@ -11,6 +11,9 @@ CCFLAGS += -fno-align-loops -fno-align-functions -fno-align-jumps -fno-align-lab
 HWFLAGS := $(CCFLAGS)
 HWFLAGS += -O1 -fno-lto
 
+RENDER_OPT ?= $(EXTRA)
+MIXER_OPT ?= $(EXTRA)
+
 LDFLAGS = -T ./mars.ld -nostdlib -Wl,--print-memory-usage -Wl,--gc-sections --specs=nosys.specs -flto
 ASFLAGS = --big
 
@@ -136,6 +139,12 @@ crt0_combined.o: crt0.s $(M68K_COMBINED_BIN) dual_boot.bin $(GENESIS_VECTORS)
 
 src/hw_32x.o: src/hw_32x.c
 	$(CC) $(HWFLAGS) $(INCPATH) $< -o $@
+
+src/draw.o src/dsprite.o src/dtiles.o: src/%.o: src/%.c
+	$(CC) $(CCFLAGS) $(RENDER_OPT) $(INCPATH) $< -o $@
+
+src/sound.o: src/sound.c
+	$(CC) $(CCFLAGS) $(MIXER_OPT) $(INCPATH) $< -o $@
 
 src/%.o: src/%.c
 	$(CC) $(CCFLAGS) $(EXTRA) $(INCPATH) $< -o $@

@@ -194,7 +194,7 @@ uint8_t sd_head_Res9[] __attribute__((aligned(16))) = {
 };
 
 
-const uint8_t * sd_head_Reslist[] = {
+const uint8_t * const sd_head_Reslist[] = {
 sd_head_Res0,
 sd_head_Res1,
 sd_head_Res2,

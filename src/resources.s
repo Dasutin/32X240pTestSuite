@@ -3,12 +3,11 @@
 .align 2
 
 soundFileName1:
-.asciz "jump"
+.asciz ""
 
 .align 4
 
 soundFile1:
-.incbin "res/jump.wav"
 soundFileEnd1:
 .align 4
 

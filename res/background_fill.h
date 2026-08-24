@@ -57,7 +57,7 @@ const uint8_t background_fill_res00[] __attribute__((aligned(16))) = {
 0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,
 };
 
-const uint8_t * background_fill_reslist[] = {
+const uint8_t * const background_fill_reslist[] = {
 yatssd_empty_tile,
 background_fill_res00
 };

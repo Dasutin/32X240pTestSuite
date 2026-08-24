@@ -84,19 +84,24 @@
 #include "colorref.h"
 #include "colorref_map.h"
 
+static void set_pattern_palette_with_text(const uint8_t *palette)
+{
+	Hw32xSetPalette(palette);
+	loadTextPalette();
+}
+
 void tp_pluge()
 {
 	u16 done = 0, draw = 1, IsNTSC = 1, text = 0, fpcamera_x = 0, fpcamera_y = 0;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 
-	Hw32xSetPalette(plugentsc_Palette);
+	set_pattern_palette_with_text(plugentsc_Palette);
 
 	Hw32xScreenFlip(0);
 
 	while (!done)
 	{
 		Hw32xFlipWait();
-		loadTextPalette();
 
 		button = MARS_SYS_COMM8;
 
@@ -110,11 +115,11 @@ void tp_pluge()
 		{
 			if (!IsNTSC)
 			{
-				init_tilemap(&tm, &pluge_map_Map, (uint8_t **)pluge_Reslist);
-				Hw32xSetPalette(plugergb_Palette);
+				init_tilemap(&tm, &pluge_map_Map, (const uint8_t * const *)pluge_Reslist);
+				set_pattern_palette_with_text(plugergb_Palette);
 			} else {
-				init_tilemap(&tm, &pluge_map_Map, (uint8_t **)pluge_Reslist);
-				Hw32xSetPalette(plugentsc_Palette);
+				init_tilemap(&tm, &pluge_map_Map, (const uint8_t * const *)pluge_Reslist);
+				set_pattern_palette_with_text(plugentsc_Palette);
 			}
 
 			canvas_rebuild_id++;
@@ -130,8 +135,8 @@ void tp_pluge()
 			} else {
 				drawTextwHighlight("NTSC 7.5 IRE  ", 192, 16, fontColorRed, fontColorRedHighlight);
 			}
-		} else if (!text) {
-			canvas_rebuild_id++;
+			if (!text)
+				canvas_rebuild_id++;
 		}
 
 		if (pressedButton & SEGA_CTRL_A)
@@ -140,10 +145,10 @@ void tp_pluge()
 
 			if (!IsNTSC)
 			{
-				Hw32xSetPalette(plugergb_Palette);
+				set_pattern_palette_with_text(plugergb_Palette);
 				drawTextwHighlight("RGB FULL RANGE", 192, 16, fontColorRed, fontColorRedHighlight);
 			} else {
-				Hw32xSetPalette(plugentsc_Palette);
+				set_pattern_palette_with_text(plugentsc_Palette);
 				drawTextwHighlight("NTSC 7.5 IRE  ", 192, 16, fontColorRed, fontColorRedHighlight);
 			}
 			canvas_rebuild_id++;
@@ -161,8 +166,8 @@ void tp_pluge()
 			if (pressedButton & SEGA_CTRL_C)
 			{
 				DrawHelp(HELP_PLUGE);
-				init_tilemap(&tm, &pluge_map_Map, (uint8_t **)pluge_Reslist);
-				Hw32xSetPalette(plugentsc_Palette);
+				init_tilemap(&tm, &pluge_map_Map, (const uint8_t * const *)pluge_Reslist);
+				set_pattern_palette_with_text(plugentsc_Palette);
 				draw = 1;
 			}
 		}
@@ -170,8 +175,8 @@ void tp_pluge()
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			DrawHelp(HELP_PLUGE);
-			init_tilemap(&tm, &pluge_map_Map, (uint8_t **)pluge_Reslist);
-			Hw32xSetPalette(plugentsc_Palette);
+			init_tilemap(&tm, &pluge_map_Map, (const uint8_t * const *)pluge_Reslist);
+			set_pattern_palette_with_text(plugentsc_Palette);
 			draw = 1;
 		}
 
@@ -189,7 +194,7 @@ void tp_colorchart()
 	u16 button, pressedButton, oldButton = 0xFFFF;
 
 	Hw32xSetPalette(colorbars_Palette);
-	init_tilemap(&tm, &colorbars_Map, (uint8_t **)colorbars_Reslist);
+	init_tilemap(&tm, &colorbars_Map, (const uint8_t * const *)colorbars_Reslist);
 
 	Hw32xScreenFlip(0);
 
@@ -209,7 +214,7 @@ void tp_colorchart()
 			{
 				DrawHelp(HELP_COLORS);
 				Hw32xSetPalette(colorbars_Palette);
-				init_tilemap(&tm, &colorbars_Map, (uint8_t **)colorbars_Reslist);
+				init_tilemap(&tm, &colorbars_Map, (const uint8_t * const *)colorbars_Reslist);
 				canvas_rebuild_id++;
 			}
 		}
@@ -218,7 +223,7 @@ void tp_colorchart()
 		{
 			DrawHelp(HELP_COLORS);
 			Hw32xSetPalette(colorbars_Palette);
-			init_tilemap(&tm, &colorbars_Map, (uint8_t **)colorbars_Reslist);
+			init_tilemap(&tm, &colorbars_Map, (const uint8_t * const *)colorbars_Reslist);
 			canvas_rebuild_id++;
 		}
 
@@ -243,15 +248,14 @@ void tp_colorbars()
 	u16 done = 0, draw = 1, Is75 = 0, text = 0, fpcamera_x = 0, fpcamera_y = 0;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 
-	Hw32xSetPalette(ebu_Palette);
-	init_tilemap(&tm, &ebu_map_Map, (uint8_t **)ebu_Reslist);
+	set_pattern_palette_with_text(ebu_Palette);
+	init_tilemap(&tm, &ebu_map_Map, (const uint8_t * const *)ebu_Reslist);
 
 	Hw32xScreenFlip(0);
 
 	while (!done)
 	{
 		Hw32xFlipWait();
-		loadTextPalette();
 
 		button = MARS_SYS_COMM8;
 
@@ -264,9 +268,9 @@ void tp_colorbars()
 		if (draw)
 		{
 			if (!Is75)
-				Hw32xSetPalette(ebu_Palette);
+				set_pattern_palette_with_text(ebu_Palette);
 			else
-				Hw32xSetPalette(ebu75_Palette);
+				set_pattern_palette_with_text(ebu75_Palette);
 
 			canvas_rebuild_id++;
 			draw = 0;
@@ -297,10 +301,10 @@ void tp_colorbars()
 
 			if (!Is75)
 			{
-				Hw32xSetPalette(ebu_Palette);
+				set_pattern_palette_with_text(ebu_Palette);
 				drawTextwHighlight("100%", 256, 8, fontColorWhite, fontColorWhiteHighlight);
 			} else {
-				Hw32xSetPalette(ebu75_Palette);
+				set_pattern_palette_with_text(ebu75_Palette);
 				drawTextwHighlight(" 75%", 256, 8, fontColorWhite, fontColorWhiteHighlight);
 			}
 			canvas_rebuild_id++;
@@ -313,8 +317,8 @@ void tp_colorbars()
 			{
 				screenFadeOut(1);
 				DrawHelp(HELP_601CB);
-				Hw32xSetPalette(ebu_Palette);
-				init_tilemap(&tm, &ebu_map_Map, (uint8_t **)ebu_Reslist);
+				set_pattern_palette_with_text(ebu_Palette);
+				init_tilemap(&tm, &ebu_map_Map, (const uint8_t * const *)ebu_Reslist);
 				canvas_rebuild_id++;
 				draw = 1;
 			}
@@ -324,8 +328,8 @@ void tp_colorbars()
 		{
 			screenFadeOut(1);
 			DrawHelp(HELP_601CB);
-			Hw32xSetPalette(ebu_Palette);
-			init_tilemap(&tm, &ebu_map_Map, (uint8_t **)ebu_Reslist);
+			set_pattern_palette_with_text(ebu_Palette);
+			init_tilemap(&tm, &ebu_map_Map, (const uint8_t * const *)ebu_Reslist);
 			canvas_rebuild_id++;
 			draw = 1;
 		}
@@ -343,15 +347,14 @@ void tp_smpte_color_bars()
 	u16 done = 0, draw = 1, Is75 = 0, text = 0, fpcamera_x = 0, fpcamera_y = 0;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 
-	Hw32xSetPalette(smpte100_Palette);
-	init_tilemap(&tm, &smpte_map_Map, (uint8_t **)smpte_Reslist);
+	set_pattern_palette_with_text(smpte100_Palette);
+	init_tilemap(&tm, &smpte_map_Map, (const uint8_t * const *)smpte_Reslist);
 
 	Hw32xScreenFlip(0);
 
 	while (!done)
 	{
 		Hw32xFlipWait();
-		loadTextPalette();
 
 		button = MARS_SYS_COMM8;
 
@@ -365,11 +368,11 @@ void tp_smpte_color_bars()
 		{
 			if (!Is75)
 			{
-				init_tilemap(&tm, &smpte_map_Map, (uint8_t **)smpte_Reslist);
-				Hw32xSetPalette(smpte100_Palette);
+				init_tilemap(&tm, &smpte_map_Map, (const uint8_t * const *)smpte_Reslist);
+				set_pattern_palette_with_text(smpte100_Palette);
 			} else {
-				init_tilemap(&tm, &smpte_map_Map, (uint8_t **)smpte_Reslist);
-				Hw32xSetPalette(smpte75_Palette);
+				init_tilemap(&tm, &smpte_map_Map, (const uint8_t * const *)smpte_Reslist);
+				set_pattern_palette_with_text(smpte75_Palette);
 			}
 			canvas_rebuild_id++;
 			draw = 0;
@@ -400,10 +403,10 @@ void tp_smpte_color_bars()
 
 			if (!Is75)
 			{
-				Hw32xSetPalette(smpte100_Palette);
+				set_pattern_palette_with_text(smpte100_Palette);
 				drawTextwHighlight("100%", 256, 8, fontColorWhite, fontColorWhiteHighlight);
 			} else {
-				Hw32xSetPalette(smpte75_Palette);
+				set_pattern_palette_with_text(smpte75_Palette);
 				drawTextwHighlight(" 75%", 256, 8, fontColorWhite, fontColorWhiteHighlight);
 			}
 			canvas_rebuild_id++;
@@ -416,8 +419,8 @@ void tp_smpte_color_bars()
 			{
 				screenFadeOut(1);
 				DrawHelp(HELP_SMPTE);
-				init_tilemap(&tm, &smpte_map_Map, (uint8_t **)smpte_Reslist);
-				Hw32xSetPalette(smpte100_Palette);
+				init_tilemap(&tm, &smpte_map_Map, (const uint8_t * const *)smpte_Reslist);
+				set_pattern_palette_with_text(smpte100_Palette);
 				canvas_rebuild_id++;
 				draw = 1;
 			}
@@ -427,8 +430,8 @@ void tp_smpte_color_bars()
 		{
 			screenFadeOut(1);
 			DrawHelp(HELP_SMPTE);
-			init_tilemap(&tm, &smpte_map_Map, (uint8_t **)smpte_Reslist);
-			Hw32xSetPalette(smpte100_Palette);
+			init_tilemap(&tm, &smpte_map_Map, (const uint8_t * const *)smpte_Reslist);
+			set_pattern_palette_with_text(smpte100_Palette);
 			canvas_rebuild_id++;
 			draw = 1;
 		}
@@ -447,7 +450,7 @@ void tp_ref_color_bars()
 	u16 button, pressedButton, oldButton = 0xFFFF;
 
 	Hw32xSetPalette(colorref_Palette);
-	init_tilemap(&tm, &colorref_map_Map, (uint8_t **)colorref_Reslist);
+	init_tilemap(&tm, &colorref_map_Map, (const uint8_t * const *)colorref_Reslist);
 	canvas_rebuild_id++;
 
 	Hw32xScreenFlip(0);
@@ -548,12 +551,12 @@ void tp_color_bleed_check()
 		switch (pattern)
 		{
 			case 1:
-				init_tilemap(&tm, &colorbleedstripe_map_Map, (uint8_t **)colorbleedstripe_Reslist);
+				init_tilemap(&tm, &colorbleedstripe_map_Map, (const uint8_t * const *)colorbleedstripe_Reslist);
 				canvas_rebuild_id++;
 				break;
 
 			case 2:
-				init_tilemap(&tm, &colorbleedcheck_map_Map, (uint8_t **)colorbleedcheck_Reslist);
+				init_tilemap(&tm, &colorbleedcheck_map_Map, (const uint8_t * const *)colorbleedcheck_Reslist);
 				canvas_rebuild_id++;
 				break;
 		}
@@ -573,15 +576,14 @@ void tp_grid()
 	u16 button, pressedButton, oldButton = 0xFFFF;
 
 	Hw32xSetPalette(grid_Palette);
+	init_tilemap(&tm, &grid_map_Map, (const uint8_t * const *)grid_Reslist);
+	setColor(0, 0, 0, 0);
 
 	Hw32xScreenFlip(0);
 
 	while (!done)
 	{
 		Hw32xFlipWait();
-
-		init_tilemap(&tm, &grid_map_Map, (uint8_t **)grid_Reslist);
-		canvas_rebuild_id++;
 
 		button = MARS_SYS_COMM8;
 
@@ -590,17 +592,6 @@ void tp_grid()
 
 		pressedButton = button & ~oldButton;
 		oldButton = button;
-
-		switch (pattern)
-		{
-			case 1:
-				setColor(0, 0, 0, 0);
-				break;
-
-			case 2:
-				setColor(0, 12, 12, 12);
-				break;
-		}
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
@@ -614,6 +605,10 @@ void tp_grid()
 
 			if (pattern > 2)
 				pattern = 1;
+			if (pattern == 1)
+				setColor(0, 0, 0, 0);
+			else
+				setColor(0, 12, 12, 12);
 		}
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
@@ -621,18 +616,20 @@ void tp_grid()
 			if (pressedButton & SEGA_CTRL_C)
 			{
 				DrawHelp(HELP_GRID);
-				init_tilemap(&tm, &grid_map_Map, (uint8_t **)grid_Reslist);
+				init_tilemap(&tm, &grid_map_Map, (const uint8_t * const *)grid_Reslist);
 				Hw32xSetPalette(grid_Palette);
-				canvas_rebuild_id++;
+				setColor(0, pattern == 1 ? 0 : 12,
+					pattern == 1 ? 0 : 12, pattern == 1 ? 0 : 12);
 			}
 		}
 
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			DrawHelp(HELP_GRID);
-			init_tilemap(&tm, &grid_map_Map, (uint8_t **)grid_Reslist);
+			init_tilemap(&tm, &grid_map_Map, (const uint8_t * const *)grid_Reslist);
 			Hw32xSetPalette(grid_Palette);
-			canvas_rebuild_id++;
+			setColor(0, pattern == 1 ? 0 : 12,
+				pattern == 1 ? 0 : 12, pattern == 1 ? 0 : 12);
 		}
 
 		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
@@ -647,19 +644,26 @@ void tp_grid()
 void tp_monoscope()
 {
 	u16 done = 0, pattern = 1, gray = 0, fpcamera_x = 0, fpcamera_y = 0;
+	u16 palette_colors_pending = 1;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	static const u16 ire_levels[] = {29, 25, 21, 17, 12, 8, 4};
 
 	Hw32xSetPalette(monoscope_Palette);
+	init_tilemap(&tm, &monoscope_map_Map,
+		(const uint8_t * const *)monoscope_Reslist);
+	setColor(0, 0, 0, 0);
 
 	Hw32xScreenFlip(0);
 
 	while (!done)
 	{
 		Hw32xFlipWait();
-
-		init_tilemap(&tm, &monoscope_map_Map, (uint8_t **)monoscope_Reslist);
-		canvas_rebuild_id++;
+		if (palette_colors_pending)
+		{
+			setColor(2, ire_levels[pattern - 1],
+				ire_levels[pattern - 1], ire_levels[pattern - 1]);
+			palette_colors_pending = 0;
+		}
 
 		button = MARS_SYS_COMM8;
 
@@ -669,20 +673,20 @@ void tp_monoscope()
 		pressedButton = button & ~oldButton;
 		oldButton = button;
 
-		if (!gray)
-			setColor(0, 0, 0, 0);
-		else
-			setColor(0, 12, 12, 12);
-
 		if (pressedButton & SEGA_CTRL_A)
 		{
 			pattern++;
 			if (pattern > 7)
 				pattern = 1;
+			setColor(2, ire_levels[pattern - 1],
+				ire_levels[pattern - 1], ire_levels[pattern - 1]);
 		}
 
 		if (pressedButton & SEGA_CTRL_B)
+		{
 			gray = !gray;
+			setColor(0, gray ? 12 : 0, gray ? 12 : 0, gray ? 12 : 0);
+		}
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
 		{
@@ -690,6 +694,10 @@ void tp_monoscope()
 			{
 				DrawHelp(HELP_MONOSCOPE);
 				Hw32xSetPalette(monoscope_Palette);
+				init_tilemap(&tm, &monoscope_map_Map,
+					(const uint8_t * const *)monoscope_Reslist);
+				setColor(0, gray ? 12 : 0, gray ? 12 : 0, gray ? 12 : 0);
+				palette_colors_pending = 1;
 			}
 		}
 
@@ -697,9 +705,11 @@ void tp_monoscope()
 		{
 			DrawHelp(HELP_MONOSCOPE);
 			Hw32xSetPalette(monoscope_Palette);
+			init_tilemap(&tm, &monoscope_map_Map,
+				(const uint8_t * const *)monoscope_Reslist);
+			setColor(0, gray ? 12 : 0, gray ? 12 : 0, gray ? 12 : 0);
+			palette_colors_pending = 1;
 		}
-
-		setColor(2, ire_levels[pattern - 1], ire_levels[pattern - 1], ire_levels[pattern - 1]);
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
@@ -721,7 +731,7 @@ void tp_gray_ramp()
 	u16 button, pressedButton, oldButton = 0xFFFF;
 
 	Hw32xSetPalette(grayramp_Palette);
-	init_tilemap(&tm, &grayramp_map_Map, (uint8_t **)grayramp_Reslist);
+	init_tilemap(&tm, &grayramp_map_Map, (const uint8_t * const *)grayramp_Reslist);
 
 	Hw32xScreenFlip(0);
 
@@ -749,7 +759,7 @@ void tp_gray_ramp()
 			{
 				DrawHelp(HELP_GRAY);
 				Hw32xSetPalette(grayramp_Palette);
-				init_tilemap(&tm, &grayramp_map_Map, (uint8_t **)grayramp_Reslist);
+				init_tilemap(&tm, &grayramp_map_Map, (const uint8_t * const *)grayramp_Reslist);
 				canvas_rebuild_id++;
 			}
 		}
@@ -758,7 +768,7 @@ void tp_gray_ramp()
 		{
 			DrawHelp(HELP_GRAY);
 			Hw32xSetPalette(grayramp_Palette);
-			init_tilemap(&tm, &grayramp_map_Map, (uint8_t **)grayramp_Reslist);
+			init_tilemap(&tm, &grayramp_map_Map, (const uint8_t * const *)grayramp_Reslist);
 			canvas_rebuild_id++;
 		}
 
@@ -773,10 +783,11 @@ void tp_gray_ramp()
 void tp_white_rgb()
 {
 	u16 done = 0, color = 1, sel = 1, custom = 0, r = 31, g = 31, b = 31;
-	const int framebuffer_words = ((320 + 16) * 224) / 2;
+	u16 mdTextVisible = 0;
+	int page_color[2] = { -1, -1 };
+	int draw_page;
 	char str[20], num[4];
 	u16 button, pressedButton, oldButton = 0xFFFF;
-	vu16 *frameBuffer16 = &MARS_FRAMEBUFFER + 0x100;
 
 	setColor(0, r, g, b);
 	setColor(1, 0, 0, 0);
@@ -803,13 +814,14 @@ void tp_white_rgb()
 
 		if (pressedButton & SEGA_CTRL_START)
 		{
-			HwMdClearScreen();
 			done = 1;
+			break;
 		}
 
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			HwMdClearScreen();
+			mdTextVisible = 0;
 			DrawHelp(HELP_WHITE);
 
 			setColor(0, r, g, b);
@@ -819,6 +831,7 @@ void tp_white_rgb()
 			setColor(4, 0, 0, 31);
 			MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X | MARS_224_LINES | MARS_VDP_MODE_256;
 			Hw32xScreenFlip(0);
+			page_color[0] = page_color[1] = -1;
 
 			button = MARS_SYS_COMM8;
 			if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
@@ -837,33 +850,14 @@ void tp_white_rgb()
 			color--;
 
 		setColor(0, r, g, b);
+		draw_page = ((*(volatile u16 *)((uintptr_t)&currentFB |
+			0x20000000u)) ^ 1) & 1;
 
-		switch (color)
+		if (color >= 1 && color <= 5 &&
+			page_color[draw_page] != color)
 		{
-			case 1:
-				for (int i = 0; i < framebuffer_words; i++)
-					frameBuffer16[i] = 0x0000;
-				break;
-
-			case 2:
-				for (int i = 0; i < framebuffer_words; i++)
-					frameBuffer16[i] = 0x0101;
-				break;
-
-			case 3:
-				for (int i = 0; i < framebuffer_words; i++)
-					frameBuffer16[i] = 0x0202;
-				break;
-
-			case 4:
-				for (int i = 0; i < framebuffer_words; i++)
-					frameBuffer16[i] = 0x0303;
-				break;
-
-			case 5:
-				for (int i = 0; i < framebuffer_words; i++)
-					frameBuffer16[i] = 0x0404;
-				break;
+			fillScreen8Pitched(320 + 16, 224, color - 1);
+			page_color[draw_page] = color;
 		}
 
 		if (custom && color == 1)
@@ -885,6 +879,12 @@ void tp_white_rgb()
 			strcat(str, num);
 
 			HwMdPuts(str, sel == 3 ? 0x4000 : 0x2000, 32, 1);
+			mdTextVisible = 1;
+		}
+		else if (mdTextVisible)
+		{
+			HwMdClearScreen();
+			mdTextVisible = 0;
 		}
 
 		if (custom)
@@ -958,6 +958,7 @@ void tp_white_rgb()
 
 		Hw32xScreenFlip(0);
 	}
+	HwMdClearScreen();
 	return;
 }
 
@@ -968,21 +969,20 @@ void tp_100_ire()
 	char str[2];
 	u16 button, pressedButton, oldButton = 0xFFFF;
 
-	Hw32xSetPalette(ire_Palette);
+	set_pattern_palette_with_text(ire_Palette);
 
 	Hw32xScreenFlip(0);
 
 	while (!done)
 	{
 		Hw32xFlipWait();
-		loadTextPalette();
 
 		button = MARS_SYS_COMM8;
 
 		if (draw)
 		{
 			setColor(0, 30, 30, 30);
-			init_tilemap(&tm, &ire_map_Map, (uint8_t **)ire_Reslist);
+			init_tilemap(&tm, &ire_map_Map, (const uint8_t * const *)ire_Reslist);
 			canvas_rebuild_id++;
 			draw = 0;
 		}
@@ -1014,18 +1014,18 @@ void tp_100_ire()
 			if (pressedButton & SEGA_CTRL_C)
 			{
 				DrawHelp(HELP_IRE);
-				init_tilemap(&tm, &ire_map_Map, (uint8_t **)ire_Reslist);
+				init_tilemap(&tm, &ire_map_Map, (const uint8_t * const *)ire_Reslist);
 				canvas_rebuild_id++;
-				Hw32xSetPalette(ire_Palette);
+				set_pattern_palette_with_text(ire_Palette);
 			}
 		}
 
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			DrawHelp(HELP_IRE);
-			init_tilemap(&tm, &ire_map_Map, (uint8_t **)ire_Reslist);
+			init_tilemap(&tm, &ire_map_Map, (const uint8_t * const *)ire_Reslist);
 			canvas_rebuild_id++;
-			Hw32xSetPalette(ire_Palette);
+			set_pattern_palette_with_text(ire_Palette);
 		}
 
 		switch (ire)
@@ -1078,8 +1078,8 @@ void tp_100_ire()
 			drawTextwHighlight("IRE:", 256, 200, fontColorWhite, fontColorWhiteHighlight);
 			intToStr(irevals[ire], str, 2);
 			drawTextwHighlight(str, 288, 200, fontColorWhite, fontColorWhiteHighlight);
-		} else if (!text) {
-			canvas_rebuild_id++;
+			if (!text)
+				canvas_rebuild_id++;
 		}
 
 		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
@@ -1090,12 +1090,28 @@ void tp_100_ire()
 	return;
 }
 
+static void sharpness_set_pattern(int pattern)
+{
+	if (pattern == 1)
+	{
+		Hw32xSetPalette(sharpness_Palette);
+		init_tilemap(&tm, &sharpness_map_Map,
+			(const uint8_t * const *)sharpness_Reslist);
+	}
+	else
+	{
+		Hw32xSetPalette(sharpnessbrick_Palette);
+		init_tilemap(&tm, &sharpnessbrick_map_Map,
+			(const uint8_t * const *)sharpnessbrick_Reslist);
+	}
+}
+
 void tp_sharpness()
 {
 	u16 done = 0, pattern = 1, fpcamera_x = 0, fpcamera_y = 0;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 
-	Hw32xSetPalette(sharpness_Palette);
+	sharpness_set_pattern(pattern);
 
 	Hw32xScreenFlip(0);
 
@@ -1117,6 +1133,7 @@ void tp_sharpness()
 
 			if (pattern > 2)
 				pattern = 1;
+			sharpness_set_pattern(pattern);
 		}
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
@@ -1124,57 +1141,14 @@ void tp_sharpness()
 			if (pressedButton & SEGA_CTRL_C)
 			{
 				DrawHelp(HELP_SHARPNESS);
-
-				switch (pattern)
-				{
-					case 1:
-						Hw32xSetPalette(sharpness_Palette);
-						init_tilemap(&tm, &sharpness_map_Map, (uint8_t **)sharpness_Reslist);
-						canvas_rebuild_id++;
-						break;
-
-					case 2:
-						Hw32xSetPalette(sharpnessbrick_Palette);
-						init_tilemap(&tm, &sharpnessbrick_map_Map, (uint8_t **)sharpnessbrick_Reslist);
-						canvas_rebuild_id++;
-						break;
-				}
+				sharpness_set_pattern(pattern);
 			}
 		}
 
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			DrawHelp(HELP_SHARPNESS);
-
-			switch (pattern)
-			{
-				case 1:
-					Hw32xSetPalette(sharpness_Palette);
-					init_tilemap(&tm, &sharpness_map_Map, (uint8_t **)sharpness_Reslist);
-					canvas_rebuild_id++;
-					break;
-
-				case 2:
-					Hw32xSetPalette(sharpnessbrick_Palette);
-					init_tilemap(&tm, &sharpnessbrick_map_Map, (uint8_t **)sharpnessbrick_Reslist);
-					canvas_rebuild_id++;
-					break;
-			}
-		}
-
-		switch (pattern)
-		{
-			case 1:
-				Hw32xSetPalette(sharpness_Palette);
-				init_tilemap(&tm, &sharpness_map_Map, (uint8_t **)sharpness_Reslist);
-				canvas_rebuild_id++;
-				break;
-
-			case 2:
-				Hw32xSetPalette(sharpnessbrick_Palette);
-				init_tilemap(&tm, &sharpnessbrick_map_Map, (uint8_t **)sharpnessbrick_Reslist);
-				canvas_rebuild_id++;
-				break;
+			sharpness_set_pattern(pattern);
 		}
 
 		if (pressedButton & SEGA_CTRL_START)
@@ -1201,16 +1175,13 @@ void tp_overscan()
 
 	setColor(2, 31, 31, 31);
 	setColor(1, 15, 15, 15);
+	loadTextPalette();
 
 	Hw32xScreenFlip(0);
 
 	while (!done)
 	{
 		Hw32xFlipWait();
-		loadTextPalette();
-
-		setColor(2, 31, 31, 31);
-		setColor(1, 15, 15, 15);
 		clearScreen_Fill16bit(2);
 
 		char datat[10];
@@ -1224,8 +1195,7 @@ void tp_overscan()
 		t = top;
 		b = bottom;
 
-		for (int i = t; i <= b; i++)
-			drawLine(l, i, r - l, 1);
+		fillRect8(l, t, r - l, b - t + 1, 1);
 
 		// Text
 		intToStr(top, datat, 1);
@@ -1378,12 +1348,44 @@ void tp_overscan()
 	return;
 }
 
+static void convergence_set_pattern(int pattern)
+{
+	switch (pattern)
+	{
+		case 1:
+			Hw32xSetPalette(convergencegrid_Palette);
+			init_tilemap(&tm, &convergencegrid_map_Map,
+				(const uint8_t * const *)convergencegrid_Reslist);
+			break;
+		case 2:
+			Hw32xSetPalette(convergencegrid_Palette);
+			init_tilemap(&tm, &convergencedots_map_Map,
+				(const uint8_t * const *)convergencedots_Reslist);
+			break;
+		case 3:
+			Hw32xSetPalette(convergencegrid_Palette);
+			init_tilemap(&tm, &convergencecross_map_Map,
+				(const uint8_t * const *)convergencecross_Reslist);
+			break;
+		case 4:
+			Hw32xSetPalette(convergencewrgb_Palette);
+			init_tilemap(&tm, &convergencewrgb_map_Map,
+				(const uint8_t * const *)convergencewrgb_Reslist);
+			break;
+		default:
+			Hw32xSetPalette(convergencewrgbborder_Palette);
+			init_tilemap(&tm, &convergencewrgbborder_map_Map,
+				(const uint8_t * const *)convergencewrgbborder_Reslist);
+			break;
+	}
+}
+
 void tp_convergence()
 {
 	u16 done = 0, pattern = 1, fpcamera_x = 0, fpcamera_y = 0;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 
-	Hw32xSetPalette(convergencegrid_Palette);
+	convergence_set_pattern(pattern);
 
 	Hw32xScreenFlip(0);
 
@@ -1404,6 +1406,7 @@ void tp_convergence()
 			pattern++;
 			if (pattern > 3)
 				pattern = 1;
+			convergence_set_pattern(pattern);
 		}
 
 		if (pressedButton & SEGA_CTRL_B)
@@ -1414,6 +1417,7 @@ void tp_convergence()
 			pattern++;
 			if (pattern > 5)
 				pattern = 4;
+			convergence_set_pattern(pattern);
 		}
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
@@ -1421,47 +1425,14 @@ void tp_convergence()
 			if (pressedButton & SEGA_CTRL_C)
 			{
 				DrawHelp(HELP_CONVERGENCE);
-				Hw32xSetPalette(convergencegrid_Palette);
+				convergence_set_pattern(pattern);
 			}
 		}
 
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			DrawHelp(HELP_CONVERGENCE);
-			Hw32xSetPalette(convergencegrid_Palette);
-		}
-
-		switch (pattern)
-		{
-			case 1:
-				Hw32xSetPalette(convergencegrid_Palette);
-				init_tilemap(&tm, &convergencegrid_map_Map, (uint8_t **)convergencegrid_Reslist);
-				canvas_rebuild_id++;
-				break;
-
-			case 2:
-				Hw32xSetPalette(convergencegrid_Palette);
-				init_tilemap(&tm, &convergencedots_map_Map, (uint8_t **)convergencedots_Reslist);
-				canvas_rebuild_id++;
-				break;
-
-			case 3:
-				Hw32xSetPalette(convergencegrid_Palette);
-				init_tilemap(&tm, &convergencecross_map_Map, (uint8_t **)convergencecross_Reslist);
-				canvas_rebuild_id++;
-				break;
-
-			case 4:
-				Hw32xSetPalette(convergencewrgb_Palette);
-				init_tilemap(&tm, &convergencewrgb_map_Map, (uint8_t **)convergencewrgb_Reslist);
-				canvas_rebuild_id++;
-				break;
-
-			case 5:
-				Hw32xSetPalette(convergencewrgbborder_Palette);
-				init_tilemap(&tm, &convergencewrgbborder_map_Map, (uint8_t **)convergencewrgbborder_Reslist);
-				canvas_rebuild_id++;
-				break;
+			convergence_set_pattern(pattern);
 		}
 
 		if (pressedButton & SEGA_CTRL_START)

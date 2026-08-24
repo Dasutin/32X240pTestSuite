@@ -32,6 +32,7 @@
 
 #include "32x.h"
 #include "hw_32x.h"
+#include "perf.h"
 #include "string.h"
 #include "shared_objects.h"
 #include "draw.h"
@@ -58,6 +59,22 @@ static volatile short new_alias_destination = -1;
 static volatile short new_alias_source;
 static volatile short new_alias_count;
 static volatile unsigned short new_alias_priority;
+static volatile unsigned short text_palette_enabled;
+
+static void apply_text_palette(volatile unsigned short *palette)
+{
+	palette[203] = COLOR(0, 0, 0);
+	palette[205] = COLOR(31, 31, 31);
+	palette[206] = COLOR(31, 0, 0);
+	palette[207] = COLOR(0, 31, 0);
+	palette[208] = COLOR(5, 5, 5);
+	palette[209] = COLOR(0, 0, 0);
+	palette[210] = COLOR(8, 8, 8);
+	palette[211] = COLOR(8, 0, 0);
+	palette[212] = COLOR(0, 8, 0);
+	palette[213] = COLOR(0, 0, 31);
+	palette[214] = COLOR(0, 0, 8);
+}
 
 int nodraw = 0;
 
@@ -66,7 +83,7 @@ int32_t canvas_height = 224;
 
 extern drawsprcmd_t slave_drawsprcmd;
 extern drawspr4cmd_t slave_drawspr4cmd;
-extern drawtilelayerscmd_t slave_drawtilelayerscmd;
+extern drawtileslavecmd_t slave_drawtilecmd;
 
 static volatile unsigned int mars_vblank_count = 0;
 
@@ -119,6 +136,9 @@ void pri_vbi_handler(void)
 		new_alias_destination = -1;
 	}
 
+	if (text_palette_enabled)
+		apply_text_palette(palette);
+
 	new_palette = NULL;
 	new_pri = 0;
 }
@@ -161,9 +181,52 @@ void Hw32xSetBGColor(int s, int r, int g, int b)
 	new_pri = 1;
 }
 
+void Hw32xSetPaletteColor(int index, int r, int g, int b)
+{
+	volatile unsigned short *palette = &MARS_CRAM;
+	unsigned short color;
+
+	if (index < 0 || index >= 256)
+		return;
+
+	color = COLOR(r, g, b) & COLOR_MASK;
+	if (index == fgs)
+	{
+		fgc = color | (fgc & COLOR_PRI);
+		color = fgc;
+	}
+	if (index == bgs)
+	{
+		bgc = color | (bgc & COLOR_PRI);
+		color = bgc;
+	}
+
+	palette[index] = color;
+}
+
 void Hw32xSetPalette(const uint8_t *palette)
 {
+	text_palette_enabled = 0;
 	new_palette = palette;
+}
+
+void Hw32xEnableTextPalette(void)
+{
+	text_palette_enabled = 1;
+	apply_text_palette(&MARS_CRAM);
+}
+
+int Hw32xPauseTextPalette(void)
+{
+	int was_enabled = text_palette_enabled != 0;
+
+	text_palette_enabled = 0;
+	return was_enabled;
+}
+
+void Hw32xResumeTextPalette(int wasEnabled)
+{
+	text_palette_enabled = wasEnabled ? 1 : 0;
 }
 
 void Hw32xSetFGOverlayPriorityBit(int priority)
@@ -192,8 +255,20 @@ void Hw32xSetPalettePriorityAliases(int destination, int source, int count, int 
 	new_alias_destination = destination;
 }
 
+typedef struct {
+	uint16_t *table;
+	uint32_t count;
+	int32_t current;
+	int32_t pitch;
+	int32_t wrap;
+	int32_t hscroll;
+} line_table_context_t;
+
+extern void sh2_update_line_table(const line_table_context_t *context);
+
 void Hw32xUpdateLineTable(int hscroll, int vscroll, int lineskip)
 {
+	uint32_t perf_start = perf_master_ticks();
 	int i;
 	int i_lineskip;
 	const int ymask = canvas_yaw - 1;
@@ -204,29 +279,16 @@ void Hw32xUpdateLineTable(int hscroll, int vscroll, int lineskip)
 
 	if (lineskip == 0)
 	{
-		unsigned count = canvas_height;
-		unsigned n = ((unsigned)count + 7) >> 3;
-		const int mpitch = pitch * canvas_yaw;
-
-			#define DO_LINE() do { \
-			if (ppitch >= mpitch) ppitch -= mpitch; \
-			*frameBuffer16++ = ppitch + hscroll; /* word offset of line */ \
-			ppitch += pitch; \
-		} while (0)
-
-		int ppitch = pitch * vscroll;
-		switch (count & 7)
-		{
-		case 0: do { DO_LINE();
-		case 7:      DO_LINE();
-		case 6:      DO_LINE();
-		case 5:      DO_LINE();
-		case 4:      DO_LINE();
-		case 3:      DO_LINE();
-		case 2:      DO_LINE();
-		case 1:      DO_LINE();
-		} while (--n > 0);
-		}
+		line_table_context_t context;
+		context.table = frameBuffer16;
+		context.count = canvas_height;
+		context.current = pitch * vscroll;
+		context.pitch = pitch;
+		context.wrap = pitch * canvas_yaw;
+		context.hscroll = hscroll;
+		sh2_update_line_table(&context);
+		perf_record(PERF_CPU_MASTER, PERF_METRIC_LINE_TABLE,
+			perf_master_ticks() - perf_start);
 		return;
 	}
 
@@ -242,6 +304,8 @@ void Hw32xUpdateLineTable(int hscroll, int vscroll, int lineskip)
 		vscroll++;
 		i_lineskip += lineskip + 1;
 	}
+	perf_record(PERF_CPU_MASTER, PERF_METRIC_LINE_TABLE,
+		perf_master_ticks() - perf_start);
 }
 
 void Hw32xInit(int vmode, int lineskip)
@@ -599,6 +663,17 @@ void Hw32xFlipWait()
 
 // Mega Drive Command Support Code
 
+#define MD_SHARED_BUFFER       ((volatile uint16_t *)0x2401FF00u)
+#define MD_TEXT_BUFFER_BYTES   120
+#define MD_CMD_PUTS            0x1700
+#define MD_CMD_SCROLL_PLANES   0x1800
+#define MD_CMD_CONTROLLERS     0x1900
+#define MD_CONTROLLER_DEBUG_REPLY 0xFFFF
+
+static unsigned short mdControllerTypes[MD_CONTROLLER_COUNT];
+static unsigned short mdControllerPortTypes[2];
+static unsigned short mdControllerPortSupports[2];
+
 unsigned short HwMdReadPad(int port)
 {
 	if (port == 0)
@@ -607,6 +682,184 @@ unsigned short HwMdReadPad(int port)
 		return MARS_SYS_COMM10;
 	else
 		return SEGA_CTRL_NONE;
+}
+
+static void HwMdControllerCommand(unsigned short operation)
+{
+	while (MARS_SYS_COMM0);
+	MARS_SYS_COMM0 = MD_CMD_CONTROLLERS | operation;
+	while (MARS_SYS_COMM0);
+}
+
+void HwMdControllerEnable(void)
+{
+	int i;
+
+	for (i = 0; i < MD_CONTROLLER_COUNT; i++)
+		mdControllerTypes[i] = MD_CONTROLLER_TYPE_UNKNOWN;
+	mdControllerPortTypes[0] = MD_CONTROLLER_PORT_UNKNOWN;
+	mdControllerPortTypes[1] = MD_CONTROLLER_PORT_UNKNOWN;
+	mdControllerPortSupports[0] = MD_CONTROLLER_SUPPORT_OFF;
+	mdControllerPortSupports[1] = MD_CONTROLLER_SUPPORT_OFF;
+
+	HwMdControllerCommand(0);
+	Hw32xDelay(2);
+	HwMdControllerReadPortInfo(mdControllerPortTypes, mdControllerPortSupports);
+}
+
+void HwMdControllerDisable(void)
+{
+	HwMdControllerCommand(1);
+}
+
+void HwMdControllerReset(void)
+{
+	HwMdControllerCommand(2);
+	Hw32xDelay(2);
+	HwMdControllerReadPortInfo(mdControllerPortTypes, mdControllerPortSupports);
+}
+
+static void HwMdControllerReadPayload(unsigned short *words)
+{
+	unsigned short verify[6];
+	int i;
+
+	do
+	{
+		words[0] = MARS_SYS_COMM2;
+		words[1] = MARS_SYS_COMM6;
+		words[2] = MARS_SYS_COMM8;
+		words[3] = MARS_SYS_COMM10;
+		words[4] = MARS_SYS_COMM12;
+		words[5] = MARS_SYS_COMM14;
+
+		verify[0] = MARS_SYS_COMM2;
+		verify[1] = MARS_SYS_COMM6;
+		verify[2] = MARS_SYS_COMM8;
+		verify[3] = MARS_SYS_COMM10;
+		verify[4] = MARS_SYS_COMM12;
+		verify[5] = MARS_SYS_COMM14;
+
+		for (i = 0; i < 6; i++)
+		{
+			if (words[i] != verify[i])
+				break;
+		}
+	}
+	while (i != 6);
+}
+
+static unsigned short HwMdControllerDecodeType(unsigned short packed)
+{
+	if (packed == 0)
+		return MD_CONTROLLER_TYPE_PAD3;
+	if (packed == 1)
+		return MD_CONTROLLER_TYPE_PAD6;
+	return MD_CONTROLLER_TYPE_UNKNOWN;
+}
+
+void HwMdControllerReadSnapshot(unsigned short *states,
+	unsigned short *types, unsigned short *portTypes,
+	unsigned short *portSupports)
+{
+	unsigned short words[6];
+	int i;
+
+	HwMdControllerReadPayload(words);
+
+	states[0] = words[0] & 0x0FFF;
+	states[1] = ((words[0] >> 12) | ((words[1] & 0x00FF) << 4)) & 0x0FFF;
+	states[2] = ((words[1] >> 8) | ((words[2] & 0x000F) << 8)) & 0x0FFF;
+	states[3] = (words[2] >> 4) & 0x0FFF;
+	states[4] = words[3] & 0x0FFF;
+	states[5] = ((words[3] >> 12) | ((words[4] & 0x00FF) << 4)) & 0x0FFF;
+	states[6] = ((words[4] >> 8) | ((words[5] & 0x000F) << 8)) & 0x0FFF;
+	states[7] = (words[5] >> 4) & 0x0FFF;
+
+	for (i = 0; i < MD_CONTROLLER_COUNT; i++)
+		types[i] = mdControllerTypes[i];
+
+	if (portTypes)
+	{
+		portTypes[0] = mdControllerPortTypes[0];
+		portTypes[1] = mdControllerPortTypes[1];
+	}
+	if (portSupports)
+	{
+		portSupports[0] = mdControllerPortSupports[0];
+		portSupports[1] = mdControllerPortSupports[1];
+	}
+}
+
+void HwMdControllerReadPortInfo(unsigned short *portTypes,
+	unsigned short *portSupports)
+{
+	unsigned short packedTypes;
+	int i;
+
+	MARS_SYS_COMM2 = 0xAAAA;
+	HwMdControllerCommand(3);
+	while (MARS_SYS_COMM2 != MD_CONTROLLER_DEBUG_REPLY);
+
+	packedTypes = MARS_SYS_COMM6;
+	for (i = 0; i < MD_CONTROLLER_COUNT; i++)
+		mdControllerTypes[i] =
+			HwMdControllerDecodeType((packedTypes >> (i << 1)) & 3);
+	mdControllerPortTypes[0] = MARS_SYS_COMM8;
+	mdControllerPortTypes[1] = MARS_SYS_COMM10;
+	mdControllerPortSupports[0] = MARS_SYS_COMM12;
+	mdControllerPortSupports[1] = MARS_SYS_COMM14;
+
+	portTypes[0] = mdControllerPortTypes[0];
+	portTypes[1] = mdControllerPortTypes[1];
+	portSupports[0] = mdControllerPortSupports[0];
+	portSupports[1] = mdControllerPortSupports[1];
+	/* The 68000 writes COMM2 last for both reply and state packets. */
+	while (MARS_SYS_COMM2 == MD_CONTROLLER_DEBUG_REPLY);
+}
+
+unsigned short HwMdControllerReadState(int controller)
+{
+	unsigned short states[MD_CONTROLLER_COUNT];
+	unsigned short types[MD_CONTROLLER_COUNT];
+
+	if (controller < 0 || controller >= MD_CONTROLLER_COUNT)
+		return 0;
+	HwMdControllerReadSnapshot(states, types, 0, 0);
+	return states[controller];
+}
+
+unsigned short HwMdControllerReadType(int controller)
+{
+	unsigned short states[MD_CONTROLLER_COUNT];
+	unsigned short types[MD_CONTROLLER_COUNT];
+
+	if (controller < 0 || controller >= MD_CONTROLLER_COUNT)
+		return MD_CONTROLLER_TYPE_UNKNOWN;
+	HwMdControllerReadSnapshot(states, types, 0, 0);
+	return types[controller];
+}
+
+unsigned short HwMdControllerReadPortType(int port)
+{
+	unsigned short portTypes[2];
+	unsigned short portSupports[2];
+
+	if (port < 0 || port > 1)
+		return MD_CONTROLLER_PORT_UNKNOWN;
+	HwMdControllerReadPortInfo(portTypes, portSupports);
+	return portTypes[port];
+}
+
+unsigned short HwMdControllerReadPortSupport(int port)
+{
+	unsigned short portTypes[2];
+	unsigned short portSupports[2];
+
+	if (port < 0 || port > 1)
+		return MD_CONTROLLER_SUPPORT_OFF;
+	HwMdControllerReadPortInfo(portTypes, portSupports);
+	return portSupports[port];
 }
 
 unsigned char HwMdReadSram(unsigned short offset)
@@ -669,17 +922,40 @@ void HwMdSetVram(unsigned short word)
 	while (MARS_SYS_COMM0);
 }
 
-void HwMdPuts(char *str, int color, int x, int y)
+void HwMdPuts(const char *str, int color, int x, int y)
 {
-	HwMdSetOffset(((y << 6) | x) << 1);
+	unsigned short offset = ((y << 6) | x) << 1;
+
 	while (*str)
-		HwMdSetNTable(((*str++ - 0x20) & 0xFF) | color);
+	{
+		volatile uint16_t *shared = MD_SHARED_BUFFER;
+		volatile uint8_t *text = (volatile uint8_t *)(shared + 3);
+		unsigned short length = 0;
+		unsigned short i;
+
+		while (str[length] && length < MD_TEXT_BUFFER_BYTES)
+			length++;
+
+		/* The 68000 temporarily owns the shared framebuffer window. */
+		Mars_R_SecWait();
+		while (MARS_SYS_COMM0);
+		shared[0] = offset;
+		shared[1] = color;
+		shared[2] = length;
+		for (i = 0; i < length; i++)
+			text[i] = str[i];
+		MARS_SYS_COMM0 = MD_CMD_PUTS;
+		while (MARS_SYS_COMM0);
+
+		str += length;
+		offset += length << 1;
+	}
 }
 
 void HwMdPutc(char chr, int color, int x, int y)
 {
-	HwMdSetOffset(((y << 6) | x) << 1);
-	HwMdSetNTable(((chr - 0x20) & 0xFF) | color);
+	char text[2] = { chr, 0 };
+	HwMdPuts(text, color, x, y);
 }
 
 void HwMdScreenPrintf(int color, int x, int y, const char *format, ...)
@@ -741,13 +1017,9 @@ void HwMdPSGSetChandVol(unsigned short channel, unsigned short vol)
 
 void HwMdPSGSendTone(unsigned short value1, unsigned short value2)
 {
-
 	while (MARS_SYS_COMM0);
-	MARS_SYS_COMM2 = value1;                    // Send first half of data
-	MARS_SYS_COMM0 = 0x0E00;                    // Send handle request flag
-	while (MARS_SYS_COMM0);
-	MARS_SYS_COMM2 = value2;                    // Send second half of data
-	MARS_SYS_COMM0 = 0x0F00;                    // Send handle request flag
+	MARS_SYS_COMM2 = ((value1 & 0xFF) << 8) | (value2 & 0xFF);
+	MARS_SYS_COMM0 = 0x0E00;                    // Send both PSG bytes
 	while (MARS_SYS_COMM0);
 }
 
@@ -850,6 +1122,21 @@ void HwMdVScrollPlane(char plane, int vscroll)
 	while (MARS_SYS_COMM0);
 }
 
+void HwMdSetPlaneScrolls(int hscroll_a, int vscroll_a,
+	int hscroll_b, int vscroll_b)
+{
+	volatile uint16_t *shared = MD_SHARED_BUFFER;
+
+	Mars_R_SecWait();
+	while (MARS_SYS_COMM0);
+	shared[0] = hscroll_a;
+	shared[1] = vscroll_a;
+	shared[2] = hscroll_b;
+	shared[3] = vscroll_b;
+	MARS_SYS_COMM0 = MD_CMD_SCROLL_PLANES;
+	while (MARS_SYS_COMM0);
+}
+
 // Put Secondary Calls here
 
 int secondary_task(int cmd)
@@ -861,24 +1148,29 @@ int secondary_task(int cmd)
 	case 1:
 		return 1;
 	case 2:
+	{
+		uint32_t perf_start;
 		ClearCacheLines(&slave_drawsprcmd, (sizeof(drawsprcmd_t) + 15) / 16);
+		perf_start = perf_slave_ticks();
 		draw_handle_drawspritecmd(&slave_drawsprcmd);
+		perf_record_sprite(PERF_CPU_SLAVE, slave_drawsprcmd.sdata,
+			perf_slave_ticks() - perf_start);
 		return 1;
+	}
 	case 3:
-		ClearCacheLines((uintptr_t)&canvas_width & ~15, 1);
-		ClearCacheLines((uintptr_t)&canvas_height & ~15, 1);
-		ClearCacheLines((uintptr_t)&window_canvas_x & ~15, 1);
-		ClearCacheLines((uintptr_t)&window_canvas_y & ~15, 1);
-		ClearCacheLines((uintptr_t)&canvas_pitch & ~15, 1);
-		ClearCacheLines((uintptr_t)&canvas_yaw & ~15, 1);
-		ClearCacheLines((uintptr_t)&nodraw & ~15, 1);
-		ClearCacheLines(&slave_drawtilelayerscmd, (sizeof(drawtilelayerscmd_t) + 15) / 16);
-		ClearCacheLines(&tm, (sizeof(tilemap_t) + 15) / 16);
-		drawcnt = draw_handle_layercmd(&slave_drawtilelayerscmd);
+	{
+		uint32_t perf_start;
+		ClearCacheLines(&slave_drawtilecmd,
+			(sizeof(drawtileslavecmd_t) + 15) / 16);
+		perf_start = perf_slave_ticks();
+		drawcnt = draw_handle_layercmd(&slave_drawtilecmd.draw);
+		perf_record(PERF_CPU_SLAVE, PERF_METRIC_TILEMAP,
+			perf_slave_ticks() - perf_start);
 		drawcnt = ((drawcnt + 1) << 2) | MARS_SYS_COMM4;
 		MARS_SYS_COMM4 = drawcnt;
 		while (MARS_SYS_COMM4 == drawcnt);
 		return 1;
+	}
 	case 4:
 	case 5:
 		return 1;
@@ -890,6 +1182,12 @@ int secondary_task(int cmd)
 		return 1;
 	case 8:
 		Mars_Sec_StartSoundMixer();
+		return 1;
+	case MARS_SEC_CMD_PWM_TEST_START:
+		Mars_Sec_StartTestPWMTone();
+		return 1;
+	case MARS_SEC_CMD_PWM_TEST_STOP:
+		Mars_Sec_StopTestPWMTone();
 		return 1;
 	case MARS_SEC_CMD_SDRAM_PARK:
 		Hw32xSecondaryPark();

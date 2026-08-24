@@ -26,9 +26,6 @@
 #define DSWAP_BYTE(b)
 #endif
 
-extern int32_t canvas_pitch;
-extern int nodraw;
-
 typedef void(*DFUNC(_spr8func_t))(DUINT *, drawsprcmd_t *cmd);
 
 void DFUNC(_sprite8_flip0or2)(DUINT* fb, drawsprcmd_t* cmd) __attribute__((section(".data"), aligned(16)));
@@ -108,20 +105,20 @@ void DFUNC(_sprite8_flip0or2)(DUINT * fb, drawsprcmd_t * cmd)
     unsigned x = cmd->x, y = cmd->y;
     unsigned w = cmd->w, h = cmd->h;
 
-    if (nodraw) return;
+    if (cmd->render.flags & DRAW_RENDER_NODRAW) return;
 
     hw = w >> DUINT_RSH;
     hsw = cmd->sw >> DUINT_RSH;
-    hdw = canvas_pitch >> DUINT_RSH;
+    hdw = cmd->render.canvas_pitch >> DUINT_RSH;
     if (hw == 0)
         return;
 
-    if (cmd->flags & (DRAWSPR_HFLIP|DRAWSPR_VFLIP)) {
+    if (cmd->flags & DRAWSPR_VFLIP) {
         y = y + h - 1;
         hdw = -hdw;
     }
 
-    td = (DUINT*)fb + ((y*canvas_pitch + x) >> DUINT_RSH);
+    td = (DUINT*)fb + ((y*cmd->render.canvas_pitch + x) >> DUINT_RSH);
     ts += hsw * cmd->sy + (cmd->sx >> DUINT_RSH);
 
     if (sizeof(DUINT) == 2 && !(hw & 3) && !((intptr_t)ts & 3) && !((intptr_t)td & 3)) {
@@ -195,7 +192,7 @@ void DFUNC(_sprite8_scale_flip0or2)(DUINT *fb, drawsprcmd_t *cmd)
     unsigned x = cmd->x, y = cmd->y;
     unsigned h = cmd->h;
 
-    if (nodraw) return;
+    if (cmd->render.flags & DRAW_RENDER_NODRAW) return;
 
     SH2_DIVU_DVSR = cmd->scale; // set 32-bit divisor
     SH2_DIVU_DVDNTH = 1;   // set high bits of the 64-bit dividend
@@ -203,17 +200,17 @@ void DFUNC(_sprite8_scale_flip0or2)(DUINT *fb, drawsprcmd_t *cmd)
 
     hw = cmd->w >> DUINT_RSH;
     hsw = cmd->sw >> DUINT_RSH;
-    hdw = canvas_pitch >> DUINT_RSH;
+    hdw = cmd->render.canvas_pitch >> DUINT_RSH;
     nn = (hw + 7) >> 3;
     if (hw == 0)
         return;
 
-    if (cmd->flags & (DRAWSPR_HFLIP | DRAWSPR_VFLIP)) {
+    if (cmd->flags & DRAWSPR_VFLIP) {
         y = y + h - 1;
         hdw = -hdw;
     }
 
-    td = (DUINT*)fb + ((y*canvas_pitch + x) >> DUINT_RSH);
+    td = (DUINT*)fb + ((y*cmd->render.canvas_pitch + x) >> DUINT_RSH);
 
     umask = hsw - 1;
     vmask = cmd->sh - 1;
@@ -276,11 +273,11 @@ void DFUNC(_sprite8_flip1)(DUINT* fb, drawsprcmd_t* cmd)
     unsigned x = cmd->x, y = cmd->y;
     unsigned w = cmd->w, h = cmd->h;
 
-    if (nodraw) return;
+    if (cmd->render.flags & DRAW_RENDER_NODRAW) return;
 
     hw = cmd->w >> DUINT_RSH;
     hsw = cmd->sw >> DUINT_RSH;
-    hdw = canvas_pitch >> DUINT_RSH;
+    hdw = cmd->render.canvas_pitch >> DUINT_RSH;
     if (hw == 0)
         return;
 
@@ -290,7 +287,7 @@ void DFUNC(_sprite8_flip1)(DUINT* fb, drawsprcmd_t* cmd)
     }
 
     x = x + w - 1;
-    td = (DUINT*)fb + ((y * canvas_pitch + x) >> DUINT_RSH);
+    td = (DUINT*)fb + ((y * cmd->render.canvas_pitch + x) >> DUINT_RSH);
     ts += hsw * cmd->sy + (cmd->sx >> DUINT_RSH);
 
     if (sizeof(DUINT) == 1 && !(x & 1) && (w > 3) && !(cmd->sx & 1) && (cmd->flags & DRAWSPR_OVERWRITE)) {
@@ -359,7 +356,7 @@ void DFUNC(_sprite8_scale_flip1)(DUINT* fb, drawsprcmd_t* cmd)
     unsigned x = cmd->x, y = cmd->y;
     unsigned w = cmd->w, h = cmd->h;
 
-    if (nodraw) return;
+    if (cmd->render.flags & DRAW_RENDER_NODRAW) return;
 
     SH2_DIVU_DVSR = cmd->scale; // set 32-bit divisor
     SH2_DIVU_DVDNTH = 1;   // set high bits of the 64-bit dividend
@@ -367,7 +364,7 @@ void DFUNC(_sprite8_scale_flip1)(DUINT* fb, drawsprcmd_t* cmd)
 
     hw = cmd->w >> DUINT_RSH;
     hsw = cmd->sw >> DUINT_RSH;
-    hdw = canvas_pitch >> DUINT_RSH;
+    hdw = cmd->render.canvas_pitch >> DUINT_RSH;
     nn = (hw + 7) >> 3;
     if (hw == 0)
         return;
@@ -378,7 +375,7 @@ void DFUNC(_sprite8_scale_flip1)(DUINT* fb, drawsprcmd_t* cmd)
     }
 
     x = x + w - 1;
-    td = (DUINT*)fb + ((y * canvas_pitch + x) >> DUINT_RSH);
+    td = (DUINT*)fb + ((y * cmd->render.canvas_pitch + x) >> DUINT_RSH);
 
     umask = hsw - 1;
     vmask = cmd->sh - 1;
@@ -414,13 +411,185 @@ void DFUNC(_sprite8_scale_flip1)(DUINT* fb, drawsprcmd_t* cmd)
 #undef DO_PIXEL
 }
 
+#if DRAW_DST_BITS == 8
+typedef void (*sh2_blit8_rowfn_t)(uint8_t *dst, const uint8_t *src,
+    unsigned count);
+
+extern void sh2_blit8_copy_row(uint8_t *dst, const uint8_t *src,
+    unsigned count);
+extern void sh2_blit8_overwrite_row(uint8_t *dst, const uint8_t *src,
+    unsigned count);
+extern void sh2_blit8_reverse_row(uint8_t *dst_end, const uint8_t *src,
+    unsigned count);
+
+typedef struct {
+    uint8_t *dst;
+    const uint8_t *src;
+    uint32_t u;
+    uint32_t step;
+    uint32_t umask;
+    uint32_t count;
+} sh2_scale8_row_t;
+
+extern void sh2_scale8_forward_row(const sh2_scale8_row_t *row);
+extern void sh2_scale8_reverse_row(const sh2_scale8_row_t *row);
+
+void draw8_sprite8_asm_flip0(uint8_t *fb, drawsprcmd_t *cmd)
+    __attribute__((section(".data"), aligned(16)));
+void draw8_sprite8_asm_flip1(uint8_t *fb, drawsprcmd_t *cmd)
+    __attribute__((section(".data"), aligned(16)));
+void draw8_sprite8_asm_scale_flip0(uint8_t *fb, drawsprcmd_t *cmd)
+    __attribute__((section(".data"), aligned(16)));
+void draw8_sprite8_asm_scale_flip1(uint8_t *fb, drawsprcmd_t *cmd)
+    __attribute__((section(".data"), aligned(16)));
+
+void draw8_sprite8_asm_flip0(uint8_t *fb, drawsprcmd_t *cmd)
+{
+    uint8_t *dst;
+    const uint8_t *src;
+    unsigned i;
+    unsigned w = cmd->w;
+    unsigned h = cmd->h;
+    unsigned y = cmd->y;
+    int dst_step = cmd->render.canvas_pitch;
+    sh2_blit8_rowfn_t rowfn;
+
+    if ((cmd->render.flags & DRAW_RENDER_NODRAW) || !w || !h)
+        return;
+    if (cmd->flags & DRAWSPR_VFLIP) {
+        y += h - 1;
+        dst_step = -dst_step;
+    }
+
+    dst = fb + y * cmd->render.canvas_pitch + cmd->x;
+    src = (const uint8_t *)cmd->sdata + cmd->sy * cmd->sw + cmd->sx;
+    rowfn = cmd->flags & DRAWSPR_OVERWRITE ?
+        sh2_blit8_overwrite_row : sh2_blit8_copy_row;
+
+    for (i = h; i; i--) {
+        rowfn(dst, src, w);
+        dst += dst_step;
+        src += cmd->sw;
+    }
+}
+
+void draw8_sprite8_asm_flip1(uint8_t *fb, drawsprcmd_t *cmd)
+{
+    uint8_t *dst;
+    const uint8_t *src;
+    unsigned i;
+    unsigned w = cmd->w;
+    unsigned h = cmd->h;
+    unsigned y = cmd->y;
+    int dst_step = cmd->render.canvas_pitch;
+
+    if ((cmd->render.flags & DRAW_RENDER_NODRAW) || !w || !h)
+        return;
+    if (cmd->flags & DRAWSPR_VFLIP) {
+        y += h - 1;
+        dst_step = -dst_step;
+    }
+
+    dst = fb + y * cmd->render.canvas_pitch + cmd->x + w - 1;
+    src = (const uint8_t *)cmd->sdata + cmd->sy * cmd->sw + cmd->sx;
+    for (i = h; i; i--) {
+        sh2_blit8_reverse_row(dst, src, w);
+        dst += dst_step;
+        src += cmd->sw;
+    }
+}
+
+void draw8_sprite8_asm_scale_flip0(uint8_t *fb, drawsprcmd_t *cmd)
+{
+    sh2_scale8_row_t row;
+    const uint8_t *source = (const uint8_t *)cmd->sdata;
+    unsigned i;
+    unsigned h = cmd->h;
+    unsigned y = cmd->y;
+    unsigned v = (unsigned)cmd->sy << 16;
+    unsigned vmask = cmd->sh - 1;
+    int dst_step = cmd->render.canvas_pitch;
+
+    if ((cmd->render.flags & DRAW_RENDER_NODRAW) || !cmd->w || !h)
+        return;
+
+    SH2_DIVU_DVSR = cmd->scale;
+    SH2_DIVU_DVDNTH = 1;
+    SH2_DIVU_DVDNTL = 0;
+
+    if (cmd->flags & DRAWSPR_VFLIP) {
+        y += h - 1;
+        dst_step = -dst_step;
+    }
+    row.dst = fb + y * cmd->render.canvas_pitch + cmd->x;
+    row.u = (unsigned)cmd->sx << 16;
+    row.umask = cmd->sw - 1;
+    row.count = cmd->w;
+    row.step = SH2_DIVU_DVDNTL;
+
+    for (i = h; i; i--) {
+        row.src = source + ((v >> 16) & vmask) * cmd->sw;
+        sh2_scale8_forward_row(&row);
+        row.dst += dst_step;
+        v += row.step;
+    }
+}
+
+void draw8_sprite8_asm_scale_flip1(uint8_t *fb, drawsprcmd_t *cmd)
+{
+    sh2_scale8_row_t row;
+    const uint8_t *source = (const uint8_t *)cmd->sdata;
+    unsigned i;
+    unsigned h = cmd->h;
+    unsigned y = cmd->y;
+    unsigned v = (unsigned)cmd->sy << 16;
+    unsigned vmask = cmd->sh - 1;
+    int dst_step = cmd->render.canvas_pitch;
+
+    if ((cmd->render.flags & DRAW_RENDER_NODRAW) || !cmd->w || !h)
+        return;
+
+    SH2_DIVU_DVSR = cmd->scale;
+    SH2_DIVU_DVDNTH = 1;
+    SH2_DIVU_DVDNTL = 0;
+
+    if (cmd->flags & DRAWSPR_VFLIP) {
+        y += h - 1;
+        dst_step = -dst_step;
+    }
+    row.dst = fb + y * cmd->render.canvas_pitch + cmd->x + cmd->w - 1;
+    row.u = (unsigned)cmd->sx << 16;
+    row.umask = cmd->sw - 1;
+    row.count = cmd->w;
+    row.step = SH2_DIVU_DVDNTL;
+
+    for (i = h; i; i--) {
+        row.src = source + ((v >> 16) & vmask) * cmd->sw;
+        sh2_scale8_reverse_row(&row);
+        row.dst += dst_step;
+        v += row.step;
+    }
+}
+
+static DFUNC(_spr8func_t) DFUNC(spr8funcs)[] = {
+    draw8_sprite8_asm_flip0,
+    draw8_sprite8_asm_flip1,
+    draw8_sprite8_asm_flip0,
+    draw8_sprite8_asm_flip1,
+    draw8_sprite8_asm_scale_flip0,
+    draw8_sprite8_asm_scale_flip1,
+    draw8_sprite8_asm_scale_flip0,
+    draw8_sprite8_asm_scale_flip1,
+};
+#else
 static DFUNC(_spr8func_t) DFUNC(spr8funcs)[] = {
     DFUNC(_sprite8_flip0or2),
     DFUNC(_sprite8_flip1),
-    DFUNC(_sprite8_flip1),
     DFUNC(_sprite8_flip0or2),
+    DFUNC(_sprite8_flip1),
     DFUNC(_sprite8_scale_flip0or2),
     DFUNC(_sprite8_scale_flip1),
-    DFUNC(_sprite8_scale_flip1),
     DFUNC(_sprite8_scale_flip0or2),
+    DFUNC(_sprite8_scale_flip1),
 };
+#endif

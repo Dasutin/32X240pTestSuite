@@ -53,7 +53,7 @@ typedef struct {
 	sound_t *snd;
 	unsigned char *buf;
 	unsigned long len;
-	char loop;
+	signed char loop;
 	char pan;			// When get around to making stereo sfx
 	unsigned char pad[2]; // Pad to one cache line
 } channel_t;
@@ -62,7 +62,7 @@ typedef void *sound_file_t;
 
 void sound_toggleMute(void);
 void sound_volume(char d);
-signed char sound_play(sound_t *sound, char loop, char selectch);
+signed char sound_play(sound_t *sound, signed char loop, char selectch);
 void sound_pause(char pause);
 void sound_stopChannel(unsigned char chan);
 void sound_stopSound(sound_t *sound);
@@ -70,10 +70,13 @@ int sound_isPlaying(sound_t *sound);
 void sound_stopAllChannels(void);
 void sound_load(sound_t *snd, char *name);
 void sound_free(sound_t *s);
-void sound_fillBuffer(unsigned long buffer);
+void sound_fillBuffer(unsigned long buffer) SND_ATTR_SDRAM;
 int sound_isInitialized(void);
+int sound_test_pwm_start(uint32_t frequency, char selectch);
+void sound_test_pwm_stop(void);
 
 extern int16_t snd_buffer[];
+extern volatile uint32_t sound_dma_late_count;
 
 extern char *soundFileName[NUM_SOUND_FILES];
 extern int soundFileSize[NUM_SOUND_FILES];
@@ -82,6 +85,9 @@ extern int soundFilePtr[NUM_SOUND_FILES];
 void Mars_Sec_InitSoundDMA(void);
 void Mars_Sec_StopSoundMixer(void);
 void Mars_Sec_StartSoundMixer(void);
+void Mars_Sec_StartTestPWMTone(void);
+void Mars_Sec_StopTestPWMTone(void);
+void sec_pwm_tone_handler(void) SND_ATTR_SDRAM;
 
 extern sound_file_t *sound_file_open(char *name);
 extern int sound_file_seek(sound_file_t *file, long offset, int origin);

@@ -13,6 +13,10 @@ extern uint16_t cd_ok;
 extern uint32_t Sub_Start;
 extern uint32_t Sub_End;
 
+uint32_t cd_sp_init_wait;
+uint32_t cd_sp_main_wait;
+uint16_t cd_init_failure;
+
 extern void Kos_Decomp(uint8_t *src, uint8_t *dst);
 
 extern void write_byte(unsigned int dst, unsigned char val);
@@ -27,7 +31,12 @@ extern void do_main(void);
 uint16_t InitCD(void)
 {
     char *bios;
-    int timeout = 0;
+    uint32_t timeout;
+    int sub_program_size = (int)&Sub_End - (int)&Sub_Start;
+
+    cd_sp_init_wait = 0;
+    cd_sp_main_wait = 0;
+    cd_init_failure = 0;
 
     /*
      * Check for CD BIOS
@@ -47,7 +56,10 @@ uint16_t InitCD(void)
                 bios = (char *)0x41AD00; // Might also be 0x40D500
                 // Check for LaserActive
                 if (memcmp(bios + 0x6D, "SEGA", 4))
+                {
+                    cd_init_failure = 1;
                     return 0; // No CD
+                }
             }
         }
     }
@@ -66,7 +78,17 @@ uint16_t InitCD(void)
      * Reset the Sub-CPU, request the bus
      */
     write_byte(0xA12001, 0x02);
-    while (!(read_byte(0xA12001) & 2)) write_byte(0xA12001, 0x02); // Wait on bus acknowledge
+    timeout = 2000000;
+    while (!(read_byte(0xA12001) & 2) && timeout)
+    {
+        write_byte(0xA12001, 0x02); // Wait on bus acknowledge
+        timeout--;
+    }
+    if (!timeout)
+    {
+        cd_init_failure = 2;
+        return 0;
+    }
 
     /*
      * Decompress Sub-CPU BIOS to Program RAM at 0x00000
@@ -78,12 +100,27 @@ uint16_t InitCD(void)
     /*
      * Copy Sub-CPU program to Program RAM at 0x06000
      */
-    memcpy((char *)0x426000, (char *)&Sub_Start, (int)&Sub_End - (int)&Sub_Start);
+    memcpy((char *)0x426000, (char *)&Sub_Start, sub_program_size);
+    if (memcmp((char *)0x426000, (char *)&Sub_Start, sub_program_size))
+    {
+        cd_init_failure = 5;
+        return 0;
+    }
 
     write_byte(0xA1200E, 0x00); // Clear main comm port
     write_byte(0xA12002, 0x2A); // Write-protect up to 0x05400
     write_byte(0xA12001, 0x01); // Clear bus request, deassert reset - allow CD Sub-CPU to run
-    while (!(read_byte(0xA12001) & 1)) write_byte(0xA12001, 0x01); // Wait on Sub-CPU running
+    timeout = 2000000;
+    while (!(read_byte(0xA12001) & 1) && timeout)
+    {
+        write_byte(0xA12001, 0x01); // Wait on Sub-CPU running
+        timeout--;
+    }
+    if (!timeout)
+    {
+        cd_init_failure = 2;
+        return 0;
+    }
 
     /*
      * Set the vertical blank handler to generate Sub-CPU level 2 ints.
@@ -100,10 +137,11 @@ uint16_t InitCD(void)
      */
     while (read_byte(0xA1200F) != 'I')
     {
-        timeout++;
-        if (timeout > 2000000)
+        cd_sp_init_wait++;
+        if (cd_sp_init_wait > 2000000)
         {
             gen_lvl2 = 0;
+            cd_init_failure = 3;
             return 0; // No CD
         }
     }
@@ -111,7 +149,16 @@ uint16_t InitCD(void)
     /*
      * Wait for Sub-CPU to indicate it is ready to receive commands
      */
-    while (read_byte(0xA1200F) != 0x00) ;
+    while (read_byte(0xA1200F) != 0x00)
+    {
+        cd_sp_main_wait++;
+        if (cd_sp_main_wait > 2000000)
+        {
+            gen_lvl2 = 0;
+            cd_init_failure = 4;
+            return 0;
+        }
+    }
 
     return 1; // CD ready to go!
 }

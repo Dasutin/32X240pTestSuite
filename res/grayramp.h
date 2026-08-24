@@ -764,7 +764,7 @@ const uint8_t grayramp_Res39[] __attribute__((aligned(16))) = {
 };
 
 
-const uint8_t * grayramp_Reslist[] = {
+const uint8_t * const grayramp_Reslist[] = {
 yatssd_empty_tile,
 grayramp_Res0,
 grayramp_Res1,

@@ -1,9 +1,22 @@
 #include "32x.h"
 #include "types.h"
 #include "draw.h"
+#include "perf.h"
 
 drawsprcmd_t slave_drawsprcmd ATTR_CACHE_ALIGNED;
 drawspr4cmd_t slave_drawspr4cmd ATTR_CACHE_ALIGNED;
+
+static void snapshot_render_state(drawrenderstate_t *state)
+{
+    state->canvas_width = canvas_width;
+    state->canvas_height = canvas_height;
+    state->canvas_pitch = canvas_pitch;
+    state->canvas_yaw = canvas_yaw;
+    state->window_canvas_x = window_canvas_x;
+    state->window_canvas_y = window_canvas_y;
+    state->flags = nodraw ? DRAW_RENDER_NODRAW : 0;
+    state->reserved = 0;
+}
 
 static int draw_clipsprite(int x, int y, int w, int h, int sw, int sh,
     rect_t* cliprect, const uint8_t* data, int flags, fixed_t scale)
@@ -52,17 +65,17 @@ static int draw_clipsprite(int x, int y, int w, int h, int sw, int sh,
         sy2 = ct + hh;
         break;
     case DRAWSPR_HFLIP:
-        sx = w + cl;
+        sx = sw - (w + cl);
         sy = ct;
         sy2 = ct + hh;
         break;
     case DRAWSPR_VFLIP:
-        sx = w + cl;
+        sx = cl;
         sy = cb + h - hh;
         sy2 = cb;
         break;
     case DRAWSPR_HFLIP | DRAWSPR_VFLIP:
-        sx = cl;
+        sx = sw - (w + cl);
         sy = cb + h - hh;
         sy2 = cb;
         break;
@@ -84,13 +97,6 @@ static int draw_clipsprite(int x, int y, int w, int h, int sw, int sh,
         if (sy2 < 0) sy2 = 0;
     }
 
-    switch (flags & (DRAWSPR_HFLIP | DRAWSPR_VFLIP)) {
-    case DRAWSPR_HFLIP:
-    case DRAWSPR_VFLIP:
-        sx = sw - sx;
-        break;
-    }
-
     cmd.flags = flags;
     cmd.x = x, cmd.y = y;
     cmd.w = w, cmd.h = hh;
@@ -98,6 +104,7 @@ static int draw_clipsprite(int x, int y, int w, int h, int sw, int sh,
     cmd.sw = sw, cmd.sh = sh;
     cmd.sdata = (void*)data;
     cmd.scale = scale;
+    snapshot_render_state(&cmd.render);
 
     if (h > hh)
     {
@@ -111,13 +118,20 @@ static int draw_clipsprite(int x, int y, int w, int h, int sw, int sh,
         scmd->sw = sw, scmd->sh = sh;
         scmd->sdata = (void*)data;
         scmd->scale = scale;
+        scmd->render = cmd.render;
 
         MARS_SYS_COMM4 = 2;
     }
 
-    draw_handle_drawspritecmd(&cmd);
+    {
+        uint32_t perf_start = perf_master_ticks();
+        draw_handle_drawspritecmd(&cmd);
+        perf_record_sprite(PERF_CPU_MASTER, cmd.sdata,
+            perf_master_ticks() - perf_start);
+    }
 
-    draw_dirtyrect(&tm, x, y, w, h);
+    if (!(flags & DRAWSPR_NODIRTY))
+        draw_dirtyrect(&tm, x, y, w, h);
 
     return 1;
 }

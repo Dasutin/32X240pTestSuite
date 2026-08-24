@@ -37,30 +37,9 @@
 */
 void loadPalette(const u16 *paletteStart, const u16 *paletteEnd, const int paletteOffset);
 
-/*
-* Draws an image to position on MARS framebuffer allowing you to flip the image using mirror param.
-*
-* @param spriteBuffer - pointer to starting position of image data to read
-* @param x - x pixel coordinate of top-left corner of the image
-* @param y - y pixel coordinate of top-left corner of the image
-* @param xWidth - vertical size of image to be drawn in pixels - must be actual size, does not resize or trim
-* @param yWidth - horizontal size of image to be drawn in pixels
-* @param mirror - 0 for normal 1 for flipped along y-axis
-* @param screenWrap - 0 for no screenWrap, 1 for screen wrapping
-*/
-int drawSprite(const vu8 *spriteBuffer, const s16 x, const s16 y, const int xWidth, const int yWidth, const int mirror,const int screenWrap);
-
-void drawS(u16 x, u16 y, u16 xWidth, u16 yWidth);
-
-void drawLine(u16 x, u16 y, u16 xWidth, u16 yWidth);
-
-/*
-* Draws a background image on MARS framebuffer allowing you to flip the image using mirror param, no transparency
-*
-* @param spriteBuffer - pointer to starting position of image data
-*
-*/
-int drawBG(const vu8 *spriteBuffer);
+void fillRow8(int x, int y, int width, u8 color);
+void fillRect8(int x, int y, int width, int height, u8 color);
+void fillScreen8Pitched(int pitch, int height, u8 color);
 
 /*
 * Draws blank pixels to rectangle specified by x, y, xWidth and yWidth (height)
@@ -72,24 +51,11 @@ void clearArea(vu16 x, vu16 y, int xWidth, int yWidth);
 */
 void drawLineTable(int xOff);
 
-/*
-* Draws pixels to rectangle specified by x, y, xWidth and yWidth (height). Must be on screen.
-* xWidth must be sized in multiples of 8 wide (8 pixels, 16 pixels, etc..)
-*
-*/
-void drawFillRect(const s16 x, const s16 y, const int xWidth, const int yWidth, vu8* color);
-
-/*
-* Draws pixels to outline a rectangle specified by x, y, xWidth and yWidth (height). Must be on screen.
-* xWidth must be sized in multiples of 8 wide (8 pixels, 16 pixels, etc..)
-*
-*/
-void drawRect(const s16 x, const s16 y, const int xWidth, const int yWidth, vu8* color);
-
 void my_debug_put_char_8(int x, int y, unsigned char ch, vu8* fgColor, vu8* bgColor);
 int myScreenPrintData(const char *buff, const int x, const int y, const vu8* fgColor, const vu8* bgColor );
-void drawText(const char *str, int x, int y, int palOffs);
-void drawTextwHighlight(const char *str, int x, int y, int textpalOffs, int shadowpalOffs);
+void drawText(const char *str, int x, int y, int palOffs) ATTR_DATA_ALIGNED;
+void drawTextwHighlight(const char *str, int x, int y, int textpalOffs,
+	int shadowpalOffs) ATTR_DATA_ALIGNED;
 void drawTextwBackground(const char *str, int x, int y, int palOffs);
 void screenFadeOut(int fadeSpeed);
 void clearScreen_Fill8bit();

@@ -23,7 +23,7 @@ const uint8_t convergencecross_Res0[] __attribute__((aligned(16))) = {
 };
 
 
-const uint8_t * convergencecross_Reslist[] = {
+const uint8_t * const convergencecross_Reslist[] = {
 yatssd_empty_tile,
 convergencecross_Res0
 };

@@ -23,7 +23,7 @@ const uint8_t sharpnessbrick_Res0[] __attribute__((aligned(16))) = {
 };
 
 
-const uint8_t * sharpnessbrick_Reslist[] = {
+const uint8_t * const sharpnessbrick_Reslist[] = {
 yatssd_empty_tile,
 sharpnessbrick_Res0
 };

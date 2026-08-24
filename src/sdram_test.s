@@ -19,10 +19,6 @@ _Hw32xTestSdramAddressLines:
 	mov	#0x10,r0
 	mov.b	r0,@r1
 
-	/*
-	 * Address-line test.  Compare the base word with one word selected by
-	 * each SDRAM address bit.  Both locations are restored after every probe.
-	 */
 	mov.l	.Lsdram_start,r2
 	mov	#2,r4
 .Laddress_loop:
@@ -70,10 +66,6 @@ _Hw32xTestSdramAddressLines:
 	bra	.Lfinish
 	nop
 
-	/*
-	 * Test one caller-selected pattern across every physical 16-bit SDRAM
-	 * cell.  Splitting the patterns lets the UI advance one row at a time.
-	 */
 	.align 2
 	.global _Hw32xTestSdramPattern
 _Hw32xTestSdramPattern:
@@ -138,9 +130,9 @@ _Hw32xTestSdramPattern:
 .Lcctl:
 	.long	0xfffffe92
 .Lsdram_start:
-	.long	0x26000000
+	.long	0x26010000
 .Lsdram_end:
-	.long	0x26040000
+	.long	0x2603c000
 .Lsdram_size:
 	.long	0x00040000
 .Lpattern_5555:

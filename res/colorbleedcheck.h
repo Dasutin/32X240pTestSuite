@@ -175,7 +175,7 @@ const uint8_t colorbleedcheck_Res8[] __attribute__((aligned(16))) = {
 };
 
 
-const uint8_t * colorbleedcheck_Reslist[] = {
+const uint8_t * const colorbleedcheck_Reslist[] = {
 yatssd_empty_tile,
 colorbleedcheck_Res0,
 colorbleedcheck_Res1,

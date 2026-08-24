@@ -46,7 +46,20 @@
 
 #define MARS_SEC_CMD_SDRAM_PARK   9
 #define MARS_SEC_CMD_SDRAM_RESUME 10
+#define MARS_SEC_CMD_PWM_TEST_START 11
+#define MARS_SEC_CMD_PWM_TEST_STOP  12
 #define MARS_SEC_SDRAM_PARKED     0x5350
+
+#define MD_CONTROLLER_COUNT              8
+#define MD_CONTROLLER_TYPE_PAD3          0x0000
+#define MD_CONTROLLER_TYPE_PAD6          0x0001
+#define MD_CONTROLLER_TYPE_UNKNOWN       0x000F
+#define MD_CONTROLLER_PORT_UNKNOWN       0x000F
+#define MD_CONTROLLER_PORT_EA4WAYPLAY     0x0010
+#define MD_CONTROLLER_SUPPORT_OFF        0x0000
+#define MD_CONTROLLER_SUPPORT_6BTN       0x0002
+#define MD_CONTROLLER_SUPPORT_TEAMPLAYER 0x0005
+#define MD_CONTROLLER_SUPPORT_EA4WAYPLAY 0x0006
 
 extern int Hw32xDetectPAL();
 extern void Hw32xSetFGColor(int s, int r, int g, int b);
@@ -54,7 +67,11 @@ extern void Hw32xSetBGColor(int s, int r, int g, int b);
 extern void Hw32xSetFGOverlayPriorityBit(int priority);
 extern void Hw32xSetBGOverlayPriorityBit(int priority);
 extern void Hw32xSetPalettePriorityAliases(int destination, int source, int count, int priority);
+extern void Hw32xSetPaletteColor(int index, int r, int g, int b);
 extern void Hw32xSetPalette(const uint8_t *palette) HW32X_ATTR_DATA_ALIGNED;
+extern void Hw32xEnableTextPalette(void) HW32X_ATTR_DATA_ALIGNED;
+extern int Hw32xPauseTextPalette(void);
+extern void Hw32xResumeTextPalette(int wasEnabled);
 extern void Hw32xInit(int vmode, int lineskip);
 extern int Hw32xScreenGetX();
 extern int Hw32xScreenGetY();
@@ -72,6 +89,18 @@ extern unsigned long Hw32xGetTime(void);
 extern void Hw32xSleep(int s);
 
 extern unsigned short HwMdReadPad(int port);
+extern void HwMdControllerEnable(void);
+extern void HwMdControllerDisable(void);
+extern void HwMdControllerReset(void);
+extern void HwMdControllerReadSnapshot(unsigned short *states,
+	unsigned short *types, unsigned short *portTypes,
+	unsigned short *portSupports);
+extern void HwMdControllerReadPortInfo(unsigned short *portTypes,
+	unsigned short *portSupports);
+extern unsigned short HwMdControllerReadState(int controller);
+extern unsigned short HwMdControllerReadType(int controller);
+extern unsigned short HwMdControllerReadPortType(int port);
+extern unsigned short HwMdControllerReadPortSupport(int port);
 extern unsigned char HwMdReadSram(unsigned short offset);
 extern void HwMdWriteSram(unsigned char byte, unsigned short offset);
 extern int HwMdReadMouse(int port);
@@ -79,7 +108,7 @@ extern void HwMdClearScreen(void);
 extern void HwMdSetOffset(unsigned short offset);
 extern void HwMdSetNTable(unsigned short word);
 extern void HwMdSetVram(unsigned short word);
-extern void HwMdPuts(char *str, int color, int x, int y);
+extern void HwMdPuts(const char *str, int color, int x, int y);
 extern void HwMdPutc(char chr, int color, int x, int y);
 extern void HwMdScreenPrintf(int color, int x, int y, const char *format, ...);
 extern void HwMdSetPal(unsigned short pal);
@@ -100,6 +129,8 @@ extern void HwMdClearPlanes(void);
 extern void HwMdReloadFont(void);
 extern void HwMdHScrollPlane(char plane, int hscroll);
 extern void HwMdVScrollPlane(char plane, int vscroll);
+extern void HwMdSetPlaneScrolls(int hscroll_a, int vscroll_a,
+	int hscroll_b, int vscroll_b);
 
 void Hw32xUpdateLineTable(int hscroll, int vscroll, int lineskip) HW32X_ATTR_DATA_ALIGNED;
 

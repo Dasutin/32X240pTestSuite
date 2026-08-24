@@ -45,6 +45,7 @@ enum {
 	DRAWSPR_PRECISE     = 8,
 	DRAWSPR_SCALE       = 16,
 	DRAWSPR_MULTICORE   = 32,
+	DRAWSPR_NODIRTY     = 64,
 };
 
 typedef struct {
@@ -87,13 +88,25 @@ typedef struct {
 	dtilelayer_t *layers;
 	dtilelayer_t *mdPlane[2];
 
-	uint8_t **reslist;
+	const uint8_t * const *reslist;
 
 	unsigned tiles_hor, tiles_ver;
 	unsigned canvas_tiles_hor, canvas_tiles_ver;
 	unsigned scroll_tiles_hor, scroll_interval_hor;
 	unsigned scroll_tiles_ver, scroll_interval_ver;
 } tilemap_t;
+
+typedef struct {
+	uint16_t canvas_width, canvas_height;
+	uint16_t canvas_pitch, canvas_yaw;
+	int16_t window_canvas_x, window_canvas_y;
+	uint16_t flags;
+	uint16_t reserved;
+} drawrenderstate_t;
+
+enum {
+	DRAW_RENDER_NODRAW = 1
+};
 
 typedef struct {
 	void *sdata;
@@ -103,6 +116,7 @@ typedef struct {
 	uint16_t x, y;
 	uint16_t w, h;
 	fixed_t scale;
+	drawrenderstate_t render;
 } drawsprcmd_t;
 
 typedef struct {
@@ -128,7 +142,13 @@ typedef struct {
 	uint16_t scroll_tile_id;
 	uint16_t num_tiles_x;
 	uint16_t drawmode;
+	drawrenderstate_t render;
 } drawtilelayerscmd_t;
+
+typedef struct {
+	tilemap_t tilemap;
+	drawtilelayerscmd_t draw;
+} drawtileslavecmd_t;
 
 typedef void(*draw_spritefn_t)(void *dst, drawsprcmd_t* cmd);
 

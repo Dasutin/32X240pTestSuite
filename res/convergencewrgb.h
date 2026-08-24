@@ -118,7 +118,7 @@ const uint8_t convergencewrgb_Res5[] __attribute__((aligned(16))) = {
 };
 
 
-const uint8_t * convergencewrgb_Reslist[] = {
+const uint8_t * const convergencewrgb_Reslist[] = {
 yatssd_empty_tile,
 convergencewrgb_Res0,
 convergencewrgb_Res1,

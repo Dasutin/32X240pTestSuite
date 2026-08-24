@@ -33,12 +33,17 @@
 #include "gillian_blink.h"
 #include "gillian_menu_palette.h"
 #include "qrcode_tiles.h"
+#include "perf.h"
 
 u8 paused = PAUSED;
+u8 segaCDDetectedAtBoot = 0;
 u16 currentFB = 0;
 vu16 overwriteImg16;
 u32 _state = ~0L;
 u16 randbase;
+
+#define UNCACHED_CURRENT_FB \
+	(*(volatile u16 *)((uintptr_t)&currentFB | 0x20000000u))
 
 #define GILLIAN_WIDTH 56
 #define GILLIAN_HEIGHT 104
@@ -50,7 +55,29 @@ u16 randbase;
 static u16 gillian_blink_count = 0;
 static u8 gillian_is_blinking = 0;
 static u16 gillian_random_state = 0xACE1;
+static u32 gillian_blink_vblank = ~0UL;
 static const u8 *gillian_blink_frame = NULL;
+static u8 gillian_open_eyes[GILLIAN_EYES_WIDTH * GILLIAN_EYES_HEIGHT]
+	ATTR_CACHE_ALIGNED;
+static u8 gillian_eye_dirty_pages = 0;
+
+#define MENU_TEXT_CACHE_SLOTS 32
+#define MENU_TEXT_CACHE_CHARS 48
+typedef struct menu_text_cache_t {
+	u32 hash;
+	u16 length;
+	u16 tilemapId;
+	u16 rebuildId;
+	int x;
+	int y;
+	int textColor;
+	int shadowColor;
+	u8 valid;
+	char text[MENU_TEXT_CACHE_CHARS + 1];
+} menu_text_cache_t;
+
+static menu_text_cache_t menu_text_cache[2][MENU_TEXT_CACHE_SLOTS];
+static u8 menu_text_index = 0;
 
 volatile unsigned mars_pwdt_ovf_count = 0;
 volatile unsigned mars_swdt_ovf_count = 0;
@@ -64,20 +91,161 @@ static const u32 crc32_table[] = {
 
 int Mars_GetFRTCounter(void)
 {
-	unsigned int cnt = SH2_WDT_RTCNT;
-	return (int)((mars_pwdt_ovf_count << 8) | cnt);
+	unsigned int high = SH2_FRT_FRCH;
+	unsigned int low = SH2_FRT_FRCL;
+
+	return (int)((high << 8) | low);
+}
+
+static void drawMainBGPage(int withGillian)
+{
+	draw_tilemap(&tm, 0, 0, 0, NULL, NULL);
+	draw_setScissor(0, 0, 320, 224);
+	if (withGillian)
+		drawGillian(216, 72);
+}
+
+static void beginMenuTextFrame(void)
+{
+	menu_text_index = 0;
+}
+
+static void redrawMenuTextTileOverlaps(int page, int skipSlot,
+	int x, int y, int w, int h)
+{
+	int slot;
+	int tileLeft = (x / tm.tw) * tm.tw;
+	int tileTop = (y / tm.th) * tm.th;
+	int tileRight = ((x + w - 1) / tm.tw + 1) * tm.tw;
+	int tileBottom = ((y + h - 1) / tm.th + 1) * tm.th;
+
+	for (slot = 0; slot < MENU_TEXT_CACHE_SLOTS; slot++)
+	{
+		menu_text_cache_t *cached = &menu_text_cache[page][slot];
+		int textRight;
+		int textBottom;
+
+		if (slot == skipSlot || !cached->valid || !cached->text[0] ||
+			cached->tilemapId != tm.id ||
+			cached->rebuildId != canvas_rebuild_id)
+			continue;
+
+		textRight = cached->x + cached->length * 8 + 1;
+		textBottom = cached->y + 10;
+		if (cached->x < tileRight && textRight > tileLeft &&
+			cached->y < tileBottom && textBottom > tileTop)
+			drawTextwHighlight(cached->text, cached->x, cached->y,
+				cached->textColor, cached->shadowColor);
+	}
+}
+
+void invalidateMenuText(void)
+{
+	int page;
+	int slot;
+
+	for (page = 0; page < 2; page++)
+		for (slot = 0; slot < MENU_TEXT_CACHE_SLOTS; slot++)
+			menu_text_cache[page][slot].valid = 0;
+	menu_text_index = 0;
+}
+
+void drawMenuTextwHighlight(const char *text, int x, int y,
+	int textColor, int shadowColor)
+{
+	int page = (UNCACHED_CURRENT_FB ^ 1) & 1;
+	u32 hash = 2166136261UL;
+	u16 length = 0;
+	u16 copyLength;
+	int currentSlot;
+	int i;
+	menu_text_cache_t *entry;
+	const char *p = text;
+
+	while (*p)
+	{
+		hash ^= (u8)*p++;
+		hash *= 16777619UL;
+		length++;
+	}
+
+	if (menu_text_index >= MENU_TEXT_CACHE_SLOTS)
+	{
+		drawTextwHighlight(text, x, y, textColor, shadowColor);
+		return;
+	}
+
+	currentSlot = menu_text_index++;
+	entry = &menu_text_cache[page][currentSlot];
+	if (entry->valid && entry->hash == hash && entry->length == length &&
+		entry->tilemapId == tm.id && entry->rebuildId == canvas_rebuild_id &&
+		entry->x == x && entry->y == y &&
+		entry->textColor == textColor && entry->shadowColor == shadowColor)
+		return;
+
+	if (entry->valid && entry->tilemapId == tm.id &&
+		entry->rebuildId == canvas_rebuild_id && entry->x == x && entry->y == y &&
+		(entry->hash != hash || entry->length != length))
+	{
+		int clearLength = entry->length > length ? entry->length : length;
+		draw_dirtyrect(&tm, x, y, clearLength * 8 + 1, 10);
+		draw_tilemap(&tm, 0, 0, 0, NULL, NULL);
+		redrawMenuTextTileOverlaps(page, currentSlot, x, y,
+			clearLength * 8 + 1, 10);
+	}
+
+	drawTextwHighlight(text, x, y, textColor, shadowColor);
+	entry->hash = hash;
+	entry->length = length;
+	entry->tilemapId = tm.id;
+	entry->rebuildId = canvas_rebuild_id;
+	entry->x = x;
+	entry->y = y;
+	entry->textColor = textColor;
+	entry->shadowColor = shadowColor;
+	copyLength = length > MENU_TEXT_CACHE_CHARS ?
+		MENU_TEXT_CACHE_CHARS : length;
+	for (i = 0; i < copyLength; i++)
+		entry->text[i] = text[i];
+	entry->text[copyLength] = 0;
+	entry->valid = 1;
+}
+
+static void cacheMainBGBothPages(int withGillian)
+{
+	canvas_rebuild_id++;
+	drawMainBGPage(withGillian);
+	Hw32xScreenFlip(1);
+	drawMainBGPage(withGillian);
+	Hw32xScreenFlip(1);
 }
 
 void initMainBG()
 {
-	init_tilemap(&tm, &bg_map_Map, (uint8_t **)bg_Reslist);
+	init_tilemap(&tm, &bg_map_Map, (const uint8_t * const *)bg_Reslist);
 	Hw32xSetPalette(bg_Palette);
+	loadTextPalette();
+	invalidateMenuText();
+	cacheMainBGBothPages(0);
 }
 
 void initMainBGwGil()
 {
-	init_tilemap(&tm, &bg_map_Map, (uint8_t **)bg_Reslist);
+	int row;
+	int col;
+
+	init_tilemap(&tm, &bg_map_Map, (const uint8_t * const *)bg_Reslist);
 	Hw32xSetPalette(gillian_menu_palette);
+	loadTextPalette();
+	for (row = 0; row < GILLIAN_EYES_HEIGHT; row++)
+		for (col = 0; col < GILLIAN_EYES_WIDTH; col++)
+			gillian_open_eyes[row * GILLIAN_EYES_WIDTH + col] =
+				phase_check_gillian[(row + GILLIAN_EYES_Y) * GILLIAN_WIDTH +
+					col + GILLIAN_EYES_X];
+	gillian_blink_frame = NULL;
+	gillian_eye_dirty_pages = 0;
+	invalidateMenuText();
+	cacheMainBGBothPages(1);
 }
 
 static u16 gillianRandom16(void)
@@ -89,11 +257,17 @@ static u16 gillianRandom16(void)
 	return gillian_random_state;
 }
 
-void updateGillianBlink(void)
+int updateGillianBlink(void)
 {
+	u32 vblank = Hw32xGetTicks();
+
+	if (vblank == gillian_blink_vblank)
+		return 0;
+	gillian_blink_vblank = vblank;
+
 	gillian_blink_count++;
 	if (gillian_blink_count <= 230)
-		return;
+		return 0;
 
 	if (!gillian_is_blinking)
 	{
@@ -102,20 +276,29 @@ void updateGillianBlink(void)
 			gillian_blink_frame = gillian_blink_half;
 			gillian_is_blinking = 1;
 			gillian_blink_count = 230;
+			return 1;
 		}
-		return;
+		return 0;
 	}
 
 	if (gillian_blink_count == 232)
+	{
 		gillian_blink_frame = gillian_blink_half;
+		return 1;
+	}
 	else if (gillian_blink_count == 234)
+	{
 		gillian_blink_frame = gillian_blink_closed;
+		return 1;
+	}
 	else if (gillian_blink_count >= 236)
 	{
 		gillian_blink_frame = NULL;
 		gillian_blink_count = 0;
 		gillian_is_blinking = 0;
+		return 1;
 	}
+	return 0;
 }
 
 void drawGillian(s16 x, s16 y)
@@ -131,40 +314,37 @@ void drawGillian(s16 x, s16 y)
 
 void drawMainBG()
 {
-	int fpcamera_x = 0;
-	int fpcamera_y = 0;
-
-	canvas_rebuild_id++;
-	draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
+	beginMenuTextFrame();
 	draw_setScissor(0, 0, 320, 224);
 }
 
 void drawBGwGil()
 {
-	int fpcamera_x = 0;
-	int fpcamera_y = 0;
-
-	updateGillianBlink();
-	canvas_rebuild_id++;
-	draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
+	perf_set_scene(PERF_SCENE_MENU);
+	beginMenuTextFrame();
 	draw_setScissor(0, 0, 320, 224);
-
-	drawGillian(216, 72);
+	if (updateGillianBlink())
+		gillian_eye_dirty_pages = 2;
+	if (gillian_eye_dirty_pages)
+	{
+		const u8 *eyes = gillian_blink_frame ?
+			gillian_blink_frame : gillian_open_eyes;
+		draw_sprite(216 + GILLIAN_EYES_X, 72 + GILLIAN_EYES_Y,
+			GILLIAN_EYES_WIDTH, GILLIAN_EYES_HEIGHT, eyes,
+			DRAWSPR_OVERWRITE | DRAWSPR_PRECISE, 1);
+		gillian_eye_dirty_pages--;
+	}
 }
 
 void redrawBGwGil()
 {
+	init_tilemap(&tm, &bg_map_Map, (const uint8_t * const *)bg_Reslist);
 	Hw32xSetPalette(gillian_menu_palette);
+	loadTextPalette();
 
-	int fpcamera_x = 0;
-	int fpcamera_y = 0;
-
-	updateGillianBlink();
-	canvas_rebuild_id++;
-	draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
-	draw_setScissor(0, 0, 320, 224);
-
-	drawGillian(216, 72);
+	invalidateMenuText();
+	cacheMainBGBothPages(1);
+	gillian_eye_dirty_pages = 0;
 }
 
 void drawQRCode(u16 x, u16 y, u16 xWidth, u16 yWidth)
@@ -184,25 +364,27 @@ void drawResolution()
 {
 	if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT)
 	{
-		drawTextwHighlight("NTSC VDP 320x224p", 152, 192, fontColorWhite, fontColorWhiteHighlight);
-		drawTextwHighlight("Genesis 32X", 208, 208, fontColorWhite, fontColorWhiteHighlight);
+		drawMenuTextwHighlight("NTSC VDP 320x224p", 152, 192, fontColorWhite, fontColorWhiteHighlight);
+		if (segaCDDetectedAtBoot)
+			drawMenuTextwHighlight("Sega CD 32X", 208, 208,
+				fontColorWhite, fontColorWhiteHighlight);
+		else
+			drawMenuTextwHighlight("Genesis 32X", 208, 208,
+				fontColorWhite, fontColorWhiteHighlight);
 	} else {
-		drawTextwHighlight("PAL VDP 320x224p", 160, 192, fontColorWhite, fontColorWhiteHighlight);
-		drawTextwHighlight("Mega Drive 32X", 184, 208, fontColorWhite, fontColorWhiteHighlight);
+		drawMenuTextwHighlight("PAL VDP 320x224p", 160, 192, fontColorWhite, fontColorWhiteHighlight);
+		if (segaCDDetectedAtBoot)
+			drawMenuTextwHighlight("Sega Mega-CD 32X", 168, 208,
+				fontColorWhite, fontColorWhiteHighlight);
+		else
+			drawMenuTextwHighlight("Mega Drive 32X", 184, 208,
+				fontColorWhite, fontColorWhiteHighlight);
 	}
 }
 
 void loadTextPalette()
 {
-	setColor(203, 0, 0, 0); 	// Black Background
-	setColor(205, 31, 31, 31);	// 204 is White
-	setColor(206, 31, 0, 0);	// 205 is Red
-	setColor(207, 0, 31, 0);	// 206 is Green
-	setColor(208, 5, 5, 5);		// 207 is Gray
-	setColor(209, 0, 0, 0);		// 208 is Black
-	setColor(210, 8, 8, 8);		// 209 is White Shadow Highlight
-	setColor(211, 8, 0, 0);		// 210 is Red Shadow Highlight
-	setColor(212, 0, 8, 0);		// 211 is Green Shadow Highlight
+	Hw32xEnableTextPalette();
 }
 
 void loadMainBGwGilPalette()

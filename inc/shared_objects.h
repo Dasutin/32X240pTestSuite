@@ -36,6 +36,7 @@
 #define FALSE 0
 
 extern u8 paused;
+extern u8 segaCDDetectedAtBoot;
 
 extern unsigned short int currentFB;
 
@@ -48,15 +49,20 @@ extern unsigned short int currentFB;
 #define fontColorWhiteHighlight 209
 #define fontColorRedHighlight 210
 #define fontColorGreenHighlight 211
+#define fontColorBlue 212
+#define fontColorBlueHighlight 213
 
 extern void drawMainBG(void);
 extern void drawBGwGil(void);
 extern void redrawBGwGil(void);
-extern void updateGillianBlink(void);
+extern int updateGillianBlink(void);
 extern void drawGillian(s16 x, s16 y);
 extern void drawQRCode(u16 x, u16 y, u16 xWidth, u16 yWidth);
 extern void loadTextPalette(void);
 extern void drawResolution(void);
+extern void drawMenuTextwHighlight(const char *text, int x, int y,
+	int textColor, int shadowColor);
+extern void invalidateMenuText(void);
 extern void loadMainBGwGilPalette(void);
 extern void cleanup(void);
 extern void initMainBG(void);

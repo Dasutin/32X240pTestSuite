@@ -49,9 +49,14 @@ SPMain:
         lea     drive_init_parms(pc),a0
         move.w  #0x0010,d0              /* DRVINIT */
         jsr     0x5F22.w                /* Call CDBIOS function */
+        bsr     WaitBIOS
 
         move.w  #0x0089,d0              /* CDCSTOP - stop reading data */
         jsr     0x5F22.w                /* Call CDBIOS function */
+        bsr     WaitBIOS
+        move.w  #0x008A,d0              /* CDCSTAT */
+        jsr     0x5F22.w                /* Call CDBIOS function */
+        bsr     WaitBIOS
 9:
         move.b  #0,0x800F.w             /* Sub COMM Port = READY */
 
@@ -79,6 +84,10 @@ WaitCmd:
         beq     CheckPCMRAM
         cmpi.b  #'A,0x800E.w
         beq     ControlPCM
+        cmpi.b  #'L,0x800E.w
+        beq     LoadPCM
+        cmpi.b  #'G,0x800E.w
+        beq     CenterPCM
         cmpi.b  #'R,0x800E.w
         beq     ReadSectors
         cmpi.b  #'W,0x800E.w
@@ -93,11 +102,62 @@ WaitAck:
         bra     WaitCmd
 
 GetDiscInfo:
+        move.l  #0x00200000,d7
+1:
         move.w  #0x0081,d0              /* CDBSTAT */
         jsr     0x5F22.w                /* Call CDBIOS function */
-        move.w  0(a0),0x8020.w          /* BIOS status word */
+        move.w  0(a0),d2                /* BIOS status word */
+        btst.l  #14,d2                  /* Tray open? */
+        bne.b   DiscTrayOpen
+        btst.l  #12,d2                  /* No disc? */
+        bne.b   DiscNotFound
+        btst.l  #15,d2                  /* Drive not ready? */
+        beq.b   2f
+        subq.l  #1,d7
+        bne.b   1b
+        bra.b   DiscInfoTimeout
+2:
+        move.l  #0x00200000,d7
+3:
+        move.w  #0x0081,d0              /* Refresh CDBSTAT/TOC table */
+        jsr     0x5F22.w                /* Call CDBIOS function */
+        move.w  0(a0),d2
+        btst.l  #14,d2
+        bne.b   DiscTrayOpen
+        btst.l  #12,d2
+        bne.b   DiscNotFound
+        btst.l  #13,d2                  /* TOC still being read? */
+        beq.b   4f
+        subq.l  #1,d7
+        bne.b   3b
+        bra.b   DiscInfoTimeout
+
+4:
+        cmpi.b  #0xFF,17(a0)            /* Invalid/unread track list? */
+        beq.b   DiscInvalidTOC
+        move.w  #1,0x8020.w             /* Ready */
         move.w  16(a0),0x8022.w         /* First song number, Last song number */
-        move.w  18(a0),0x8024.w         /* Drive version, Flag */
+        moveq   #0,d2
+        move.b  18(a0),d2               /* Zero-extended drive version */
+        move.w  d2,0x8024.w
+
+        move.b  #'D,0x800F.w            /* Sub COMM Port = DONE */
+        bra     WaitAck
+
+DiscInvalidTOC:
+        move.w  #0x000A,0x8020.w
+        bra.b   DiscInfoError
+DiscTrayOpen:
+        move.w  #0x000B,0x8020.w
+        bra.b   DiscInfoError
+DiscNotFound:
+        move.w  #0x000C,0x8020.w
+        bra.b   DiscInfoError
+DiscInfoTimeout:
+        move.w  #0x000D,0x8020.w
+DiscInfoError:
+        clr.w   0x8022.w
+        clr.w   0x8024.w
 
         move.b  #'D,0x800F.w            /* Sub COMM Port = DONE */
         bra     WaitAck
@@ -106,8 +166,11 @@ GetTrackInfo:
         move.w  0x8010.w,d1             /* Track number */
         move.w  #0x0083,d0              /* CDBTOCREAD */
         jsr     0x5F22.w                /* Call CDBIOS function */
+        bsr     WaitBIOS
+        tst.l   d7
+        beq     TrackInfoFail
         move.l  d0,0x8020.w             /* MMSSFFTN */
-        move.b  d1,0x8024.w             /* Track type */
+        move.w  d1,0x8024.w             /* $0000 CD-DA, $00FF data */
 
         move.b  #'D,0x800F.w            /* Sub COMM Port = DONE */
         bra     WaitAck
@@ -115,6 +178,7 @@ GetTrackInfo:
 PlayTrack:
         move.w  #0x0002,d0              /* MSCSTOP - stop playing */
         jsr     0x5F22.w                /* Call CDBIOS function */
+        bsr     WaitBIOS
 
         move.w  0x8010.w,d1             /* Track number */
         move.w  #0x0011,d0              /* MSCPLAY - play from track on */
@@ -129,6 +193,7 @@ PlayTrack:
         lea     track_number(pc),a0
         move.w  d1,(a0)
         jsr     0x5F22.w                /* Call CDBIOS function */
+        bsr     WaitBIOS
 
         move.b  #'D,0x800F.w            /* Sub COMM Port = DONE */
         bra     WaitAck
@@ -136,6 +201,7 @@ PlayTrack:
 StopPlaying:
         move.w  #0x0002,d0              /* MSCSTOP - stop playing */
         jsr     0x5F22.w                /* Call CDBIOS function */
+        bsr     WaitBIOS
 
         move.b  #'D,0x800F.w            /* Sub COMM Port = DONE */
         bra     WaitAck
@@ -168,11 +234,22 @@ CheckDisc:
         lea     drive_init_parms(pc),a0
         move.w  #0x0010,d0              /* DRVINIT */
         jsr     0x5F22.w                /* Call CDBIOS function */
+        bsr     WaitBIOS
 
         move.w  #0x0089,d0              /* CDCSTOP - stop reading data */
         jsr     0x5F22.w                /* Call CDBIOS function */
+        bsr     WaitBIOS
+        move.w  #0x008A,d0              /* CDCSTAT */
+        jsr     0x5F22.w                /* Call CDBIOS function */
+        bsr     WaitBIOS
 
         move.b  #'D,0x800F.w            /* Sub COMM Port = DONE */
+        bra     WaitAck
+
+TrackInfoFail:
+        clr.l   0x8020.w
+        move.w  #2,0x8024.w
+        move.b  #'E,0x800F.w
         bra     WaitAck
 
 OpenTray:
@@ -181,6 +258,20 @@ OpenTray:
 
         move.b  #'D,0x800F.w            /* Sub COMM Port = DONE */
         bra     WaitAck
+
+WaitBIOS:
+        move.l  #0x00200000,d7
+1:
+        move.w  #0x0080,d0              /* CDBCHK */
+        jsr     0x5F22.w                /* Call CDBIOS function */
+        bcc.b   2f
+        subq.l  #1,d7
+        bne.b   1b
+        moveq   #0,d7                    /* Timed out */
+        rts
+2:
+        moveq   #1,d7                    /* Completed */
+        rts
 
 # RF5C164 register addresses in Sub-CPU space
 ENVdat  = 0xFF0001
@@ -195,11 +286,11 @@ ONOFFdat = 0xFF0011
 WAVEdat = 0xFF2001
 
 PCMWait:
-        nop
-        nop
-        nop
-        nop
-        nop
+        move.l  d0,-(a7)
+        move.w  #5,d0
+1:
+        dbra    d0,1b
+        move.l  (a7)+,d0
         rts
 
 InitPCM:
@@ -269,6 +360,21 @@ ControlPCM:
         move.b  #'D,0x800F.w
         bra     WaitAck
 
+LoadPCM:
+        bsr     InitPCM
+        clr.l   0x8020.w
+        clr.w   0x8024.w
+        move.b  #'D,0x800F.w
+        bra     WaitAck
+
+CenterPCM:
+        move.b  #0xFF,PANdat
+        bsr     PCMWait
+        clr.l   0x8020.w
+        clr.w   0x8024.w
+        move.b  #'D,0x800F.w
+        bra     WaitAck
+
 StopPCM:
         move.b  #0xFF,ONOFFdat
         bsr     PCMWait
@@ -282,6 +388,8 @@ StopPCM:
 FillPCMRAM:
         move.b  #0xFF,ONOFFdat
         bsr     PCMWait
+        move.b  #0x40,CTRLdat             /* Disable PCM RAM playback access */
+        bsr     PCMWait
         move.b  0x8011.w,d4                /* Test value */
         move.w  0x8012.w,d6                /* Bank, or 0xFF for all */
         cmpi.w  #0x00FF,d6
@@ -291,9 +399,7 @@ FillPCMRAM:
 1:
         moveq   #0,d5
 2:
-        move.b  d5,d0
-        ori.b   #0x80,d0
-        move.b  d0,CTRLdat
+        move.b  d5,CTRLdat                 /* Select write bank 0-15 */
         bsr     PCMWait
         movea.l #WAVEdat,a0
         move.w  #4095,d1
@@ -309,6 +415,8 @@ FillPCMRAM:
         bne.b   2b
 
 PCMFillDone:
+        move.b  #0xC0,CTRLdat              /* Restore PCM access, channel 1 */
+        bsr     PCMWait
         clr.l   0x8020.w
         clr.w   0x8024.w
         move.b  #'D,0x800F.w
@@ -316,6 +424,8 @@ PCMFillDone:
 
 CheckPCMRAM:
         move.b  #0xFF,ONOFFdat
+        bsr     PCMWait
+        move.b  #0x40,CTRLdat             /* Disable PCM RAM playback access */
         bsr     PCMWait
         move.b  0x8011.w,d4                /* Test value */
         move.w  0x8012.w,d6                /* Bank, or 0xFF for all */
@@ -326,9 +436,7 @@ CheckPCMRAM:
 4:
         moveq   #0,d5
 5:
-        move.b  d5,d0
-        ori.b   #0x80,d0
-        move.b  d0,CTRLdat
+        move.b  d5,CTRLdat                 /* Select read bank 0-15 */
         bsr     PCMWait
 
         movea.l #WAVEdat,a0
@@ -349,7 +457,8 @@ CheckPCMRAM:
         bne.b   5b
 
 PCMCompareDone:
-        bsr     InitPCM
+        move.b  #0xC0,CTRLdat              /* Restore PCM access, channel 1 */
+        bsr     PCMWait
         clr.l   0x8020.w
         clr.w   0x8024.w
         move.b  #'D,0x800F.w
@@ -361,7 +470,8 @@ PCMFail:
         moveq   #0,d0
         move.b  d3,d0
         move.w  d0,0x8024.w                /* Read value */
-        bsr     InitPCM
+        move.b  #0xC0,CTRLdat              /* Restore PCM access, channel 1 */
+        bsr     PCMWait
         move.b  #'E,0x800F.w
         bra     WaitAck
 
@@ -380,9 +490,15 @@ ReadSectors:
         movea.l a5,a0
         move.w  #0x0089,d0                 /* CDCSTOP */
         jsr     0x5F22.w
+        bsr     WaitBIOS
+        tst.l   d7
+        beq     SectorReadFail
         moveq   #0,d1                      /* Mode 1, 2048-byte sectors */
         move.w  #0x0096,d0                 /* CDCSETMODE */
         jsr     0x5F22.w
+        bsr     WaitBIOS
+        tst.l   d7
+        beq     SectorReadFail
         andi.w  #0xF8FF,0x8004.w
         ori.w   #0x0300,0x8004.w            /* CDC destination: Sub-CPU read */
         movea.l a5,a0
@@ -439,6 +555,7 @@ SectorWaitStat:
         bra     WaitAck
 
 SectorReadFail:
+        clr.l   0x8020.w
         move.w  #1,0x8024.w
         bset    #0,0x8003.w
         move.b  #'E,0x800F.w

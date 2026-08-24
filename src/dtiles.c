@@ -2,6 +2,7 @@
 #include "types.h"
 #include "draw.h"
 #include "hw_32x.h"
+#include "perf.h"
 
 typedef struct
 {
@@ -13,7 +14,7 @@ typedef struct
     int parallax;
 } drawtilecontext_t;
 
-drawtilelayerscmd_t slave_drawtilelayerscmd;
+drawtileslavecmd_t slave_drawtilecmd ATTR_CACHE_ALIGNED;
 
 const uint8_t yatssd_empty_tile[32 * 32] ATTR_CACHE_ALIGNED = {0};
 
@@ -24,25 +25,41 @@ static fixed_t main_camera_x, main_camera_y;
 
 static fixed_t camera_x, camera_y;
 
-static char tile_lock;
-
 static int draw_tile_layer(drawtilecontext_t *dc, int layer, int *pclipped)
 ATTR_DATA_ALIGNED;
 
-static int draw_drawtile(int x, int y, int w, int h,
-    const uint8_t* data, int flags, void* fb, draw_spritefn_t fn)
+static int draw_drawtile(int x, int y, const uint8_t* data, int flags,
+    void* fb, draw_spritefn_t fn, drawsprcmd_t *tilecmd)
 ATTR_DATA_ALIGNED;
 
-static void lock_tiles(void)
+static int draw_parallax_tile(tilemap_t *tm, int x, int y,
+    const uint8_t *data, int flags, void *fb, draw_spritefn_t fn,
+    drawsprcmd_t *tilecmd)
 ATTR_DATA_ALIGNED;
 
-static void unlock_tiles(void)
-ATTR_DATA_ALIGNED;
+extern void sh2_blit_tile8(uint8_t *dst, const uint8_t *src,
+    unsigned pitch);
+extern void sh2_blit_tile16(uint8_t *dst, const uint8_t *src,
+    unsigned pitch);
+extern void sh2_blit_tile32(uint8_t *dst, const uint8_t *src,
+    unsigned pitch);
+extern void sh2_fill16(uint16_t *destination, unsigned count,
+    uint16_t value);
 
-static int get_next_tile(void)
-ATTR_DATA_ALIGNED;
+static void snapshot_render_state(drawrenderstate_t *state)
+{
+    state->canvas_width = canvas_width;
+    state->canvas_height = canvas_height;
+    state->canvas_pitch = canvas_pitch;
+    state->canvas_yaw = canvas_yaw;
+    state->window_canvas_x = window_canvas_x;
+    state->window_canvas_y = window_canvas_y;
+    state->flags = nodraw ? DRAW_RENDER_NODRAW : 0;
+    state->reserved = 0;
+}
 
-void init_tilemap(tilemap_t *tm, const dtilemap_t *dtm, uint8_t **reslist)
+void init_tilemap(tilemap_t *tm, const dtilemap_t *dtm,
+    const uint8_t * const *reslist)
 {
     int i;
     int has_md_planes;
@@ -85,10 +102,14 @@ void init_tilemap(tilemap_t *tm, const dtilemap_t *dtm, uint8_t **reslist)
             const dtilelayer_t *mdpl = tm->mdPlane[i];
             if (mdpl->bitmap) {
                 HwMdSetPlaneBitmap(i, mdpl->bitmap);
-                HwMdHScrollPlane(i, mdpl->offset[0]);
-                HwMdVScrollPlane(i, -mdpl->offset[1]);
             }
         }
+
+        HwMdSetPlaneScrolls(
+            tm->mdPlane[0]->bitmap ? tm->mdPlane[0]->offset[0] : 0,
+            tm->mdPlane[0]->bitmap ? -tm->mdPlane[0]->offset[1] : 0,
+            tm->mdPlane[1]->bitmap ? tm->mdPlane[1]->offset[0] : 0,
+            tm->mdPlane[1]->bitmap ? -tm->mdPlane[1]->offset[1] : 0);
 
         Hw32xSetBGOverlayPriorityBit(1);
         Hw32xSetFGOverlayPriorityBit(dtm->mdPriority ^ 1);
@@ -120,7 +141,7 @@ void draw_dirtyrect(tilemap_t* tm, int x, int y, int w, int h)
     start_tile_hor = (unsigned)x;
     end_tile_hor = (unsigned)(x + w - 1);
 
-    start_tile_ver = (unsigned)y >> 3;
+    start_tile_ver = (unsigned)y;
     end_tile_ver = (unsigned)(y + h - 1);
 
     switch (tm->tw) {
@@ -166,131 +187,177 @@ void draw_dirtyrect(tilemap_t* tm, int x, int y, int w, int h)
     dirty += start_tile_ver * canvas_tiles_hor + start_tile_hor;
 
     for (y = 0; y < num_tiles_y; y++) {
-        int16_t* p = dirty;
-        for (x = 0; x < num_tiles_x; x++) {
-            *p++ = -1;
-        }
+        sh2_fill16((uint16_t *)dirty, num_tiles_x, 0xFFFF);
         dirty += canvas_tiles_hor;
     }
 }
 
-static int draw_drawtile(int x, int y, int w, int h,
-    const uint8_t* data, int flags, void *fb, draw_spritefn_t fn)
+static int draw_drawtile(int x, int y, const uint8_t* data, int flags,
+    void *fb, draw_spritefn_t fn, drawsprcmd_t *tilecmd)
 {
-    drawsprcmd_t cmd;
+    const drawrenderstate_t *render = &tilecmd->render;
+    int w = tilecmd->w;
+    int h = tilecmd->h;
+    uint8_t *dst;
 
-    x += window_canvas_x;
-    y += window_canvas_y;
+    x += render->window_canvas_x;
+    y += render->window_canvas_y;
 
-    cmd.flags = flags;
-    cmd.x = x, cmd.y = y;
-    cmd.w = w, cmd.h = h;
-    cmd.sx = 0, cmd.sy = 0;
-    cmd.sw = w, cmd.sh = h;
-    cmd.sdata = (void*)data;
-    cmd.scale = 0;
-    fn(fb, &cmd);
+    /* Full, aligned, opaque square tiles use fixed-size assembly kernels. */
+    if (!(render->flags & DRAW_RENDER_NODRAW) &&
+        !(flags & (DRAWSPR_HFLIP | DRAWSPR_VFLIP |
+            DRAWSPR_OVERWRITE | DRAWSPR_SCALE)) &&
+        x >= 0 && y >= 0 && x + w <= render->canvas_pitch &&
+        y + h <= render->canvas_yaw && w == h)
+    {
+        dst = (uint8_t *)fb + y * render->canvas_pitch + x;
+        if (!(((uintptr_t)dst | (uintptr_t)data) & 3)) {
+            switch (w) {
+            case 8:
+                sh2_blit_tile8(dst, data, render->canvas_pitch);
+                return 1;
+            case 16:
+                sh2_blit_tile16(dst, data, render->canvas_pitch);
+                return 1;
+            case 32:
+                sh2_blit_tile32(dst, data, render->canvas_pitch);
+                return 1;
+            }
+        }
+    }
+
+    tilecmd->flags = flags;
+    tilecmd->x = x;
+    tilecmd->y = y;
+    tilecmd->sdata = (void*)data;
+    fn(fb, tilecmd);
 
     return 1;
 }
 
-static void lock_tiles(void)
+static int draw_parallax_tile(tilemap_t *tm, int x, int y,
+    const uint8_t *data, int flags, void *fb, draw_spritefn_t fn,
+    drawsprcmd_t *tilecmd)
 {
-    int res;
-    do {
-        __asm volatile (\
-            "tas.b %1\n\t" \
-            "movt %0\n\t" \
-            : "=&r" (res) \
-            : "m" (tile_lock) \
-            );
-    } while (res == 0);
-}
+    const drawrenderstate_t *render = &tilecmd->render;
+    int physical_x = x + render->window_canvas_x;
+    int display_left = render->window_canvas_x;
+    int display_right = display_left + render->canvas_width;
+    int clip_left = 0;
+    int clip_right = 0;
 
-static void unlock_tiles(void)
-{
-    tile_lock = 0;
-}
+    if (physical_x < display_left)
+        clip_left = display_left - physical_x;
+    if (physical_x + tilecmd->w > display_right)
+        clip_right = physical_x + tilecmd->w - display_right;
+    if (clip_left + clip_right >= tilecmd->w)
+        return 0;
+    if (!clip_left && !clip_right)
+    {
+        int drawn = draw_drawtile(x, y, data, flags, fb, fn, tilecmd);
 
-static int get_next_tile(void)
-{
-    int n;
+        /* The base layer is cached per canvas tile.  Parallax tiles move
+         * relative to that canvas, so dirty their footprint after drawing;
+         * the next frame will restore pixels that the tile vacates. */
+        draw_dirtyrect(tm, physical_x, y + render->window_canvas_y,
+            tilecmd->w, tilecmd->h);
+        return drawn;
+    }
 
-    lock_tiles();
-    n = MARS_SYS_COMM6;
-    MARS_SYS_COMM6 = n + 1;
-    unlock_tiles();
+    tilecmd->flags = flags;
+    tilecmd->x = physical_x + clip_left;
+    tilecmd->y = y + render->window_canvas_y;
+    tilecmd->w -= clip_left + clip_right;
+    tilecmd->sx = flags & DRAWSPR_HFLIP ?
+        tilecmd->sw - (tilecmd->w + clip_left) : clip_left;
+    tilecmd->sdata = (void *)data;
+    fn(fb, tilecmd);
 
-    return n;
+    /* Preserve the same invalidation for a horizontally clipped tile. */
+    draw_dirtyrect(tm, tilecmd->x, tilecmd->y, tilecmd->w, tilecmd->h);
+
+    tilecmd->sx = 0;
+    tilecmd->w = tilecmd->sw;
+    return 1;
 }
 
 int draw_handle_layercmd(drawtilelayerscmd_t *cmd)
 {
-    int i, n;
     int x, y;
     tilemap_t* tm = cmd->tm;
+    const drawrenderstate_t *render = &cmd->render;
     const int w = tm->tw, h = tm->th;
-    int16_t* extrafb = (int16_t*)&MARS_FRAMEBUFFER + 0x100 + ((canvas_pitch * canvas_yaw) >> 1);
+    int16_t* extrafb = (int16_t*)&MARS_FRAMEBUFFER + 0x100 + ((render->canvas_pitch * render->canvas_yaw) >> 1);
     int16_t* dirty = extrafb + 3;
     const int canvas_tiles_hor = tm->canvas_tiles_hor;
     const int xx = cmd->x, yy = cmd->y;
     const int start_tile = cmd->start_tile, end_tile = cmd->end_tile;
     const int scroll_tile_id = cmd->scroll_tile_id;
     const int num_tiles_x = cmd->num_tiles_x;
-    const uint8_t **reslist = (const uint8_t **)tm->reslist;
-    int curdrawmode = cmd->drawmode;
-    draw_spritefn_t fn = draw_spritefn(curdrawmode);
+    const uint8_t * const *reslist = tm->reslist;
+    const int tiles_hor = tm->tiles_hor;
+    drawsprcmd_t tilecmd;
     int drawcnt = 0;
 
-    i = 0;
-    n = get_next_tile();
+    tilecmd.sdata = NULL;
+    tilecmd.flags = 0;
+    tilecmd.sx = 0;
+    tilecmd.sy = 0;
+    tilecmd.sw = w;
+    tilecmd.sh = h;
+    tilecmd.x = 0;
+    tilecmd.y = 0;
+    tilecmd.w = w;
+    tilecmd.h = h;
+    tilecmd.scale = 0;
+    tilecmd.render = *render;
 
     if (cmd->startlayer != 0 && cmd->parallax)
     {
         const dtilelayer_t *tl = &tm->layers[cmd->startlayer];
         const int16_t* layer = (int16_t *)tl->tiles;
         int y_tile;
-        int stid = scroll_tile_id;
-        int drawmode = cmd->drawmode;
+        int drawmode = cmd->drawmode & ~3;
+        void *fb = (void *)((uint16_t *)(drawmode & DRAWSPR_OVERWRITE ?
+            &MARS_OVERWRITE_IMG : &MARS_FRAMEBUFFER) + 0x100);
+        draw_spritefn_t flip_functions[4];
+        unsigned flip;
+
+        for (flip = 0; flip < 4; flip++)
+            flip_functions[flip] = draw_spritefn(drawmode | flip);
 
         if (tl->objectLayer)
             return 0;
 
         y = yy;
-        for (y_tile = start_tile; y_tile < end_tile; y_tile += tm->tiles_hor)
+        for (y_tile = start_tile; y_tile < end_tile; y_tile += tiles_hor)
         {
-            int id;
             int tile;
             int t1 = y_tile;
             int t2 = y_tile + num_tiles_x;
 
-            id = stid;
             x = xx;
 
             for (tile = t1; tile < t2; tile++)
             {
-                if (i == n)
+                int16_t idx = layer[tile];
+                if (idx != 0)
                 {
-                    int16_t idx = layer[tile];
-                    if (idx != 0)
-                    {
-                        const uint8_t* res = reslist[(idx >> 2)];
-                        //if (debug) res = reslist[1];
+                    const uint8_t* res = reslist[(idx >> 2)];
+                    //if (debug) res = reslist[1];
 
-                        draw_sprite(x, y, w, h, res, drawmode | (idx & 3), 1);
-                        drawcnt++;
-                    }
-                    n = get_next_tile();
+                    unsigned tileflip = idx & 3;
+                    int tiledrawmode = drawmode | tileflip;
+                    draw_parallax_tile(tm, x, y, res, tiledrawmode, fb,
+                        flip_functions[tileflip], &tilecmd);
+                    drawcnt++;
                 }
 
-                i++;
-                id++;
                 x += w;
             }
 
             y += h;
-            stid += canvas_tiles_hor;
-            if (y >= canvas_pitch)
+            if (y >= render->canvas_yaw)
                 break;
         }
 
@@ -306,6 +373,8 @@ int draw_handle_layercmd(drawtilelayerscmd_t *cmd)
         int y_tile;
         int stid = scroll_tile_id;
         void* fb;
+        draw_spritefn_t flip_functions[4];
+        unsigned flip;
 
         if (tl->objectLayer)
             return 0;
@@ -317,12 +386,16 @@ int draw_handle_layercmd(drawtilelayerscmd_t *cmd)
 
         if (l > 0)
             drawmode |= DRAWSPR_PRECISE | DRAWSPR_OVERWRITE;
-        if (!((xx+window_canvas_x) & 1))
+        if (!((xx + render->window_canvas_x) & 1))
             drawmode &= ~DRAWSPR_PRECISE;
-        fb = (void*)((drawmode & DRAWSPR_OVERWRITE ? &MARS_OVERWRITE_IMG : &MARS_FRAMEBUFFER) + 0x100);
+        drawmode &= ~3;
+        fb = (void *)((uint16_t *)(drawmode & DRAWSPR_OVERWRITE ?
+            &MARS_OVERWRITE_IMG : &MARS_FRAMEBUFFER) + 0x100);
+        for (flip = 0; flip < 4; flip++)
+            flip_functions[flip] = draw_spritefn(drawmode | flip);
 
         y = yy;
-        for (y_tile = start_tile; y_tile < end_tile; y_tile += tm->tiles_hor)
+        for (y_tile = start_tile; y_tile < end_tile; y_tile += tiles_hor)
         {
             int id;
             int tile;
@@ -333,39 +406,35 @@ int draw_handle_layercmd(drawtilelayerscmd_t *cmd)
             x = xx;
             for (tile = t1; tile < t2; tile++)
             {
-                if (i == n)
+                int16_t idx = layer[tile];
+
+                if (dirty[id] != idx)
                 {
-                    int16_t idx = layer[tile];
-
-                    if (dirty[id] != idx)
+                    if (idx != 0 || (l == 0 && last_layer[tile] != dirty[id]))
                     {
-                        if (idx != 0 || (l == 0 && last_layer[tile] != dirty[id]))
-                        {
-                            if (l == 0)
-                                dirty[id] = idx;
-                            else
-                                dirty[id] = dirty[id] == 0 ? idx : -1;
+                        if (l == 0)
+                            dirty[id] = idx;
+                        else
+                            dirty[id] = dirty[id] == 0 ? idx : -1;
 
-                            const uint8_t* res = reslist[(idx >> 2)];
-                            int tiledrawmode = drawmode | (idx & 3);
-                            /*if (debug) res = reslist[1];*/
+                        const uint8_t* res = reslist[(idx >> 2)];
+                        unsigned tileflip = idx & 3;
+                        int tiledrawmode = drawmode | tileflip;
+                        /*if (debug) res = reslist[1];*/
 
-                            fn = draw_spritefn(tiledrawmode);
-                            draw_drawtile(x, y, w, h, res, tiledrawmode, fb, fn);
-                            drawcnt++;
-                        }
+                        draw_drawtile(x, y, res, tiledrawmode, fb,
+                            flip_functions[tileflip], &tilecmd);
+                        drawcnt++;
                     }
-                    n = get_next_tile();
                 }
 
-                i++;
                 id++;
                 x += w;
             }
 
             y += h;
             stid += canvas_tiles_hor;
-            if (y >= canvas_pitch)
+            if (y >= render->canvas_yaw)
                 break;
         }
     }
@@ -375,13 +444,13 @@ int draw_handle_layercmd(drawtilelayerscmd_t *cmd)
 
 static int draw_tile_layer(drawtilecontext_t *dc, int layer, int *pclipped)
 {
-    int x, y;
     tilemap_t *tm = dc->tm;
     const dtilelayer_t *tl = &tm->layers[layer];
     unsigned w = tm->tw, h = tm->th;
     const fixed_t *plx = tm->layers[layer].parallax;
     int clipped = 0;
     int drawcnt;
+    drawtilelayerscmd_t master_cmd;
 
     if (tl->objectLayer)
     {
@@ -523,6 +592,9 @@ static int draw_tile_layer(drawtilecontext_t *dc, int layer, int *pclipped)
 		int16_t* extrafb = (int16_t*)&MARS_FRAMEBUFFER + 0x100 + ((canvas_pitch * canvas_yaw) >> 1);
 		int16_t *dirty = extrafb + 3;
 		uint16_t *render_state = (uint16_t *)extrafb;
+		drawrenderstate_t render;
+
+		snapshot_render_state(&render);
 
         MARS_VDP_SHIFTREG = old_camera_x;
 
@@ -534,22 +606,18 @@ static int draw_tile_layer(drawtilecontext_t *dc, int layer, int *pclipped)
 
 		if (render_state[0] != tm->id || render_state[1] != canvas_rebuild_id)
 		{
-			int16_t* p = dirty;
-
-            // mark all tiles as dirty
-            for (y = 0; y < canvas_tiles_ver; y++) {
-                for (x = 0; x < canvas_tiles_hor; x++) {
-                    *p++ = -1;
-                }
-            }
-
+			/* Full invalidation is rare; clear two entries per longword. */
+			sh2_fill16((uint16_t *)dirty,
+				canvas_tiles_ver * canvas_tiles_hor, 0xFFFF);
 			render_state[0] = tm->id;
 			render_state[1] = canvas_rebuild_id;
 		}
 	}
 
-    drawtilelayerscmd_t *scmd = &slave_drawtilelayerscmd;
-    scmd->tm = tm;
+    drawtileslavecmd_t *slave_cmd = &slave_drawtilecmd;
+    drawtilelayerscmd_t *scmd = &slave_cmd->draw;
+    slave_cmd->tilemap = *tm;
+    scmd->tm = &slave_cmd->tilemap;
     scmd->x = xx;
     scmd->y = yy;
     scmd->start_tile = start_tile;
@@ -564,12 +632,31 @@ static int draw_tile_layer(drawtilecontext_t *dc, int layer, int *pclipped)
         scmd->drawmode = DRAWSPR_PRECISE|DRAWSPR_OVERWRITE;
     }
     scmd->parallax = dc->parallax;
+    snapshot_render_state(&scmd->render);
+
+    /* Split visible rows into two non-overlapping contiguous stripes. */
+    master_cmd = *scmd;
+    master_cmd.tm = tm;
+    {
+        int row_count = (end_tile - start_tile + tm->tiles_hor - 1) /
+            tm->tiles_hor;
+        int master_rows = (row_count + 1) >> 1;
+        int split_tile;
+
+        split_tile = start_tile + master_rows * tm->tiles_hor;
+
+        if (split_tile > end_tile)
+            split_tile = end_tile;
+        master_cmd.end_tile = split_tile;
+        scmd->start_tile = split_tile;
+        scmd->y = yy + master_rows * h;
+        scmd->scroll_tile_id += master_rows * canvas_tiles_hor;
+    }
 
     while (MARS_SYS_COMM4 != 0);
-    MARS_SYS_COMM6 = 0;
     MARS_SYS_COMM4 = 3;
 
-    drawcnt = draw_handle_layercmd(scmd);
+    drawcnt = draw_handle_layercmd(&master_cmd);
     while (MARS_SYS_COMM4 == 3);
     drawcnt += ((MARS_SYS_COMM4 >> 2) - 1);
     MARS_SYS_COMM4 = 4;
@@ -580,6 +667,7 @@ static int draw_tile_layer(drawtilecontext_t *dc, int layer, int *pclipped)
 
 int draw_tilemap(tilemap_t *tm, int fpcamera_x, int fpcamera_y, int *cameraclip, void (*drawspr)(int l, void *p), void *sprp)
 {
+    uint32_t perf_start = perf_master_ticks();
     int i;
     int clip, drawcnt;
     int ignored_clip;
@@ -615,16 +703,25 @@ int draw_tilemap(tilemap_t *tm, int fpcamera_x, int fpcamera_y, int *cameraclip,
         }
     }
 
-    for (i = 0; i < 2; i++) {
-        const dtilelayer_t *mdpl = tm->mdPlane[i];
+    if (tm->mdPlane[0]->bitmap || tm->mdPlane[1]->bitmap) {
+        int md_scroll[4] = { 0, 0, 0, 0 };
 
-        if (mdpl->bitmap) {
-            fixed_t camera_x = FixedMul(fpcamera_x, mdpl->parallax[0])>>16;
-            fixed_t camera_y = FixedMul(fpcamera_y, mdpl->parallax[1])>>16;
+        for (i = 0; i < 2; i++) {
+            const dtilelayer_t *mdpl = tm->mdPlane[i];
 
-            HwMdHScrollPlane(i, mdpl->offset[0]+camera_x);
-            HwMdVScrollPlane(i, -mdpl->offset[1]-camera_y);
+            if (mdpl->bitmap) {
+                fixed_t md_camera_x = FixedMul(fpcamera_x,
+                    mdpl->parallax[0]) >> 16;
+                fixed_t md_camera_y = FixedMul(fpcamera_y,
+                    mdpl->parallax[1]) >> 16;
+
+                md_scroll[i * 2] = mdpl->offset[0] + md_camera_x;
+                md_scroll[i * 2 + 1] = -mdpl->offset[1] - md_camera_y;
+            }
         }
+
+        HwMdSetPlaneScrolls(md_scroll[0], md_scroll[1],
+            md_scroll[2], md_scroll[3]);
     }
 
     dc.tm = tm;
@@ -645,5 +742,7 @@ int draw_tilemap(tilemap_t *tm, int fpcamera_x, int fpcamera_y, int *cameraclip,
         dc.sprites_drawn = 1;
     }
 
+    perf_record(PERF_CPU_MASTER, PERF_METRIC_TILEMAP,
+        perf_master_ticks() - perf_start);
     return drawcnt;
 }

@@ -21,7 +21,7 @@ RM = rm -f
 TARGET = m68k
 COMBINED_TARGET = m68k-combined
 LIBS = $(LIBPATH) -lc -lgcc -lnosys
-COMMON_OBJS = font.o pal.o psg.o main.o segacd.o kos.o cd.o lzss.o vgm.o vgm_player.o xvprintf.o planeb.o planeb_asm.o
+COMMON_OBJS = font.o pal.o psg.o main.o segacd.o controllers.o kos.o cd.o lzss.o vgm.o vgm_player.o xvprintf.o planeb.o planeb_asm.o
 OBJS = crt0.o $(COMMON_OBJS)
 COMBINED_OBJS = crt0_combined.o $(COMMON_OBJS)
 
@@ -54,6 +54,9 @@ crt0_combined.o: crt0.s
 
 %.o: %.c
 	$(CC) $(CCFLAGS) $(EXTRA) $(INCPATH) $< -o $@
+
+controllers.o: controllers.c
+	$(CC) $(CCFLAGS) $(EXTRA) -fno-builtin -fno-tree-loop-distribute-patterns $(INCPATH) $< -o $@
 
 %.o: ../liblzss/%.c
 	$(CC) $(CCFLAGS) $(EXTRA) $(INCPATH) $< -o $@

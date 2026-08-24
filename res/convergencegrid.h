@@ -23,7 +23,7 @@ const uint8_t convergencegrid_Res0[] __attribute__((aligned(16))) = {
 };
 
 
-const uint8_t * convergencegrid_Reslist[] = {
+const uint8_t * const convergencegrid_Reslist[] = {
 yatssd_empty_tile,
 convergencegrid_Res0
 };

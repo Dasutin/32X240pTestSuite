@@ -46,6 +46,7 @@ void vt_DisappearingLogo(void);
 void vt_layers_test(void);
 void at_sound_test(void);
 void at_audiosync_test(void);
+void controller_options_menu(void);
 void ht_controller_test(void);
 void ht_memory_viewer(u32 address);
 void ht_check_32x_bios_crc(u32 address);

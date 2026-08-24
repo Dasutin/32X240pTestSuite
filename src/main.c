@@ -26,6 +26,8 @@
 #include "draw.h"
 #include "shared_objects.h"
 #include "main.h"
+
+#define drawTextwHighlight drawMenuTextwHighlight
 #include "patterns.h"
 #include "tests.h"
 #include "help.h"
@@ -44,6 +46,8 @@ int main(void)
 	marsVDP256Start();
 
 	SetSH2SR(1);
+	segaCDDetectedAtBoot =
+		(HwMdSegaCDCommand(SCD_OP_STATUS, 0) & SCD_STATUS_PRESENT) != 0;
 
 	initMainBGwGil();
 
@@ -55,7 +59,6 @@ int main(void)
 	{
 		Hw32xFlipWait();
 		drawBGwGil();
-		loadTextPalette();
 
 		pos = 72;
 		drawTextwHighlight("Test Patterns", 50, pos += 8, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
@@ -64,7 +67,8 @@ int main(void)
 		drawTextwHighlight("Hardware tools", 50, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		pos += 34;
 		drawTextwHighlight("Help", 50, pos += 8, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("Credits", 50, pos += 8, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Options", 50, pos += 8, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Credits", 50, pos += 8, curse == 7 ? fontColorRed : fontColorWhite, curse == 7 ? fontColorRedHighlight : fontColorWhiteHighlight);
 
 		drawResolution();
 
@@ -79,7 +83,7 @@ int main(void)
 		if (pressedButton & SEGA_CTRL_DOWN)
 		{
 			curse++;
-			if (curse > 6)
+			if (curse > 7)
 				curse = 1;
 		}
 
@@ -87,7 +91,7 @@ int main(void)
 		{
 			curse--;
 			if (curse < 1)
-				curse = 6;
+				curse = 7;
 		}
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
@@ -114,25 +118,25 @@ int main(void)
 				case 1:
 					screenFadeOut(1);
 					menu_tp();
-					loadMainBGwGilPalette();
+					redrawBGwGil();
 					break;
 
 				case 2:
 					screenFadeOut(1);
 					menu_vt();
-					loadMainBGwGilPalette();
+					redrawBGwGil();
 					break;
 
 				case 3:
 					screenFadeOut(1);
 					menu_at();
-					loadMainBGwGilPalette();
+					redrawBGwGil();
 					break;
 
 				case 4:
 					screenFadeOut(1);
 					menu_ht();
-					loadMainBGwGilPalette();
+					redrawBGwGil();
 					break;
 
 				case 5:
@@ -142,6 +146,12 @@ int main(void)
 					break;
 
 				case 6:
+					screenFadeOut(1);
+					controller_options_menu();
+					redrawBGwGil();
+					break;
+
+				case 7:
 					screenFadeOut(1);
 					credits();
 					redrawBGwGil();
@@ -167,7 +177,6 @@ void menu_tp()
 	{
 		Hw32xFlipWait();
 		drawBGwGil();
-		loadTextPalette();
 
 		pos = 88;
 		drawTextwHighlight("Color & Black Levels", 40, pos += 8, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
@@ -237,13 +246,13 @@ void menu_tp()
 				case 1:
 					screenFadeOut(1);
 					menu_color_black_levels();
-					loadMainBGwGilPalette();
+					redrawBGwGil();
 					break;
 
 				case 2:
 					screenFadeOut(1);
 					menu_geo();
-					loadMainBGwGilPalette();
+					redrawBGwGil();
 					break;
 
 				case 3:
@@ -260,7 +269,8 @@ void menu_tp()
 			}
 		}
 
-		Hw32xScreenFlip(0);
+		if (!done)
+			Hw32xScreenFlip(0);
 	}
 	return;
 }
@@ -278,7 +288,6 @@ void menu_color_black_levels()
 	{
 		Hw32xFlipWait();
 		drawBGwGil();
-		loadTextPalette();
 
 		pos = 64;
 		drawTextwHighlight("Pluge", 40, pos += 8, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
@@ -446,7 +455,8 @@ void menu_color_black_levels()
 		pressedButton = button & ~oldButton;
 		oldButton = button;
 
-		Hw32xScreenFlip(0);
+		if (!done)
+			Hw32xScreenFlip(0);
 	}
 	return;
 }
@@ -464,7 +474,6 @@ void menu_geo()
 	{
 		Hw32xFlipWait();
 		drawBGwGil();
-		loadTextPalette();
 
 		pos = 88;
 		drawTextwHighlight("Monoscope", 40, pos += 8, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
@@ -578,7 +587,8 @@ void menu_geo()
 		pressedButton = button & ~oldButton;
 		oldButton = button;
 
-		Hw32xScreenFlip(0);
+		if (!done)
+			Hw32xScreenFlip(0);
 	}
 	return;
 }
@@ -597,7 +607,6 @@ void menu_vt()
 		Hw32xFlipWait();
 
 		drawBGwGil();
-		loadTextPalette();
 
 		pos = 50;
 		drawTextwHighlight("Drop Shadow Test", 40, pos += 8, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
@@ -809,7 +818,8 @@ void menu_vt()
 			oldButton = button;
 		}
 
-		Hw32xScreenFlip(0);
+		if (!done)
+			Hw32xScreenFlip(0);
 	}
 	return;
 }
@@ -827,7 +837,6 @@ void menu_at()
 	{
 		Hw32xFlipWait();
 		drawBGwGil();
-		loadTextPalette();
 
 		pos = 80;
 		drawTextwHighlight("Sound Test", 40, pos += 8, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
@@ -928,7 +937,8 @@ void menu_at()
 			oldButton = button;
 		}
 
-		Hw32xScreenFlip(0);
+		if (!done)
+			Hw32xScreenFlip(0);
 	}
 	return;
 }
@@ -946,18 +956,18 @@ void menu_ht()
 	{
 		Hw32xFlipWait();
 		drawBGwGil();
-		loadTextPalette();
 
 		pos = 72;
 		drawTextwHighlight("Controller Test", 40, pos += 8, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		drawTextwHighlight("SDRAM Check", 40, pos += 8, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("Sega CD Tests", 40, pos += 8, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("Memory Viewer", 40, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("BIOS Info", 40, pos += 8, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Memory Viewer", 40, pos += 8, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("BIOS Info", 40, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		pos += 8;
+		drawTextwHighlight("Sega CD Tests", 40, pos += 8, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Sega CD 32X Tests", 40, pos += 8, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		pos += 8;
-		drawTextwHighlight("Help", 40, pos += 8, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("Back to Main Menu", 40, pos += 8, curse == 7 ? fontColorRed : fontColorWhite, curse == 7 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Help", 40, pos += 8, curse == 7 ? fontColorRed : fontColorWhite, curse == 7 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Back to Main Menu", 40, pos += 8, curse == 8 ? fontColorRed : fontColorWhite, curse == 8 ? fontColorRedHighlight : fontColorWhiteHighlight);
 
 		drawResolution();
 
@@ -972,7 +982,7 @@ void menu_ht()
 		if (pressedButton & SEGA_CTRL_DOWN)
 		{
 			curse++;
-			if (curse > 7)
+			if (curse > 8)
 				curse = 1;
 		}
 
@@ -980,7 +990,7 @@ void menu_ht()
 		{
 			curse--;
 			if (curse < 1)
-				curse = 7;
+				curse = 8;
 		}
 
 		if (pressedButton & SEGA_CTRL_B)
@@ -1032,20 +1042,13 @@ void menu_ht()
 
 				case 3:
 					screenFadeOut(1);
-					menu_segacd();
-					marsVDP256Start();
-					redrawBGwGil();
-					break;
-
-				case 4:
-					screenFadeOut(1);
 					ht_memory_viewer(0);
 					HwMdClearScreen();
 					marsVDP256Start();
 					redrawBGwGil();
 					break;
 
-				case 5:
+				case 4:
 					screenFadeOut(1);
 					ht_check_32x_bios_crc(0);
 					HwMdClearScreen();
@@ -1053,13 +1056,27 @@ void menu_ht()
 					redrawBGwGil();
 					break;
 
+				case 5:
+					screenFadeOut(1);
+					menu_segacd();
+					marsVDP256Start();
+					redrawBGwGil();
+					break;
+
 				case 6:
+					screenFadeOut(1);
+					menu_segacd32x();
+					marsVDP256Start();
+					redrawBGwGil();
+					break;
+
+				case 7:
 					screenFadeOut(1);
 					DrawHelp(HELP_GENERAL);
 					redrawBGwGil();
 					break;
 
-				case 7:
+				case 8:
 					screenFadeOut(1);
 					done = 1;
 					break;
@@ -1074,7 +1091,8 @@ void menu_ht()
 		pressedButton = button & ~oldButton;
 		oldButton = button;
 
-		Hw32xScreenFlip(0);
+		if (!done)
+			Hw32xScreenFlip(0);
 	}
 	return;
 }
@@ -1092,10 +1110,9 @@ void credits()
 	{
 		Hw32xFlipWait();
 		drawMainBG();
-		loadTextPalette();
 
 		drawTextwHighlight("Ver. 1.5", 80, 35, fontColorGreen, fontColorGreenHighlight);
-		drawTextwHighlight("08/20/2026", 166, 35, fontColorWhite, fontColorWhiteHighlight);
+		drawTextwHighlight("08/24/2026", 166, 35, fontColorWhite, fontColorWhiteHighlight);
 
 		drawTextwHighlight("Code and Port by:", 35, 50, fontColorGreen, fontColorGreenHighlight);
 		drawTextwHighlight("Dustin Dembrosky (@Dasutin)", 43, 58, fontColorWhite, fontColorWhiteHighlight);
@@ -1143,7 +1160,8 @@ void credits()
 			done = 1;
 		}
 
-		Hw32xScreenFlip(0);
+		if (!done)
+			Hw32xScreenFlip(0);
 	}
 	return;
 }

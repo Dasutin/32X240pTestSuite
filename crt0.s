@@ -350,6 +350,7 @@ sec_vbr:
         .long   sec_irq         /* H Blank interupt (Level 10 & 11 */
         .long   sec_irq         /* V Blank interupt (Level 12 & 13) */
         .long   sec_irq         /* Reset Button (Level 14 & 15) */
+        .long   sec_irq         /* Internal DMA channel 1 (Vector 72) */
 
 #-----------------------------------------------------------------------
 # The Primary SH2 starts here
@@ -380,8 +381,8 @@ pri_start:
         mov.b   r0,@(0x05,r1)           /* OCR_L => OCRA = 0x0001 */
         mov     #0,r0
         mov.b   r0,@(0x06,r1)           /* TCR = Input captured on falling edge, CKS = Fs/8 */
-        mov     #1,r0
-        mov.b   r0,@(0x01,r1)           /* TCSR = Clear FRC on match OCRA */
+        mov     #0,r0
+        mov.b   r0,@(0x01,r1)           /* Primary FRT remains the profiling/test counter */
         mov     #0x00,r0
         mov.b   r0,@(0x03,r1)           /* FRC_L */
         mov.b   r0,@(0x02,r1)           /* FRC_H => clear FRC */
@@ -782,7 +783,7 @@ sec_start:
         mov     #0,r0
         mov.b   r0,@(0x06,r1)           /* TCR = Input captured on falling edge, CKS = Fs/8 */
         mov     #1,r0
-        mov.b   r0,@(0x01,r1)           /* TCSR = Clear FRC on match OCRA */
+        mov.b   r0,@(0x01,r1)           /* FTCSR = Clear FRC on match OCRA */
         mov     #0x00,r0
         mov.b   r0,@(0x03,r1)           /* FRC_L */
         mov.b   r0,@(0x02,r1)           /* FRC_H => Clear FRC */
@@ -1016,7 +1017,28 @@ sec_pwm_irq:
         nop
         nop
 
-        # Handle PWM IRQ (Remove nops if more than 8 cycles)
+        # Refill the three-entry PWM FIFO for the looping test tone.
+        sts.l   pr,@-r15
+        mov.l   r3,@-r15
+        mov.l   r4,@-r15
+        mov.l   r5,@-r15
+        mov.l   r6,@-r15
+        mov.l   r7,@-r15
+        sts.l   mach,@-r15
+        sts.l   macl,@-r15
+
+        mov.l   spi_pwm_handler,r0
+        jsr     @r0
+        nop
+
+        lds.l   @r15+,macl
+        lds.l   @r15+,mach
+        mov.l   @r15+,r7
+        mov.l   @r15+,r6
+        mov.l   @r15+,r5
+        mov.l   @r15+,r4
+        mov.l   @r15+,r3
+        lds.l   @r15+,pr
 
         rts
         nop
@@ -1026,6 +1048,8 @@ spi_mars_adapter:
         .long   0x20004000
 spi_sh2_frtctl:
         .long   0xfffffe10
+spi_pwm_handler:
+        .long   _sec_pwm_tone_handler
 
 #-----------------------------------------------------------------------
 # Secondary DMA IRQ handler
@@ -1138,117 +1162,6 @@ svri_sec_vres:
 #-----------------------------------------------------------------------
 # Support Functions
 #-----------------------------------------------------------------------
-
-# void S_PaintChannel(void *channel, int16_t *buffer, int32_t cnt, int32_t scale);
-# On entry: r4 = channel pointer
-#           r5 = buffer pointer
-#           r6 = count (number of stereo 16-bit samples)
-#           r7 = scale (global volume - possibly fading, 0 - 64)
-        .align  4
-        .global _S_PaintChannel
-_S_PaintChannel:
-        mov.l   r8,@-r15
-        mov.l   r9,@-r15
-        mov.l   r10,@-r15
-        mov.l   r11,@-r15
-        mov.l   r12,@-r15
-        mov.l   r13,@-r15
-        mov.l   r14,@-r15
-
-        mov.l   @r4,r8          /* Data pointer */
-        mov.l   @(4,r4),r9      /* Position */
-        mov.l   @(8,r4),r10     /* Increment */
-        mov.l   @(12,r4),r11    /* Length */
-        mov.l   @(16,r4),r12    /* Loop_length */
-        mov.w   @(20,r4),r0     /* Volume:Pan */
-
-        # Calculate left/right volumes from volume, pan, and scale
-        mov     r0,r13
-        shlr8   r13
-        extu.b  r13,r13         /* ch_vol */
-        mov     r13,r14
-        extu.b  r0,r0           /* Pan */
-
-        # LINEAR_CROSSFADE
-        mov     #0xFF,r1
-        extu.b  r1,r1
-        sub     r0,r1           /* 255 - pan */
-        mulu.w  r0,r14
-        sts     macl,r0         /* Pan * ch_vol */
-        mul.l   r0,r7
-        sts     macl,r14        /* Pan * ch_vol * scale */
-        shlr8   r14
-!       shlr2   r14
-        shlr2   r14             /* Right volume = pan * ch_vol * scale / 64 / 64 */
-
-        mulu.w  r1,r13
-        sts     macl,r0         /* (255 - pan) * ch_vol */
-        mul.l   r0,r7
-        sts     macl,r13        /* (255 - pan) * ch_vol * scale */
-        shlr8   r13
-!       shlr2   r13
-        shlr2   r13             /* Left volume = (255 - pan) * ch_vol * scale / 64 / 64 */
-
-        # Mix R6 stereo samples
-mix_loop:
-        # Process one sample
-        mov     r9,r0
-        shlr8   r0
-        shll2   r0
-        shlr8   r0
-        mov.b   @(r0,r8),r0
-        extu.b  r0,r3
-        add     #-128,r3
-        # Scale sample for left output
-        muls.w  r3,r13
-        mov.w   @r5,r1
-        sts     macl,r0
-        shlr8   r0
-        exts.w  r0,r0
-        add     r0,r1
-        mov.w   r1,@r5
-        add     #2,r5
-        # Scale sample for right output
-        muls.w  r3,r14
-        mov.w   @r5,r1
-        sts     macl,r0
-        shlr8   r0
-        exts.w  r0,r0
-        add     r0,r1
-        mov.w   r1,@r5
-        add     #2,r5
-
-        # Advance position and check for loop
-        add     r10,r9                  /* Position += increment */
-mix_chk:
-        cmp/hs  r11,r9
-        bt      mix_wrap                /* Position >= length */
-mix_next:
-        # Next sample
-        dt      r6
-        bf      mix_loop
-        bra     mix_exit
-        mov.l   r9,@(4,r4)              /* Update position field */
-
-mix_wrap:
-        # Check if loop sample
-        mov     r12,r0
-        cmp/eq  #0,r0
-        bf/s    mix_chk                 /* Loop sample */
-        sub     r12,r9                  /* Position -= loop_length */
-        # Sample done playing
-        mov.l   r12,@r4                 /* Clear data pointer field */
-
-mix_exit:
-        mov.l   @r15+,r14
-        mov.l   @r15+,r13
-        mov.l   @r15+,r12
-        mov.l   @r15+,r11
-        mov.l   @r15+,r10
-        mov.l   @r15+,r9
-        mov.l   @r15+,r8
-        rts
-        nop
 
 # void word_8byte_copy(short *dst, short *src, int count)
         .align  4

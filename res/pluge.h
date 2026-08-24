@@ -422,7 +422,7 @@ const uint8_t pluge_Res21[] __attribute__((aligned(16))) = {
 };
 
 
-const uint8_t * pluge_Reslist[] = {
+const uint8_t * const pluge_Reslist[] = {
 yatssd_empty_tile,
 pluge_Res0,
 pluge_Res1,

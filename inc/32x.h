@@ -147,7 +147,7 @@
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 224
 
-// COMM6 - Mixer status
+// COMM6 - Unassigned (renderer commands use COMM4; sound state is in SDRAM)
 #define MIXER_INITIALIZE    0
 #define MIXER_UNLOCKED      1
 #define MIXER_LOCK_MSH2     2
