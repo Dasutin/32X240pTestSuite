@@ -32,6 +32,9 @@
 #include "tests.h"
 #include "help.h"
 #include "segacd.h"
+#include "diagnostics.h"
+
+extern void MDFourier(void);
 
 // canvas_width + scrollwidth
 uint32_t canvas_pitch = 320;
@@ -868,11 +871,11 @@ void menu_at()
 		pos = 80;
 		drawTextwHighlight("Sound Test", 40, pos += 8, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		drawTextwHighlight("Audio Sync Test", 40, pos += 8, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("MDFourier", 40, pos += 8, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		pos += 8;
-		pos += 8;
-		drawTextwHighlight("Help", 40, pos += 8, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("Options", 40, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("Back to Main Menu", 40, pos += 8, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Help", 40, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Options", 40, pos += 8, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Back to Main Menu", 40, pos += 8, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorRedHighlight : fontColorWhiteHighlight);
 
 		drawResolution();
 
@@ -888,7 +891,7 @@ void menu_at()
 		if (pressedButton & SEGA_CTRL_DOWN)
 		{
 			curse++;
-			if (curse > 5)
+			if (curse > 6)
 				curse = 1;
 		}
 
@@ -902,7 +905,7 @@ void menu_at()
 		{
 			curse--;
 			if (curse < 1)
-				curse = 5;
+				curse = 6;
 		}
 
 		if (pressedButton & SEGA_CTRL_START)
@@ -948,17 +951,24 @@ void menu_at()
 
 				case 3:
 					screenFadeOut(1);
-					DrawHelp(HELP_GENERAL);
+					MDFourier();
+					marsVDP256Start();
 					redrawBGwGil();
 					break;
 
 				case 4:
 					screenFadeOut(1);
-					controller_options_menu();
+					DrawHelp(HELP_GENERAL);
 					redrawBGwGil();
 					break;
 
 				case 5:
+					screenFadeOut(1);
+					controller_options_menu();
+					redrawBGwGil();
+					break;
+
+				case 6:
 					screenFadeOut(1);
 					done = 1;
 					break;
@@ -994,9 +1004,10 @@ void menu_ht()
 
 		pos = 72;
 		drawTextwHighlight("Controller Test", 40, pos += 8, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("SDRAM Check", 40, pos += 8, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("Memory Viewer", 40, pos += 8, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("BIOS Info", 40, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Memory Viewer", 40, pos += 8, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("BIOS Info", 40, pos += 8, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		pos += 8;
+		drawTextwHighlight("32X Diagnostic Tests", 40, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		pos += 8;
 		drawTextwHighlight("Sega CD Tests", 40, pos += 8, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		drawTextwHighlight("Sega CD 32X Tests", 40, pos += 8, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorRedHighlight : fontColorWhiteHighlight);
@@ -1071,13 +1082,6 @@ void menu_ht()
 					break;
 
 				case 2:
-					ht_test_32x_sdram();
-					HwMdClearScreen();
-					marsVDP256Start();
-					redrawBGwGil();
-					break;
-
-				case 3:
 					screenFadeOut(1);
 					ht_memory_viewer(0);
 					HwMdClearScreen();
@@ -1085,10 +1089,17 @@ void menu_ht()
 					redrawBGwGil();
 					break;
 
-				case 4:
+				case 3:
 					screenFadeOut(1);
 					ht_check_32x_bios_crc(0);
 					HwMdClearScreen();
+					marsVDP256Start();
+					redrawBGwGil();
+					break;
+
+				case 4:
+					screenFadeOut(1);
+					diagnosticsMenu();
 					marsVDP256Start();
 					redrawBGwGil();
 					break;
@@ -1155,7 +1166,7 @@ void credits()
 		drawMainBG();
 
 		drawTextwHighlight("Ver. 1.5", 80, 35, fontColorGreen, fontColorGreenHighlight);
-		drawTextwHighlight("08/24/2026", 166, 35, fontColorWhite, fontColorWhiteHighlight);
+		drawTextwHighlight("08/26/2026", 166, 35, fontColorWhite, fontColorWhiteHighlight);
 
 		drawTextwHighlight("Code and Port by:", 35, 50, fontColorGreen, fontColorGreenHighlight);
 		drawTextwHighlight("Dustin Dembrosky (@Dasutin)", 43, 58, fontColorWhite, fontColorWhiteHighlight);

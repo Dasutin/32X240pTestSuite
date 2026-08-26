@@ -29,4 +29,4 @@ boot_32x:
         jmp     0x000003F0               /* Standard 32X startup/security code */
 
 genesis_boot:
-        jmp     0x000A0200               /* Genesis payload + _Entry_Point */
+        jmp     0x00300200

@@ -5,11 +5,14 @@ ROM=${1:?usage: fix_checksum.sh ROM}
 
 ROM_SIZE=$(wc -c < "$ROM")
 
-if [ "$ROM_SIZE" -lt 512 ]
+if [ "$ROM_SIZE" -ne 4194304 ]
 then
-	echo "ROM is too small: $ROM" >&2
+	echo "ROM must be exactly 4 MiB: $ROM" >&2
 	exit 1
 fi
+
+printf '\000\077\377\377' |
+	dd of="$ROM" bs=1 seek=420 count=4 conv=notrunc status=none
 
 CHECKSUM=$(od -An -v -t u2 --endian=big -j 512 "$ROM" |
 	awk '{ for (i = 1; i <= NF; ++i) sum = (sum + $i) % 65536 }

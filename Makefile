@@ -36,8 +36,9 @@ GENESIS_REPOSITORY = https://github.com/ArtemioUrbina/240pTestSuite.git
 GENESIS_BRANCH = master
 GENESIS_SOURCE = $(GENESIS_ROOT)/240psuite/Genesis/240p
 GENESIS_ADAPTER = $(abspath tools/genesis-build/Makefile)
-GENESIS_BIN = $(GENESIS_SOURCE)/out/genesis.bin
-GENESIS_VECTORS = $(GENESIS_SOURCE)/out/genesis-vectors.bin
+GENESIS_BUILD = $(abspath build/genesis)
+GENESIS_BIN = $(GENESIS_BUILD)/genesis.bin
+GENESIS_VECTORS = $(GENESIS_BUILD)/genesis-vectors.bin
 
 TARGET = build/240pMars
 COMBINED_TARGET = build/240pMD32X
@@ -55,48 +56,34 @@ SHSS = $(wildcard src/*.s)
 SHCOMMONOBJS = sh2_fixed.o
 SHCOMMONOBJS += $(OBJS:.c=.o)
 SHCOMMONOBJS += $(SHSS:.s=.o)
+SHCOMMONOBJS += diagnostic_z80_asset.o
 
-.PHONY: all release debug combined genesis-source genesis-build clean
+.PHONY: all release debug combined genesis-source genesis-build validate-diagnostics clean
 
 all: release
 
 release: EXTRA = -Os
-release: $(TARGET).32x
+release: validate-diagnostics $(TARGET).32x
 
-debug: EXTRA = -O0 -g -gdwarf-2
+debug: EXTRA = -O0 -g -gdwarf-2 -DDEBUG
 debug: $(TARGET).32x
 
 combined: EXTRA = -Os
-combined: genesis-build $(M68K_COMBINED_BIN)
+combined: validate-diagnostics genesis-build $(TARGET).32x $(M68K_COMBINED_BIN)
 	$(MAKE) EXTRA=-Os $(COMBINED_TARGET).bin
+	sh tools/verify_diagnostic_parity.sh $(TARGET).32x \
+		$(COMBINED_TARGET).bin $(TARGET).map $(COMBINED_TARGET).map
+
+validate-diagnostics:
+	sh tools/validate_manifest.sh src/diagnostic_manifest.c
 
 genesis-source:
-	@if [ -e "$(GENESIS_ROOT)" ] && [ ! -d "$(GENESIS_ROOT)/.git" ]; then \
-		echo "$(GENESIS_ROOT) exists but is not the managed upstream checkout"; \
-		echo "Move or remove it, then run make combined again"; \
-		exit 1; \
-	fi
-	@if [ ! -d "$(GENESIS_ROOT)/.git" ]; then \
-		git clone --filter=blob:none --no-checkout --single-branch \
-			--branch "$(GENESIS_BRANCH)" "$(GENESIS_REPOSITORY)" "$(GENESIS_ROOT)"; \
-		git -C "$(GENESIS_ROOT)" sparse-checkout init --cone; \
-		git -C "$(GENESIS_ROOT)" sparse-checkout set \
-			240psuite/Genesis/240p/res \
-			240psuite/Genesis/240p/src/boot; \
-		git -C "$(GENESIS_ROOT)" checkout "$(GENESIS_BRANCH)"; \
-	else \
-		if [ -n "$$(git -C "$(GENESIS_ROOT)" status --porcelain --untracked-files=no)" ]; then \
-			echo "The managed Genesis checkout has local tracked changes; refusing to overwrite them"; \
-			exit 1; \
-		fi; \
-		git -C "$(GENESIS_ROOT)" sparse-checkout set \
-			240psuite/Genesis/240p/res \
-			240psuite/Genesis/240p/src/boot; \
-		git -C "$(GENESIS_ROOT)" pull --ff-only origin "$(GENESIS_BRANCH)"; \
-	fi
+	@test -d "$(GENESIS_SOURCE)" || \
+		{ echo "Genesis source is unavailable at $(GENESIS_SOURCE)"; exit 1; }
 
 genesis-build: genesis-source
-	$(MAKE) -C "$(GENESIS_SOURCE)" -f "$(GENESIS_ADAPTER)" release
+	$(MAKE) -C "$(GENESIS_SOURCE)" -f "$(GENESIS_ADAPTER)" \
+		BUILD="$(GENESIS_BUILD)" release
 	$(DD) if="$(GENESIS_BIN)" of="$(GENESIS_VECTORS)" bs=1 skip=8 count=248
 
 $(M68K_BIN): $(M68K_SOURCES) src_md/Makefile src_md/mars-md.ld
@@ -111,19 +98,17 @@ dual_boot.bin: dual_boot.s
 	$(RM) dual_boot.o
 
 $(TARGET).32x: $(TARGET).elf
-	$(OBJC) -O binary $< $(TARGET).tmp
-	$(DD) if=$(TARGET).tmp of=$@ bs=128K conv=sync
-	$(RM) $(TARGET).tmp
+	$(OBJC) -O binary --gap-fill 0xFF $< $@
+	sh tools/fix_checksum.sh $@
+	sh tools/verify_rom.sh $@
 
 $(COMBINED_TARGET).bin: $(COMBINED_TARGET).elf $(GENESIS_BIN) tools/fix_checksum.sh
-	$(OBJC) -O binary $< $(COMBINED_TARGET).tmp
-	@test "$$(stat -c %s $(COMBINED_TARGET).tmp)" -le 655360 || \
-		{ echo "32X payload exceeds its 640 KiB ROM region"; exit 1; }
-	$(DD) if=$(COMBINED_TARGET).tmp of=$@ bs=128K conv=sync
-	truncate --size=655360 $@
-	$(DD) if=$(GENESIS_BIN) of=$@ bs=128K seek=5 conv=notrunc
+	@test "$$(stat -c %s $(GENESIS_BIN))" -le 262144 || \
+		{ echo "Genesis payload exceeds its 256 KiB ROM region"; exit 1; }
+	$(OBJC) -O binary --gap-fill 0xFF $< $@
+	$(DD) if=$(GENESIS_BIN) of=$@ bs=256K seek=12 conv=notrunc status=none
 	sh tools/fix_checksum.sh $@
-	$(RM) $(COMBINED_TARGET).tmp
+	sh tools/verify_rom.sh $@
 
 $(TARGET).elf: crt0.o $(SHCOMMONOBJS)
 	$(CC) $(LDFLAGS) -Wl,-Map=$(TARGET).map crt0.o $(SHCOMMONOBJS) $(LIBS) -o $@
@@ -140,6 +125,9 @@ crt0_combined.o: crt0.s $(M68K_COMBINED_BIN) dual_boot.bin $(GENESIS_VECTORS)
 src/hw_32x.o: src/hw_32x.c
 	$(CC) $(HWFLAGS) $(INCPATH) $< -o $@
 
+src/diagnostic_hw.o src/diagnostic_tests.o: src/%.o: src/%.c
+	$(CC) $(HWFLAGS) $(INCPATH) $< -o $@
+
 src/draw.o src/dsprite.o src/dtiles.o: src/%.o: src/%.c
 	$(CC) $(CCFLAGS) $(RENDER_OPT) $(INCPATH) $< -o $@
 
@@ -152,12 +140,13 @@ src/%.o: src/%.c
 src/%.o: src/%.s
 	$(AS) $(ASFLAGS) $(INCPATH) $< -o $@
 
+diagnostic_z80_asset.o: src_md/diagnostic_z80.s
+	$(AS) $(ASFLAGS) $(INCPATH) $< -o $@
+
 clean:
 	$(MAKE) clean -C src_md
-	@if [ -d "$(GENESIS_SOURCE)" ]; then \
-		$(MAKE) -C "$(GENESIS_SOURCE)" -f "$(GENESIS_ADAPTER)" clean; \
-	fi
 	$(RM) *.o dual_boot.bin output.map
 	$(RM) $(TARGET).32x $(TARGET).elf $(TARGET).map $(TARGET).tmp
 	$(RM) $(COMBINED_TARGET).bin $(COMBINED_TARGET).elf $(COMBINED_TARGET).map $(COMBINED_TARGET).tmp
+	$(RM) -r build/genesis
 	$(RM) src/*.o

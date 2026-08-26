@@ -63,6 +63,14 @@ genesis_override:
 
 # 0x880880 - 68000 Level 4 interrupt handler - HBlank IRQ
 
+        move.l  d0,-(sp)
+        move.l  a0,-(sp)
+        lea     0xC00004,a0
+        move.w  (a0),d0
+        lea     diagnosticMdHintCount,a0
+        addq.l  #1,(a0)
+        move.l  (sp)+,a0
+        move.l  (sp)+,d0
         rte
 
         .align  64
@@ -220,7 +228,7 @@ genesis_stub:
         clr.b   0xA10009                  /* Force a full Genesis cold start */
         clr.b   0xA1000B
         clr.b   0xA1000D
-        jmp     0x000A0200
+        jmp     0x00300200
 genesis_stub_end:
         .endif
 
@@ -303,9 +311,21 @@ handle_req:
 		bls     handle_scroll_planes
 		cmpi.w  #0x19FF,d0
 		bls     handle_controllers
+		cmpi.w  #0x1AFF,d0
+		bls     handle_diagnostics
 
         move.w  #0,0xA15120
         bra     main_loop
+
+handle_diagnostics:
+		moveq   #0,d1
+		move.w  d0,d1
+		move.l  d1,-(sp)
+		jsr     diagnosticMdDispatch
+		addq.l  #4,sp
+		move.w  d0,0xA15122
+		move.w  #0,0xA15120
+		bra     main_loop
 
 handle_segacd:
         jsr     segacd_dispatch
@@ -768,6 +788,12 @@ vert_blank:
         move.l  d2,-(sp)
 
         /* read controllers */
+		tst.w   diagnosticMdActive
+		beq.b   diagnostic_vblank_done
+		lea     diagnosticMdVblankCount,a0
+		addq.l  #1,(a0)
+		bra.b   controller_update_done
+diagnostic_vblank_done:
 		tst.w   controller_mode
 		beq.b   controller_direct_update
 		move.l  a1,-(sp)
@@ -992,6 +1018,7 @@ mky_err:
         rts
 
 # Load font tile data
+        .global reload_font
 reload_font:
         lea     0xC00004,a0             /* VDP cmd/sts reg */
         lea     0xC00000,a1             /* VDP data reg */

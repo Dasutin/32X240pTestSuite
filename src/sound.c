@@ -37,6 +37,7 @@ int sysarg_args_vol = 0;
 #define SND_BUFFER_STRIDE (MIXSAMPLES * 2)
 #define SND_DMA_TRANSFER_COUNT (SND_BUFFER_STRIDE / 2)
 #define PWM_STARTUP_RAMP_SAMPLES (SAMPLE_RATE / 4)
+#define PWM_TEST_SAMPLE_RATE 48000
 #define MARS_SYS_INTMSK_BYTE (*(volatile uint8_t *)0x20004001u)
 
 // Two buffers of MIXSAMPLES 32-bit stereo PWM samples
@@ -104,6 +105,9 @@ static uint32_t pwm_test_phase;
 static uint32_t pwm_test_step;
 static uint8_t pwm_test_active;
 static uint8_t pwm_test_resume_dma;
+static uint16_t pwm_test_saved_cycle;
+static uint16_t pwm_test_center = SAMPLE_CENTER;
+static uint16_t pwm_test_amplitude = SAMPLE_CENTER - SAMPLE_MIN;
 
 /* One cycle of a full-scale signed sine.  The phase accumulator selects the
  * sample, so frequency is independent of the table length and wraps without
@@ -249,6 +253,11 @@ void Mars_Sec_StartSoundMixer(void)
 	SetSH2SR(15);
 	SH2_DMA_CHCR1;
 	SH2_DMA_CHCR1 = 0;
+	if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT)
+		MARS_PWM_CYCLE = (((23011361 << 1) / SAMPLE_RATE + 1) >> 1) + 1;
+	else
+		MARS_PWM_CYCLE = (((22801467 << 1) / SAMPLE_RATE + 1) >> 1) + 1;
+	MARS_PWM_CTRL = 0x0185;
 	snd_stopmix = 0;
 	snd_bufidx = 0;
 
@@ -265,9 +274,9 @@ void Mars_Sec_StartSoundMixer(void)
 
 static void pwm_test_fill_center(void)
 {
-	MARS_PWM_MONO = SAMPLE_CENTER;
-	MARS_PWM_MONO = SAMPLE_CENTER;
-	MARS_PWM_MONO = SAMPLE_CENTER;
+	MARS_PWM_MONO = pwm_test_center;
+	MARS_PWM_MONO = pwm_test_center;
+	MARS_PWM_MONO = pwm_test_center;
 }
 
 void Mars_Sec_StartTestPWMTone(void)
@@ -279,24 +288,33 @@ void Mars_Sec_StartTestPWMTone(void)
 	SetSH2SR(15);
 	request->accepted = 0;
 	if (!snd_init || !request->frequency ||
-		request->frequency > SAMPLE_RATE / 2) {
+		request->frequency > PWM_TEST_SAMPLE_RATE / 2) {
 		SetSH2SR(2);
 		return;
 	}
 
-	if (!pwm_test_active)
+	if (!pwm_test_active) {
 		pwm_test_resume_dma = !snd_stopmix;
+		pwm_test_saved_cycle = MARS_PWM_CYCLE;
+	}
 
 	SH2_DMA_CHCR1;
 	SH2_DMA_CHCR1 = 0;
 	snd_stopmix = 1;
 	MARS_SYS_INTMSK_BYTE &= (uint8_t)~0x01;
 	MARS_PWM_CTRL = 0;
+	if (MARS_VDP_DISPMODE & MARS_NTSC_FORMAT)
+		MARS_PWM_CYCLE = (((23011361 << 1) / PWM_TEST_SAMPLE_RATE + 1) >> 1) + 1;
+	else
+		MARS_PWM_CYCLE = (((22801467 << 1) / PWM_TEST_SAMPLE_RATE + 1) >> 1) + 1;
+	pwm_test_center = MARS_PWM_CYCLE >> 1;
+	pwm_test_amplitude = pwm_test_center > SAMPLE_MIN ?
+		pwm_test_center - SAMPLE_MIN : 1;
 	pwm_test_fill_center();
 
 	pwm_test_phase = 0;
 	pwm_test_step = (uint32_t)((((uint64_t)request->frequency << 32) +
-		SAMPLE_RATE / 2) / SAMPLE_RATE);
+		PWM_TEST_SAMPLE_RATE / 2) / PWM_TEST_SAMPLE_RATE);
 	route = request->route;
 	if (route != 0x0002 && route != 0x0004 && route != 0x0005)
 		route = 0x0005;
@@ -326,6 +344,11 @@ void Mars_Sec_StopTestPWMTone(void)
 	pwm_test_active = 0;
 	MARS_PWM_CTRL = 0;
 	pwm_test_fill_center();
+	MARS_PWM_CYCLE = pwm_test_saved_cycle;
+	pwm_test_center = SAMPLE_CENTER;
+	pwm_test_amplitude = pwm_test_center > SAMPLE_MIN ?
+		pwm_test_center - SAMPLE_MIN : 1;
+	pwm_test_fill_center();
 
 	if (pwm_test_resume_dma) {
 		MARS_PWM_CTRL = 0x0185;
@@ -350,7 +373,8 @@ void sec_pwm_tone_handler(void)
 			break;
 		sample = pwm_test_sine[pwm_test_phase >> 24];
 		pwm_test_phase += pwm_test_step;
-		MARS_PWM_MONO = (uint16_t)(SAMPLE_CENTER + sample * 2);
+		MARS_PWM_MONO = (uint16_t)(pwm_test_center +
+			((sample * (int)pwm_test_amplitude) >> 7));
 	}
 }
 
@@ -359,7 +383,8 @@ int sound_test_pwm_start(uint32_t frequency, char selectch)
 	volatile pwm_test_request_t *request = (volatile pwm_test_request_t *)
 		((uintptr_t)&pwm_test_request | 0x20000000u);
 
-	if (!frequency || frequency > SAMPLE_RATE / 2 || !sound_isInitialized())
+	if (!frequency || frequency > PWM_TEST_SAMPLE_RATE / 2 ||
+		!sound_isInitialized())
 		return 0;
 
 	request->frequency = frequency;

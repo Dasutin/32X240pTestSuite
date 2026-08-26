@@ -4,6 +4,8 @@
 #include "hw_32x.h"
 #include "perf.h"
 
+extern volatile u8 diagnosticRuntimeActive;
+
 typedef struct
 {
     tilemap_t *tm;
@@ -637,6 +639,12 @@ static int draw_tile_layer(drawtilecontext_t *dc, int layer, int *pclipped)
     /* Split visible rows into two non-overlapping contiguous stripes. */
     master_cmd = *scmd;
     master_cmd.tm = tm;
+    if (diagnosticRuntimeActive)
+    {
+        drawcnt = draw_handle_layercmd(&master_cmd);
+        *pclipped = clipped;
+        return drawcnt;
+    }
     {
         int row_count = (end_tile - start_tile + tm->tiles_hor - 1) /
             tm->tiles_hor;

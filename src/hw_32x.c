@@ -37,6 +37,7 @@
 #include "shared_objects.h"
 #include "draw.h"
 #include "sound.h"
+#include "diagnostic_hw.h"
 
 #define COLOR_BITS 15
 #define COLOR_PRI  (1 << COLOR_BITS)
@@ -60,6 +61,8 @@ static volatile short new_alias_source;
 static volatile short new_alias_count;
 static volatile unsigned short new_alias_priority;
 static volatile unsigned short text_palette_enabled;
+
+extern volatile u8 diagnosticRuntimeActive;
 
 static void apply_text_palette(volatile unsigned short *palette)
 {
@@ -97,8 +100,9 @@ void pri_vbi_handler(void)
 {
 	int i;
 	volatile unsigned short *palette = &MARS_CRAM;
-
 	mars_vblank_count++;
+	if (diagnosticRuntimeActive)
+		return;
 
 	if ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0)
 		return;
@@ -206,7 +210,23 @@ void Hw32xSetPaletteColor(int index, int r, int g, int b)
 
 void Hw32xSetPalette(const uint8_t *palette)
 {
+	int i;
+	volatile unsigned short *target = &MARS_CRAM;
+
 	text_palette_enabled = 0;
+	if (diagnosticRuntimeActive)
+	{
+		for (i = 0; i < 256; i++)
+		{
+			unsigned short priority = (i == bgs) ? bgp : fgp;
+
+			target[i] = (COLOR(palette[0] >> 3, palette[1] >> 3,
+				palette[2] >> 3) & COLOR_MASK) | priority;
+			palette += 3;
+		}
+		new_palette = NULL;
+		return;
+	}
 	new_palette = palette;
 }
 
@@ -1196,6 +1216,9 @@ int secondary_task(int cmd)
 		return 1;
 	case MARS_SEC_CMD_SDRAM_PARK:
 		Hw32xSecondaryPark();
+		return 1;
+	case DIAG_SEC_ENTER:
+		diagnosticSecondaryAgent();
 		return 1;
 	default:
 		break;

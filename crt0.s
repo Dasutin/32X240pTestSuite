@@ -18,7 +18,7 @@
         .ifdef  COMBINED_ROM
         .long   0x00FFFE00
         .long   0x0000031A              /* Pre-32X dual-boot dispatcher */
-        .incbin "genesis/240psuite/Genesis/240p/out/genesis-vectors.bin"
+        .incbin "build/genesis/genesis-vectors.bin"
         .else
         .long   0x01000000,0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0
         .long   0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0,0x000003F0
@@ -53,7 +53,7 @@
         .word   0x0000
         .ascii  "J6              "
         .ifdef  COMBINED_ROM
-        .long   0x00000000,0x000DFFFF   /* ROM start, end */
+        .long   0x00000000,0x003FFFFF
         .else
         .long   0x00000000,0x003FFFFF   /* ROM start, end */
         .endif
@@ -548,6 +548,10 @@ pri_v_irq:
 
         mov.l   pvi_mars_adapter,r1
         mov.w   r0,@(0x16,r1)           /* Clear V IRQ */
+        mov.l   pvi_diag_counter,r1
+        mov.l   @r1,r0
+        add     #1,r0
+        mov.l   r0,@r1
 
         # Handle V IRQ - Save registers
         sts.l   pr,@-r15
@@ -582,6 +586,8 @@ pvbi_handler_ptr:
         .long   _pri_vbi_handler
 pvi_sh2_frtctl:
         .long   0xfffffe10
+pvi_diag_counter:
+        .long   _diagnosticPrimaryVblankCount
 
 #-----------------------------------------------------------------------
 # Primary H Blank IRQ handler
@@ -596,10 +602,14 @@ pri_h_irq:
 
         mov.l   phi_mars_adapter,r1
         mov.w   r0,@(0x18,r1)           /* Clear H IRQ */
-        nop
-        nop
-        nop
-        nop
+        mov.l   phi_diag_counter,r1
+        mov.l   @r1,r0
+        add     #1,r0
+        mov.l   r0,@r1
+		nop
+		nop
+		nop
+		nop
 
         # Handle H IRQ (Remove nops if more than 8 cycles)
 
@@ -611,6 +621,8 @@ phi_mars_adapter:
         .long   0x20004000
 phi_sh2_frtctl:
         .long   0xfffffe10
+phi_diag_counter:
+        .long   _diagnosticPrimaryHblankCount
 
 #-----------------------------------------------------------------------
 # Primary Command IRQ handler
@@ -625,6 +637,10 @@ pri_cmd_irq:
 
         mov.l   pci_mars_adapter,r1
         mov.w   r0,@(0x1A,r1)           /* Clear CMD IRQ */
+        mov.l   pci_diag_counter,r1
+        mov.l   @r1,r0
+        add     #1,r0
+        mov.l   r0,@r1
         nop
         nop
         nop
@@ -640,6 +656,8 @@ pci_mars_adapter:
         .long   0x20004000
 pci_sh2_frtctl:
         .long   0xfffffe10
+pci_diag_counter:
+        .long   _diagnosticPrimaryCommandCount
 
 #-----------------------------------------------------------------------
 # Primary PWM IRQ handler
@@ -654,10 +672,32 @@ pri_pwm_irq:
 
         mov.l   ppi_mars_adapter,r1
         mov.w   r0,@(0x1C,r1)           /* Clear PWM IRQ */
+        mov.l   ppi_diag_counter,r1
+        mov.l   @r1,r0
+        add     #1,r0
+        mov.l   r0,@r1
+
+        sts.l   pr,@-r15
+        mov.l   r3,@-r15
+        mov.l   r4,@-r15
+        mov.l   r5,@-r15
+        mov.l   r6,@-r15
+        mov.l   r7,@-r15
+        sts.l   mach,@-r15
+        sts.l   macl,@-r15
+
+        mov.l   ppi_pwm_handler,r0
+        jsr     @r0
         nop
-        nop
-        nop
-        nop
+
+        lds.l   @r15+,macl
+        lds.l   @r15+,mach
+        mov.l   @r15+,r7
+        mov.l   @r15+,r6
+        mov.l   @r15+,r5
+        mov.l   @r15+,r4
+        mov.l   @r15+,r3
+        lds.l   @r15+,pr
 
         # Handle PWM IRQ (Remove nops if more than 8 cycles)
 
@@ -669,6 +709,10 @@ ppi_mars_adapter:
         .long   0x20004000
 ppi_sh2_frtctl:
         .long   0xfffffe10
+ppi_pwm_handler:
+        .long   _diagnosticPrimaryPwmIrqHandler
+ppi_diag_counter:
+        .long   _diagnosticPrimaryPwmCount
 
 #-----------------------------------------------------------------------
 # Primary DMA IRQ handler
@@ -681,14 +725,48 @@ pri_dma_irq:
         mov.b   r0,@(0x07,r1)           /* Write TOCR */
         mov.b   @(0x07,r1),r0           /* Read TOCR */
 
-        # Handle DMA IRQ
+        mov.l   pdi_sci,r1
+        mov.b   @(4,r1),r0
+	mov     r0,r2
+	and     #0x38,r0
+	tst     r0,r0
+	bt      pdi_receive
+	mov.b   @(5,r1),r0
+	mov     #-57,r0
+	mov.b   r0,@(4,r1)
+	bra     pdi_done
+	nop
 
+pdi_receive:
+	mov     r2,r0
+        tst     #0x40,r0
+        bt      pdi_done
+	mov.b   @(5,r1),r0
+	mov     r0,r2
+        mov.l   pdi_sci_value,r1
+        mov.b   r2,@r1
+        mov.l   pdi_sci_count,r1
+        mov.l   @r1,r0
+        add     #1,r0
+        mov.l   r0,@r1
+        mov.l   pdi_sci,r1
+        mov.b   @(4,r1),r0
+        and     #0x87,r0
+        mov.b   r0,@(4,r1)
+
+pdi_done:
         rts
         nop
 
         .align  2
 pdi_sh2_frtctl:
         .long   0xfffffe10
+pdi_sci:
+        .long   0xfffffe00
+pdi_sci_count:
+        .long   _diagnosticPrimarySciCount
+pdi_sci_value:
+        .long   _diagnosticPrimarySciValue
 
 #-----------------------------------------------------------------------
 # Primary WDT IRQ handler
@@ -782,8 +860,8 @@ sec_start:
         mov.b   r0,@(0x05,r1)           /* OCR_L => OCRA = 0x0001 */
         mov     #0,r0
         mov.b   r0,@(0x06,r1)           /* TCR = Input captured on falling edge, CKS = Fs/8 */
-        mov     #1,r0
-        mov.b   r0,@(0x01,r1)           /* FTCSR = Clear FRC on match OCRA */
+        mov     #0,r0
+        mov.b   r0,@(0x01,r1)
         mov     #0x00,r0
         mov.b   r0,@(0x03,r1)           /* FRC_L */
         mov.b   r0,@(0x02,r1)           /* FRC_H => Clear FRC */
@@ -925,6 +1003,10 @@ sec_v_irq:
 
         mov.l   svi_mars_adapter,r1
         mov.w   r0,@(0x16,r1)           /* Clear V IRQ */
+        mov.l   svi_diag_counter,r1
+        mov.l   @r1,r0
+        add     #1,r0
+        mov.l   r0,@r1
         nop
         nop
         nop
@@ -940,6 +1022,8 @@ svi_mars_adapter:
         .long   0x20004000
 svi_sh2_frtctl:
         .long   0xfffffe10
+svi_diag_counter:
+        .long   _diagnosticSecondaryVblankCount
 
 !-----------------------------------------------------------------------
 ! Secondary H Blank IRQ handler
@@ -954,6 +1038,10 @@ sec_h_irq:
 
         mov.l   shi_mars_adapter,r1
         mov.w   r0,@(0x18,r1)           /* Clear H IRQ */
+        mov.l   shi_diag_counter,r1
+        mov.l   @r1,r0
+        add     #1,r0
+        mov.l   r0,@r1
         nop
         nop
         nop
@@ -969,6 +1057,8 @@ shi_mars_adapter:
         .long   0x20004000
 shi_sh2_frtctl:
         .long   0xfffffe10
+shi_diag_counter:
+        .long   _diagnosticSecondaryHblankCount
 
 #-----------------------------------------------------------------------
 # Secondary Command IRQ handler
@@ -983,6 +1073,10 @@ sec_cmd_irq:
 
         mov.l   sci_mars_adapter,r1
         mov.w   r0,@(0x1A,r1)           /* Clear CMD IRQ */
+        mov.l   sci_diag_counter,r1
+        mov.l   @r1,r0
+        add     #1,r0
+        mov.l   r0,@r1
         nop
         nop
         nop
@@ -998,6 +1092,8 @@ sci_mars_adapter:
         .long   0x20004000
 sci_sh2_frtctl:
         .long   0xfffffe10
+sci_diag_counter:
+        .long   _diagnosticSecondaryCommandCount
 
 #-----------------------------------------------------------------------
 # Secondary PWM IRQ handler
@@ -1012,6 +1108,10 @@ sec_pwm_irq:
 
         mov.l   spi_mars_adapter,r1
         mov.w   r0,@(0x1C,r1)           /* Clear PWM IRQ */
+        mov.l   spi_diag_counter,r1
+        mov.l   @r1,r0
+        add     #1,r0
+        mov.l   r0,@r1
         nop
         nop
         nop
@@ -1049,7 +1149,9 @@ spi_mars_adapter:
 spi_sh2_frtctl:
         .long   0xfffffe10
 spi_pwm_handler:
-        .long   _sec_pwm_tone_handler
+        .long   _diagnosticSecondaryPwmIrqHandler
+spi_diag_counter:
+        .long   _diagnosticSecondaryPwmCount
 
 #-----------------------------------------------------------------------
 # Secondary DMA IRQ handler
@@ -1062,7 +1164,49 @@ sec_dma_irq:
         mov.b   r0,@(0x07,r1)           /* Write TOCR */
         mov.b   @(0x07,r1),r0           /* Read TOCR */
 
-        # Handle DMA IRQ
+        mov.l   sdi_sci,r1
+        mov.b   @(4,r1),r0
+	mov     r0,r2
+	and     #0x38,r0
+	tst     r0,r0
+	bt      sdi_receive
+	mov.b   @(5,r1),r0
+	mov     #-57,r0
+	mov.b   r0,@(4,r1)
+	bra     sdi_done
+	nop
+
+sdi_receive:
+	mov     r2,r0
+        tst     #0x40,r0
+        bt      sdi_dma
+	mov.b   @(5,r1),r0
+	mov     r0,r2
+        mov.l   sdi_sci_value,r1
+        mov.b   r2,@r1
+        mov.l   sdi_sci_count,r1
+        mov.l   @r1,r0
+        add     #1,r0
+        mov.l   r0,@r1
+        mov.l   sdi_sci,r1
+        mov.b   @(4,r1),r0
+        and     #0x87,r0
+        mov.b   r0,@(4,r1)
+        mov     r2,r0
+        cmp/eq  #-1,r0
+        bt      sdi_done
+        mov.b   @(4,r1),r0
+        tst     #0x80,r0
+        bt      sdi_done
+	mov     r2,r0
+	mov.b   r0,@(3,r1)
+	mov.b   @(4,r1),r0
+        and     #0x7F,r0
+        mov.b   r0,@(4,r1)
+        bra     sdi_done
+        nop
+
+sdi_dma:
         sts.l   pr,@-r15
         mov.l   r3,@-r15
         mov.l   r4,@-r15
@@ -1086,12 +1230,19 @@ sec_dma_irq:
         mov.l   @r15+,r3
         lds.l   @r15+,pr
 
+sdi_done:
         rts
         nop
 
         .align  2
 sdi_sh2_frtctl:
         .long   0xfffffe10
+sdi_sci:
+        .long   0xfffffe00
+sdi_sci_count:
+        .long   _diagnosticSecondarySciCount
+sdi_sci_value:
+        .long   _diagnosticSecondarySciValue
 sdi_dma_handler:
         .long   _sec_dma1_handler
 

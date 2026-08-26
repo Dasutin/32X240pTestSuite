@@ -226,14 +226,14 @@ size_t vsprintf(char *buf, const char *fmt, va_list args) {
 				}
 				size_t len = strnlen(s, precision);
 				if (!left_align) {
-					while (len < field_width--) {
+					while ((int)len < field_width--) {
 						*str++ = ' ';
 					}
 				}
 				for (size_t i = 0; i < len; ++i) {
 					*str++ = *s++;
 				}
-				while (len < field_width--) {
+				while ((int)len < field_width--) {
 					*str++ = ' ';
 				}
 				continue;
@@ -311,17 +311,17 @@ size_t vsprintf(char *buf, const char *fmt, va_list args) {
 		}
 		if (!left_align) {
 			if (zero_pad) {
-				while (len < field_width--)
+				while ((int)len < field_width--)
 					*str++ = '0';
 			} else {
-				while (len < field_width--)
+				while ((int)len < field_width--)
 					*str++ = ' ';
 			}
 		}
 		for (size_t i = 0; i < len; ++i) {
 			*str++ = *s++;
 		}
-		while (len < field_width--) {
+		while ((int)len < field_width--) {
 			*str++ = ' ';
 		}
 	}

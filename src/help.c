@@ -102,6 +102,15 @@ void DrawHelp(int option)
 
 		switch (option)
 		{
+			case HELP_DIAGNOSTICS:
+				drawTextwHighlight("32X DIAGNOSTIC HELP", 84, 35, fontColorGreen, fontColorGreenHighlight);
+				drawTextwHighlight("This test runs 161 low-level", 32, 56, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("checks of 32X, 32X to Genesis", 32, 64, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("and Sega CD communication, SH-2,", 32, 72, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("video, DMA, audio, and display", 32, 80, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("hardware.", 32, 88, fontColorWhite, fontColorWhiteHighlight);
+				break;
+
 			case HELP_GENERAL:
 				switch (page)
 				{
@@ -733,6 +742,20 @@ void DrawHelp(int option)
 				drawTextwHighlight("hardware.", 32, 114, fontColorWhite, fontColorWhiteHighlight);
 
 				drawTextwHighlight("Press A to start/stop the test.", 32, 131, fontColorWhite, fontColorWhiteHighlight);
+				break;
+
+			case HELP_MDFOURIER:
+				drawTextwHighlight("MDFOURIER", 120, 35, fontColorGreen, fontColorGreenHighlight);
+				drawTextwHighlight("Button A plays the PWM test", 32, 57, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("tones. Record them with your", 32, 65, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("audio interface and use the", 32, 73, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("software available at:", 32, 81, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("http://junkerhq.net/MDFourier", 32, 98, fontColorGreen, fontColorGreenHighlight);
+				drawTextwHighlight("It generates plots of the 32X", 32, 115, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("PWM audio signature that can be", 32, 123, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("compared with other systems.", 32, 131, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("Press START during recording to", 32, 148, fontColorWhite, fontColorWhiteHighlight);
+				drawTextwHighlight("abort the sequence.", 32, 156, fontColorWhite, fontColorWhiteHighlight);
 				break;
 
 			case HELP_CONTRAST:

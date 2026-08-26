@@ -135,4 +135,7 @@ SECTIONS
   } > ram
   __bss_size = __bss_end - __bss_start;
 
+  ASSERT(__bss_end <= 0x00FFE000,
+         "68000 diagnostics leave insufficient stack space")
+
 }
