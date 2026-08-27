@@ -731,7 +731,7 @@ void vt_lag_test()
 	volatile unsigned short *cram16 = &MARS_CRAM;
 
 	canvas_pitch = 320;
-	canvas_yaw = 224;
+	canvas_yaw = canvas_height;
 
 	Hw32xSetPalette(lagtest_res_Palette);
 	loadTextPalette();
@@ -761,7 +761,7 @@ void vt_lag_test()
 		if (openOptionsShortcut(&button, &pressedButton))
 		{
 			canvas_pitch = 320;
-			canvas_yaw = 224;
+			canvas_yaw = canvas_height;
 			Hw32xSetPalette(lagtest_res_Palette);
 			loadTextPalette();
 			init_tilemap(&tm, &lagtest_Map,
@@ -865,7 +865,9 @@ void vt_lag_test()
 		drawText("frames", 248, 8, fontColorBlack);
 
 		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
-		draw_setScissor(0, 0, 320, 224);
+		draw_setScissor(0, 0, 320, canvas_height);
+		if (canvas_height > 224)
+			fillRect8(0, 224, 320, canvas_height - 224, 0);
 
 		if (!pause)
 		{
@@ -2018,11 +2020,46 @@ void vt_checkerboard()
 	return;
 }
 
+static u16 phasePal240Layer[20 * 15];
+
+static dtilelayer_t phasePal240Layers[] = {
+	{{0, 0}, {65536, 65536}, NULL, phasePal240Layer, 0}
+};
+
+static const dtilemap_t phasePal240Map = {
+	16, 16,
+	20, 15,
+	1,
+	0, 0,
+	phasePal240Layers,
+	0,
+	{{0, 0}},
+	{{0, 0}}
+};
+
+static void phaseFillPal240Layer(void)
+{
+	int index;
+
+	for (index = 0; index < 20 * 15; index++)
+		phasePal240Layer[index] = 0x4;
+}
+
 static void phase_init_background(int checkerboard)
 {
 	Hw32xSetPalette(phase_check_Palette);
 	if (checkerboard)
-		init_tilemap(&tm, &check_map_Map, (const uint8_t * const *)check_Reslist);
+	{
+		if (Hw32xDetectPAL() && enablePal240)
+		{
+			phaseFillPal240Layer();
+			init_tilemap(&tm, &phasePal240Map,
+				(const uint8_t * const *)check_Reslist);
+		}
+		else
+			init_tilemap(&tm, &check_map_Map,
+				(const uint8_t * const *)check_Reslist);
+	}
 	else
 		init_tilemap(&tm, &phase_check_tmx, (const uint8_t * const *)phase_check_reslist);
 	canvas_rebuild_id++;
@@ -2041,6 +2078,7 @@ void vt_phase_check(void)
 
 	marsVDP256Start();
 	phase_init_background(checkerboard);
+	draw_setScissor(0, 0, 320, canvas_height);
 	Hw32xScreenFlip(0);
 
 	while (!done)
@@ -2057,10 +2095,11 @@ void vt_phase_check(void)
 		if (openOptionsShortcut(&button, &pressedButton))
 		{
 			canvas_pitch = 320;
-			canvas_yaw = 224;
+			canvas_yaw = canvas_height;
 			window_canvas_x = 0;
 			window_canvas_y = 0;
 			phase_init_background(checkerboard);
+			draw_setScissor(0, 0, 320, canvas_height);
 		}
 
 		if ((((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE) &&
@@ -2106,7 +2145,7 @@ void vt_phase_check(void)
 		}
 
 		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
-		draw_setScissor(0, 0, 320, 224);
+		draw_setScissor(0, 0, 320, canvas_height);
 
 		updateGillianBlink();
 		for (int figure = 0; figure < 5; figure++)
@@ -3162,21 +3201,28 @@ void controller_options_menu(void)
 		drawMainBG();
 		drawTextwHighlight("Options", 128, 64,
 			fontColorGreen, fontColorGreenHighlight);
+		drawTextwHighlight("Enable 240 in PAL:", 40, 104,
+			selection == 0 ? fontColorRed : fontColorWhite,
+			selection == 0 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight(enablePal240 ? "ON " : "OFF", 224, 104,
+			selection == 0 ? fontColorRed : fontColorWhite,
+			selection == 0 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		drawTextwHighlight("Auto-sort controllers:", 40, 120,
-			selection == 0 ? fontColorRed : fontColorWhite,
-			selection == 0 ? fontColorRedHighlight : fontColorWhiteHighlight);
+			selection == 1 ? fontColorRed : fontColorWhite,
+			selection == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		drawTextwHighlight(enableControllerSort ? "ON " : "OFF", 224, 120,
-			selection == 0 ? fontColorRed : fontColorWhite,
-			selection == 0 ? fontColorRedHighlight : fontColorWhiteHighlight);
+			selection == 1 ? fontColorRed : fontColorWhite,
+			selection == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		drawTextwHighlight("Debug controllers:", 40, 128,
-			selection == 1 ? fontColorRed : fontColorWhite,
-			selection == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight(debugControllers ? "ON " : "OFF", 224, 128,
-			selection == 1 ? fontColorRed : fontColorWhite,
-			selection == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("Back", 40, 152,
 			selection == 2 ? fontColorRed : fontColorWhite,
 			selection == 2 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight(debugControllers ? "ON " : "OFF", 224, 128,
+			selection == 2 ? fontColorRed : fontColorWhite,
+			selection == 2 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Back", 40, 152,
+			selection == 3 ? fontColorRed : fontColorWhite,
+			selection == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawResolution();
 
 		button = MARS_SYS_COMM8;
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_NONE)
@@ -3185,20 +3231,29 @@ void controller_options_menu(void)
 		oldButton = button;
 
 		if (pressedButton & SEGA_CTRL_UP)
-			selection = selection == 0 ? 2 : selection - 1;
+			selection = selection == 0 ? 3 : selection - 1;
 		if (pressedButton & SEGA_CTRL_DOWN)
-			selection = selection == 2 ? 0 : selection + 1;
+			selection = selection == 3 ? 0 : selection + 1;
 
 		if ((pressedButton & (SEGA_CTRL_LEFT | SEGA_CTRL_RIGHT | SEGA_CTRL_A)) &&
-			selection < 2)
+			selection < 3)
 		{
 			if (selection == 0)
+			{
+				enablePal240 = !enablePal240;
+				if (Hw32xDetectPAL())
+				{
+					marsVDP256Start();
+					initMainBG();
+				}
+			}
+			else if (selection == 1)
 				enableControllerSort = !enableControllerSort;
 			else
 				debugControllers = !debugControllers;
 		}
 
-		if ((pressedButton & SEGA_CTRL_A && selection == 2) ||
+		if ((pressedButton & SEGA_CTRL_A && selection == 3) ||
 			(pressedButton & (SEGA_CTRL_B | SEGA_CTRL_START | SEGA_CTRL_Y)))
 			done = 1;
 

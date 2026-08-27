@@ -83,6 +83,42 @@
 #include "colorref_palette.h"
 #include "colorref.h"
 #include "colorref_map.h"
+#include "pal240_patterns.h"
+
+static u16 pal240PatternLayer[20 * 15];
+
+static dtilelayer_t pal240PatternLayers[] = {
+	{{0, 0}, {65536, 65536}, NULL, pal240PatternLayer, 0}
+};
+
+static const dtilemap_t pal240PatternMap = {
+	16, 16,
+	20, 15,
+	1,
+	0, 0,
+	pal240PatternLayers,
+	0,
+	{{0, 0}},
+	{{0, 0}}
+};
+
+static int patternUsesPal240(void)
+{
+	return Hw32xDetectPAL() && enablePal240;
+}
+
+static int patternLineMode(void)
+{
+	return patternUsesPal240() ? MARS_240_LINES : MARS_224_LINES;
+}
+
+static void fillPal240PatternLayer(u16 tile)
+{
+	int index;
+
+	for (index = 0; index < 20 * 15; index++)
+		pal240PatternLayer[index] = tile;
+}
 
 static void set_pattern_palette_with_text(const uint8_t *palette)
 {
@@ -540,7 +576,9 @@ void tp_ref_color_bars()
 		}
 
 		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
-		draw_setScissor(0, 0, 320, 224);
+		draw_setScissor(0, 0, 320, canvas_height);
+		if (canvas_height > 224)
+			fillRect8(0, 224, 320, canvas_height - 224, 7);
 
 		Hw32xScreenFlip(0);
 
@@ -632,14 +670,26 @@ void tp_color_bleed_check()
 	return;
 }
 
+static void gridSetPattern(u16 pattern)
+{
+	Hw32xSetPalette(grid_Palette);
+	if (patternUsesPal240())
+		init_tilemap(&tm, &gridPal240Map,
+			(const uint8_t * const *)gridPal240Reslist);
+	else
+		init_tilemap(&tm, &grid_map_Map,
+			(const uint8_t * const *)grid_Reslist);
+	setColor(0, pattern == 1 ? 0 : 12,
+		pattern == 1 ? 0 : 12, pattern == 1 ? 0 : 12);
+}
+
 void tp_grid()
 {
 	u16 done = 0, pattern = 1, fpcamera_x = 0, fpcamera_y = 0;
 	u16 button, pressedButton, oldButton = 0xFFFF;
 
-	Hw32xSetPalette(grid_Palette);
-	init_tilemap(&tm, &grid_map_Map, (const uint8_t * const *)grid_Reslist);
-	setColor(0, 0, 0, 0);
+	gridSetPattern(pattern);
+	draw_setScissor(0, 0, 320, canvas_height);
 
 	Hw32xScreenFlip(0);
 
@@ -657,11 +707,7 @@ void tp_grid()
 
 		if (openOptionsShortcut(&button, &pressedButton))
 		{
-			init_tilemap(&tm, &grid_map_Map,
-				(const uint8_t * const *)grid_Reslist);
-			Hw32xSetPalette(grid_Palette);
-			setColor(0, pattern == 1 ? 0 : 12,
-				pattern == 1 ? 0 : 12, pattern == 1 ? 0 : 12);
+			gridSetPattern(pattern);
 			canvas_rebuild_id++;
 		}
 
@@ -677,10 +723,7 @@ void tp_grid()
 
 			if (pattern > 2)
 				pattern = 1;
-			if (pattern == 1)
-				setColor(0, 0, 0, 0);
-			else
-				setColor(0, 12, 12, 12);
+			gridSetPattern(pattern);
 		}
 
 		if ((button & SEGA_CTRL_TYPE) == SEGA_CTRL_THREE)
@@ -688,29 +731,35 @@ void tp_grid()
 			if (pressedButton & SEGA_CTRL_C)
 			{
 				DrawHelp(HELP_GRID);
-				init_tilemap(&tm, &grid_map_Map, (const uint8_t * const *)grid_Reslist);
-				Hw32xSetPalette(grid_Palette);
-				setColor(0, pattern == 1 ? 0 : 12,
-					pattern == 1 ? 0 : 12, pattern == 1 ? 0 : 12);
+				gridSetPattern(pattern);
 			}
 		}
 
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			DrawHelp(HELP_GRID);
-			init_tilemap(&tm, &grid_map_Map, (const uint8_t * const *)grid_Reslist);
-			Hw32xSetPalette(grid_Palette);
-			setColor(0, pattern == 1 ? 0 : 12,
-				pattern == 1 ? 0 : 12, pattern == 1 ? 0 : 12);
+			gridSetPattern(pattern);
 		}
 
 		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
-		draw_setScissor(0, 0, 320, 224);
+		draw_setScissor(0, 0, 320, canvas_height);
 
 		Hw32xScreenFlip(0);
 
 	}
 	return;
+}
+
+static void monoscopeSetPattern(u16 gray)
+{
+	Hw32xSetPalette(monoscope_Palette);
+	if (patternUsesPal240())
+		init_tilemap(&tm, &monoscopePal240Map,
+			(const uint8_t * const *)monoscopePal240Reslist);
+	else
+		init_tilemap(&tm, &monoscope_map_Map,
+			(const uint8_t * const *)monoscope_Reslist);
+	setColor(0, gray ? 12 : 0, gray ? 12 : 0, gray ? 12 : 0);
 }
 
 void tp_monoscope()
@@ -720,10 +769,8 @@ void tp_monoscope()
 	u16 button, pressedButton, oldButton = 0xFFFF;
 	static const u16 ire_levels[] = {29, 25, 21, 17, 12, 8, 4};
 
-	Hw32xSetPalette(monoscope_Palette);
-	init_tilemap(&tm, &monoscope_map_Map,
-		(const uint8_t * const *)monoscope_Reslist);
-	setColor(0, 0, 0, 0);
+	monoscopeSetPattern(gray);
+	draw_setScissor(0, 0, 320, canvas_height);
 
 	Hw32xScreenFlip(0);
 
@@ -747,10 +794,7 @@ void tp_monoscope()
 
 		if (openOptionsShortcut(&button, &pressedButton))
 		{
-			Hw32xSetPalette(monoscope_Palette);
-			init_tilemap(&tm, &monoscope_map_Map,
-				(const uint8_t * const *)monoscope_Reslist);
-			setColor(0, gray ? 12 : 0, gray ? 12 : 0, gray ? 12 : 0);
+			monoscopeSetPattern(gray);
 			canvas_rebuild_id++;
 			palette_colors_pending = 1;
 		}
@@ -775,10 +819,7 @@ void tp_monoscope()
 			if (pressedButton & SEGA_CTRL_C)
 			{
 				DrawHelp(HELP_MONOSCOPE);
-				Hw32xSetPalette(monoscope_Palette);
-				init_tilemap(&tm, &monoscope_map_Map,
-					(const uint8_t * const *)monoscope_Reslist);
-				setColor(0, gray ? 12 : 0, gray ? 12 : 0, gray ? 12 : 0);
+				monoscopeSetPattern(gray);
 				palette_colors_pending = 1;
 			}
 		}
@@ -786,10 +827,7 @@ void tp_monoscope()
 		if (pressedButton & SEGA_CTRL_Z)
 		{
 			DrawHelp(HELP_MONOSCOPE);
-			Hw32xSetPalette(monoscope_Palette);
-			init_tilemap(&tm, &monoscope_map_Map,
-				(const uint8_t * const *)monoscope_Reslist);
-			setColor(0, gray ? 12 : 0, gray ? 12 : 0, gray ? 12 : 0);
+			monoscopeSetPattern(gray);
 			palette_colors_pending = 1;
 		}
 
@@ -800,7 +838,7 @@ void tp_monoscope()
 		}
 
 		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
-		draw_setScissor(0, 0, 320, 224);
+		draw_setScissor(0, 0, 320, canvas_height);
 
 		Hw32xScreenFlip(0);
 	}
@@ -888,7 +926,8 @@ void tp_white_rgb()
 	Hw32xScreenFlip(0);
 
 	// Set screen priority for the 32X
-	MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X | MARS_224_LINES | MARS_VDP_MODE_256;
+	MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X | patternLineMode() |
+		MARS_VDP_MODE_256;
 
 	while (!done)
 	{
@@ -912,7 +951,7 @@ void tp_white_rgb()
 			setColor(3, 0, 31, 0);
 			setColor(4, 0, 0, 31);
 			MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X |
-				MARS_224_LINES | MARS_VDP_MODE_256;
+				patternLineMode() | MARS_VDP_MODE_256;
 			page_color[0] = page_color[1] = -1;
 		}
 
@@ -933,7 +972,8 @@ void tp_white_rgb()
 			setColor(2, 31, 0, 0);
 			setColor(3, 0, 31, 0);
 			setColor(4, 0, 0, 31);
-			MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X | MARS_224_LINES | MARS_VDP_MODE_256;
+			MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X | patternLineMode() |
+				MARS_VDP_MODE_256;
 			Hw32xScreenFlip(0);
 			page_color[0] = page_color[1] = -1;
 
@@ -960,7 +1000,7 @@ void tp_white_rgb()
 		if (color >= 1 && color <= 5 &&
 			page_color[draw_page] != color)
 		{
-			fillScreen8Pitched(320 + 16, 224, color - 1);
+			fillScreen8Pitched(320 + 16, canvas_height, color - 1);
 			page_color[draw_page] = color;
 		}
 
@@ -1196,7 +1236,9 @@ void tp_100_ire()
 		}
 
 		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
-		draw_setScissor(0, 0, 320, 224);
+		draw_setScissor(0, 0, 320, canvas_height);
+		if (canvas_height > 224)
+			fillRect8(0, 224, 320, canvas_height - 224, 1);
 
 		Hw32xScreenFlip(0);
 	}
@@ -1288,7 +1330,8 @@ void tp_overscan()
 {
 	u16 done = 0;
 	int sel = 0;
-	int left = 0, right = 320, top = 0, bottom = 223;
+	int displayBottom = canvas_height - 1;
+	int left = 0, right = 320, top = 0, bottom = displayBottom;
 	u16 button = 0, pressedButton = 0, oldButton = 0xFFFF;
 	//u16 displayBottom, displayRight;
 
@@ -1322,7 +1365,7 @@ void tp_overscan()
 		drawTextwHighlight("   pixels", 160, 96, sel == 0 ? fontColorRed : fontColorWhite, sel == 0 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		drawTextwHighlight(datat, 160, 96, sel == 0 ? fontColorRed : fontColorWhite, sel == 0 ? fontColorRedHighlight : fontColorWhiteHighlight);
 
-		intToStr(abs(bottom-223), datab, 1);
+		intToStr(displayBottom - bottom, datab, 1);
 		drawTextwHighlight("Bottom:", 96, 104, sel == 1 ? fontColorRed : fontColorWhite, sel == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		drawTextwHighlight("   pixels", 160, 104, sel == 1 ? fontColorRed : fontColorWhite, sel == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		drawTextwHighlight(datab, 160, 104, sel == 1 ? fontColorRed : fontColorWhite, sel == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
@@ -1347,6 +1390,11 @@ void tp_overscan()
 
 		if (openOptionsShortcut(&button, &pressedButton))
 		{
+			int bottomOverscan = displayBottom - bottom;
+			displayBottom = canvas_height - 1;
+			bottom = displayBottom - bottomOverscan;
+			if (bottom < displayBottom - 99)
+				bottom = displayBottom - 99;
 			setColor(2, 31, 31, 31);
 			setColor(1, 15, 15, 15);
 			loadTextPalette();
@@ -1403,8 +1451,8 @@ void tp_overscan()
 				case 1:
 					datab = &bottom;
 					(*datab)++;
-					if (*datab > 223)
-						*datab = 223;
+					if (*datab > displayBottom)
+						*datab = displayBottom;
 					break;
 
 				case 2:
@@ -1442,8 +1490,8 @@ void tp_overscan()
 				case 1:
 					datab = &bottom;
 					(*datab)--;
-					if (*datab < 124)
-						*datab = 124;
+					if (*datab < displayBottom - 99)
+						*datab = displayBottom - 99;
 					break;
 
 				case 2:
@@ -1466,7 +1514,7 @@ void tp_overscan()
 		{
 			left = top = 0;
 			right = 320;
-			bottom = 223;
+			bottom = displayBottom;
 		}
 
 		Hw32xScreenFlip(0);
@@ -1476,34 +1524,44 @@ void tp_overscan()
 
 static void convergence_set_pattern(int pattern)
 {
+	const dtilemap_t *map;
+	const uint8_t * const *resources;
+
 	switch (pattern)
 	{
 		case 1:
 			Hw32xSetPalette(convergencegrid_Palette);
-			init_tilemap(&tm, &convergencegrid_map_Map,
-				(const uint8_t * const *)convergencegrid_Reslist);
+			map = &convergencegrid_map_Map;
+			resources = (const uint8_t * const *)convergencegrid_Reslist;
 			break;
 		case 2:
 			Hw32xSetPalette(convergencegrid_Palette);
-			init_tilemap(&tm, &convergencedots_map_Map,
-				(const uint8_t * const *)convergencedots_Reslist);
+			map = &convergencedots_map_Map;
+			resources = (const uint8_t * const *)convergencedots_Reslist;
 			break;
 		case 3:
 			Hw32xSetPalette(convergencegrid_Palette);
-			init_tilemap(&tm, &convergencecross_map_Map,
-				(const uint8_t * const *)convergencecross_Reslist);
+			map = &convergencecross_map_Map;
+			resources = (const uint8_t * const *)convergencecross_Reslist;
 			break;
 		case 4:
 			Hw32xSetPalette(convergencewrgb_Palette);
-			init_tilemap(&tm, &convergencewrgb_map_Map,
-				(const uint8_t * const *)convergencewrgb_Reslist);
+			map = &convergencewrgb_map_Map;
+			resources = (const uint8_t * const *)convergencewrgb_Reslist;
 			break;
 		default:
 			Hw32xSetPalette(convergencewrgbborder_Palette);
-			init_tilemap(&tm, &convergencewrgbborder_map_Map,
-				(const uint8_t * const *)convergencewrgbborder_Reslist);
+			map = &convergencewrgbborder_map_Map;
+			resources = (const uint8_t * const *)convergencewrgbborder_Reslist;
 			break;
 	}
+
+	if (patternUsesPal240() && pattern <= 3)
+	{
+		fillPal240PatternLayer(0x4);
+		map = &pal240PatternMap;
+	}
+	init_tilemap(&tm, map, resources);
 }
 
 void tp_convergence()
@@ -1512,6 +1570,7 @@ void tp_convergence()
 	u16 button, pressedButton, oldButton = 0xFFFF;
 
 	convergence_set_pattern(pattern);
+	draw_setScissor(0, 0, 320, canvas_height);
 
 	Hw32xScreenFlip(0);
 
@@ -1573,8 +1632,16 @@ void tp_convergence()
 			done = 1;
 		}
 
+		if (patternUsesPal240() && pattern >= 4)
+		{
+			draw_setScissor(0, 0, 320, canvas_height);
+			fillRect8(0, 0, 320, 8, pattern == 4 ? 4 : 0);
+			fillRect8(0, 232, 320, 8, pattern == 4 ? 4 : 0);
+			window_canvas_y = 8;
+		}
 		draw_tilemap(&tm, fpcamera_x, fpcamera_y, 0, NULL, NULL);
-		draw_setScissor(0, 0, 320, 224);
+		window_canvas_y = 0;
+		draw_setScissor(0, 0, 320, canvas_height);
 
 		Hw32xScreenFlip(0);
 	}

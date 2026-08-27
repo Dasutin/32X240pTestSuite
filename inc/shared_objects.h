@@ -37,6 +37,7 @@
 
 extern u8 paused;
 extern u8 segaCDDetectedAtBoot;
+extern u8 enablePal240;
 
 extern unsigned short int currentFB;
 

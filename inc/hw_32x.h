@@ -131,6 +131,7 @@ extern void HwMdHScrollPlane(char plane, int hscroll);
 extern void HwMdVScrollPlane(char plane, int vscroll);
 extern void HwMdSetPlaneScrolls(int hscroll_a, int vscroll_a,
 	int hscroll_b, int vscroll_b);
+extern void HwMdSetVideoHeight(unsigned short height);
 
 void Hw32xUpdateLineTable(int hscroll, int vscroll, int lineskip) HW32X_ATTR_DATA_ALIGNED;
 

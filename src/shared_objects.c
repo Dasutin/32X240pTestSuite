@@ -38,6 +38,7 @@
 
 u8 paused = PAUSED;
 u8 segaCDDetectedAtBoot = 0;
+u8 enablePal240 = 1;
 u16 currentFB = 0;
 vu16 overwriteImg16;
 u32 _state = ~0L;
@@ -373,7 +374,9 @@ void drawResolution()
 			drawMenuTextwHighlight("Genesis 32X", 208, 208,
 				fontColorWhite, fontColorWhiteHighlight);
 	} else {
-		drawMenuTextwHighlight("PAL VDP 320x224p", 160, 192, fontColorWhite, fontColorWhiteHighlight);
+		drawMenuTextwHighlight(enablePal240 ?
+			"PAL VDP 320x240p" : "PAL VDP 320x224p",
+			160, 192, fontColorWhite, fontColorWhiteHighlight);
 		if (segaCDDetectedAtBoot)
 			drawMenuTextwHighlight("Sega Mega-CD 32X", 168, 208,
 				fontColorWhite, fontColorWhiteHighlight);
@@ -402,11 +405,15 @@ void cleanup()
 void marsVDP256Start(void)
 {
 	Hw32xInit(MARS_VDP_MODE_256, 0);
+	if (Hw32xDetectPAL())
+		HwMdSetVideoHeight(enablePal240 ? 240 : 224);
 }
 
 void marsVDP32KStart(void)
 {
 	Hw32xInit(MARS_VDP_MODE_32K, 0);
+	if (Hw32xDetectPAL())
+		HwMdSetVideoHeight(enablePal240 ? 240 : 224);
 }
 
 void swapBuffers()

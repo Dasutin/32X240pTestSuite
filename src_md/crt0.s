@@ -313,6 +313,8 @@ handle_req:
 		bls     handle_controllers
 		cmpi.w  #0x1AFF,d0
 		bls     handle_diagnostics
+		cmpi.w  #0x1BFF,d0
+		bls     handle_video_height
 
         move.w  #0,0xA15120
         bra     main_loop
@@ -326,6 +328,13 @@ handle_diagnostics:
 		move.w  d0,0xA15122
 		move.w  #0,0xA15120
 		bra     main_loop
+
+handle_video_height:
+		andi.w  #0x0001,d0
+		lsl.w   #3,d0
+		ori.w   #0x8174,d0
+		move.w  d0,0xC00004
+		bra.w   controller_command_done
 
 handle_segacd:
         jsr     segacd_dispatch

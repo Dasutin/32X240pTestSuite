@@ -332,7 +332,14 @@ void Hw32xInit(int vmode, int lineskip)
 {
 	volatile unsigned short *frameBuffer16 = &MARS_FRAMEBUFFER;
 	int priority = vmode & (MARS_VDP_PRIO_32X | MARS_VDP_PRIO_68K);
+	int lineMode = Hw32xDetectPAL() && enablePal240 ?
+		MARS_240_LINES : MARS_224_LINES;
 	int i;
+	int previousHeight = canvas_height;
+
+	canvas_height = lineMode == MARS_240_LINES ? 240 : 224;
+	if (canvas_yaw == previousHeight || canvas_yaw == 224 || canvas_yaw == 240)
+		canvas_yaw = canvas_height;
 
 	// Wait for the SH2 to gain access to the VDP
 	while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
@@ -342,8 +349,7 @@ void Hw32xInit(int vmode, int lineskip)
 	vmode &= ~(MARS_VDP_PRIO_32X | MARS_VDP_PRIO_68K);
 	if (vmode == MARS_VDP_MODE_256)
 	{
-		// Set 8-bit paletted mode, 224 lines
-		MARS_VDP_DISPMODE = MARS_224_LINES | MARS_VDP_MODE_256 | priority;
+		MARS_VDP_DISPMODE = lineMode | MARS_VDP_MODE_256 | priority;
 
 		// Initialize both framebuffers
 
@@ -372,8 +378,7 @@ void Hw32xInit(int vmode, int lineskip)
 	}
 	else if (vmode == MARS_VDP_MODE_32K)
 	{
-		// Set 16-bit direct mode, 224 lines
-		MARS_VDP_DISPMODE = MARS_224_LINES | MARS_VDP_MODE_32K | priority;
+		MARS_VDP_DISPMODE = lineMode | MARS_VDP_MODE_32K | priority;
 
 		// Initialize both framebuffers
 
@@ -693,6 +698,7 @@ void Hw32xFlipWait()
 #define MD_CMD_PUTS            0x1700
 #define MD_CMD_SCROLL_PLANES   0x1800
 #define MD_CMD_CONTROLLERS     0x1900
+#define MD_CMD_VIDEO_HEIGHT    0x1B00
 #define MD_CONTROLLER_DEBUG_REPLY 0xFFFF
 
 static unsigned short mdControllerTypes[MD_CONTROLLER_COUNT];
@@ -742,6 +748,13 @@ void HwMdControllerReset(void)
 	HwMdControllerCommand(2);
 	Hw32xDelay(2);
 	HwMdControllerReadPortInfo(mdControllerPortTypes, mdControllerPortSupports);
+}
+
+void HwMdSetVideoHeight(unsigned short height)
+{
+	while (MARS_SYS_COMM0);
+	MARS_SYS_COMM0 = MD_CMD_VIDEO_HEIGHT | (height == 240);
+	while (MARS_SYS_COMM0);
 }
 
 static void HwMdControllerReadPayload(unsigned short *words)
