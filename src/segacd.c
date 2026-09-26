@@ -949,7 +949,9 @@ static void scd_memory_viewer(void)
 		setColor(i, 0, 0, 0);
 	MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X | MARS_224_LINES |
 		MARS_VDP_MODE_256;
-	HwMdClearScreen();
+	HwMdClearPlanes();
+	HwMdSetPlaneScrolls(0, 0, 0, 0);
+	HwMdReloadFont();
 	Hw32xScreenFlip(0);
 	HwMdSegaCDCommand(SCD_OP_RESET, 0);
 	HwMdSegaCDCommand(SCD_OP_MEM_BANK, 0);
@@ -2947,6 +2949,8 @@ static void scd_stream_overlay(void)
 		if (!running && (pressed & SEGA_CTRL_START)) done = 1;
 	}
 	HwMdClearPlanes();
+	HwMdSetPlaneScrolls(0, 0, 0, 0);
+	HwMdReloadFont();
 	MARS_VDP_DISPMODE = MARS_VDP_PRIO_32X | MARS_224_LINES | MARS_VDP_MODE_256;
 	screenFadeOut(1);
 }

@@ -56,6 +56,11 @@ static void mdfStopTone(void)
 	sound_test_pwm_stop();
 }
 
+static void mdfSilenceTone(void)
+{
+	sound_test_pwm_silence();
+}
+
 static int mdfPulseTrain(void)
 {
 	int pulse;
@@ -64,7 +69,7 @@ static int mdfPulseTrain(void)
 	{
 		if (!mdfStartTone(MDF_SYNC_FREQUENCY) || !mdfWaitFrames(1))
 			return 0;
-		mdfStopTone();
+		mdfSilenceTone();
 		if (!mdfWaitFrames(1))
 			return 0;
 	}
@@ -73,7 +78,7 @@ static int mdfPulseTrain(void)
 
 static int mdfSilence(void)
 {
-	mdfStopTone();
+	mdfSilenceTone();
 	return mdfWaitFrames(MDF_TONE_FRAMES);
 }
 
@@ -85,7 +90,7 @@ static int mdfSteppedTones(void)
 	{
 		if (!mdfStartTone(frequency) || !mdfWaitFrames(MDF_TONE_FRAMES - 1))
 			return 0;
-		mdfStopTone();
+		mdfSilenceTone();
 		if (!mdfWaitFrames(1))
 			return 0;
 	}
@@ -101,7 +106,7 @@ static int mdfToneRamp(void)
 		if (!mdfStartTone(frequency) || !mdfWaitFrames(1))
 			return 0;
 	}
-	mdfStopTone();
+	mdfSilenceTone();
 	return 1;
 }
 

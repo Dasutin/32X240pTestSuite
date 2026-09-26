@@ -871,11 +871,10 @@ void menu_at()
 		pos = 80;
 		drawTextwHighlight("Sound Test", 40, pos += 8, curse == 1 ? fontColorRed : fontColorWhite, curse == 1 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		drawTextwHighlight("Audio Sync Test", 40, pos += 8, curse == 2 ? fontColorRed : fontColorWhite, curse == 2 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("MDFourier", 40, pos += 8, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
 		pos += 8;
-		drawTextwHighlight("Help", 40, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("Options", 40, pos += 8, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorRedHighlight : fontColorWhiteHighlight);
-		drawTextwHighlight("Back to Main Menu", 40, pos += 8, curse == 6 ? fontColorRed : fontColorWhite, curse == 6 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Help", 40, pos += 8, curse == 3 ? fontColorRed : fontColorWhite, curse == 3 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Options", 40, pos += 8, curse == 4 ? fontColorRed : fontColorWhite, curse == 4 ? fontColorRedHighlight : fontColorWhiteHighlight);
+		drawTextwHighlight("Back to Main Menu", 40, pos += 8, curse == 5 ? fontColorRed : fontColorWhite, curse == 5 ? fontColorRedHighlight : fontColorWhiteHighlight);
 
 		drawResolution();
 
@@ -891,7 +890,7 @@ void menu_at()
 		if (pressedButton & SEGA_CTRL_DOWN)
 		{
 			curse++;
-			if (curse > 6)
+			if (curse > 5)
 				curse = 1;
 		}
 
@@ -905,7 +904,7 @@ void menu_at()
 		{
 			curse--;
 			if (curse < 1)
-				curse = 6;
+				curse = 5;
 		}
 
 		if (pressedButton & SEGA_CTRL_START)
@@ -951,24 +950,17 @@ void menu_at()
 
 				case 3:
 					screenFadeOut(1);
-					MDFourier();
-					marsVDP256Start();
+					DrawHelp(HELP_GENERAL);
 					redrawBGwGil();
 					break;
 
 				case 4:
 					screenFadeOut(1);
-					DrawHelp(HELP_GENERAL);
-					redrawBGwGil();
-					break;
-
-				case 5:
-					screenFadeOut(1);
 					controller_options_menu();
 					redrawBGwGil();
 					break;
 
-				case 6:
+				case 5:
 					screenFadeOut(1);
 					done = 1;
 					break;

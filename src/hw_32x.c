@@ -1227,6 +1227,9 @@ int secondary_task(int cmd)
 	case MARS_SEC_CMD_PWM_TEST_STOP:
 		Mars_Sec_StopTestPWMTone();
 		return 1;
+	case MARS_SEC_CMD_PWM_TEST_SILENCE:
+		Mars_Sec_SilenceTestPWMTone();
+		return 1;
 	case MARS_SEC_CMD_SDRAM_PARK:
 		Hw32xSecondaryPark();
 		return 1;

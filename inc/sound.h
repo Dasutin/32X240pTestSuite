@@ -73,6 +73,7 @@ void sound_free(sound_t *s);
 void sound_fillBuffer(unsigned long buffer) SND_ATTR_SDRAM;
 int sound_isInitialized(void);
 int sound_test_pwm_start(uint32_t frequency, char selectch);
+void sound_test_pwm_silence(void);
 void sound_test_pwm_stop(void);
 
 extern int16_t snd_buffer[];
@@ -86,6 +87,7 @@ void Mars_Sec_InitSoundDMA(void);
 void Mars_Sec_StopSoundMixer(void);
 void Mars_Sec_StartSoundMixer(void);
 void Mars_Sec_StartTestPWMTone(void);
+void Mars_Sec_SilenceTestPWMTone(void);
 void Mars_Sec_StopTestPWMTone(void);
 void sec_pwm_tone_handler(void) SND_ATTR_SDRAM;
 

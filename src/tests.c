@@ -3420,6 +3420,10 @@ void ht_memory_viewer(u32 address)
 	int crc = 0, locations[MAX_LOCATIONS] = { 0, 0x0004000, 0x0004100, 0x0004200, 0x0004400, 0x2000000, 0x4000000, 0x4020000, 0x6000000 };
 	u16 button, pressedButton, oldButton = 0xFFFF;
 
+	HwMdClearPlanes();
+	HwMdSetPlaneScrolls(0, 0, 0, 0);
+	HwMdReloadFont();
+
 	// Clear the 32X CRAM
 	for (int i = 0; i < 255; i++)
 		setColor(i, 0, 0, 0);
